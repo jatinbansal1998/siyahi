@@ -1,0 +1,30 @@
+{
+  "name": "siyahi-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vp run -r build",
+    "check": "vp check && vp run knip:check && vp run generate:check && vp run -r build && vp run -r typecheck && vp test",
+    "deploy:catalogue": "vp run -r build && vp run --filter @siyahi/catalogue deploy",
+    "dev": "vp run --filter @siyahi/catalogue dev",
+    "fmt": "vp fmt",
+    "generate": "node packages/ui/scripts/generate.ts",
+    "generate:check": "node packages/ui/scripts/generate.ts --check",
+    "knip:check": "knip --no-config-hints",
+    "lint": "vp lint",
+    "shots": "node packages/tools/shots.mjs",
+    "test": "vp test",
+    "typecheck": "vp run -r typecheck"
+  },
+  "devDependencies": {
+    "@siyahi/tools": "workspace:*",
+    "@types/node": "catalog:",
+    "knip": "6.42.1",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": "^24.13.1"
+  },
+  "packageManager": "pnpm@11.28.6"
+}
