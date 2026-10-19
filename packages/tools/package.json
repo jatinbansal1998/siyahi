@@ -1,0 +1,54 @@
+{
+  "name": "@siyahi/tools",
+  "version": "0.1.0",
+  "description": "Checks for Siyahi pages: a lint plugin, a theme contrast check and a screenshot script.",
+  "homepage": "https://siyahi.jatinbansal.com",
+  "license": "MIT",
+  "author": "Jatin Bansal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jatinbansal1998/siyahi.git",
+    "directory": "packages/tools"
+  },
+  "bin": {
+    "siyahi-contrast": "./contrast.mjs",
+    "siyahi-shots": "./shots.mjs"
+  },
+  "files": [
+    "*.mjs",
+    "lint/*.mjs",
+    "types"
+  ],
+  "type": "module",
+  "exports": {
+    "./lint": {
+      "types": "./types/lint/index.d.mts",
+      "default": "./lint/index.mjs"
+    },
+    "./contrast": {
+      "types": "./types/contrast.d.mts",
+      "default": "./contrast.mjs"
+    },
+    "./theme": {
+      "types": "./types/theme.d.mts",
+      "default": "./theme.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shadcn/lint": "0.2.3",
+    "playwright": "^1.64.1"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxlint": "^1.88.0",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "oxlint": ">=1.80.0"
+  }
+}
