@@ -10,20 +10,12 @@ export interface TreemapItem {
   change: number;
 }
 
-// Each step mixes more of --positive or --negative into the card colour.
-// oklab, not oklch: the card is achromatic, and an oklch mix would swing the
-// hue from green through orange on its way to it.
-const STEPS: [number, number][] = [
-  [0.05, 60],
-  [0.03, 48],
-  [0.02, 36],
-  [0.01, 24],
-  [0, 12],
-];
-
+// Five steps, one per percentage point: 12% to 60% of --positive or
+// --negative mixed into the card. oklab, not oklch: the card is achromatic, and
+// an oklch mix would swing green through orange on its way to it.
 function heat(change: number): string {
   if (change === 0) return "var(--muted)";
-  const mix = STEPS.find(([floor]) => Math.abs(change) >= floor)?.[1] ?? 12;
+  const mix = Math.min(5, Math.ceil(Math.abs(change) * 100)) * 12;
   return `color-mix(in oklab, var(${change > 0 ? "--positive" : "--negative"}) ${mix}%, var(--card))`;
 }
 

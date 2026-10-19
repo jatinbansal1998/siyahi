@@ -33,7 +33,6 @@ export function PriceChart({ data, height, credit = true }: PriceChartProps) {
         colorParsers: [toRgba],
         background: { type: ColorType.Solid, color: "transparent" },
       },
-      grid: { vertLines: { visible: false } },
       rightPriceScale: { borderVisible: false },
       timeScale: { borderVisible: false },
     });
@@ -50,7 +49,7 @@ export function PriceChart({ data, height, credit = true }: PriceChartProps) {
           fontFamily: style.fontFamily,
           fontSize: parseFloat(style.fontSize),
         },
-        grid: { horzLines: { color: token("--border"), style: LineStyle.Dashed } },
+        grid: { vertLines: { visible: false }, horzLines: { color: token("--border"), style: LineStyle.Dashed } },
       });
       series.applyOptions({
         lineColor: line,
