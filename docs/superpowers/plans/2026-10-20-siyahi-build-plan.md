@@ -34,6 +34,14 @@ Common rules for every PR:
 | 14 | transactions-analyser | Remove adapter, `styles.css`, `web/kajal/`; preflight fully on | 13 |
 | 15 | dash | A new dash page on Siyahi: "How we set up a Node and TypeScript project", the tooling best practices taken from t3code (pnpm, Node 24, TypeScript 7, Vite+ with oxlint/oxfmt/vitest, knip, pnpm catalog, CI shape) and what Siyahi adopted; published through the publisher skill | 5 |
 
+Status, 2026-10-20 early morning: unit 1 merged (#1, #2), unit 2 done (catalogue live at
+https://siyahi.jatinbansal.com). npm publish is blocked: the NPM_TOKEN was created without
+2FA bypass, so the registry asks for a one-time code. Until Jatin replaces the token (granular,
+publish on @siyahi, bypass 2FA) or sets up trusted publishing after the first publish, every
+merge to main ships the two tarballs on a GitHub release (`v<version>` and rolling `next`), and
+dash and The Book install from `https://github.com/jatinbansal1998/siyahi/releases/download/v0.1.0-next.1/...`
+with `allow-remote=root` in `.npmrc`. Switching them to `@siyahi/ui@next` is one line each.
+
 Deploy steps the orchestrator runs after each merge:
 - dash: `git pull --ff-only` in `~/code/dash`, `npm run deploy`, open the live page.
 - The Book: wait for the `native-image` workflow, `git pull --ff-only` in
