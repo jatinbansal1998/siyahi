@@ -1,0 +1,30 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["vite.config.ts", ".github/scripts/*.mjs"],
+    },
+    "packages/ui": {
+      "entry": ["src/index.ts", "scripts/generate.ts", "test/**/*.test.ts"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+      // The shadcn CLI adds components; generate.ts copies its tailwind.css by path.
+      "ignoreDependencies": ["shadcn"],
+      // Copied shadcn and registry modules are kept whole, with every part
+      // they export, so they can be compared with their origin.
+      "ignoreIssues": {
+        "src/components/ui/**": ["exports", "types", "duplicates"],
+        "src/components/registry/**": ["exports", "types", "duplicates"],
+      },
+    },
+    "packages/tools": {
+      "entry": ["*.mjs", "lint/index.mjs", "test/**/*.test.mjs"],
+      // oxlint is the plugin's host and siyahi-contrast this package's own bin;
+      // the tests run both by path.
+      "ignoreDependencies": ["oxlint", "siyahi-contrast"],
+    },
+    "apps/catalogue": {
+      // Examples are loaded with import.meta.glob.
+      "entry": ["src/main.tsx", "src/examples/*.tsx"],
+    },
+  },
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // Copied registry add-ons get only the colour rules: their defaults must
+  // name theme tokens. Style rules stay off so the copies keep matching
+  // upstream; see vite.config.ts for the main lint.
+  "categories": { "correctness": "off" },
+  "jsPlugins": ["@siyahi/tools/lint"],
+  "settings": { "shadcn": { "ui": "@siyahi/ui", "themeImports": ["^@siyahi/ui/"] } },
+  "rules": {
+    "siyahi/no-color-literal": "error",
+    "siyahi/no-raw-colors": "error"
+  }
+}

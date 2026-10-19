@@ -1,0 +1,51 @@
+name: Publish
+
+# Every merge to main publishes both packages as a pre-release under the
+# `next` dist-tag. Stable versions are cut by hand.
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish next
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # NPM_TOKEN must be a granular access token with read and write (publish)
+    # rights on the @siyahi scope, set to bypass 2FA for automation. npm no
+    # longer accepts classic tokens.
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      # With registry-url set, setup-vp writes an .npmrc that reads
+      # NODE_AUTH_TOKEN; the job-level env gives every step the same token.
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version-file: package.json
+          cache: true
+          registry-url: https://registry.npmjs.org
+      - name: Check, build and test
+        run: vp run check
+      # Fails here, before anything is versioned, if the token is missing or wrong.
+      - name: Confirm the npm token
+        run: pnpm whoami
+      - name: Version as <base>-next.<N>
+        run: node .github/scripts/next-version.mjs
+      # Publishes what the check step built: --ignore-scripts keeps pnpm from
+      # running any lifecycle script (each package's prepublishOnly is a no-op
+      # too). Provenance stays off until trusted publishing replaces the token.
+      - name: Publish
+        env:
+          NPM_CONFIG_PROVENANCE: "false"
+        run: >-
+          pnpm -r --filter @siyahi/ui --filter @siyahi/tools
+          publish --tag next --access public --no-git-checks --ignore-scripts

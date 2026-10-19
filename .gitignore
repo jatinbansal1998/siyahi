@@ -4,3 +4,6 @@ shots/
 .env
 *.log
 .DS_Store
+packages/tools/types/
+.wrangler/
+*.tsbuildinfo

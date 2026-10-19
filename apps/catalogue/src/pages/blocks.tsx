@@ -1,0 +1,42 @@
+import { Code } from "../code";
+import { Example, Lead } from "../example";
+import type { Page } from "../page";
+
+// Read through a glob rather than an import, so the shell's source is not a module dependency of this page.
+const shellSource = Object.values(
+  import.meta.glob<string>("../shell.tsx", { eager: true, query: "?raw", import: "default" }),
+)[0];
+
+export const blocks: Page = {
+  id: "blocks",
+  title: "Blocks",
+  lead: "shadcn blocks with their sample data taken out, so an app passes its own.",
+  sections: [
+    {
+      id: "section-cards",
+      title: "SectionCards",
+      body: (
+        <>
+          <Lead>
+            The stat tile, from shadcn's dashboard-01: muted label, outline badge top right, value, bold line, muted
+            line. One tile per row on a phone, four on a wide screen.
+          </Lead>
+          <Example name="section-cards" />
+        </>
+      ),
+    },
+    {
+      id: "sidebar",
+      title: "AppSidebar",
+      body: (
+        <>
+          <Lead>
+            shadcn's sidebar-07 block. This catalogue's own navigation is the live example: it collapses to icons with
+            the button in the header and becomes a drawer under 768px. The code below is this catalogue's shell.
+          </Lead>
+          <Code>{shellSource ?? ""}</Code>
+        </>
+      ),
+    },
+  ],
+};

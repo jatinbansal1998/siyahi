@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      # Installs Vite+, Node from package.json engines, pnpm from packageManager,
+      # and the workspace from the pnpm store cache.
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version-file: package.json
+          cache: true
+      - name: Format and lint
+        run: vp check
+      - name: Colour rules on the copied add-ons
+        run: vp run lint:registry
+      - name: Unused files, exports and dependencies
+        run: vp run knip:check
+      # Fails when shadcn.css, report.css, registry.lock.json or the barrel
+      # differ from what packages/ui/scripts/generate.ts would write.
+      - name: Generated files are current
+        run: vp run generate:check
+
+  build:
+    name: Build and typecheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version-file: package.json
+          cache: true
+      # The @siyahi/ui build starts with the theme contrast check and stops on
+      # a failing pair; the catalogue builds against the packed package.
+      - name: Build (with the contrast check)
+        run: vp run -r build
+      - name: Typecheck
+        run: vp run -r typecheck
+
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version-file: package.json
+          cache: true
+      - name: Test
+        run: vp test
