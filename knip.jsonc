@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
     ".": {
-      "entry": ["vite.config.ts"],
+      "entry": ["vite.config.ts", ".github/scripts/*.mjs"],
     },
     "packages/ui": {
       "entry": ["src/index.ts", "scripts/generate.ts", "test/**/*.test.ts"],
@@ -18,8 +18,9 @@
     },
     "packages/tools": {
       "entry": ["*.mjs", "lint/index.mjs", "test/**/*.test.mjs"],
-      // The plugin's host; the lint tests run its binary by path.
-      "ignoreDependencies": ["oxlint"],
+      // oxlint is the plugin's host and siyahi-contrast this package's own bin;
+      // the tests run both by path.
+      "ignoreDependencies": ["oxlint", "siyahi-contrast"],
     },
     "apps/catalogue": {
       // Examples are loaded with import.meta.glob.

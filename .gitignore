@@ -5,7 +5,5 @@ shots/
 *.log
 .DS_Store
 packages/tools/types/
-packages/ui/README.md
-packages/*/LICENSE
 .wrangler/
 *.tsbuildinfo

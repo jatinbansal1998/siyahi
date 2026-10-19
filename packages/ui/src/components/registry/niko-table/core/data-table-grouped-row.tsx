@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 c3681e651f5c5aefd0d8a8046c0c173056ea7805c93e9e12848902862b9db5c7
+// Siyahi edit: the table primitive comes from niko's own copy in ../ui/table,
+// not shadcn core's table.tsx, which has no TableComponent export.
 import { flexRender, type RowData } from "@tanstack/react-table"
 import { ChevronRight } from "lucide-react"
 import React from "react"

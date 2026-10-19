@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 592177715c2ab00040354b712daa9dcaa37b96da1c6453b949d04271c97cb7ab
+// Siyahi edit: the table primitive comes from niko's own copy in ../ui/table,
+// not shadcn core's table.tsx, which has no TableComponent export.
 "use client"
 
 /**

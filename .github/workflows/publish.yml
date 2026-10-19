@@ -19,8 +19,15 @@ jobs:
     name: Publish next
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    # NPM_TOKEN must be a granular access token with read and write (publish)
+    # rights on the @siyahi scope, set to bypass 2FA for automation. npm no
+    # longer accepts classic tokens.
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v7
+      # With registry-url set, setup-vp writes an .npmrc that reads
+      # NODE_AUTH_TOKEN; the job-level env gives every step the same token.
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version-file: package.json
@@ -28,22 +35,17 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Check, build and test
         run: vp run check
-      - name: Version as 0.x.y-next.<run number>
-        env:
-          RUN_NUMBER: ${{ github.run_number }}
-        run: |
-          for dir in packages/ui packages/tools; do
-            base="$(node -p "require('./$dir/package.json').version")"
-            (cd "$dir" && npm pkg set version="$base-next.$RUN_NUMBER")
-          done
-      # npm shows a package's own README; the root one is @siyahi/ui's.
-      - name: Copy README and LICENSE into the packages
-        run: |
-          cp README.md packages/ui/README.md
-          cp LICENSE packages/ui/LICENSE
-          cp LICENSE packages/tools/LICENSE
-      # pnpm swaps workspace: and catalog: specifiers for real versions.
+      # Fails here, before anything is versioned, if the token is missing or wrong.
+      - name: Confirm the npm token
+        run: pnpm whoami
+      - name: Version as <base>-next.<N>
+        run: node .github/scripts/next-version.mjs
+      # Publishes what the check step built: --ignore-scripts keeps pnpm from
+      # running any lifecycle script (each package's prepublishOnly is a no-op
+      # too). Provenance stays off until trusted publishing replaces the token.
       - name: Publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -r publish --tag next --access public --no-git-checks
+          NPM_CONFIG_PROVENANCE: "false"
+        run: >-
+          pnpm -r --filter @siyahi/ui --filter @siyahi/tools
+          publish --tag next --access public --no-git-checks --ignore-scripts

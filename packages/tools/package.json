@@ -17,7 +17,10 @@
   "files": [
     "*.mjs",
     "lint/*.mjs",
-    "types"
+    "types",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "type": "module",
   "exports": {
@@ -36,6 +39,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "echo 'Publishing what the check job built; no build here.'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

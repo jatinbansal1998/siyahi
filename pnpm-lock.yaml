@@ -167,9 +167,6 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
     devDependencies:
-      '@siyahi/tools':
-        specifier: workspace:*
-        version: link:../tools
       '@types/d3-hierarchy':
         specifier: ^3.1.7
         version: 3.1.7

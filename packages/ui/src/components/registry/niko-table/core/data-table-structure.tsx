@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 ac49fcb1b9ca0f6df40abb9b64e0fd3fae5505e23cb56fc9256958aa7dc7753f
+// Siyahi edit: the table primitive comes from niko's own copy in ../ui/table,
+// not shadcn core's table.tsx, which has no TableComponent export.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
