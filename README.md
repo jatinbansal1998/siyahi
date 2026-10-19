@@ -49,6 +49,25 @@ and the Recharts pieces charts are built from. Add `lucide-react` only if your
 own code imports icons. A Next.js app compiles the same stylesheet through
 `@tailwindcss/postcss` instead of the Vite plugin.
 
+### Install from a GitHub release
+
+Until the npm publish is live, every merge to `main` also attaches both
+tarballs to a [GitHub release](https://github.com/jatinbansal1998/siyahi/releases).
+Install a version by URL, alongside `tailwindcss` and `@tailwindcss/vite` as
+above:
+
+```sh
+npm install --allow-remote=root https://github.com/jatinbansal1998/siyahi/releases/download/v<version>/siyahi-ui-<version>.tgz
+npm install --allow-remote=root --save-dev https://github.com/jatinbansal1998/siyahi/releases/download/v<version>/siyahi-tools-<version>.tgz
+```
+
+npm 12 refuses tarball URLs unless `allow-remote` permits them; put
+`allow-remote=root` in the project's `.npmrc` so a later plain `npm install`
+works too. The rolling `next` release always holds the newest build under fixed
+names (`.../releases/download/next/siyahi-ui-next.tgz` and
+`siyahi-tools-next.tgz`); its assets are replaced on every merge, so pin a
+versioned URL in `package.json`.
+
 ## What is in it
 
 - **shadcn/ui components** in the `base-vega` style, installed with the shadcn
