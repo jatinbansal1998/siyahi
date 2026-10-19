@@ -4,13 +4,15 @@
 // checks the layout rules every Siyahi page keeps, and writes one full-page
 // PNG per page and mode.
 //
-//   siyahi-shots <url>... [--out shots] [--gutter 16]
+//   siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist]
+//                [--chrome '[data-slot="sidebar"]']
 //
 // Checks: a gutter of at least --gutter px on both sides of visible text and
-// cards (content inside a sideways-scrolling box, and navigation chrome such
-// as a sidebar, is exempt), no sideways
-// document scroll (also with a classic scrollbar taking its width), and Geist
-// as the loaded body font.
+// cards, no sideways document scroll (also with a classic scrollbar taking its
+// width), and --font as the loaded body font. Exempt from the gutter: content
+// inside a box that scrolls sideways, and anything inside --chrome, which by
+// default is only the shadcn sidebar, flush to the edge by design. The font
+// default is Siyahi's; other pages pass their own family.
 //
 // The capture first grows the viewport to the page's height and waits, so
 // charts that redraw on resize settle before the picture is taken; a
@@ -35,10 +37,15 @@ const MAX_HEIGHT = 16000;
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
-  options: { out: { type: "string", default: "shots" }, gutter: { type: "string", default: "16" } },
+  options: {
+    out: { type: "string", default: "shots" },
+    gutter: { type: "string", default: "16" },
+    font: { type: "string", default: "Geist" },
+    chrome: { type: "string", default: '[data-slot="sidebar"]' },
+  },
 });
 if (positionals.length === 0) {
-  console.error("usage: siyahi-shots <url>... [--out shots] [--gutter 16]");
+  console.error("usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>]");
   process.exit(2);
 }
 const outDir = path.resolve(values.out);
@@ -53,7 +60,7 @@ function slugOf(url) {
 }
 
 // Runs in the page. Kept as a string so the bundled code is exactly what runs.
-const PROBE = `(() => {
+const PROBE = `((chrome) => {
   const de = document.documentElement;
   const scrollsSideways = (el) => {
     for (let e = el.parentElement; e; e = e.parentElement) {
@@ -66,7 +73,7 @@ const PROBE = `(() => {
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) return false;
     if (r.right <= 0 || r.left >= de.clientWidth) return false;
-    if (el.closest('nav, aside, [data-slot="sidebar"]')) return false;
+    if (el.closest(chrome)) return false;
     const s = getComputedStyle(el);
     return s.visibility !== "hidden" && !scrollsSideways(el);
   });
@@ -91,7 +98,7 @@ const PROBE = `(() => {
     docHeight: de.scrollHeight,
     h1: h1 ? h1.textContent.trim().slice(0, 60) : null,
   };
-})()`;
+})(${JSON.stringify(values.chrome)})`;
 
 const SETTLE = `(async () => {
   await document.fonts.ready;
@@ -140,7 +147,7 @@ function problemsOf(p) {
   if (p.overflow > 0) problems.push(`document scrolls sideways by ${p.overflow}px`);
   if (p.overflowWithScrollbar > 0)
     problems.push(`scrolls sideways by ${p.overflowWithScrollbar}px once a scrollbar takes its width`);
-  if (!p.font.startsWith("Geist")) problems.push(`body font is ${p.font}, not Geist`);
+  if (!p.font.startsWith(values.font)) problems.push(`body font is ${p.font}, not ${values.font}`);
   else if (!p.fontLoaded) problems.push(`${p.font} is named but never loaded`);
   if (p.docHeight > MAX_HEIGHT) problems.push(`page is ${p.docHeight}px tall; the shot stops at ${MAX_HEIGHT}px`);
   return problems;

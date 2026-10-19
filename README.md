@@ -13,11 +13,18 @@ keeps pages on the theme, and a catalogue site that is the documentation.
 
 ## Install
 
-Siyahi is pre-1.0; releases go out under the `next` tag. You need React 19 and
-Tailwind CSS v4 on Vite.
+Siyahi is pre-1.0; releases go out under the `next` tag. It needs React 19 and
+Tailwind CSS v4, compiled by the Tailwind Vite plugin: the package's stylesheet
+is Tailwind source, so a plain CSS import leaves every component unstyled.
 
 ```sh
-npm install @siyahi/ui@next lucide-react
+npm install @siyahi/ui@next tailwindcss @tailwindcss/vite
+```
+
+```ts
+// vite.config.ts
+import tailwindcss from "@tailwindcss/vite";
+export default defineConfig({ plugins: [react(), tailwindcss()] });
 ```
 
 ```css
@@ -28,7 +35,7 @@ npm install @siyahi/ui@next lucide-react
 ```tsx
 // src/main.tsx
 import "./index.css";
-import { Button, Card, SiyahiProvider } from "@siyahi/ui";
+import { SiyahiProvider } from "@siyahi/ui";
 createRoot(root).render(
   <SiyahiProvider>
     <App />
@@ -38,7 +45,9 @@ createRoot(root).render(
 
 Everything comes from `@siyahi/ui`: the shadcn components, the registry
 add-ons (data table, heatmaps, stat tiles, sidebar), Siyahi's own components
-and the Recharts pieces charts are built from. `lucide-react` is for icons.
+and the Recharts pieces charts are built from. Add `lucide-react` only if your
+own code imports icons. A Next.js app compiles the same stylesheet through
+`@tailwindcss/postcss` instead of the Vite plugin.
 
 ## What is in it
 
@@ -59,34 +68,44 @@ and the Recharts pieces charts are built from. `lucide-react` is for icons.
 ## Locale
 
 Numbers, money and times default to Indian English, rupees and IST:
-`₹1,53,110`, `₹2.4L`, `₹40Cr`, `14:30 IST`. Pass another locale to the provider
-and every formatter and component under it follows:
+`₹1,53,110`, `₹2.4L`, `₹40Cr`, `14:30 IST`. In an Indian-region locale,
+`moneyCompact` prints amounts under one lakh in full (`₹99,999`), never as `K`.
+Pass another locale to the provider and every formatter and component under it
+follows:
 
 ```tsx
 <SiyahiProvider locale={{ numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" }}>
 ```
 
+The formatters print a minus sign and nothing else. A signed figure (a gain, a
+loss, a change) goes through `<Delta>`, which adds ▲ or ▼ and the meaning
+colour. Time zone names come from the runtime's ICU data; a slim Node or
+browser build may print `GMT+5:30` where a full one prints `IST`.
+
 ## Dark mode
 
 The colour scheme follows the device (`prefers-color-scheme`). There is no
-toggle and no class to set. If your app wants its own toggle, swap the dark
-variant after the import and set the `.dark` class yourself:
+toggle and no class to set. The theme's dark values sit under the same `dark`
+variant as the `dark:` utilities, so an app that wants its own toggle swaps one
+line after the import and sets the `dark` class on `<html>`:
 
 ```css
 @import "@siyahi/ui/styles.css";
 @custom-variant dark (&:where(.dark, .dark *));
 ```
 
-You then also need to repeat the dark values under `.dark`, since the theme
-declares them under the media query.
+Both the tokens and the utilities then follow the class. Set `color-scheme` on
+`<html>` yourself as well, so scrollbars and form controls match.
 
 ## Lint
 
 `@siyahi/tools` ships an [oxlint](https://oxc.rs) plugin. Its rules run only in
 files that import `@siyahi/ui`, so older pages are left alone. They reject
 colour literals (hex, `rgb()`, `oklch()`), Tailwind palette colours, Tailwind
-arbitrary values such as `text-[13px]`, `dark:` and `light:` variants, and
-numeric font sizes. Two of the rules are
+arbitrary values such as `text-[13px]`, `dark:` and `light:` variants,
+numeric font sizes, and chart configs with a per-scheme `theme` map (shadcn's
+chart applies its dark half under a `.dark` class Siyahi never sets; name a
+chart token with `color: "var(--chart-1)"` instead). Two of the rules are
 [`@shadcn/lint`](https://github.com/shadcn-ui/lint)'s, scoped the same way.
 
 ```sh
@@ -101,6 +120,7 @@ npm install --save-dev @siyahi/tools@next oxlint
     "siyahi/no-color-literal": "error",
     "siyahi/no-scheme-variant": "error",
     "siyahi/no-numeric-font-size": "error",
+    "siyahi/no-chart-theme-map": "error",
     "siyahi/no-raw-colors": "error",
     "siyahi/no-arbitrary-values": "error"
   }

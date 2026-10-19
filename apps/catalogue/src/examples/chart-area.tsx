@@ -30,6 +30,8 @@ const data = [
   { month: "Oct", value: 4512300, invested: 4025000 },
 ];
 
+// Name a chart token with color. A theme: { light, dark } map would apply its
+// dark half under a .dark class, which Siyahi never sets.
 const config = {
   value: { label: "Value", color: "var(--chart-1)" },
   invested: { label: "Invested", color: "var(--chart-2)" },

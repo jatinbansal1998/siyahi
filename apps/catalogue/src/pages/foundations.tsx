@@ -122,8 +122,9 @@ export const foundations: Page = {
       body: (
         <>
           <Lead>
-            Five hues in the same order in both schemes. Each passes 3:1 against the card and against its neighbour,
-            which only lightness can give, so emerald and violet are the deep members.
+            Five hues in the same order in both schemes. Each slot reaches 3:1 against the card and against the slots
+            next to it, which only lightness can give, so emerald and violet are the deep members. Slots two apart share
+            a lightness and are told apart by hue, so series take slots in order. Every value is inside sRGB.
           </Lead>
           <div className={grid}>
             {CHART.map((c) => (

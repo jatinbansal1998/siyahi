@@ -38,16 +38,34 @@ similar). No clear licence, no copy. Then:
    ```
 
 3. Mark every edit with a `// Siyahi edit:` line saying what changed and why.
+   `pnpm generate:check` fails when a file differs from the copy its header
+   hashes and has no such line.
 4. Add the origin to `THIRD_PARTY_NOTICES.md` and run `pnpm generate`, which
    rewrites `registry.lock.json` and the `@siyahi/ui` barrel.
+
+## Charts
+
+Give every chart series its colour as a chart token in the config:
+`{ label: "Value", color: "var(--chart-1)" }`. Never use the config's
+`theme: { light, dark }` map: shadcn's `chart.tsx` (core, not edited) writes the
+dark half under a `.dark` class, which Siyahi never sets, so dark mode would show
+the light colour. The variable already follows the scheme. The lint rule
+`siyahi/no-chart-theme-map` rejects the map. Series take the slots
+`--chart-1` to `--chart-5` in order: neighbouring slots differ by lightness,
+slots two apart only by hue.
 
 ## Colours and sizes
 
 `packages/ui/styles/siyahi.css` is the only file that holds a colour value.
-Every pair the theme promises is checked by `packages/tools/contrast.mjs` in
-the build: 4.5:1 for text on the canvas, the card and its own fill, 3:1 for
-chart colours against the card and against the next chart colour. When a
-check fails, change the value, never the bar.
+Light values sit in `:root`; dark values sit in the `@variant dark { … }`
+block inside it, and every token the checks read must be set there too.
+`packages/tools/contrast.mjs` checks every pair in the build: 4.5:1 for text
+on the canvas, the card and its own fill, 3:1 for chart colours against the
+card and against the slots next to them, and every chart colour inside sRGB.
+When a check fails, change the value, never the bar.
+
+Registry add-ons are not formatted or style-linted, but `pnpm lint:registry`
+runs the colour rules on them, so an add-on default must name a token.
 
 ## Before a pull request
 
@@ -57,6 +75,7 @@ pnpm --filter @siyahi/catalogue build && pnpm --filter @siyahi/catalogue preview
 pnpm shots http://localhost:4173/#/data   # in another shell
 ```
 
-`pnpm check` formats, lints, looks for unused code, fails on stale generated
-files, builds (with the contrast check), typechecks and tests. Put the shots
+`pnpm check` formats, lints (including the colour pass over the add-ons),
+looks for unused code, fails on stale generated files, builds (with the
+contrast check), typechecks and tests. Put the shots
 for every page you changed in the pull request, light and dark, 1920 and 390.

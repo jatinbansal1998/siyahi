@@ -13,7 +13,9 @@ export const data: Page = {
         <>
           <Lead>
             shadcn's chart over Recharts. Chart tokens only, a dashed horizontal grid, the legend below, a range toggle
-            top right.
+            top right. Give each series a colour with color: "var(--chart-n)", never a theme map: shadcn's chart applies
+            a map's dark half under a .dark class Siyahi never sets, while the variable already follows the scheme. The
+            lint rule siyahi/no-chart-theme-map catches it.
           </Lead>
           <Example name="chart-area" />
         </>
@@ -25,8 +27,9 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            Categorical series take --chart-1 to --chart-5 in order. Past five, fold the rest into "Other" in
-            --muted-foreground.
+            Categorical series take the slots --chart-1 to --chart-5 in order. Each slot reaches 3:1 against the card
+            and the slots next to it; slots two apart share a lightness and are told apart by hue, so do not skip slots.
+            Past five, fold the rest into "Other" in --muted-foreground.
           </Lead>
           <Example name="chart-bar" />
         </>
@@ -61,8 +64,8 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            TradingView Lightweight Charts in theme colours. Keep its credit on one chart per page; pass credit=
-            {"{false}"} to the rest.
+            TradingView Lightweight Charts in theme colours. The library paints its own logo; keep it on one chart per
+            page (pass credit={"{false}"} to the rest) and put a credit link under that chart, as the example does.
           </Lead>
           <Example name="price-chart" />
         </>
@@ -129,7 +132,8 @@ export const data: Page = {
         <>
           <Lead>
             useFormat() returns money, moneyCompact, pct and time bound to the nearest SiyahiProvider. A nested provider
-            changes the locale for its subtree.
+            changes the locale for its subtree. In an Indian-region locale moneyCompact prints amounts under one lakh in
+            full. The formatters print only a minus sign; a signed figure goes through Delta, which adds the arrow.
           </Lead>
           <Example name="formatters" />
         </>

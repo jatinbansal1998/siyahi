@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
 
-/** An amount in the locale's currency, whole units by default: ₹1,53,110. */
+/** An amount in the locale's currency, whole units by default: ₹1,53,110. Signed figures belong in `Delta`. */
 export function money(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 0): string {
   return new Intl.NumberFormat(locale.numberLocale, {
     style: "currency",
@@ -12,8 +12,14 @@ export function money(value: number, locale: SiyahiLocale = defaultLocale, fract
   }).format(value);
 }
 
-/** A short amount: ₹2.4L and ₹40Cr in en-IN, $2.4M in en-US. */
+/**
+ * A short amount: ₹2.4L and ₹40Cr in en-IN, $2.4M in en-US. Indian readers
+ * count in thousands up to a lakh, so in an Indian-region locale amounts under
+ * one lakh print in full (₹99,999), never as ₹99.9K. Signed figures belong in
+ * `Delta`, which adds the arrow.
+ */
 export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale): string {
+  if (new Intl.Locale(locale.numberLocale).region === "IN" && Math.abs(value) < 100_000) return money(value, locale);
   return new Intl.NumberFormat(locale.numberLocale, {
     style: "currency",
     currency: locale.currency,

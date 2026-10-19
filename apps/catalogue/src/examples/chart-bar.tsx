@@ -25,6 +25,8 @@ const data = [
   { quarter: "Q4", equity: 160000, debt: 45000, gold: 25000, cash: 7000, reits: 2000 },
 ];
 
+// Series take the slots in order: neighbours differ in lightness, slots two
+// apart differ in hue.
 const config = {
   equity: { label: "Equity", color: "var(--chart-1)" },
   debt: { label: "Debt", color: "var(--chart-2)" },

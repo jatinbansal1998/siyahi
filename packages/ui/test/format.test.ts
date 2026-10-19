@@ -16,8 +16,19 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
   });
 
   it("compacts to lakh and crore", () => {
+    expect(moneyCompact(100000)).toBe("₹1L");
     expect(moneyCompact(240000)).toBe("₹2.4L");
     expect(moneyCompact(400000000)).toBe("₹40Cr");
+  });
+
+  it("prints amounts under one lakh in full, never as K", () => {
+    expect(moneyCompact(1000)).toBe("₹1,000");
+    expect(moneyCompact(99999)).toBe("₹99,999");
+  });
+
+  it("keeps the sign on negative compact amounts", () => {
+    expect(moneyCompact(-240000)).toBe("-₹2.4L");
+    expect(moneyCompact(-50000)).toBe("-₹50,000");
   });
 
   it("formats a fraction as a percentage with one decimal", () => {
@@ -34,6 +45,7 @@ describe("another locale", () => {
   it("follows the locale it is given", () => {
     expect(money(153110, us)).toBe("$153,110");
     expect(moneyCompact(2400000, us)).toBe("$2.4M");
+    expect(moneyCompact(1000, us)).toBe("$1K");
     expect(time(nineUtc, us)).toBe("05:00 EDT");
   });
 });

@@ -6,6 +6,7 @@ function Row({ label }: { label: string }) {
     <TableRow>
       <TableCell>{label}</TableCell>
       <TableCell className="text-right">{money(153110)}</TableCell>
+      <TableCell className="text-right">{moneyCompact(99999)}</TableCell>
       <TableCell className="text-right">{moneyCompact(240000)}</TableCell>
       <TableCell className="text-right">{moneyCompact(400000000)}</TableCell>
       <TableCell className="text-right">{pct(0.1234)}</TableCell>
@@ -21,6 +22,7 @@ export default function FormattersExample() {
         <TableRow>
           <TableHead>Locale</TableHead>
           <TableHead className="text-right">money</TableHead>
+          <TableHead className="text-right">moneyCompact</TableHead>
           <TableHead className="text-right">moneyCompact</TableHead>
           <TableHead className="text-right">moneyCompact</TableHead>
           <TableHead className="text-right">pct</TableHead>

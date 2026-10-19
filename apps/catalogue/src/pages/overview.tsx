@@ -15,10 +15,16 @@ const RULES = [
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables scroll inside their card with the first column pinned, sidebar becomes a drawer.",
 ];
 
-const INSTALL = `npm install @siyahi/ui@next lucide-react
-# src/index.css
+const INSTALL = `npm install @siyahi/ui@next tailwindcss @tailwindcss/vite
+
+// vite.config.ts
+import tailwindcss from "@tailwindcss/vite";
+export default defineConfig({ plugins: [react(), tailwindcss()] });
+
+/* src/index.css */
 @import "@siyahi/ui/styles.css";
-# src/main.tsx
+
+// src/main.tsx
 import "./index.css";
 import { SiyahiProvider } from "@siyahi/ui";
 createRoot(root).render(<SiyahiProvider><App /></SiyahiProvider>);`;
@@ -27,7 +33,7 @@ const LOCALE = `<SiyahiProvider locale={{ numberLocale: "en-US", currency: "USD"
   <App />
 </SiyahiProvider>`;
 
-const LINT = `npm install --save-dev @siyahi/tools oxlint
+const LINT = `npm install --save-dev @siyahi/tools@next oxlint
 
 // .oxlintrc.json
 {
@@ -37,12 +43,13 @@ const LINT = `npm install --save-dev @siyahi/tools oxlint
     "siyahi/no-color-literal": "error",
     "siyahi/no-scheme-variant": "error",
     "siyahi/no-numeric-font-size": "error",
+    "siyahi/no-chart-theme-map": "error",
     "siyahi/no-raw-colors": "error",
     "siyahi/no-arbitrary-values": "error"
   }
 }`;
 
-const SCHEME = `/* In your CSS, after the @siyahi/ui import, to drive dark mode from a class instead: */
+const SCHEME = `/* After the @siyahi/ui import: tokens and dark: utilities then follow a .dark class on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));`;
 
 export const overview: Page = {
@@ -56,12 +63,14 @@ export const overview: Page = {
       body: (
         <>
           <Lead>
-            Pre-1.0 releases are published under the next tag. The app needs React 19 and Tailwind v4 on Vite.
+            Pre-1.0 releases are published under the next tag. The app needs React 19 and Tailwind v4 with the Tailwind
+            Vite plugin: the stylesheet is Tailwind source, so without the plugin every component is unstyled. A Next.js
+            app uses @tailwindcss/postcss instead.
           </Lead>
           <Code>{INSTALL}</Code>
           <p className="max-w-prose">
             Everything comes from one import path, <code className="font-mono">@siyahi/ui</code>, including the Recharts
-            pieces charts are composed from.
+            pieces charts are composed from. Add lucide-react only if your own code imports icons.
           </p>
         </>
       ),
@@ -72,8 +81,10 @@ export const overview: Page = {
       body: (
         <>
           <Lead>
-            Numbers, money and times default to en-IN, INR and Asia/Kolkata: 1,53,110, ₹2.4L, 14:30 IST. Pass another
-            locale to the provider to change every formatter and component under it.
+            Numbers, money and times default to en-IN, INR and Asia/Kolkata: 1,53,110, ₹2.4L, 14:30 IST. In an
+            Indian-region locale moneyCompact prints amounts under one lakh in full (₹99,999), never as K. Pass another
+            locale to the provider to change every formatter and component under it. Signed figures go through Delta,
+            which adds the arrow; the formatters print only a minus sign.
           </Lead>
           <Code>{LOCALE}</Code>
         </>
@@ -87,7 +98,7 @@ export const overview: Page = {
           <Lead>
             @siyahi/tools ships an oxlint plugin. Its rules run only in files that import @siyahi/ui, so older pages are
             left alone. They reject colour literals, Tailwind palette colours, arbitrary values, dark: and light:
-            variants and numeric font sizes.
+            variants, numeric font sizes and per-scheme chart theme maps.
           </Lead>
           <Code>{LINT}</Code>
         </>
@@ -99,8 +110,9 @@ export const overview: Page = {
       body: (
         <>
           <Lead>
-            The scheme follows the device through prefers-color-scheme. There is no toggle and no class to set. An app
-            that wants its own toggle swaps the dark variant and sets the class itself.
+            The scheme follows the device through prefers-color-scheme. There is no toggle and no class to set. The
+            theme's dark values sit under the same dark variant as the dark: utilities, so an app that wants its own
+            toggle swaps that one line and sets the class on html itself.
           </Lead>
           <Code>{SCHEME}</Code>
         </>
