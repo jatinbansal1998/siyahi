@@ -5,6 +5,10 @@ extra-high effort, own worktree) and ends in a PR. Every PR: Grok 4.7 review, gr
 screenshots in light and dark at 1920 and 390, then the orchestrator merges and deploys.
 The design is `docs/superpowers/specs/2026-10-20-siyahi-design.md`; it wins over this file.
 
+Toolkit for the siyahi repo, taken from t3code: pnpm 11, Node 24, TypeScript 7, Vite+
+(`vp lint` = oxlint, `vp fmt` = oxfmt, `vp test` = vitest, `vp check` = the gate), knip,
+a pnpm catalog for shared versions. Newest stable of everything, no pre-releases.
+
 Common rules for every PR:
 - `.coderabbit.yaml` with auto review disabled is in every repo touched.
 - Screenshots go to a gitignored `shots/` folder in the worktree; the thread reports the
@@ -28,6 +32,7 @@ Common rules for every PR:
 | 12 | transactions-analyser | Discipline | 11 |
 | 13 | transactions-analyser | Check | 12 |
 | 14 | transactions-analyser | Remove adapter, `styles.css`, `web/kajal/`; preflight fully on | 13 |
+| 15 | dash | A new dash page on Siyahi: "How we set up a Node and TypeScript project", the tooling best practices taken from t3code (pnpm, Node 24, TypeScript 7, Vite+ with oxlint/oxfmt/vitest, knip, pnpm catalog, CI shape) and what Siyahi adopted; published through the publisher skill | 5 |
 
 Deploy steps the orchestrator runs after each merge:
 - dash: `git pull --ff-only` in `~/code/dash`, `npm run deploy`, open the live page.
