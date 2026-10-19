@@ -1,0 +1,413 @@
+{
+  "generatedBy": "packages/ui/scripts/generate.ts",
+  "items": [
+    {
+      "file": "src/components/registry/dashboard-01/section-cards.tsx",
+      "registry": "@shadcn/dashboard-01",
+      "origin": "https://ui.shadcn.com/r/styles/base-vega/dashboard-01.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-20",
+      "sha256": "541786ede835855602687f210c82f0ce13f9c486c3210f749f13671702ecb06c"
+    },
+    {
+      "file": "src/components/registry/dashboardcn/bar-list.tsx",
+      "registry": "@dashboardcn/bar-list",
+      "origin": "https://dashboardcn.com/r/bar-list.json",
+      "licence": "MIT, Copyright (c) 2026 dashboardcn contributors, https://github.com/NoahGdev/dashboardcn/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "bc19cf1f5e486fa11273e7d7ed620eb7b82ba360f72e5a15e6bf488f992d16ce"
+    },
+    {
+      "file": "src/components/registry/heatmap/calendar-heatmap.tsx",
+      "registry": "@heatmap/calendar-heatmap",
+      "origin": "https://shadcn-heatmap.pages.dev/r/calendar-heatmap.json",
+      "licence": "MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "93e31382cd9323695a69611c1323b1d31b84cf7157a0557d686d706fefdb371e"
+    },
+    {
+      "file": "src/components/registry/heatmap/status-heatmap.tsx",
+      "registry": "@heatmap/status-heatmap",
+      "origin": "https://shadcn-heatmap.pages.dev/r/status-heatmap.json",
+      "licence": "MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "9ab8be330eaa760a6e177722e799fc3a10288567eec47885eb65a6fdba666b06"
+    },
+    {
+      "file": "src/components/registry/heatmap/weekday-heatmap.tsx",
+      "registry": "@heatmap/weekday-heatmap",
+      "origin": "https://shadcn-heatmap.pages.dev/r/weekday-heatmap.json",
+      "licence": "MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "b7af6139e3764e1479880fb232988e758edb27ce4e4280d9e0349cbdf9b3d30c"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-column-actions.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "81888992f30c214f182125413618bce5f1e0fa89d2a2dd4eb302029890846325"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-column-filter.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "3092a6696a3fababb139f885652e2755e965035ec52c733eb9d16ee8c3a3828d"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-column-header.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "17b57bc8a0478a13ca1b69e43ed8e5672589268654b6ae5a97edcf088d9f0c7b"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-column-sort.tsx",
+      "registry": "@niko-table/data-table-column-sort",
+      "origin": "https://niko-table.com/r/data-table-column-sort.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "c55fcdd4f3be1ff7a4ace2830e878b12c79e1374e6db6816ae6fb00e11dba42f"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-column-title.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "04344fb4b69717c82a463a04299392ea0c9044034e0782e90ac7135daa1c8dd8"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-empty-state.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "535691515901e13d70031ca63d4a295965de9b86b6b66a9d566f3e742d8cb134"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-faceted-filter.tsx",
+      "registry": "@niko-table/data-table-faceted-filter",
+      "origin": "https://niko-table.com/r/data-table-faceted-filter.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "c16d04f3dbb792defdc82b386fb3961af6c6fd70858a980dcb93223260cb03b7"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-grouped-rows.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "04ab2e51555e4768a6f65ca8e251f1e6355c854ecbdaed74315f50efcfbbaf1d"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-row-context-menu-slot.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "93687c305d271629805932fe7cd853a87b8991d3bb14cf842c787e71d4d568f6"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-row-context-menu.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "bce8a7e8692ff6f78ad65349cb5e70b8122c0d65337a6b3ae39d0407471bfbf7"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-row-menu.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "8b0c9768a5f1b90d7b4e2bf467a32ca86a43d5d546653f3a64d7abea277aa68b"
+    },
+    {
+      "file": "src/components/registry/niko-table/components/data-table-toolbar-section.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "627131c7f07278a5d30cfb104c35b36f7c803fba53a011c489a995aefaeb8d2a"
+    },
+    {
+      "file": "src/components/registry/niko-table/config/data-table.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "114c0bcac51cef76de798e6fd7147e9d01a00ea739e6983ebf459e244a66bfa0"
+    },
+    {
+      "file": "src/components/registry/niko-table/config/feature-detection.ts",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "541ccd025b22ca0fc9c639c33cdf114369a046a549c28cff2ceac1cc795243d1"
+    },
+    {
+      "file": "src/components/registry/niko-table/core/data-table-context.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "ec7759ad942364a4ab9636029bfb4f3f7f2f1f7d09508947e544d064b291998a"
+    },
+    {
+      "file": "src/components/registry/niko-table/core/data-table-error-boundary.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "069088cfee823288495fe893376cd226b70b05fdad03d640f0b21e9eef57d09c"
+    },
+    {
+      "file": "src/components/registry/niko-table/core/data-table-grouped-row.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "c3681e651f5c5aefd0d8a8046c0c173056ea7805c93e9e12848902862b9db5c7"
+    },
+    {
+      "file": "src/components/registry/niko-table/core/data-table-root.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "844e0dc6da405c5478dc429d17fb57582ac84ecf6cacf624078b98f3e21368f8"
+    },
+    {
+      "file": "src/components/registry/niko-table/core/data-table-structure.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "ac49fcb1b9ca0f6df40abb9b64e0fd3fae5505e23cb56fc9256958aa7dc7753f"
+    },
+    {
+      "file": "src/components/registry/niko-table/core/data-table.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "592177715c2ab00040354b712daa9dcaa37b96da1c6453b949d04271c97cb7ab"
+    },
+    {
+      "file": "src/components/registry/niko-table/filters/table-column-actions.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "0a567472d24e9f0391fa689a528fb2392870a521f29065c6f758837182b92a63"
+    },
+    {
+      "file": "src/components/registry/niko-table/filters/table-column-sort.tsx",
+      "registry": "@niko-table/data-table-column-sort",
+      "origin": "https://niko-table.com/r/data-table-column-sort.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "327cb17765e98d206944db3342ab3929a1a8b4c76fd9923e9dbee54af7a396ce"
+    },
+    {
+      "file": "src/components/registry/niko-table/filters/table-column-title.tsx",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "754af96d81030c85887fd4e866060197cf80c0af4dc4204d7bde69b4b49d8f2a"
+    },
+    {
+      "file": "src/components/registry/niko-table/filters/table-faceted-filter.tsx",
+      "registry": "@niko-table/data-table-faceted-filter",
+      "origin": "https://niko-table.com/r/data-table-faceted-filter.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "dba551593726fa342b8c61daf5e5b9c79125df391af8ed31504e7dfedf7a71ba"
+    },
+    {
+      "file": "src/components/registry/niko-table/hooks/use-derived-column-title.ts",
+      "registry": "@niko-table/data-table",
+      "origin": "https://niko-table.com/r/data-table.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "7e03eed1f7850ab729103386b014ad33b4c96caaf933780a7d4181fcaab4775d"
+    },
+    {
+      "file": "src/components/registry/niko-table/hooks/use-generated-options.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "cfbf8e13644889f4c5ef7114e1fbc513bfedfc9ed98f18c1f0b19cbb93c2f499"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/build-faceted-options.ts",
+      "registry": "@niko-table/data-table-faceted-filter",
+      "origin": "https://niko-table.com/r/data-table-faceted-filter.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "c891c4c7d6f1b14ed6256940b746003059603e04b90846dd3a85f9fe56b47672"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/column-resize-handle.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "11b008fb0691ce787f9033af5ad89fd8fd38ca80bbae77a5dda3078a6a872437"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/constants.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "dda6a01e3574f9bf43e05ce88d9d2a252ec0c3505514838ff53169d42abbf000"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/create-scroll-handler.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "a9b1c8f9efb88dbbbfae5db0fe4db35996b1f496524e8274618567ccad807359"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/data-table-features.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "37f69756830197a5627b52ef590093fb4fa81ae60a454fbd488b0eca6c103f22"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/filter-functions.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "cf04b050d923e4ef2cb033aaf39f6a48220fe8427d7e55fa0dadf7dcba5bb5f2"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/filter-rows.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "a851475f9a0568fe354a34b6e33a2538e436e24bdc25b75323ba589d8af81476"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/flex-columns.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "b373d138a5e99639d3ffd043d81d6d681ff2518c36eb19e7e904855033d37a87"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/format.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "e58ec22ed938d674240b483ec44cbb9498311356fe7168d07f9d31b365c83106"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/render-cell-content.tsx",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "4e3fa7c68a1c87ec114f98b7f19f44564cc42e9b3ba73eccb347a345d5cb7c97"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/row-click.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "6f9df580af7c80c36bb8f87fa8e423058d09bede17efe247cb84a5f1acc90191"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/styles.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "7521bf6208309340d846b99c4e571e2cbf416ab0dbdd72f62f72971a8d332d84"
+    },
+    {
+      "file": "src/components/registry/niko-table/lib/use-header-min-widths.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "ca8efb0d53f1d5053a1d7c04d315cb7f304b2413cc7c982c4540ff68e934372d"
+    },
+    {
+      "file": "src/components/registry/niko-table/types/index.ts",
+      "registry": "@niko-table/data-table-core",
+      "origin": "https://niko-table.com/r/data-table-core.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "17856adbce037e757ea5989bbd742a0d9fb8881dc83357339c66ba37b9b695a0"
+    },
+    {
+      "file": "src/components/registry/niko-table/ui/table.tsx",
+      "registry": "@niko-table/data-table-ui",
+      "origin": "https://niko-table.com/r/data-table-ui.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-20",
+      "sha256": "31eaf4056473bdf7215cfe02b97a330480f1e7a6dce124679bb39bb35ccfcd31"
+    },
+    {
+      "file": "src/components/registry/sidebar-07/app-sidebar.tsx",
+      "registry": "@shadcn/sidebar-07",
+      "origin": "https://ui.shadcn.com/r/styles/base-vega/sidebar-07.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-20",
+      "sha256": "e339bea9299547f4c32530fc0f81cb7bb4d05d75c88eb3166a46749f4ba80f63"
+    },
+    {
+      "file": "src/components/registry/sidebar-07/nav-main.tsx",
+      "registry": "@shadcn/sidebar-07",
+      "origin": "https://ui.shadcn.com/r/styles/base-vega/sidebar-07.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-20",
+      "sha256": "926e6f27dc8b1f0d87c3576f113877333e7c58a89f72760fba02b2a001de0584"
+    },
+    {
+      "file": "src/components/registry/sidebar-07/nav-projects.tsx",
+      "registry": "@shadcn/sidebar-07",
+      "origin": "https://ui.shadcn.com/r/styles/base-vega/sidebar-07.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-20",
+      "sha256": "e2b2b66f76a912178a0ca5424728cc92202ac920351ac3496c20b3c736647482"
+    },
+    {
+      "file": "src/components/registry/sidebar-07/nav-user.tsx",
+      "registry": "@shadcn/sidebar-07",
+      "origin": "https://ui.shadcn.com/r/styles/base-vega/sidebar-07.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-20",
+      "sha256": "7805d07e5bb297225f54e45d8a72948394d25c25fcc20fcf16a5073883adbb29"
+    },
+    {
+      "file": "src/components/registry/sidebar-07/team-switcher.tsx",
+      "registry": "@shadcn/sidebar-07",
+      "origin": "https://ui.shadcn.com/r/styles/base-vega/sidebar-07.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-20",
+      "sha256": "04373d73c5ce7155c6dc153f7824e2cb4bc6ee5295418f2f1bba480feb35c8bb"
+    }
+  ]
+}

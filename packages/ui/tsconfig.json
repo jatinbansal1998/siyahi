@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    // Almost all code here is copied from shadcn and registries, which are
+    // not written for these two checks.
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": false,
+    "paths": {
+      "@siyahi/ui/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "scripts", "vite.config.ts"]
+}
