@@ -1,7 +1,8 @@
 name: Publish
 
-# Every merge to main publishes both packages as a pre-release under the
-# `next` dist-tag. Stable versions are cut by hand.
+# Every merge to main ships both packages as a pre-release: tarballs on a
+# GitHub release (always), and npm under the `next` dist-tag (when the token
+# allows it). Stable versions are cut by hand.
 on:
   push:
     branches:
@@ -19,6 +20,9 @@ jobs:
     name: Publish next
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      # Creates the release tags and uploads the tarballs.
+      contents: write
     # NPM_TOKEN must be a granular access token with read and write (publish)
     # rights on the @siyahi scope, set to bypass 2FA for automation. npm no
     # longer accepts classic tokens.
@@ -38,14 +42,70 @@ jobs:
       # Fails here, before anything is versioned, if the token is missing or wrong.
       - name: Confirm the npm token
         run: pnpm whoami
+      # N is one past the highest next.N on npm or among the v* release tags.
       - name: Version as <base>-next.<N>
+        id: version
         run: node .github/scripts/next-version.mjs
-      # Publishes what the check step built: --ignore-scripts keeps pnpm from
-      # running any lifecycle script (each package's prepublishOnly is a no-op
-      # too). Provenance stays off until trusted publishing replaces the token.
-      - name: Publish
+      - name: Pack the tarballs
+        run: pnpm --filter @siyahi/ui --filter @siyahi/tools pack --pack-destination "$PWD/release"
+      # v<version> keeps every pre-release; `next` always holds the newest
+      # under fixed names, so one URL installs the latest.
+      - name: GitHub releases with both tarballs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          tag="v$VERSION"
+          notes="Install without the npm registry (npm 12 needs allow-remote=root, also in the project's .npmrc):
+
+          \`\`\`sh
+          npm install --allow-remote=root $REPO_URL/releases/download/$tag/siyahi-ui-$VERSION.tgz
+          npm install --allow-remote=root --save-dev $REPO_URL/releases/download/$tag/siyahi-tools-$VERSION.tgz
+          \`\`\`"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release/*.tgz --clobber
+          else
+            gh release create "$tag" release/*.tgz --target "$GITHUB_SHA" --prerelease --latest=false \
+              --title "$tag" --notes "$notes"
+          fi
+
+          mkdir -p release/next
+          cp "release/siyahi-ui-$VERSION.tgz" release/next/siyahi-ui-next.tgz
+          cp "release/siyahi-tools-$VERSION.tgz" release/next/siyahi-tools-next.tgz
+          next_notes="Rolling pre-release: always the newest build of main, now $VERSION ($GITHUB_SHA). The assets change on every merge; pin a versioned release in package.json."
+          if gh release view next >/dev/null 2>&1; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/next" -f sha="$GITHUB_SHA" -F force=true >/dev/null
+            gh release edit next --notes "$next_notes"
+          else
+            gh release create next --target "$GITHUB_SHA" --prerelease --latest=false \
+              --title "next (rolling)" --notes "$next_notes"
+          fi
+          gh release upload next release/next/siyahi-ui-next.tgz release/next/siyahi-tools-next.tgz --clobber
+          echo "Tarballs: $REPO_URL/releases/tag/$tag" >> "$GITHUB_STEP_SUMMARY"
+      # The tarballs above are the delivery path until npm accepts the token,
+      # so an npm failure is reported but does not fail the run.
+      # --ignore-scripts publishes what the check step built (each package's
+      # prepublishOnly is a no-op too). Provenance stays off until trusted
+      # publishing replaces the token.
+      - name: Publish to npm
+        id: npm
+        continue-on-error: true
         env:
           NPM_CONFIG_PROVENANCE: "false"
         run: >-
           pnpm -r --filter @siyahi/ui --filter @siyahi/tools
           publish --tag next --access public --no-git-checks --ignore-scripts
+      - name: Report the npm publish
+        if: always() && steps.npm.outcome != 'skipped'
+        env:
+          OUTCOME: ${{ steps.npm.outcome }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ "$OUTCOME" = "success" ]; then
+            echo "npm: published $VERSION under the next tag." >> "$GITHUB_STEP_SUMMARY"
+          else
+            message="npm publish of $VERSION failed. The NPM_TOKEN needs 2FA bypass (a granular token with bypass 2FA), or trusted publishing must replace it. The GitHub release has the tarballs."
+            echo "::error title=npm publish failed::$message"
+            echo "npm: $message" >> "$GITHUB_STEP_SUMMARY"
+          fi

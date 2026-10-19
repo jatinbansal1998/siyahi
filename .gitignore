@@ -7,3 +7,4 @@ shots/
 packages/tools/types/
 .wrangler/
 *.tsbuildinfo
+release/
