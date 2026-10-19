@@ -1,0 +1,121 @@
+import { Code } from "../code";
+import { Lead } from "../example";
+import type { Page } from "../page";
+
+const RULES = [
+  "A card holds data, prose sits on the page. One level of card.",
+  "A stat tile is SectionCards from shadcn's dashboard block: muted label, outline badge, value, bold line, muted line.",
+  "Charts: area, bar or line, chart tokens only, dashed horizontal grid, legend below, range or mode toggle top right. Fixed pixel height.",
+  "Tables are the registry data table, inside a Card.",
+  "Views switch with Tabs; secondary actions are outline buttons with an icon.",
+  "Four meaning colours: positive, negative, warning, link. Nothing else is coloured.",
+  "Notices are shadcn Alert, used as shipped: default for information, destructive for errors. Warnings are the default variant with an amber icon.",
+  "Stock sizes from the base-vega style. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
+  "Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows the device, reduced motion honoured.",
+  "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables scroll inside their card with the first column pinned, sidebar becomes a drawer.",
+];
+
+const INSTALL = `npm install @siyahi/ui@next lucide-react
+# src/index.css
+@import "@siyahi/ui/styles.css";
+# src/main.tsx
+import "./index.css";
+import { SiyahiProvider } from "@siyahi/ui";
+createRoot(root).render(<SiyahiProvider><App /></SiyahiProvider>);`;
+
+const LOCALE = `<SiyahiProvider locale={{ numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" }}>
+  <App />
+</SiyahiProvider>`;
+
+const LINT = `npm install --save-dev @siyahi/tools oxlint
+
+// .oxlintrc.json
+{
+  "jsPlugins": ["@siyahi/tools/lint"],
+  "settings": { "shadcn": { "ui": "@siyahi/ui", "themeImports": ["^@siyahi/ui/"] } },
+  "rules": {
+    "siyahi/no-color-literal": "error",
+    "siyahi/no-scheme-variant": "error",
+    "siyahi/no-numeric-font-size": "error",
+    "siyahi/no-raw-colors": "error",
+    "siyahi/no-arbitrary-values": "error"
+  }
+}`;
+
+const SCHEME = `/* In your CSS, after the @siyahi/ui import, to drive dark mode from a class instead: */
+@custom-variant dark (&:where(.dark, .dark *));`;
+
+export const overview: Page = {
+  id: "overview",
+  title: "Siyahi",
+  lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a finance theme, a few compositions, locale-aware formatters, a lint and this catalogue.",
+  sections: [
+    {
+      id: "install",
+      title: "Install",
+      body: (
+        <>
+          <Lead>
+            Pre-1.0 releases are published under the next tag. The app needs React 19 and Tailwind v4 on Vite.
+          </Lead>
+          <Code>{INSTALL}</Code>
+          <p className="max-w-prose">
+            Everything comes from one import path, <code className="font-mono">@siyahi/ui</code>, including the Recharts
+            pieces charts are composed from.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: "locale",
+      title: "Locale",
+      body: (
+        <>
+          <Lead>
+            Numbers, money and times default to en-IN, INR and Asia/Kolkata: 1,53,110, ₹2.4L, 14:30 IST. Pass another
+            locale to the provider to change every formatter and component under it.
+          </Lead>
+          <Code>{LOCALE}</Code>
+        </>
+      ),
+    },
+    {
+      id: "lint",
+      title: "Lint",
+      body: (
+        <>
+          <Lead>
+            @siyahi/tools ships an oxlint plugin. Its rules run only in files that import @siyahi/ui, so older pages are
+            left alone. They reject colour literals, Tailwind palette colours, arbitrary values, dark: and light:
+            variants and numeric font sizes.
+          </Lead>
+          <Code>{LINT}</Code>
+        </>
+      ),
+    },
+    {
+      id: "dark-mode",
+      title: "Dark mode",
+      body: (
+        <>
+          <Lead>
+            The scheme follows the device through prefers-color-scheme. There is no toggle and no class to set. An app
+            that wants its own toggle swaps the dark variant and sets the class itself.
+          </Lead>
+          <Code>{SCHEME}</Code>
+        </>
+      ),
+    },
+    {
+      id: "rules",
+      title: "The ten rules",
+      body: (
+        <ol className="flex max-w-prose list-decimal flex-col gap-2 pl-5">
+          {RULES.map((rule) => (
+            <li key={rule}>{rule}</li>
+          ))}
+        </ol>
+      ),
+    },
+  ],
+};
