@@ -13,7 +13,11 @@
 /* Tailwind does not scan node_modules, so name the package's own classes. */
 @source "../dist";
 
-/* The scheme follows the device. An app that wants a toggle swaps this line. */
+/*
+ * The scheme follows the device. The dark tokens below sit under this variant
+ * too, so an app that wants a toggle swaps this one line, in its own CSS after
+ * the import, for `@custom-variant dark (&:where(.dark, .dark *));`.
+ */
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 @theme inline {
@@ -97,13 +101,16 @@
   --warning-foreground: oklch(0.985 0 0);
   --link: oklch(0.546 0.245 262.881);
   /*
-   * Blue, emerald, amber, violet, rose. Neighbours must differ by 3:1, which
-   * contrast can only give through lightness, so emerald and violet are the
-   * deep members in both schemes.
+   * Blue, emerald, amber, violet, rose. Each slot reaches 3:1 against the card
+   * and against the slots next to it, which only lightness can give, so
+   * emerald and violet are the deep members in both schemes. Slots two apart
+   * share a lightness and are told apart by hue; series take slots in order.
+   * Every chart value is inside sRGB, so the browser paints what the contrast
+   * check scored.
    */
   --chart-1: oklch(0.65 0.17 259.8);
   --chart-2: oklch(0.35 0.07 163.2);
-  --chart-3: oklch(0.67 0.16 60);
+  --chart-3: oklch(0.66 0.15 60);
   --chart-4: oklch(0.36 0.17 293);
   --chart-5: oklch(0.65 0.21 16.4);
   --sidebar: oklch(0.985 0 0);
@@ -114,10 +121,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
+  @variant dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
@@ -144,11 +149,11 @@
     --warning: oklch(0.828 0.189 84.429);
     --warning-foreground: oklch(0.145 0 0);
     --link: oklch(0.707 0.165 254.624);
-    --chart-1: oklch(0.84 0.09 255);
+    --chart-1: oklch(0.84 0.08 255);
     --chart-2: oklch(0.52 0.11 163.2);
-    --chart-3: oklch(0.86 0.15 80);
+    --chart-3: oklch(0.86 0.13 80);
     --chart-4: oklch(0.55 0.25 293);
-    --chart-5: oklch(0.84 0.09 12);
+    --chart-5: oklch(0.84 0.085 12);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.488 0.243 264.376);

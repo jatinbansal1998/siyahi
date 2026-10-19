@@ -21,11 +21,12 @@ export function parseOklch(value) {
 }
 
 /**
- * Converts OKLCH to gamma-encoded sRGB channels in 0..1, clipped to the gamut.
+ * Linear-light sRGB channels of an OKLCH colour, before any clipping. A channel
+ * outside 0..1 means the colour is outside sRGB.
  * @param {Oklch} color
  * @returns {[number, number, number]}
  */
-export function oklchToSrgb({ l, c, h }) {
+function linearSrgb({ l, c, h }) {
   const hr = (h * Math.PI) / 180;
   const a = c * Math.cos(hr);
   const b = c * Math.sin(hr);
@@ -35,12 +36,28 @@ export function oklchToSrgb({ l, c, h }) {
     (l - 0.0894841775 * a - 1.291485548 * b) ** 3,
   ];
   const [cl = 0, cm = 0, cs = 0] = lms;
-  const linear = [
+  return [
     4.0767416621 * cl - 3.3077115913 * cm + 0.2309699292 * cs,
     -1.2684380046 * cl + 2.6097574011 * cm - 0.3413193965 * cs,
     -0.0041960863 * cl - 0.7034186147 * cm + 1.707614701 * cs,
   ];
-  const [r, g, bl] = linear.map((v) => {
+}
+
+/**
+ * Whether a colour is inside sRGB, so every screen paints the value as scored.
+ * @param {Oklch} color
+ */
+export function inSrgb(color) {
+  return linearSrgb(color).every((v) => v >= -1e-4 && v <= 1 + 1e-4);
+}
+
+/**
+ * Converts OKLCH to gamma-encoded sRGB channels in 0..1, clipped to the gamut.
+ * @param {Oklch} color
+ * @returns {[number, number, number]}
+ */
+export function oklchToSrgb(color) {
+  const [r, g, bl] = linearSrgb(color).map((v) => {
     const x = Math.min(1, Math.max(0, v));
     return x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055;
   });

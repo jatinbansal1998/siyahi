@@ -2,13 +2,15 @@
 // @ts-check
 // Fails when a theme colour is too faint to read: 4.5:1 for text on the
 // canvas and the card and for a foreground on its own fill, 3:1 for chart
-// colours against the card and against the next colour in the series.
+// colours against the card and against the slot next to them. Slots two apart
+// share a lightness and are told apart by hue, so they are not compared. Chart
+// colours must also sit inside sRGB, so the browser paints what was scored.
 //
 //   siyahi-contrast styles/siyahi.css
 import { readFileSync, realpathSync } from "node:fs";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
-import { contrast, parseOklch, toHex } from "./color.mjs";
+import { contrast, inSrgb, parseOklch, toHex } from "./color.mjs";
 import { readTheme } from "./theme.mjs";
 
 /** @typedef {import("./theme.mjs").Theme} Theme */
@@ -40,7 +42,7 @@ export function checkContrast(theme) {
     const vars = theme[scheme];
     const color = (/** @type {string} */ name) => {
       const value = vars[name];
-      if (value === undefined) throw new Error(`${scheme}: --${name} is not set`);
+      if (value === undefined) throw new Error(`${scheme}: --${name} is not set in the ${scheme} block`);
       const parsed = parseOklch(value);
       if (!parsed) throw new Error(`${scheme}: --${name} is "${value}", not an oklch() colour`);
       if (parsed.alpha < 1) throw new Error(`${scheme}: --${name} is translucent; contrast needs an opaque colour`);
@@ -57,6 +59,20 @@ export function checkContrast(theme) {
     });
   }
   return checks;
+}
+
+/**
+ * Chart colours outside sRGB, named for the error message.
+ * @param {Theme} theme
+ * @returns {string[]}
+ */
+export function checkGamut(theme) {
+  return /** @type {const} */ (["light", "dark"]).flatMap((scheme) =>
+    CHARTS.filter((name) => {
+      const parsed = parseOklch(theme[scheme][name] ?? "");
+      return parsed !== null && !inSrgb(parsed);
+    }).map((name) => `${scheme} --${name} ${theme[scheme][name]} is outside sRGB; lower its chroma`),
+  );
 }
 
 /**
@@ -83,11 +99,13 @@ if (import.meta.url === invoked) {
   const theme = readTheme(readFileSync(file, "utf8"));
   const checks = checkContrast(theme);
   const failures = checks.filter((c) => c.ratio < c.min);
+  const outOfGamut = checkGamut(theme);
   for (const check of failures) console.error(`FAIL ${describe(theme, check)}`);
+  for (const problem of outOfGamut) console.error(`FAIL ${problem}`);
   const weakest = checks.toSorted((a, b) => a.ratio / a.min - b.ratio / b.min)[0];
   console.log(
     `contrast: ${checks.length - failures.length}/${checks.length} pairs pass` +
       (weakest ? `; closest: ${describe(theme, weakest)}` : ""),
   );
-  process.exit(failures.length ? 1 : 0);
+  process.exit(failures.length || outOfGamut.length ? 1 : 0);
 }

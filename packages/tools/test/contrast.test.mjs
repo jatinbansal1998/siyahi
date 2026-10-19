@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vite-plus/test";
 import { contrast, parseOklch, toHex } from "../color.mjs";
-import { checkContrast } from "../contrast.mjs";
+import { checkContrast, checkGamut } from "../contrast.mjs";
 import { readTheme } from "../theme.mjs";
 
 const themeCss = readFileSync(fileURLToPath(new URL("../../ui/styles/siyahi.css", import.meta.url)), "utf8");
@@ -16,7 +16,7 @@ const failures = (/** @type {string} */ css) => checkContrast(readTheme(css)).fi
  * @param {string} css @param {"light" | "dark"} scheme @param {string} name @param {string} value
  */
 function setVar(css, scheme, name, value) {
-  const darkStart = css.indexOf("@media (prefers-color-scheme: dark) {");
+  const darkStart = css.indexOf("@variant dark {");
   const [head, tail] = [css.slice(0, darkStart), css.slice(darkStart)];
   const pattern = new RegExp(`(--${name}:\\s*)[^;]+;`);
   return scheme === "light" ? head.replace(pattern, `$1${value};`) + tail : head + tail.replace(pattern, `$1${value};`);
@@ -67,15 +67,24 @@ describe("contrast check", () => {
     expect(failures(broken).map((c) => `${c.scheme} ${c.fg}/${c.bg}`)).toEqual(["dark positive-foreground/positive"]);
   });
 
-  it("lets dark inherit what it does not override", () => {
-    const theme = readTheme(themeCss);
-    expect(theme.dark.radius).toBe(theme.light.radius);
+  it("fails a dark block that leaves a checked token to the light value", () => {
+    const darkStart = themeCss.indexOf("@variant dark {");
+    const broken = themeCss.slice(0, darkStart) + themeCss.slice(darkStart).replace(/\n\s*--positive:[^;]+;/, "");
+    expect(() => checkContrast(readTheme(broken))).toThrow("dark: --positive is not set in the dark block");
+  });
+
+  it("fails a chart colour outside sRGB", () => {
+    expect(checkGamut(readTheme(themeCss))).toEqual([]);
+    const broken = setVar(themeCss, "dark", "chart-3", "oklch(0.86 0.16 80)");
+    expect(checkGamut(readTheme(broken))).toEqual([
+      "dark --chart-3 oklch(0.86 0.16 80) is outside sRGB; lower its chroma",
+    ]);
   });
 });
 
 describe("siyahi-contrast command", () => {
-  // The bin link @siyahi/ui's build runs, as a package manager installs it.
-  const bin = fileURLToPath(new URL("../../ui/node_modules/.bin/siyahi-contrast", import.meta.url));
+  // The bin link the workspace installs, as a package manager installs it.
+  const bin = fileURLToPath(new URL("../../../node_modules/.bin/siyahi-contrast", import.meta.url));
   const run = (/** @type {string} */ css) => {
     const file = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-contrast-")), "theme.css");
     writeFileSync(file, css);
