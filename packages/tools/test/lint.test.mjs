@@ -76,6 +76,18 @@ describe("siyahi lint rules", () => {
     );
   });
 
+  it("reports a chart config with a per-scheme theme map", () => {
+    expect(
+      lint(
+        `${IMPORT}export const config = { value: { label: "Value", theme: { light: "var(--chart-1)", dark: "var(--chart-2)" } } };`,
+      ),
+    ).toEqual(["no-chart-theme-map"]);
+  });
+
+  it("accepts a chart config colour that names a chart token", () => {
+    expect(lint(`${IMPORT}export const config = { value: { label: "Value", color: "var(--chart-1)" } };`)).toEqual([]);
+  });
+
   it("accepts theme tokens, var() and the type scale", () => {
     expect(
       lint(

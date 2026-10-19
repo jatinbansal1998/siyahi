@@ -113,6 +113,31 @@ const noNumericFontSize = {
   },
 };
 
+/** @type {Rule} */
+const noChartThemeMap = {
+  meta: {
+    type: "problem",
+    docs: { description: "Disallow per-scheme ChartConfig theme maps; use color: var(--chart-n)." },
+  },
+  // shadcn's ChartStyle writes a theme map's dark entry under a `.dark` class,
+  // which Siyahi never sets, so the light entry would win in dark mode.
+  create: (/** @type {Context} */ context) => ({
+    /** @param {{ key: { type: string, name?: string, value?: unknown }, value: { type: string, properties?: { key?: { name?: string, value?: unknown } }[] } }} node */
+    Property(node) {
+      const key = node.key.type === "Identifier" ? node.key.name : node.key.value;
+      if (key !== "theme" || node.value.type !== "ObjectExpression") return;
+      const keys = new Set((node.value.properties ?? []).map((p) => p.key?.name ?? p.key?.value));
+      if (keys.has("light") || keys.has("dark")) {
+        context.report({
+          node,
+          message:
+            'Chart theme map. Its dark entry only applies under a .dark class, which Siyahi never sets. Use color: "var(--chart-1)"; the variable already follows the scheme.',
+        });
+      }
+    },
+  }),
+};
+
 /** @type {{ meta: { name: string }, rules: Record<string, Rule> }} */
 const plugin = {
   meta: { name: "siyahi" },
@@ -120,6 +145,7 @@ const plugin = {
     "no-color-literal": scoped(noColorLiteral),
     "no-scheme-variant": scoped(noSchemeVariant),
     "no-numeric-font-size": scoped(noNumericFontSize),
+    "no-chart-theme-map": scoped(noChartThemeMap),
     "no-raw-colors": scoped(shadcn.rules["no-raw-colors"]),
     "no-arbitrary-values": scoped(shadcn.rules["no-arbitrary-values"]),
   },

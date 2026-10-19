@@ -3,18 +3,20 @@ import { recommended as siyahiRules } from "@siyahi/tools/lint";
 import { defineConfig } from "vite-plus";
 
 // shadcn core files are refreshed with `shadcn add --overwrite`, so they are
-// never formatted, linted or edited here. Registry add-ons stay as close to
-// their upstream copy as our few edits allow, so they are left alone too.
-const COPIED = [
-  "packages/ui/src/components/ui/**",
-  "packages/ui/src/hooks/use-mobile.ts",
-  "packages/ui/src/components/registry/**",
-];
+// never formatted, linted or edited here.
+const SHADCN_CORE = ["packages/ui/src/components/ui/**", "packages/ui/src/hooks/use-mobile.ts"];
+// Registry add-ons stay as close to their upstream copy as our few edits
+// allow: not formatted, and linted only for colour rules, in a pass of their
+// own (`lint:registry`, config in .oxlintrc.registry.json).
+const REGISTRY = "packages/ui/src/components/registry/**";
 const GENERATED = [
   "packages/ui/report.css",
   "packages/ui/styles/shadcn.css",
   "packages/ui/registry.lock.json",
   "packages/ui/src/index.ts",
+  "packages/ui/README.md",
+  "packages/*/LICENSE",
+  "packages/*/THIRD_PARTY_NOTICES.md",
 ];
 
 export default defineConfig({
@@ -30,11 +32,11 @@ export default defineConfig({
   fmt: {
     printWidth: 120,
     // The design and plan are the owner's documents; this repo does not reflow them.
-    ignorePatterns: [...COPIED, ...GENERATED, "docs/**", "**/dist/**", "pnpm-lock.yaml", "shots/**"],
+    ignorePatterns: [...SHADCN_CORE, REGISTRY, ...GENERATED, "docs/**", "**/dist/**", "pnpm-lock.yaml", "shots/**"],
     sortPackageJson: {},
   },
   lint: {
-    ignorePatterns: [...COPIED, "**/dist/**", "shots/**"],
+    ignorePatterns: [...SHADCN_CORE, REGISTRY, "**/dist/**", "shots/**"],
     plugins: ["eslint", "oxc", "react", "unicorn", "typescript", "import"],
     jsPlugins: ["@siyahi/tools/lint"],
     settings: {

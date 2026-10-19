@@ -28,6 +28,8 @@ jobs:
           cache: true
       - name: Format and lint
         run: vp check
+      - name: Colour rules on the copied add-ons
+        run: vp run lint:registry
       - name: Unused files, exports and dependencies
         run: vp run knip:check
       # Fails when shadcn.css, report.css, registry.lock.json or the barrel

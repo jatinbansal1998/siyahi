@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "vp run -r build",
-    "check": "vp check && vp run knip:check && vp run generate:check && vp run -r build && vp run -r typecheck && vp test",
+    "check": "vp check && vp run lint:registry && vp run knip:check && vp run generate:check && vp run -r build && vp run -r typecheck && vp test",
     "deploy:catalogue": "vp run -r build && vp run --filter @siyahi/catalogue deploy",
     "dev": "vp run --filter @siyahi/catalogue dev",
     "fmt": "vp fmt",
@@ -12,6 +12,7 @@
     "generate:check": "node packages/ui/scripts/generate.ts --check",
     "knip:check": "knip --no-config-hints",
     "lint": "vp lint",
+    "lint:registry": "vp lint -c .oxlintrc.registry.json packages/ui/src/components/registry",
     "shots": "node packages/tools/shots.mjs",
     "test": "vp test",
     "typecheck": "vp run -r typecheck"

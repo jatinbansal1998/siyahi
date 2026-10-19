@@ -56,11 +56,13 @@ export type StatusColorConfig = Record<number, string> & {
   healthy?: string;
 };
 
+// Siyahi edit: the defaults name the theme's meaning colours instead of fixed
+// Tailwind values, so they follow the scheme and pass the contrast check.
 const DEFAULT_COLORS: Record<number, string> = {
   0: "var(--color-secondary)",
-  1: "oklch(57.7% 0.245 27.325)", // red-600 (critical)
-  2: "oklch(82.8% 0.189 84.429)", // amber-400 (degraded)
-  3: "oklch(72.3% 0.219 149.579)", // green-500 (healthy)
+  1: "var(--negative)", // critical
+  2: "var(--warning)", // degraded
+  3: "var(--positive)", // healthy
 };
 
 const SEMANTIC_KEYS: Record<
