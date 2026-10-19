@@ -1,0 +1,6 @@
+# CodeRabbit is not used on this repo. Reviews run through T3 Code threads instead.
+reviews:
+  auto_review:
+    enabled: false
+chat:
+  auto_reply: false
