@@ -180,6 +180,7 @@ today. They get:
 The ten rules:
 
 1. A card holds data, prose sits on the page. One level of card.
+   A stat tile is a Card like any other: no gradient, no extra shadow.
 2. A stat tile is `SectionCards` from shadcn's dashboard block: muted label, outline
    badge, value, bold line, muted line.
 3. Charts: area, bar or line, chart tokens only, dashed horizontal grid, legend below,

@@ -2,7 +2,7 @@
 
 ## 0.1.4
 
-Three small fixes, published as `0.1.4-next.<n>` pre-releases.
+Four small fixes, published as `0.1.4-next.<n>` pre-releases.
 
 - Data table: a page's sticky header no longer slides under the table. The
   table's pinned cells (z-index 10 and 20) and sticky header row (30) ranked
@@ -13,6 +13,9 @@ Three small fixes, published as `0.1.4-next.<n>` pre-releases.
   rank inside the table. A sticky header above a data table needs a z-index of
   1 or more (`z-1` will do); it no longer has to outrank 30. At 0 or `auto`
   the table, coming later in the page, still paints over it.
+- `SectionCards`: stat tiles use the plain card surface; the dashboard-01
+  gradient is gone. A tile is the stock `Card` in light and dark, like every
+  other card on the page.
 - `siyahi-shots` passes static reports. A page with no `@font-face` rule, such
   as one on `report.css`, uses the viewer's installed fonts by design, so the
   "named but never loaded" check no longer applies to it; the run prints
