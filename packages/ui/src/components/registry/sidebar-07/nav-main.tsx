@@ -47,7 +47,8 @@ export function NavMain({
     if (isMobile) setOpenMobile(false)
   }
   // Siyahi edit: an item without sub-items is a plain link, so a nav of flat
-  // views navigates; upstream made every item a collapsible group.
+  // views navigates; upstream made every item a collapsible group. The
+  // active one carries aria-current="page" for screen readers.
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
@@ -57,7 +58,13 @@ export function NavMain({
             <SidebarMenuButton
               isActive={item.isActive}
               tooltip={item.title}
-              render={<a {...item.linkProps} href={item.url} />}
+              render={
+                <a
+                  {...item.linkProps}
+                  href={item.url}
+                  aria-current={item.isActive ? "page" : undefined}
+                />
+              }
               onClick={closeDrawer}
             >
               {item.icon}

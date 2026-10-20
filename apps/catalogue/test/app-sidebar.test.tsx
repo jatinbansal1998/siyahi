@@ -51,10 +51,14 @@ describe("AppSidebar with flat items", () => {
     expect(document.querySelector('a[href="#/data"]')?.getAttribute("data-slot")).toBe("sidebar-menu-button");
   });
 
-  it("marks the active item and no other", async () => {
+  it("marks the active item and no other, for eyes and screen readers", async () => {
     await render(<AppSidebarExample />);
-    expect(document.querySelector('a[href="#/blocks"]')?.hasAttribute("data-active")).toBe(true);
-    expect(document.querySelector('a[href="#/data"]')?.hasAttribute("data-active")).toBe(false);
+    const active = document.querySelector('a[href="#/blocks"]');
+    const other = document.querySelector('a[href="#/data"]');
+    expect(active?.hasAttribute("data-active")).toBe(true);
+    expect(active?.getAttribute("aria-current")).toBe("page");
+    expect(other?.hasAttribute("data-active")).toBe(false);
+    expect(other?.hasAttribute("aria-current")).toBe(false);
   });
 
   it("spreads an item's linkProps onto its anchor, handlers included", async () => {
