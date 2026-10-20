@@ -81,7 +81,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Releases | CI publishes a `0.x.0-next.N` pre-release to npmjs with `--tag next` on every merge to `main`, using the `NPM_TOKEN` repository secret Jatin has set. Consumers install `@siyahi/ui@next` until `1.0.0`. Stable versions are cut on Jatin's word. Trusted publishing replaces the token after the first publish, as a follow-up. |
 | Consumers | The Book moves to React and the package, shell first, then screen by screen. dash: new pages use the package; the shell moves too; old pages stay on Mantine under the layered stylesheet. |
 | dash shell | Keeps today's shape, rebuilt on the package: index page with folders and recent items, top utility bar with title, ⌘K search (Command) and width toggle, footer. No sidebar; dash is a reports site, and a sidebar would take 256px from 56 frozen pages. (Claude's call.) |
-| Stat tile | shadcn's own `SectionCards` from the `dashboard-01` block (base-vega): muted label, outline badge top right, value, bold line, muted line. `@dashboardcn`'s KPI card is dropped: it uses a Radix-only prop, hard-codes emerald and red, and formats as en-US. |
+| Stat tile | shadcn's own `SectionCards` from the `dashboard-01` block (copied from base-vega, drawn as a stock luma Card: 26px corners, `shadow-md`; flat cards are open for 0.1.6): muted label, outline badge top right, value, bold line, muted line. `@dashboardcn`'s KPI card is dropped: it uses a Radix-only prop, hard-codes emerald and red, and formats as en-US. |
 | Before/after page | dash `pages/dell/2026-10-15-why-the-dell-froze.tsx` is the only existing dash page migrated, so Jatin can compare before and after. |
 
 ## The package

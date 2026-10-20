@@ -6,11 +6,16 @@ shadcn's `base-luma` style replaces `base-vega`, published as `0.1.5-next.<n>`
 pre-releases.
 
 - Core components are luma's: cards are `rounded-4xl` with `shadow-md` and a
-  fainter ring, buttons and the filter trigger are pills, menus and their items
-  are `rounded-2xl`, and table cells are `p-3` (headers `h-12 px-3`), so a
-  table row is 8px taller. The theme is unchanged: luma's neutral surfaces and
+  fainter ring, buttons and the filter trigger are pills, menu panels
+  (dropdown, context menu, select) are `rounded-3xl` with `rounded-2xl` items,
+  and tables are roomier: headers `h-10` → `h-12`, cells `p-2` → `p-3`. A
+  one-line row is 8px taller; a row whose cells wrap grows more. The theme is unchanged: luma's neutral surfaces and
   radius are vega's, and Siyahi keeps Geist, its chart palette and its meaning
   colours. Contrast is unchanged (64/64 pairs).
+- Sizes apps will see: `SidebarMenuButton size="lg"` is `h-14` (was `h-12`),
+  so a brand row in the sidebar, like The Book's and the catalogue shell's,
+  is 8px taller; dropdown and context menus have a 192px minimum width
+  (`min-w-48`, was 128px), so data-table column menus open wider.
 - Data table: header and body cells take the core table's luma padding, so the
   data table and a plain `Table` share one row height.
 - Open for 0.1.6: cards, stat tiles included, now carry luma's `shadow-md`.
