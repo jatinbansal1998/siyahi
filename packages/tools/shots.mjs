@@ -2,10 +2,16 @@
 // @ts-check
 // Renders pages in Playwright's Chromium at 1920 and 390 wide, light and dark,
 // checks the layout rules every Siyahi page keeps, and writes one full-page
-// PNG per page and mode.
+// PNG per page and mode. A page taller than 16,000px is written as segments
+// <name>-1.png, <name>-2.png, … of equal height, which together cover it.
 //
 //   siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist]
-//                [--chrome '[data-slot="sidebar"]']
+//                [--chrome '[data-slot="sidebar"]'] [--wait-for h1]
+//
+// Measures only once --wait-for (by default the page's h1) is visible, two
+// animation frames have passed and the fonts are ready: a page that renders
+// after the network goes quiet would otherwise be measured, and shot, at one
+// screen tall.
 //
 // Checks: a gutter of at least --gutter px on both sides of visible text and
 // cards, no sideways document scroll (also with a classic scrollbar taking its
@@ -16,12 +22,14 @@
 //
 // The capture first grows the viewport to the page's height and waits, so
 // charts that redraw on resize settle before the picture is taken; a
-// stitched full-page capture catches them mid-animation.
-import { mkdirSync } from "node:fs";
+// stitched full-page capture catches them mid-animation. Segments are cut
+// from that one full-height render, so sticky and fixed parts sit where they
+// would in a single shot.
+import { mkdirSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
-import { chromium } from "playwright";
+import { chromium, errors } from "playwright";
 
 /** @typedef {{ name: string, width: number, height: number, dark: boolean }} Mode */
 /** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, font: string, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
@@ -33,7 +41,11 @@ const MODES = [
   { name: "390-light", width: 390, height: 844, dark: false },
   { name: "390-dark", width: 390, height: 844, dark: true },
 ];
-const MAX_HEIGHT = 16000;
+// How long --wait-for may take to appear before the mode fails.
+const WAIT_FOR_TIMEOUT = 15_000;
+// Tallest PNG written. Headless Chromium renders taller pages, but many image
+// viewers draw through a GPU texture capped at 16,384px.
+const SEGMENT_MAX = 16000;
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -42,14 +54,18 @@ const { values, positionals } = parseArgs({
     gutter: { type: "string", default: "16" },
     font: { type: "string", default: "Geist" },
     chrome: { type: "string", default: '[data-slot="sidebar"]' },
+    "wait-for": { type: "string", default: "h1" },
   },
 });
 if (positionals.length === 0) {
-  console.error("usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>]");
+  console.error(
+    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>]",
+  );
   process.exit(2);
 }
 const outDir = path.resolve(values.out);
 const minGutter = Number(values.gutter);
+const waitFor = values["wait-for"];
 mkdirSync(outDir, { recursive: true });
 
 /** @param {string} url */
@@ -107,10 +123,21 @@ const SETTLE = `(async () => {
 })()`;
 
 /**
+ * Deletes what an earlier run wrote for this page and mode, so a page that
+ * shrank leaves no stale segment behind.
+ * @param {string} base
+ */
+function clearShots(base) {
+  // base is letters, digits and dashes (slugOf and the mode name), so it is safe in a pattern.
+  const earlier = new RegExp(`^${base}(-\\d+)?\\.png$`);
+  for (const name of readdirSync(outDir)) if (earlier.test(name)) rmSync(path.join(outDir, name));
+}
+
+/**
  * @param {import("playwright").Browser} browser
  * @param {string} url
  * @param {Mode} mode
- * @returns {Promise<{ probe: Probe, file: string }>}
+ * @returns {Promise<{ probe: Probe, ready: boolean, height: number, files: string[] }>}
  */
 async function shoot(browser, url, mode) {
   const context = await browser.newContext({
@@ -119,27 +146,43 @@ async function shoot(browser, url, mode) {
   });
   const page = await context.newPage();
   await page.goto(url, { waitUntil: "networkidle" });
+  const ready = await page.waitForSelector(waitFor, { timeout: WAIT_FOR_TIMEOUT }).then(
+    () => true,
+    (error) => {
+      if (error instanceof errors.TimeoutError) return false;
+      throw error;
+    },
+  );
   await page.evaluate(SETTLE);
   /** @type {Probe} */
   const probe = await page.evaluate(PROBE);
-  await page.setViewportSize({
-    width: mode.width,
-    height: Math.min(Math.max(probe.docHeight, mode.height), MAX_HEIGHT),
-  });
+  const height = Math.max(probe.docHeight, mode.height);
+  await page.setViewportSize({ width: mode.width, height });
   await page.waitForTimeout(1500);
   await page.evaluate(SETTLE);
-  const file = path.join(outDir, `${slugOf(url)}-${mode.name}.png`);
-  await page.screenshot({ path: file });
+  const base = `${slugOf(url)}-${mode.name}`;
+  clearShots(base);
+  const count = Math.ceil(height / SEGMENT_MAX);
+  const segment = Math.ceil(height / count);
+  const files = [];
+  for (let i = 0; i < count; i++) {
+    const file = path.join(outDir, count === 1 ? `${base}.png` : `${base}-${i + 1}.png`);
+    const y = i * segment;
+    await page.screenshot({ path: file, clip: { x: 0, y, width: mode.width, height: Math.min(segment, height - y) } });
+    files.push(file);
+  }
   await context.close();
-  return { probe, file };
+  return { probe, ready, height, files };
 }
 
 /**
  * @param {Probe} p
+ * @param {boolean} ready whether --wait-for appeared
  * @returns {string[]}
  */
-function problemsOf(p) {
+function problemsOf(p, ready) {
   const problems = [];
+  if (!ready) problems.push(`nothing matching ${waitFor} appeared within ${WAIT_FOR_TIMEOUT / 1000}s (--wait-for)`);
   if (p.gutterLeft !== null && p.gutterLeft < minGutter)
     problems.push(`left gutter is ${p.gutterLeft}px, under ${minGutter}px`);
   if (p.gutterRight !== null && p.gutterRight < minGutter)
@@ -149,7 +192,6 @@ function problemsOf(p) {
     problems.push(`scrolls sideways by ${p.overflowWithScrollbar}px once a scrollbar takes its width`);
   if (!p.font.startsWith(values.font)) problems.push(`body font is ${p.font}, not ${values.font}`);
   else if (!p.fontLoaded) problems.push(`${p.font} is named but never loaded`);
-  if (p.docHeight > MAX_HEIGHT) problems.push(`page is ${p.docHeight}px tall; the shot stops at ${MAX_HEIGHT}px`);
   return problems;
 }
 
@@ -157,12 +199,13 @@ const browser = await chromium.launch();
 let failed = false;
 for (const url of positionals) {
   for (const mode of MODES) {
-    const { probe, file } = await shoot(browser, url, mode);
-    const problems = problemsOf(probe);
+    const { probe, ready, height, files } = await shoot(browser, url, mode);
+    const problems = problemsOf(probe, ready);
     failed ||= problems.length > 0;
     console.log(
       `${problems.length ? "FAIL" : "ok  "} ${mode.name.padEnd(10)} gutter=${probe.gutterLeft}/${probe.gutterRight} ` +
-        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} font=${probe.font} h1=${JSON.stringify(probe.h1)} ${file}`,
+        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} font=${probe.font} h1=${JSON.stringify(probe.h1)} ` +
+        `height=${height} ${files.join(" ")}`,
     );
     for (const problem of problems) console.log(`     ${problem}`);
   }

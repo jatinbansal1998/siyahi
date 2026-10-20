@@ -10,7 +10,8 @@ export default function AlertExample() {
         <AlertDescription>Quotes refresh every fifteen minutes during market hours.</AlertDescription>
       </Alert>
       <Alert>
-        <TriangleAlertIcon className="text-warning" />
+        {/* Alert sets its icons to the text colour with a stronger selector; the ! lets the icon's colour win. */}
+        <TriangleAlertIcon className="text-warning!" />
         <AlertTitle>Two trades are unmatched</AlertTitle>
         <AlertDescription>The contract notes list trades the ledger does not have yet.</AlertDescription>
       </Alert>

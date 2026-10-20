@@ -21,13 +21,16 @@ const GENERATED = [
 
 export default defineConfig({
   resolve: {
-    // Tests import @siyahi/ui source files, which use the package's own alias.
+    // Tests import @siyahi/ui source files, which use the package's own alias,
+    // and catalogue examples, which import the package; both resolve to source
+    // so the tests need no build.
     alias: [
+      { find: /^@siyahi\/ui$/, replacement: fileURLToPath(new URL("./packages/ui/src/index.ts", import.meta.url)) },
       { find: /^@siyahi\/ui\/(.*)$/, replacement: fileURLToPath(new URL("./packages/ui/src/$1", import.meta.url)) },
     ],
   },
   test: {
-    include: ["packages/*/test/**/*.test.{ts,mjs}"],
+    include: ["packages/*/test/**/*.test.{ts,tsx,mjs}", "apps/*/test/**/*.test.tsx"],
   },
   fmt: {
     printWidth: 120,

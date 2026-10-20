@@ -37,9 +37,20 @@ export function pct(value: number, locale: SiyahiLocale = defaultLocale, fractio
   }).format(value);
 }
 
+export interface TimeOptions {
+  /** Write the date, in the same zone, before the time: 20 Oct 2026, 14:30 IST. */
+  withDate?: boolean;
+}
+
 /** A 24-hour time in the locale's zone, with the zone written: 14:30 IST. */
-export function time(value: Date | number | string, locale: SiyahiLocale = defaultLocale): string {
+export function time(
+  value: Date | number | string,
+  locale: SiyahiLocale = defaultLocale,
+  { withDate = false }: TimeOptions = {},
+): string {
+  const date: Intl.DateTimeFormatOptions = withDate ? { day: "numeric", month: "short", year: "numeric" } : {};
   return new Intl.DateTimeFormat(locale.numberLocale, {
+    ...date,
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
@@ -52,7 +63,7 @@ export interface Formatters {
   money: (value: number, fractionDigits?: number) => string;
   moneyCompact: (value: number) => string;
   pct: (value: number, fractionDigits?: number) => string;
-  time: (value: Date | number | string) => string;
+  time: (value: Date | number | string, options?: TimeOptions) => string;
 }
 
 /** The formatters above, bound to the locale of the nearest `SiyahiProvider`. */
@@ -63,7 +74,7 @@ export function useFormat(): Formatters {
       money: (value, fractionDigits) => money(value, locale, fractionDigits),
       moneyCompact: (value) => moneyCompact(value, locale),
       pct: (value, fractionDigits) => pct(value, locale, fractionDigits),
-      time: (value) => time(value, locale),
+      time: (value, options) => time(value, locale, options),
     }),
     [locale],
   );

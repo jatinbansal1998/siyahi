@@ -31,11 +31,20 @@ A Vite+ or ESLint config can spread every rule at once:
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]']
+npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1]
 ```
 
 Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
-writes one full-page PNG per mode to `shots/`. It fails when visible text or a
+writes one full-page PNG per mode to `shots/`. A page taller than 16,000 pixels
+is written as equal segments, `<name>-1.png`, `<name>-2.png` and so on, which
+together cover the whole page; the run lists every file. A rerun replaces the
+page's earlier shots.
+
+It measures the page once the network is quiet, an element matching
+`--wait-for` (by default `h1`) is visible, two animation frames have passed
+and the fonts are ready, so content a page renders after loading its data is
+in the shot. A mode fails when nothing matches within 15 seconds; pass a
+selector that only the finished page has, such as `--wait-for '[data-ready]'`. It fails when visible text or a
 card comes closer than `--gutter` pixels to either edge, when the page scrolls
 sideways, or when the body font is not a loaded `--font` family. Content that
 scrolls sideways inside its own box is exempt from the gutter, and so is

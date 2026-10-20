@@ -5,7 +5,7 @@
       "entry": ["vite.config.ts", ".github/scripts/*.mjs"],
     },
     "packages/ui": {
-      "entry": ["src/index.ts", "scripts/generate.ts", "test/**/*.test.ts"],
+      "entry": ["src/index.ts", "scripts/generate.ts", "test/**/*.test.{ts,tsx}"],
       "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
       // The shadcn CLI adds components; generate.ts copies its tailwind.css by path.
       "ignoreDependencies": ["shadcn"],
@@ -24,7 +24,7 @@
     },
     "apps/catalogue": {
       // Examples are loaded with import.meta.glob.
-      "entry": ["src/main.tsx", "src/examples/*.tsx"],
+      "entry": ["src/main.tsx", "src/examples/*.tsx", "test/**/*.test.tsx"],
     },
   },
 }

@@ -81,6 +81,9 @@ versioned URL in `package.json`.
   in a tooltip) and `SiyahiProvider`.
 - **Formatters**: `money`, `moneyCompact`, `pct` and `time`, or `useFormat()`
   for the same bound to the provider's locale.
+  `useFormat().time(value, { withDate: true })` (or
+  `time(value, locale, { withDate: true })`) and `<LocalTime withDate>` write
+  the date first: `20 Oct 2026, 14:30 IST`.
 - **`report.css`** for static HTML reports that do not use React: the theme as
   plain CSS variables plus base body styles, with no network requests.
 
@@ -163,6 +166,7 @@ Development uses pnpm and [Vite+](https://viteplus.dev):
 
 ```sh
 pnpm install
+pnpm --filter @siyahi/tools exec playwright install chromium   # once; the screenshot tests use it
 pnpm check      # format, lint, unused code, generated files, build, typecheck, tests
 pnpm dev        # the catalogue on localhost
 ```
