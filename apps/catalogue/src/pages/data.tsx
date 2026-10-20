@@ -105,7 +105,10 @@ export const data: Page = {
       title: "Ranked list",
       body: (
         <>
-          <Lead>dashboardcn's bar list, for "needs attention" and top-N lists.</Lead>
+          <Lead>
+            dashboardcn's bar list, for "needs attention" and top-N lists. An item's detail, such as a Delta, sits after
+            its label in its own colour; a long label truncates before the detail does.
+          </Lead>
           <Example name="bar-list" />
         </>
       ),
