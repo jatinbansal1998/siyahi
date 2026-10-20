@@ -2,7 +2,8 @@
 // @ts-check
 // Fails when a theme colour is too faint to read: 4.5:1 for text on the
 // canvas and the card and for a foreground on its own fill, 3:1 for chart
-// colours against the card and against the slot next to them. Slots two apart
+// colours against the card and against the slot next to them, and each
+// category badge's text on its tint. Slots two apart
 // share a lightness and are told apart by hue, so they are not compared. Chart
 // colours must also sit inside sRGB, so the browser paints what was scored.
 //
@@ -10,7 +11,7 @@
 import { readFileSync, realpathSync } from "node:fs";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
-import { contrast, inSrgb, parseOklch, toHex } from "./color.mjs";
+import { contrast, inSrgb, mixOklab, parseOklch, toHex } from "./color.mjs";
 import { readTheme } from "./theme.mjs";
 
 /** @typedef {import("./theme.mjs").Theme} Theme */
@@ -30,6 +31,27 @@ const FILLS = [
   ["sidebar-foreground", "sidebar"],
 ];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
+const BADGES = [1, 2, 3, 4, 5].map((n) => [`badge-${n}-foreground`, `badge-${n}`]);
+const MIX = /^color-mix\(\s*in oklab\s*,\s*var\(--([\w-]+)\)\s+([\d.]+)%\s*,\s*var\(--([\w-]+)\)\s*\)$/i;
+
+/**
+ * A token's colour in one scheme. A `color-mix()` of two tokens is written
+ * once, in the light block: the browser resolves its var()s against the dark
+ * values in dark, so the check mixes the dark values too.
+ * @param {Theme} theme @param {"light" | "dark"} scheme @param {string} name
+ * @returns {import("./color.mjs").Oklch}
+ */
+function resolve(theme, scheme, name) {
+  const value = theme[scheme][name] ?? (MIX.test(theme.light[name] ?? "") ? theme.light[name] : undefined);
+  if (value === undefined) throw new Error(`${scheme}: --${name} is not set in the ${scheme} block`);
+  const mix = MIX.exec(value);
+  if (mix)
+    return mixOklab(resolve(theme, scheme, mix[1] ?? ""), resolve(theme, scheme, mix[3] ?? ""), Number(mix[2]) / 100);
+  const parsed = parseOklch(value);
+  if (!parsed) throw new Error(`${scheme}: --${name} is "${value}", not an oklch() colour`);
+  if (parsed.alpha < 1) throw new Error(`${scheme}: --${name} is translucent; contrast needs an opaque colour`);
+  return parsed;
+}
 
 /**
  * @param {Theme} theme
@@ -39,19 +61,11 @@ export function checkContrast(theme) {
   /** @type {Check[]} */
   const checks = [];
   for (const scheme of /** @type {const} */ (["light", "dark"])) {
-    const vars = theme[scheme];
-    const color = (/** @type {string} */ name) => {
-      const value = vars[name];
-      if (value === undefined) throw new Error(`${scheme}: --${name} is not set in the ${scheme} block`);
-      const parsed = parseOklch(value);
-      if (!parsed) throw new Error(`${scheme}: --${name} is "${value}", not an oklch() colour`);
-      if (parsed.alpha < 1) throw new Error(`${scheme}: --${name} is translucent; contrast needs an opaque colour`);
-      return parsed;
-    };
+    const color = (/** @type {string} */ name) => resolve(theme, scheme, name);
     const pair = (/** @type {string} */ fg, /** @type {string} */ bg, /** @type {number} */ min) =>
       checks.push({ scheme, fg, bg, ratio: contrast(color(fg), color(bg)), min });
     for (const fg of TEXT) for (const bg of SURFACES) pair(fg, bg, 4.5);
-    for (const [fg, bg] of FILLS) pair(/** @type {string} */ (fg), /** @type {string} */ (bg), 4.5);
+    for (const [fg, bg] of [...FILLS, ...BADGES]) pair(/** @type {string} */ (fg), /** @type {string} */ (bg), 4.5);
     CHARTS.forEach((chart, i) => {
       pair(chart, "card", 3);
       const next = CHARTS[i + 1];
@@ -80,10 +94,7 @@ export function checkGamut(theme) {
  * @param {Check} check
  */
 function describe(theme, check) {
-  const hex = (/** @type {string} */ name) => {
-    const parsed = parseOklch(theme[check.scheme][name] ?? "");
-    return parsed ? toHex(parsed) : "?";
-  };
+  const hex = (/** @type {string} */ name) => toHex(resolve(theme, check.scheme, name));
   return `${check.scheme.padEnd(5)} --${check.fg} ${hex(check.fg)} on --${check.bg} ${hex(check.bg)}: ${check.ratio.toFixed(2)}:1 (needs ${check.min}:1)`;
 }
 

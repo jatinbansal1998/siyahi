@@ -147,4 +147,43 @@ describe("Treemap", () => {
     expect(onHover.mock.calls.map(([item]) => item?.key ?? null)).toEqual(["INFY-kite", "INFY-dhan", null, null]);
     expect(onHover.mock.calls[1]?.[0]).toBe(items[1]);
   });
+
+  it("selects a tapped tile with a ring, and clears on a second tap or a tap anywhere else", async () => {
+    const onSelect = vi.fn<(item: TreemapItem | null) => void>();
+    const items = [
+      { name: "INFY", group: "IT", weight: 300, change: 0.01 },
+      { name: "TCS", group: "IT", weight: 200, change: -0.01 },
+    ];
+    await render({ height: 300, items, onSelect });
+    const tap = (el: Element | null | undefined) =>
+      act(async () => {
+        el?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+        el?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+    const ringed = () =>
+      tiles()
+        .filter((t) => t.querySelectorAll("rect").length === 2)
+        .map((t) => t.querySelector("tspan")?.textContent);
+    await tap(tile("INFY")?.querySelector("rect"));
+    expect(ringed()).toEqual(["INFY"]);
+    await tap(tile("TCS")?.querySelector("text"));
+    expect(ringed()).toEqual(["TCS"]);
+    await tap(tile("TCS")?.querySelector("rect"));
+    expect(ringed()).toEqual([]);
+    await tap(tile("INFY")?.querySelector("rect"));
+    await tap(document.querySelector('[data-slot="treemap-group"] rect'));
+    expect(ringed()).toEqual([]);
+    await tap(tile("INFY")?.querySelector("rect"));
+    await tap(document.body);
+    expect(ringed()).toEqual([]);
+    expect(onSelect.mock.calls.map(([item]) => item?.name ?? null)).toEqual([
+      "INFY",
+      "TCS",
+      null,
+      "INFY",
+      null,
+      "INFY",
+      null,
+    ]);
+  });
 });

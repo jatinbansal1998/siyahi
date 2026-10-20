@@ -34,7 +34,10 @@ const holdings: Holding[] = [
 
 export default function TreemapExample() {
   const [hovered, setHovered] = useState<Holding | null>(null);
+  const [selected, setSelected] = useState<Holding | null>(null);
   const { money, pct } = useFormat();
+  const figures = (h: Holding) =>
+    `${money(h.weight)} · ${h.change === null ? "no cost basis" : `${h.change < 0 ? "▼" : "▲"} ${pct(Math.abs(h.change))}`}`;
   return (
     <Card>
       <CardHeader>
@@ -44,7 +47,7 @@ export default function TreemapExample() {
       <CardContent>
         <Tooltip open={hovered !== null} trackCursorAxis="both">
           <TooltipTrigger render={<div />}>
-            <Treemap items={holdings} height={320} range={0.6} onHover={setHovered} />
+            <Treemap items={holdings} height={320} range={0.6} onHover={setHovered} onSelect={setSelected} />
           </TooltipTrigger>
           <TooltipContent side="bottom" className="flex-col items-start gap-0 tabular-nums">
             {hovered && (
@@ -52,16 +55,23 @@ export default function TreemapExample() {
                 <span className="font-medium">
                   {hovered.name} · {hovered.broker}
                 </span>
-                <span>
-                  {money(hovered.weight)} ·{" "}
-                  {hovered.change === null
-                    ? "no cost basis"
-                    : `${hovered.change < 0 ? "▼" : "▲"} ${pct(Math.abs(hovered.change))}`}
-                </span>
+                <span>{figures(hovered)}</span>
               </>
             )}
           </TooltipContent>
         </Tooltip>
+        <p data-slot="treemap-selection" className="mt-3 text-sm tabular-nums">
+          {selected ? (
+            <>
+              <span className="font-medium">
+                {selected.name} · {selected.broker}
+              </span>{" "}
+              · {figures(selected)}
+            </>
+          ) : (
+            <span className="text-muted-foreground">Tap a tile for its figures</span>
+          )}
+        </p>
       </CardContent>
     </Card>
   );

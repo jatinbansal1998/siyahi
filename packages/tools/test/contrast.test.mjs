@@ -67,6 +67,16 @@ describe("contrast check", () => {
     expect(failures(broken).map((c) => `${c.scheme} ${c.fg}/${c.bg}`)).toEqual(["dark positive-foreground/positive"]);
   });
 
+  it("fails a category badge whose text is too faint on its tint, mixing each scheme's own values", () => {
+    const broken = setVar(
+      themeCss,
+      "light",
+      "badge-3-foreground",
+      "color-mix(in oklab, var(--chart-3) 100%, var(--foreground))",
+    );
+    expect(failures(broken).map((c) => `${c.scheme} ${c.fg}/${c.bg}`)).toEqual(["light badge-3-foreground/badge-3"]);
+  });
+
   it("fails a dark block that leaves a checked token to the light value", () => {
     const darkStart = themeCss.indexOf("@variant dark {");
     const broken = themeCss.slice(0, darkStart) + themeCss.slice(darkStart).replace(/\n\s*--positive:[^;]+;/, "");
@@ -94,7 +104,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 64\/64 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 74\/74 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

@@ -9,6 +9,8 @@
 // shadow override, so a stat tile is the stock Card in both schemes, like
 // every other card on the page. Under luma the stock Card carries shadow-md;
 // whether tiles drop it for flat cards is open for 0.1.6.
+// Siyahi edit: the grid is data-slot="section-cards", so the theme can tell
+// a stat tile from any other Card.
 "use client"
 
 import * as React from "react"
@@ -37,7 +39,7 @@ export interface SectionCard {
 
 export function SectionCards({ items }: { items: SectionCard[] }) {
   return (
-    <div className="@container/main">
+    <div data-slot="section-cards" className="@container/main">
       <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         {items.map((item) => (
           <Card key={item.label} className="@container/card">

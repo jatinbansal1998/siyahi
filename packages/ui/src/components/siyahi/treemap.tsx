@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
 import { heat, layout } from "@siyahi/ui/lib/treemap";
 
@@ -21,18 +21,40 @@ export interface TreemapProps<T extends TreemapItem> {
   range?: number;
   /** Gets the item under the pointer, and null when the pointer moves onto a group's name or leaves the map. */
   onHover?: (item: T | null) => void;
+  /**
+   * Gets the item whose tile is tapped or clicked, which then carries a ring,
+   * and null when the same tile is tapped again or a tap lands anywhere else.
+   * On a touch screen, which has no hover, this is how a reader gets a tile's figures.
+   */
+  onSelect?: (item: T | null) => void;
 }
 
 /** Holdings heat map: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
-export function Treemap<T extends TreemapItem>({ items, height, range, onHover }: TreemapProps<T>) {
+export function Treemap<T extends TreemapItem>({ items, height, range, onHover, onSelect }: TreemapProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const [selected, setSelected] = useState<string | null>(null);
+  const select = (item: T | null) => {
+    setSelected(item && (item.key ?? item.name));
+    onSelect?.(item);
+  };
   const { pct } = useFormat();
   useLayoutEffect(() => {
     const observer = new ResizeObserver(([entry]) => setWidth(entry?.contentRect.width ?? 0));
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
+  // A tap on a tile is handled by the tile's own click; any other tap clears.
+  const clearOutside = useEffectEvent((event: PointerEvent) => {
+    const tile = event.target instanceof Element ? event.target.closest('[data-slot="treemap-tile"]') : null;
+    if (!ref.current?.contains(tile)) select(null);
+  });
+  useEffect(() => {
+    if (selected === null) return;
+    const onPointerDown = (event: PointerEvent) => clearOutside(event);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [selected]);
   const { groups, tiles } = layout(items, width, height);
   const change = (value: number | null) =>
     value === null ? "—" : `${value > 0 ? "▲ " : value < 0 ? "▼ " : ""}${pct(Math.abs(value))}`;
@@ -55,19 +77,41 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover }
             </text>
           </svg>
         ))}
-        {tiles.map(({ item, ...box }) => (
-          <svg key={item.key ?? item.name} {...box} data-slot="treemap-tile" onPointerEnter={() => onHover?.(item)}>
-            <rect width="100%" height="100%" rx={4} style={{ fill: heat(item.change, range) }} />
-            {box.width > 56 && box.height > 36 && (
-              <text x={8} y={18} className="fill-foreground">
-                <tspan className="font-medium">{item.name}</tspan>
-                <tspan x={8} dy={16}>
-                  {change(item.change)}
-                </tspan>
-              </text>
-            )}
-          </svg>
-        ))}
+        {tiles.map(({ item, ...box }) => {
+          const key = item.key ?? item.name;
+          return (
+            <svg
+              key={key}
+              {...box}
+              data-slot="treemap-tile"
+              data-selected={key === selected || undefined}
+              onPointerEnter={() => onHover?.(item)}
+              onClick={() => select(key === selected ? null : item)}
+            >
+              <rect width="100%" height="100%" rx={4} style={{ fill: heat(item.change, range) }} />
+              {key === selected && (
+                <rect
+                  x={1}
+                  y={1}
+                  width={box.width - 2}
+                  height={box.height - 2}
+                  rx={3}
+                  fill="none"
+                  strokeWidth={2}
+                  className="stroke-foreground"
+                />
+              )}
+              {box.width > 56 && box.height > 36 && (
+                <text x={8} y={18} className="fill-foreground">
+                  <tspan className="font-medium">{item.name}</tspan>
+                  <tspan x={8} dy={16}>
+                    {change(item.change)}
+                  </tspan>
+                </text>
+              )}
+            </svg>
+          );
+        })}
       </svg>
     </div>
   );

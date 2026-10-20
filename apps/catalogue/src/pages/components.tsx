@@ -23,6 +23,11 @@ const display: Entry[] = [
     'Primary is black on white and white on black. Secondary actions are outline buttons with an icon. variant="link" is shadcn\'s underlined --primary text, not the --link meaning colour; a real link is <a className="text-link">.',
   ],
   ["badge", "Badge", "Brokers and asset classes are badges, never colours. A signed figure goes in an outline badge."],
+  [
+    "badge-categories",
+    "Category badges (0.1.6 trial)",
+    "A: every category an outline badge, as now. B: CategoryBadge, a badge tinted from a chart hue, one slot per category in order; its text passes 4.5:1 on its tint in both schemes.",
+  ],
   ["card", "Card", "A card holds data. One level only; prose sits on the page around it."],
   [
     "alert",

@@ -36,6 +36,16 @@
   --chart-3: oklch(0.66 0.15 60);
   --chart-4: oklch(0.36 0.17 293);
   --chart-5: oklch(0.65 0.21 16.4);
+  --badge-1: color-mix(in oklab, var(--chart-1) 16%, var(--card));
+  --badge-1-foreground: color-mix(in oklab, var(--chart-1) 70%, var(--foreground));
+  --badge-2: color-mix(in oklab, var(--chart-2) 16%, var(--card));
+  --badge-2-foreground: color-mix(in oklab, var(--chart-2) 70%, var(--foreground));
+  --badge-3: color-mix(in oklab, var(--chart-3) 16%, var(--card));
+  --badge-3-foreground: color-mix(in oklab, var(--chart-3) 70%, var(--foreground));
+  --badge-4: color-mix(in oklab, var(--chart-4) 16%, var(--card));
+  --badge-4-foreground: color-mix(in oklab, var(--chart-4) 70%, var(--foreground));
+  --badge-5: color-mix(in oklab, var(--chart-5) 16%, var(--card));
+  --badge-5-foreground: color-mix(in oklab, var(--chart-5) 70%, var(--foreground));
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);

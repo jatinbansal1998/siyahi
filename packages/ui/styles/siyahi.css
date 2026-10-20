@@ -61,6 +61,16 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-badge-1: var(--badge-1);
+  --color-badge-1-foreground: var(--badge-1-foreground);
+  --color-badge-2: var(--badge-2);
+  --color-badge-2-foreground: var(--badge-2-foreground);
+  --color-badge-3: var(--badge-3);
+  --color-badge-3-foreground: var(--badge-3-foreground);
+  --color-badge-4: var(--badge-4);
+  --color-badge-4-foreground: var(--badge-4-foreground);
+  --color-badge-5: var(--badge-5);
+  --color-badge-5-foreground: var(--badge-5-foreground);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -120,6 +130,21 @@
   --chart-3: oklch(0.66 0.15 60);
   --chart-4: oklch(0.36 0.17 293);
   --chart-5: oklch(0.65 0.21 16.4);
+  /*
+   * Category badges: 16% of a chart hue in the card for the fill, the text
+   * 70% of the hue in the foreground. Written once: the var()s resolve to each
+   * scheme's own values. The weakest pair is dark --chart-4 at 5.1:1.
+   */
+  --badge-1: color-mix(in oklab, var(--chart-1) 16%, var(--card));
+  --badge-1-foreground: color-mix(in oklab, var(--chart-1) 70%, var(--foreground));
+  --badge-2: color-mix(in oklab, var(--chart-2) 16%, var(--card));
+  --badge-2-foreground: color-mix(in oklab, var(--chart-2) 70%, var(--foreground));
+  --badge-3: color-mix(in oklab, var(--chart-3) 16%, var(--card));
+  --badge-3-foreground: color-mix(in oklab, var(--chart-3) 70%, var(--foreground));
+  --badge-4: color-mix(in oklab, var(--chart-4) 16%, var(--card));
+  --badge-4-foreground: color-mix(in oklab, var(--chart-4) 70%, var(--foreground));
+  --badge-5: color-mix(in oklab, var(--chart-5) 16%, var(--card));
+  --badge-5-foreground: color-mix(in oklab, var(--chart-5) 70%, var(--foreground));
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -170,6 +195,18 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
   }
+}
+
+/*
+ * 0.1.6 trial, removed once the owner picks one: <html data-siyahi-cards="flat">
+ * drops luma's shadow-md from every Card, "flat-tiles" only from SectionCards'
+ * tiles. The ring and the corner stay. Tailwind inlines the shadow's value,
+ * so no theme token reaches it; emptying --tw-shadow does. `.shadow-md` in the
+ * selector outranks the utility, and a card given another shadow keeps it.
+ */
+:root[data-siyahi-cards="flat"] [data-slot="card"].shadow-md,
+:root[data-siyahi-cards="flat-tiles"] [data-slot="section-cards"] [data-slot="card"].shadow-md {
+  --tw-shadow: 0 0 #0000;
 }
 
 @layer base {
