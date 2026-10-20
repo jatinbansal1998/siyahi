@@ -6,7 +6,12 @@
 // <name>-1.png, <name>-2.png, … of equal height, which together cover it.
 //
 //   siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist]
-//                [--chrome '[data-slot="sidebar"]']
+//                [--chrome '[data-slot="sidebar"]'] [--wait-for h1]
+//
+// Measures only once --wait-for (by default the page's h1) is visible, two
+// animation frames have passed and the fonts are ready: a page that renders
+// after the network goes quiet would otherwise be measured, and shot, at one
+// screen tall.
 //
 // Checks: a gutter of at least --gutter px on both sides of visible text and
 // cards, no sideways document scroll (also with a classic scrollbar taking its
@@ -24,7 +29,7 @@ import { mkdirSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
-import { chromium } from "playwright";
+import { chromium, errors } from "playwright";
 
 /** @typedef {{ name: string, width: number, height: number, dark: boolean }} Mode */
 /** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, font: string, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
@@ -36,6 +41,8 @@ const MODES = [
   { name: "390-light", width: 390, height: 844, dark: false },
   { name: "390-dark", width: 390, height: 844, dark: true },
 ];
+// How long --wait-for may take to appear before the mode fails.
+const WAIT_FOR_TIMEOUT = 15_000;
 // Tallest PNG written. Headless Chromium renders taller pages, but many image
 // viewers draw through a GPU texture capped at 16,384px.
 const SEGMENT_MAX = 16000;
@@ -47,14 +54,18 @@ const { values, positionals } = parseArgs({
     gutter: { type: "string", default: "16" },
     font: { type: "string", default: "Geist" },
     chrome: { type: "string", default: '[data-slot="sidebar"]' },
+    "wait-for": { type: "string", default: "h1" },
   },
 });
 if (positionals.length === 0) {
-  console.error("usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>]");
+  console.error(
+    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>]",
+  );
   process.exit(2);
 }
 const outDir = path.resolve(values.out);
 const minGutter = Number(values.gutter);
+const waitFor = values["wait-for"];
 mkdirSync(outDir, { recursive: true });
 
 /** @param {string} url */
@@ -126,7 +137,7 @@ function clearShots(base) {
  * @param {import("playwright").Browser} browser
  * @param {string} url
  * @param {Mode} mode
- * @returns {Promise<{ probe: Probe, height: number, files: string[] }>}
+ * @returns {Promise<{ probe: Probe, ready: boolean, height: number, files: string[] }>}
  */
 async function shoot(browser, url, mode) {
   const context = await browser.newContext({
@@ -135,6 +146,13 @@ async function shoot(browser, url, mode) {
   });
   const page = await context.newPage();
   await page.goto(url, { waitUntil: "networkidle" });
+  const ready = await page.waitForSelector(waitFor, { timeout: WAIT_FOR_TIMEOUT }).then(
+    () => true,
+    (error) => {
+      if (error instanceof errors.TimeoutError) return false;
+      throw error;
+    },
+  );
   await page.evaluate(SETTLE);
   /** @type {Probe} */
   const probe = await page.evaluate(PROBE);
@@ -154,15 +172,17 @@ async function shoot(browser, url, mode) {
     files.push(file);
   }
   await context.close();
-  return { probe, height, files };
+  return { probe, ready, height, files };
 }
 
 /**
  * @param {Probe} p
+ * @param {boolean} ready whether --wait-for appeared
  * @returns {string[]}
  */
-function problemsOf(p) {
+function problemsOf(p, ready) {
   const problems = [];
+  if (!ready) problems.push(`nothing matching ${waitFor} appeared within ${WAIT_FOR_TIMEOUT / 1000}s (--wait-for)`);
   if (p.gutterLeft !== null && p.gutterLeft < minGutter)
     problems.push(`left gutter is ${p.gutterLeft}px, under ${minGutter}px`);
   if (p.gutterRight !== null && p.gutterRight < minGutter)
@@ -179,8 +199,8 @@ const browser = await chromium.launch();
 let failed = false;
 for (const url of positionals) {
   for (const mode of MODES) {
-    const { probe, height, files } = await shoot(browser, url, mode);
-    const problems = problemsOf(probe);
+    const { probe, ready, height, files } = await shoot(browser, url, mode);
+    const problems = problemsOf(probe, ready);
     failed ||= problems.length > 0;
     console.log(
       `${problems.length ? "FAIL" : "ok  "} ${mode.name.padEnd(10)} gutter=${probe.gutterLeft}/${probe.gutterRight} ` +

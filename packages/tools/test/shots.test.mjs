@@ -56,4 +56,13 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
       ]);
     }
   });
+
+  it("waits for content that arrives after the network goes quiet", () => {
+    const late = `<main style="box-sizing: border-box; height: 3000px; padding: 16px"><h1>Late</h1></main>`;
+    const run = shoot(
+      `<script>setTimeout(() => document.body.insertAdjacentHTML("beforeend", '${late}'), 2000)</script>`,
+    );
+    expect(run.status, run.output).toBe(0);
+    for (const { name, width } of MODES) expect(run.sizesOf(name)).toEqual([{ width, height: 3000 }]);
+  });
 });
