@@ -35,11 +35,20 @@ export default defineConfig({
   fmt: {
     printWidth: 120,
     // The design and plan are the owner's documents; this repo does not reflow them.
-    ignorePatterns: [...SHADCN_CORE, REGISTRY, ...GENERATED, "docs/**", "**/dist/**", "pnpm-lock.yaml", "shots/**"],
+    ignorePatterns: [
+      ...SHADCN_CORE,
+      REGISTRY,
+      ...GENERATED,
+      "docs/**",
+      "**/dist/**",
+      "pnpm-lock.yaml",
+      "shots/**",
+      "cls/**",
+    ],
     sortPackageJson: {},
   },
   lint: {
-    ignorePatterns: [...SHADCN_CORE, REGISTRY, "**/dist/**", "shots/**"],
+    ignorePatterns: [...SHADCN_CORE, REGISTRY, "**/dist/**", "shots/**", "cls/**"],
     plugins: ["eslint", "oxc", "react", "unicorn", "typescript", "import"],
     jsPlugins: ["@siyahi/tools/lint"],
     settings: {

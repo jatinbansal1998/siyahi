@@ -28,6 +28,27 @@ that import `@siyahi/ui`.
 A Vite+ or ESLint config can spread every rule at once:
 `import { recommended } from "@siyahi/tools/lint"`.
 
+## siyahi-cls
+
+```sh
+npx siyahi-cls http://localhost:4173/ [more URLs] [--out cls] [--font "Geist Variable"] [--wait-for h1] [--network slow-3g|none] [--hold-fonts] [--max-cls 0.01]
+```
+
+Loads each URL in Chromium with a cold cache over Chrome DevTools' Slow 3G
+profile (400 kbit/s, 2 s round trips), 1920 and 390 pixels wide, and reports
+how far the page moves after its first paint: Cumulative Layout Shift, the
+layout shifts behind it, when the first `--font` face loaded, the
+`font-display` in effect, and whether the font was already loaded at the
+first paint. It shoots the page as soon as `--wait-for` is visible and again
+once the font has loaded and the page has settled, writes both PNGs and an
+overlay of the two (ink only the first paint has shows red, ink only the
+second has shows cyan), and lists the text boxes that moved between them.
+
+`--hold-fonts` holds every woff2 response until the first shot, so the
+fallback always paints first: the worst case, a first visit on which the font
+arrives after the page. A page fails when its CLS is above `--max-cls` or any
+text box moved. Run `npx playwright install chromium` once.
+
 ## siyahi-shots
 
 ```sh

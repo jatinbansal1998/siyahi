@@ -11,6 +11,7 @@
     "directory": "packages/tools"
   },
   "bin": {
+    "siyahi-cls": "./cls.mjs",
     "siyahi-contrast": "./contrast.mjs",
     "siyahi-shots": "./shots.mjs"
   },

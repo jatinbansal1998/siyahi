@@ -137,7 +137,8 @@ npm install --save-dev @siyahi/tools@next oxlint
 ```
 
 `@siyahi/tools` also has `siyahi-shots` (screenshots of a page at 1920 and 390
-pixels wide in both schemes, with layout checks) and `siyahi-contrast` (the
+pixels wide in both schemes, with layout checks), `siyahi-cls` (how far a page
+moves after its first paint on a slow network) and `siyahi-contrast` (the
 theme contrast check). See [packages/tools](packages/tools/README.md).
 
 ## This repository
