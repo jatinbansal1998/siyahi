@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@siyahi/ui";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Lead } from "../example";
 import type { Page } from "../page";
 
@@ -48,17 +48,20 @@ const SPACING = [
 const RADII = ["rounded-sm", "rounded-md", "rounded-lg", "rounded-xl"];
 const HEAT_STEPS = [12, 24, 36, 48, 60];
 
-/** The token's current value, read from the page so it follows the scheme. */
+function onSchemeChange(callback: () => void): () => void {
+  const scheme = matchMedia("(prefers-color-scheme: dark)");
+  scheme.addEventListener("change", callback);
+  return () => scheme.removeEventListener("change", callback);
+}
+
+/**
+ * The token's current value, read from the page so it follows the scheme.
+ * Read while rendering, so the first paint already has it and no swatch grows a line.
+ */
 function useTokenValue(name: string): string {
-  const [value, setValue] = useState("");
-  useEffect(() => {
-    const read = () => setValue(getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim());
-    read();
-    const scheme = matchMedia("(prefers-color-scheme: dark)");
-    scheme.addEventListener("change", read);
-    return () => scheme.removeEventListener("change", read);
-  }, [name]);
-  return value;
+  return useSyncExternalStore(onSchemeChange, () =>
+    getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim(),
+  );
 }
 
 function Swatch({ name, swatch, note }: { name: string; swatch: string; note?: string }) {
