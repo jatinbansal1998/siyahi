@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { Treemap, type TreemapItem, type TreemapProps } from "@siyahi/ui";
-import { act } from "react";
+import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -164,7 +164,17 @@ describe("Treemap", () => {
       { name: "INFY", group: "IT", weight: 300, change: 0.01 },
       { name: "TCS", group: "IT", weight: 200, change: -0.01 },
     ];
-    await render({ height: 300, items, onSelect });
+    // The page owns the selection, as the catalogue example does.
+    function Page() {
+      const [selected, setSelected] = useState<TreemapItem | null>(null);
+      const select = (item: TreemapItem | null) => {
+        onSelect(item);
+        setSelected(item);
+      };
+      return <Treemap height={300} items={items} selected={selected} onSelect={select} />;
+    }
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () => root?.render(<Page />));
     await tap(tile("INFY")?.querySelector("rect"));
     expect(ringed()).toEqual(["INFY"]);
     await tap(tile("TCS")?.querySelector("text"));

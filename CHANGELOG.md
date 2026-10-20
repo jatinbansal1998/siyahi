@@ -5,9 +5,10 @@
 Treemap tiles can be tapped, and two open looks are settled. Published as
 `0.1.6-next.<n>` pre-releases.
 
-- `Treemap` takes `onSelect`. A tap or click on a tile selects it: the tile
-  gets a ring and `onSelect` gets the item. A second tap on it, or a tap
-  anywhere else, clears it and `onSelect` gets `null`. A phone has no hover,
+- `Treemap` takes `selected` and `onSelect`. A tap or click on a tile gives
+  `onSelect` the item; pass it back as `selected` and its tile gets a ring. A
+  second tap on it, or a tap anywhere else, gives `null`. The page owns the
+  selection, so filtering the item out drops its ring with it. A phone has no hover,
   so this is how a reader there gets a tile's figures; the catalogue example
   prints them in a line under the map. `onHover` is unchanged.
 - Cards stay as luma draws them: every `Card`, stat tiles included, keeps

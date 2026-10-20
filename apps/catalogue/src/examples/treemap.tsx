@@ -47,7 +47,14 @@ export default function TreemapExample() {
       <CardContent>
         <Tooltip open={hovered !== null} trackCursorAxis="both">
           <TooltipTrigger render={<div />}>
-            <Treemap items={holdings} height={320} range={0.6} onHover={setHovered} onSelect={setSelected} />
+            <Treemap
+              items={holdings}
+              height={320}
+              range={0.6}
+              onHover={setHovered}
+              selected={selected}
+              onSelect={setSelected}
+            />
           </TooltipTrigger>
           <TooltipContent side="bottom" className="flex-col items-start gap-0 tabular-nums">
             {hovered && (

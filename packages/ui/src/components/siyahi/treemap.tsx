@@ -21,23 +21,21 @@ export interface TreemapProps<T extends TreemapItem> {
   range?: number;
   /** Gets the item under the pointer, and null when the pointer moves onto a group's name or leaves the map. */
   onHover?: (item: T | null) => void;
+  /** The selected item, matched by key, whose tile carries a ring. Pass back what onSelect gave. */
+  selected?: T | null;
   /**
-   * Gets the item whose tile is tapped or clicked, which then carries a ring,
-   * and null when the same tile is tapped again or a tap lands anywhere else.
-   * On a touch screen, which has no hover, this is how a reader gets a tile's figures.
+   * Gets the item whose tile is tapped or clicked, and null when the selected
+   * tile is tapped again or a tap lands anywhere else. On a touch screen, which
+   * has no hover, this is how a reader gets a tile's figures.
    */
   onSelect?: (item: T | null) => void;
 }
 
 /** Holdings heat map: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
-export function Treemap<T extends TreemapItem>({ items, height, range, onHover, onSelect }: TreemapProps<T>) {
+export function Treemap<T extends TreemapItem>({ items, height, range, onHover, selected, onSelect }: TreemapProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
-  const [selected, setSelected] = useState<string | null>(null);
-  const select = (item: T | null) => {
-    setSelected(item && (item.key ?? item.name));
-    onSelect?.(item);
-  };
+  const selectedKey = selected ? (selected.key ?? selected.name) : null;
   const { pct } = useFormat();
   useLayoutEffect(() => {
     const observer = new ResizeObserver(([entry]) => setWidth(entry?.contentRect.width ?? 0));
@@ -47,14 +45,14 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
   // A tap on a tile is handled by the tile's own click; any other tap clears.
   const clearOutside = useEffectEvent((event: PointerEvent) => {
     const tile = event.target instanceof Element ? event.target.closest('[data-slot="treemap-tile"]') : null;
-    if (!ref.current?.contains(tile)) select(null);
+    if (!ref.current?.contains(tile)) onSelect?.(null);
   });
   useEffect(() => {
-    if (selected === null) return;
+    if (selectedKey === null) return;
     const onPointerDown = (event: PointerEvent) => clearOutside(event);
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [selected]);
+  }, [selectedKey]);
   const { groups, tiles } = layout(items, width, height);
   const change = (value: number | null) =>
     value === null ? "—" : `${value > 0 ? "▲ " : value < 0 ? "▼ " : ""}${pct(Math.abs(value))}`;
@@ -84,12 +82,12 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
               key={key}
               {...box}
               data-slot="treemap-tile"
-              data-selected={key === selected || undefined}
+              data-selected={key === selectedKey || undefined}
               onPointerEnter={() => onHover?.(item)}
-              onClick={() => select(key === selected ? null : item)}
+              onClick={() => onSelect?.(key === selectedKey ? null : item)}
             >
               <rect width="100%" height="100%" rx={4} style={{ fill: heat(item.change, range) }} />
-              {key === selected && (
+              {key === selectedKey && (
                 <rect
                   x={1}
                   y={1}

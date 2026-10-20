@@ -54,7 +54,7 @@ to 0.1.2-next.1; #23's workarounds (sortable header buttons, the `<g>`-index too
 `SYMBOL · Broker` tile names, labels carrying secondary figures) can then go. The font fix
 (siyahi #9) moves to 0.1.3.
 
-Status, 2026-10-20: 0.1.5 switches the shadcn style from `base-vega` to `base-luma` (siyahi #12); flat cards (no `shadow-md` on stat tiles) are the open decision for 0.1.6.
+Status, 2026-10-20: 0.1.5 switches the shadcn style from `base-vega` to `base-luma` (siyahi #12); flat cards (no `shadow-md` on stat tiles) were the open decision for 0.1.6. 0.1.6 tried them, and tinted category badges, and kept both defaults; it adds tap to select on `Treemap`.
 
 Deploy steps the orchestrator runs after each merge:
 - dash: `git pull --ff-only` in `~/code/dash`, `npm run deploy`, open the live page.
