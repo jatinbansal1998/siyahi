@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.5
+
+shadcn's `base-luma` style replaces `base-vega`, published as `0.1.5-next.<n>`
+pre-releases.
+
+- Core components are luma's: cards are `rounded-4xl` with `shadow-md` and a
+  fainter ring, buttons and the filter trigger are pills, menus and their items
+  are `rounded-2xl`, and table cells are `p-3` (headers `h-12 px-3`), so a
+  table row is 8px taller. The theme is unchanged: luma's neutral surfaces and
+  radius are vega's, and Siyahi keeps Geist, its chart palette and its meaning
+  colours. Contrast is unchanged (64/64 pairs).
+- Data table: header and body cells take the core table's luma padding, so the
+  data table and a plain `Table` share one row height.
+
 ## 0.1.4
 
 Four small fixes, published as `0.1.4-next.<n>` pre-releases.

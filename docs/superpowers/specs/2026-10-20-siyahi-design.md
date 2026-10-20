@@ -6,7 +6,7 @@ Date: 2026-10-20. Author: Claude with Jatin Bansal. Status: builder-checked twic
 
 Siyahi (Hindi for ink) replaces Kajal's hand-made token system with stock shadcn/ui on
 Tailwind v4 and Base UI, shipped as one public package, `@siyahi/ui`, that dash and The
-Book (the transactions analyser) install and anyone else may use. The look is shadcn's default neutral theme in the `base-vega` style, with four
+Book (the transactions analyser) install and anyone else may use. The look is shadcn's default neutral theme in the `base-luma` style, with four
 added colours (gain, loss, warning, link). Cards hold data, prose sits on the page. The
 Book moves to React so both apps share one component set. Components are installed, not
 written; a lint stops anyone from writing a raw colour or size. Static HTML reports get
@@ -59,7 +59,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Area | Decision |
 |---|---|
 | Stack | React 19, shadcn/ui on Base UI, Tailwind v4, Vite. TypeScript throughout, explicit types on public signatures. |
-| shadcn style | `base-vega` (24px card padding, 14px body, `shadow-xs`). Jatin chose the roomy look over the dense one; Mira is the compact style. Stock sizes from the style; no Kajal size table. (Claude's call from Jatin's preference.) |
+| shadcn style | `base-luma` (24px card padding, 14px body, `rounded-4xl` cards with `shadow-md`, pill buttons, `p-3` table cells). Jatin chose luma over `base-vega` after a side-by-side trial (0.1.5); Mira is the compact style. Stock sizes from the style; no Kajal size table. (Claude's call from Jatin's preference.) |
 | Theme values | shadcn default `neutral`, stock values, both schemes. Dark canvas `oklch(0.145 0 0)`, which is `#0a0a0a`, the value Kajal 1.0.2 already settled on. |
 | Added tokens | `--positive`, `--negative`, `--warning`, `--link`, each with a `-foreground` where a fill needs one. Values start from Tailwind green, red, amber and blue and are adjusted per scheme until text passes 4.5:1 on the canvas and on the card. Nothing else. |
 | Contrast | 4.5:1 for any text colour on canvas and card; 3:1 for each chart slot against the card and against the slots next to it (adjacent slots only; see Chart palette). Checked by a script in the package build. The check fails the build; values are fixed, never the bar. |
@@ -190,7 +190,7 @@ The ten rules:
 6. Four meaning colours: positive, negative, warning, link. Nothing else is coloured.
 7. Notices are shadcn Alert, used as shipped: default for information, destructive for
    errors. Warnings are the default variant with an amber icon.
-8. Stock sizes from the `base-vega` style. Geist, tabular figures. Geist Mono only for
+8. Stock sizes from the `base-luma` style. Geist, tabular figures. Geist Mono only for
    identifiers and ticks.
 9. Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows
    the device, reduced motion honoured.
