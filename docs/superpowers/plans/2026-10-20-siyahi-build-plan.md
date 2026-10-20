@@ -42,6 +42,18 @@ publish, also `latest`; re-point `latest` when 1.0.0 ships). Every merge to main
 the tarballs to a GitHub release. dash and The Book still install from the v0.1.0-next.1
 tarballs; they switch to `@siyahi/ui@next` when they bump to 0.1.1 (siyahi #3).
 
+Status, 2026-10-20 14:58 IST: `latest` now follows `next` on every publish until 1.0.0
+(siyahi #6, #7), so the note above about re-pointing `latest` no longer applies. Unit 7 is in
+review (transactions-analyser #23): The Book installs `@siyahi/ui@0.1.1-next.1` from npm, and
+its Holdings view is the first React port. The package gaps it found shipped in siyahi #8 as
+`@siyahi/ui@0.1.2-next.1` and `@siyahi/tools@0.1.2-next.1` (`next` and `latest`): the data
+table column menus no longer crash, the pinned column and sticky header take the card's colour,
+`Treemap` gained `onHover`, `range`, item `key`, nullable `change` and `group`, and `BarList`
+items gained `detail`. The catalogue is redeployed with them. The Book takes these by bumping
+to 0.1.2-next.1; #23's workarounds (sortable header buttons, the `<g>`-index tooltip, the
+`SYMBOL · Broker` tile names, labels carrying secondary figures) can then go. The font fix
+(siyahi #9) moves to 0.1.3.
+
 Deploy steps the orchestrator runs after each merge:
 - dash: `git pull --ff-only` in `~/code/dash`, `npm run deploy`, open the live page.
 - The Book: wait for the `native-image` workflow, `git pull --ff-only` in
