@@ -1,7 +1,7 @@
 {
   "name": "@siyahi/tools",
   "version": "0.1.2",
-  "description": "Checks for Siyahi pages: a lint plugin, a theme contrast check and a screenshot script.",
+  "description": "Checks and build helpers for Siyahi pages: a lint plugin, a font preload plugin, a theme contrast check, and screenshot and layout shift scripts.",
   "homepage": "https://siyahi.jatinbansal.com",
   "license": "MIT",
   "author": "Jatin Bansal",
@@ -36,6 +36,10 @@
     "./theme": {
       "types": "./types/theme.d.mts",
       "default": "./theme.mjs"
+    },
+    "./vite": {
+      "types": "./types/vite.d.mts",
+      "default": "./vite.mjs"
     }
   },
   "scripts": {
@@ -52,9 +56,16 @@
     "@types/node": "catalog:",
     "oxlint": "^1.88.0",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "oxlint": ">=1.80.0"
+    "oxlint": ">=1.80.0",
+    "vite": ">=7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
   }
 }

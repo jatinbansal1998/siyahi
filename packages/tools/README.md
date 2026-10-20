@@ -1,6 +1,6 @@
 # @siyahi/tools
 
-Checks for pages built on [`@siyahi/ui`](https://www.npmjs.com/package/@siyahi/ui).
+Checks and build helpers for pages built on [`@siyahi/ui`](https://www.npmjs.com/package/@siyahi/ui).
 Kept apart from the UI package so installing the UI does not pull in Playwright.
 
 ## Lint plugin
@@ -27,6 +27,23 @@ that import `@siyahi/ui`.
 
 A Vite+ or ESLint config can spread every rule at once:
 `import { recommended } from "@siyahi/tools/lint"`.
+
+## Font preload
+
+A Vite plugin that adds `<link rel="preload" as="font">` tags to the built
+`index.html` for the Latin files of Geist and Geist Mono, and Geist's
+Latin Extended file, which holds ₹. Without them the browser asks for a font
+only once text in it has rendered, so on a slow network the fallback paints
+first and Geist swaps in seconds later.
+
+```ts
+// vite.config.ts
+import { preloadFonts } from "@siyahi/tools/vite";
+export default defineConfig({ plugins: [react(), tailwindcss(), preloadFonts()] });
+```
+
+It runs in `vite build` only. The fonts stay self-hosted: the tags point at
+the files Vite emitted from `@siyahi/ui`'s fontsource imports.
 
 ## siyahi-cls
 
