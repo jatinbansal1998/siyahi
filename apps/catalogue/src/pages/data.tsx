@@ -81,7 +81,10 @@ export const data: Page = {
             (default 0.05, ±5%). A change of null is a muted tile marked "—". Items with a group sit together under its
             name, which draws even for a group of one. Give items a key when names repeat, such as one symbol at two
             brokers. onHover gets the item under the pointer, and null on a group's name or off the map: drive a tooltip
-            with it, or highlight the same item elsewhere on the page.
+            with it, or highlight the same item elsewhere on the page. A phone has no hover, so a tap selects a tile:
+            onSelect gets the item, and the tile passed back as selected gets a ring; a second tap or a tap anywhere
+            else gives null. The selection is the page's state, so a filter that drops the item drops its ring too. The
+            example prints the selection under the map.
           </Lead>
           <Example name="treemap" />
         </>

@@ -74,8 +74,12 @@ Every merge to `main` also attaches both tarballs to a GitHub release
   bar list, the `SectionCards` stat tile and the `sidebar-07` app shell.
 - **Siyahi components**: `Delta` (a signed figure with ▲ ▼), `PriceChart`
   (TradingView Lightweight Charts in theme colours), `Treemap` (holdings heat
-  map), `LocalTime` (a time in the configured zone with the viewer's own clock
+  map; hover or tap a tile for its figures), `LocalTime` (a time in the configured zone with the viewer's own clock
   in a tooltip) and `SiyahiProvider`.
+- **Cards and badges as installed**: every `Card`, stat tiles included, keeps
+  luma's `rounded-4xl`, `shadow-md` and faint ring. A category (a sector, a
+  broker, a unit's kind) is an outline `Badge`: categories stay neutral, and
+  colour is left to the four meaning colours and the charts.
 - **Formatters**: `money`, `moneyCompact`, `pct` and `time`, or `useFormat()`
   for the same bound to the provider's locale.
   `useFormat().time(value, { withDate: true })` (or

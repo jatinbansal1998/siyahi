@@ -81,7 +81,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Releases | CI publishes a `0.x.0-next.N` pre-release to npmjs with `--tag next` on every merge to `main`, using the `NPM_TOKEN` repository secret Jatin has set. Consumers install `@siyahi/ui@next` until `1.0.0`. Stable versions are cut on Jatin's word. Trusted publishing replaces the token after the first publish, as a follow-up. |
 | Consumers | The Book moves to React and the package, shell first, then screen by screen. dash: new pages use the package; the shell moves too; old pages stay on Mantine under the layered stylesheet. |
 | dash shell | Keeps today's shape, rebuilt on the package: index page with folders and recent items, top utility bar with title, ⌘K search (Command) and width toggle, footer. No sidebar; dash is a reports site, and a sidebar would take 256px from 56 frozen pages. (Claude's call.) |
-| Stat tile | shadcn's own `SectionCards` from the `dashboard-01` block (copied from base-vega, drawn as a stock luma Card: 26px corners, `shadow-md`; flat cards are open for 0.1.6): muted label, outline badge top right, value, bold line, muted line. `@dashboardcn`'s KPI card is dropped: it uses a Radix-only prop, hard-codes emerald and red, and formats as en-US. |
+| Stat tile | shadcn's own `SectionCards` from the `dashboard-01` block (copied from base-vega, drawn as a stock luma Card: 26px corners, `shadow-md`; flat cards were tried for 0.1.6 and Jatin kept the default): muted label, outline badge top right, value, bold line, muted line. `@dashboardcn`'s KPI card is dropped: it uses a Radix-only prop, hard-codes emerald and red, and formats as en-US. |
 | Before/after page | dash `pages/dell/2026-10-15-why-the-dell-froze.tsx` is the only existing dash page migrated, so Jatin can compare before and after. |
 
 ## The package
@@ -180,7 +180,9 @@ today. They get:
 The ten rules:
 
 1. A card holds data, prose sits on the page. One level of card.
-   A stat tile is a Card like any other: no gradient, no extra shadow.
+   A stat tile is a Card like any other: no gradient, no extra shadow. Every
+   card keeps luma's own `shadow-md` and ring (flat cards were tried in 0.1.6;
+   the default stayed).
 2. A stat tile is `SectionCards` from shadcn's dashboard block: muted label, outline
    badge, value, bold line, muted line.
 3. Charts: area, bar or line, chart tokens only, dashed horizontal grid, legend below,
@@ -188,6 +190,8 @@ The ten rules:
 4. Tables are the registry data table, inside a Card.
 5. Views switch with Tabs; secondary actions are outline buttons with an icon.
 6. Four meaning colours: positive, negative, warning, link. Nothing else is coloured.
+   Categories stay neutral: a sector, a broker or a unit's kind is an outline
+   Badge, never tinted from a chart hue (tried in 0.1.6, not taken).
 7. Notices are shadcn Alert, used as shipped: default for information, destructive for
    errors. Warnings are the default variant with an amber icon.
 8. Stock sizes from the `base-luma` style. Geist, tabular figures. Geist Mono only for

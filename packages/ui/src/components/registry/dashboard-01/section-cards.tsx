@@ -7,8 +7,8 @@
 // and the page, not the block, owns the side gutter.
 // Siyahi edit: no light-mode gradient (from-primary/5 to the card) and no
 // shadow override, so a stat tile is the stock Card in both schemes, like
-// every other card on the page. Under luma the stock Card carries shadow-md;
-// whether tiles drop it for flat cards is open for 0.1.6.
+// every other card on the page. Under luma the stock Card carries shadow-md,
+// and tiles keep it (flat cards were tried in 0.1.6; the default stayed).
 "use client"
 
 import * as React from "react"
