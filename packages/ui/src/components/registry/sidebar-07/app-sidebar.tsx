@@ -30,9 +30,11 @@ export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: React.ComponentProps<typeof NavUser>["user"]
 }
 
-export function AppSidebar({ navMain, navLabel, header, teams, projects, user, ...props }: AppSidebarProps) {
+// Siyahi edit: collapsible="none" renders the sidebar in place (as the
+// catalogue's example does) and drops the rail, which has nothing to toggle.
+export function AppSidebar({ navMain, navLabel, header, teams, projects, user, collapsible = "icon", ...props }: AppSidebarProps) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible={collapsible} {...props}>
       {(header || teams) && (
         <SidebarHeader>{header ?? (teams && <TeamSwitcher teams={teams} />)}</SidebarHeader>
       )}
@@ -45,7 +47,7 @@ export function AppSidebar({ navMain, navLabel, header, teams, projects, user, .
           <NavUser user={user} />
         </SidebarFooter>
       )}
-      <SidebarRail />
+      {collapsible !== "none" && <SidebarRail />}
     </Sidebar>
   )
 }

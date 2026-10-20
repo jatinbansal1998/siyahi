@@ -24,7 +24,7 @@
     },
     "apps/catalogue": {
       // Examples are loaded with import.meta.glob.
-      "entry": ["src/main.tsx", "src/examples/*.tsx"],
+      "entry": ["src/main.tsx", "src/examples/*.tsx", "test/**/*.test.tsx"],
     },
   },
 }

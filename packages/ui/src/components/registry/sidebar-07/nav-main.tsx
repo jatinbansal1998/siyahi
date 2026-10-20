@@ -36,11 +36,24 @@ export function NavMain({
     }[]
   }[]
 }) {
+  // Siyahi edit: an item without sub-items is a plain link, so a nav of flat
+  // views navigates; upstream made every item a collapsible group.
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
+        {items.map((item) => !item.items?.length ? (
+          <SidebarMenuItem key={item.title}>
+            <SidebarMenuButton
+              isActive={item.isActive}
+              tooltip={item.title}
+              render={<a href={item.url} />}
+            >
+              {item.icon}
+              <span>{item.title}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ) : (
           <Collapsible
             key={item.title}
             defaultOpen={item.isActive}
