@@ -80,7 +80,8 @@ versioned URL in `package.json`.
   map), `LocalTime` (a time in the configured zone with the viewer's own clock
   in a tooltip) and `SiyahiProvider`.
 - **Formatters**: `money`, `moneyCompact`, `pct` and `time`, or `useFormat()`
-  for the same bound to the provider's locale.
+  for the same bound to the provider's locale. `time(value, { withDate: true })`
+  and `<LocalTime withDate>` write the date first: `20 Oct 2026, 14:30 IST`.
 - **`report.css`** for static HTML reports that do not use React: the theme as
   plain CSS variables plus base body styles, with no network requests.
 

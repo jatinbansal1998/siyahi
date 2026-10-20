@@ -30,7 +30,7 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ["packages/*/test/**/*.test.{ts,mjs}", "apps/*/test/**/*.test.tsx"],
+    include: ["packages/*/test/**/*.test.{ts,tsx,mjs}", "apps/*/test/**/*.test.tsx"],
   },
   fmt: {
     printWidth: 120,

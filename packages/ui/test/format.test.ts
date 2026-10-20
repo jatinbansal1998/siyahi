@@ -39,6 +39,11 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
   it("writes a 24-hour time in IST with the zone", () => {
     expect(time(nineUtc)).toBe("14:30 IST");
   });
+
+  it("writes the date in the same zone before the time when asked", () => {
+    expect(time(nineUtc, undefined, { withDate: true })).toBe("20 Oct 2026, 14:30 IST");
+    expect(time("2026-10-20T20:00:00Z", undefined, { withDate: true })).toBe("21 Oct 2026, 01:30 IST");
+  });
 });
 
 describe("another locale", () => {
@@ -47,5 +52,6 @@ describe("another locale", () => {
     expect(moneyCompact(2400000, us)).toBe("$2.4M");
     expect(moneyCompact(1000, us)).toBe("$1K");
     expect(time(nineUtc, us)).toBe("05:00 EDT");
+    expect(time(nineUtc, us, { withDate: true })).toBe("Oct 20, 2026, 05:00 EDT");
   });
 });

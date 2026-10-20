@@ -120,7 +120,10 @@ export const data: Page = {
       title: "LocalTime",
       body: (
         <>
-          <Lead>A time in the configured zone with the zone written, and the viewer's own clock in a tooltip.</Lead>
+          <Lead>
+            A time in the configured zone with the zone written, and the viewer's own clock in a tooltip. withDate puts
+            the date, in the same zone and the provider's locale, before the time, for daily snapshots.
+          </Lead>
           <Example name="local-time" />
         </>
       ),
@@ -132,8 +135,9 @@ export const data: Page = {
         <>
           <Lead>
             useFormat() returns money, moneyCompact, pct and time bound to the nearest SiyahiProvider. A nested provider
-            changes the locale for its subtree. In an Indian-region locale moneyCompact prints amounts under one lakh in
-            full. The formatters print only a minus sign; a signed figure goes through Delta, which adds the arrow.
+            changes the locale for its subtree. time(value, {"{ withDate: true }"}) writes the date first: 20 Oct 2026,
+            14:30 IST. In an Indian-region locale moneyCompact prints amounts under one lakh in full. The formatters
+            print only a minus sign; a signed figure goes through Delta, which adds the arrow.
           </Lead>
           <Example name="formatters" />
         </>
