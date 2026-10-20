@@ -1,4 +1,4 @@
-<p><img src="assets/icon.svg" width="48" height="48" alt="Siyahi"></p>
+<p><img src="https://raw.githubusercontent.com/jatinbansal1998/siyahi/main/assets/icon.svg" width="48" height="48" alt="Siyahi"></p>
 
 # Siyahi
 
