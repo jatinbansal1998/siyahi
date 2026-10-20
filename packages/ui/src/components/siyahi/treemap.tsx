@@ -1,26 +1,30 @@
-import { hierarchy, treemap, treemapSquarify } from "d3-hierarchy";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
+import { heat, layout } from "@siyahi/ui/lib/treemap";
 
 export interface TreemapItem {
   name: string;
   /** Tile area, such as the holding's value. */
   weight: number;
-  /** Signed change as a fraction; sets the heat. */
-  change: number;
+  /** Signed change as a fraction; sets the heat. `null` when unknown: a muted tile marked "—". */
+  change: number | null;
+  /** Unique key when names repeat, such as one symbol held at two brokers. Defaults to `name`. */
+  key?: string;
+  /** Tiles of one group, such as a sector, sit together under the group's name. */
+  group?: string;
 }
 
-// Five steps, one per percentage point: 12% to 60% of --positive or
-// --negative mixed into the card. oklab, not oklch: the card is achromatic, and
-// an oklch mix would swing green through orange on its way to it.
-function heat(change: number): string {
-  if (change === 0) return "var(--muted)";
-  const mix = Math.min(5, Math.ceil(Math.abs(change) * 100)) * 12;
-  return `color-mix(in oklab, var(${change > 0 ? "--positive" : "--negative"}) ${mix}%, var(--card))`;
+export interface TreemapProps<T extends TreemapItem> {
+  items: T[];
+  height: number;
+  /** The change, as a fraction, that takes the deepest heat step. Default 0.05 (±5%). */
+  range?: number;
+  /** Gets the item under the pointer, and null when the pointer leaves the map. */
+  onHover?: (item: T | null) => void;
 }
 
-/** Holdings heat map: area by weight, colour by signed change, hand-drawn SVG. */
-export function Treemap({ items, height }: { items: TreemapItem[]; height: number }) {
+/** Holdings heat map: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
+export function Treemap<T extends TreemapItem>({ items, height, range = 0.05, onHover }: TreemapProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const { pct } = useFormat();
@@ -29,10 +33,10 @@ export function Treemap({ items, height }: { items: TreemapItem[]; height: numbe
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
-  const root = hierarchy<{ children?: TreemapItem[] } & Partial<TreemapItem>>({ children: items }).sum(
-    (d) => d.weight ?? 0,
-  );
-  const leaves = treemap<typeof root.data>().size([width, height]).paddingInner(2).tile(treemapSquarify)(root).leaves();
+  const { groups, tiles } = layout(items, width, height);
+  const change = (value: number | null) =>
+    value === null ? "—" : `${value > 0 ? "▲ " : value < 0 ? "▼ " : ""}${pct(Math.abs(value))}`;
+  // Each label sits in a nested <svg>, which clips it to its tile or group row.
   return (
     <div ref={ref} data-slot="treemap" style={{ height }}>
       <svg
@@ -41,20 +45,27 @@ export function Treemap({ items, height }: { items: TreemapItem[]; height: numbe
         role="img"
         aria-label="Treemap of holdings by weight and change"
         className="text-xs"
+        onPointerLeave={() => onHover?.(null)}
       >
-        {leaves.map(({ data, x0, y0, x1, y1 }) => (
-          <g key={data.name} transform={`translate(${x0},${y0})`}>
-            <rect width={x1 - x0} height={y1 - y0} rx={4} style={{ fill: heat(data.change ?? 0) }} />
-            {x1 - x0 > 56 && y1 - y0 > 36 && (
+        {groups.map(({ group, ...box }) => (
+          <svg key={group} {...box} data-slot="treemap-group">
+            <text x={2} y={12} className="fill-muted-foreground font-medium">
+              {group}
+            </text>
+          </svg>
+        ))}
+        {tiles.map(({ item, ...box }) => (
+          <svg key={item.key ?? item.name} {...box} data-slot="treemap-tile" onPointerEnter={() => onHover?.(item)}>
+            <rect width="100%" height="100%" rx={4} style={{ fill: heat(item.change, range) }} />
+            {box.width > 56 && box.height > 36 && (
               <text x={8} y={18} className="fill-foreground">
-                <tspan className="font-medium">{data.name}</tspan>
+                <tspan className="font-medium">{item.name}</tspan>
                 <tspan x={8} dy={16}>
-                  {(data.change ?? 0) > 0 ? "▲ " : (data.change ?? 0) < 0 ? "▼ " : ""}
-                  {pct(Math.abs(data.change ?? 0))}
+                  {change(item.change)}
                 </tspan>
               </text>
             )}
-          </g>
+          </svg>
         ))}
       </svg>
     </div>
