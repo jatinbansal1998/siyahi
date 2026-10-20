@@ -63,8 +63,9 @@ second has shows cyan), and lists the text boxes that moved between them.
 
 `--hold-fonts` holds every woff2 response until the first shot, so the
 fallback always paints first: the worst case, a first visit on which the font
-arrives after the page. A page fails when its CLS is above `--max-cls` or any
-text box moved. Run `npx playwright install chromium` once.
+arrives after the page. A page fails when its CLS is above `--max-cls` or a
+text box inside the first screen moved; boxes that moved further down are
+counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx playwright install chromium` once.
 
 ## siyahi-shots
 

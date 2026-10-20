@@ -139,7 +139,7 @@ const GEIST_KERNING = 0.982;
 // Liberation Mono and Cousine to Courier New's, so one face serves each set.
 // Each name is listed as its full name and its PostScript name, the two names
 // local() matches.
-const ARIAL_REGULAR = ["Arial", "ArialMT", "Liberation Sans", "LiberationSans", "Arimo", "Arimo-Regular"];
+const ARIAL_REGULAR = ["Arial", "ArialMT", "Liberation Sans", "LiberationSans", "Arimo Regular", "Arimo-Regular"];
 const ARIAL_BOLD_FILES = [
   "Arial Bold",
   "Arial-BoldMT",
@@ -153,7 +153,7 @@ const COURIER_REGULAR = [
   "CourierNewPSMT",
   "Liberation Mono",
   "LiberationMono",
-  "Cousine",
+  "Cousine Regular",
   "Cousine-Regular",
 ];
 const COURIER_BOLD = [

@@ -17,7 +17,9 @@
 // the same place in both shots is grey and anything that moved shows as red
 // (first paint) and cyan (fonts ready) fringes.
 //
-// Fails when a page's CLS is above --max-cls or a text box moved.
+// Fails when a page's CLS is above --max-cls or a text box inside the first
+// screen moved. Boxes that moved further down are counted and listed, since
+// they move only for a reader who has already scrolled.
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -70,7 +72,7 @@ mkdirSync(outDir, { recursive: true });
 /** @param {string} url */
 function slugOf(url) {
   const u = new URL(url);
-  const slug = `${u.host}${u.pathname}${u.hash}`.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
+  const slug = `${u.host}${u.pathname}${u.search}${u.hash}`.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
   return slug || "index";
 }
 
@@ -293,17 +295,18 @@ for (const url of positionals) {
     const run = await measure(browser, url, viewport);
     const cls = clsOf(run.times.shifts);
     const { paired, moved } = movedBoxes(run.firstBoxes, run.readyBoxes);
+    const inView = moved.filter((m) => m.from.y < viewport.height && m.from.y + m.from.height > 0);
     const { overlay, changed } = await overlayOf(drawing, run.firstShot, run.readyShot);
     const base = path.join(outDir, `${slugOf(url)}-${viewport.width}`);
     writeFileSync(`${base}-first.png`, run.firstShot);
     writeFileSync(`${base}-ready.png`, run.readyShot);
     writeFileSync(`${base}-overlay.png`, overlay);
-    const bad = cls > maxCls || moved.length > 0;
+    const bad = cls > maxCls || inView.length > 0;
     failed ||= bad;
     console.log(
       `${bad ? "FAIL" : "ok  "} ${url} ${viewport.width}: cls=${cls.toFixed(4)} shifts=${run.times.shifts.length} ` +
         `fcp=${seconds(run.times.fcp)} font=${seconds(run.times.fontAt)} display=${run.times.display.join("/") || "n/a"} ` +
-        `font-at-first-paint=${run.fontAtFirstShot ? "loaded" : "not yet"} moved=${moved.length}/${paired} ` +
+        `font-at-first-paint=${run.fontAtFirstShot ? "loaded" : "not yet"} moved=${moved.length}/${paired} in-view=${inView.length} ` +
         `pixels-changed=${(changed * 100).toFixed(2)}%`,
     );
     console.log(`     ${base}-{first,ready,overlay}.png`);
@@ -312,7 +315,7 @@ for (const url of positionals) {
         console.log(
           `     shift ${shift.value.toFixed(4)} at ${seconds(shift.startTime)}: ${source.node} ${box(source.from)} -> ${box(source.to)}`,
         );
-    for (const m of moved.slice(0, 5))
+    for (const m of [...inView, ...moved.filter((entry) => !inView.includes(entry))].slice(0, 5))
       console.log(`     moved ${m.by.toFixed(1)}px: ${m.key} ${box(m.from)} -> ${box(m.to)}`);
   }
 }

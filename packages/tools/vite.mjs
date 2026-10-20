@@ -26,13 +26,18 @@ export function preloadFonts() {
     transformIndexHtml: {
       order: "post",
       handler(_html, { bundle }) {
-        return Object.values(bundle ?? {})
-          .filter((file) => file.type === "asset" && file.names.some((name) => PRELOADED.has(name)))
-          .map((file) => ({
-            tag: "link",
-            attrs: { rel: "preload", href: base + file.fileName, as: "font", type: "font/woff2", crossorigin: true },
-            injectTo: "head",
-          }));
+        // Two copies of fontsource in one bundle emit two files per face; one preload each is enough.
+        const files = new Map();
+        for (const file of Object.values(bundle ?? {})) {
+          if (file.type !== "asset") continue;
+          const face = file.names.find((name) => PRELOADED.has(name));
+          if (face && !files.has(face)) files.set(face, file.fileName);
+        }
+        return [...files.values()].map((fileName) => ({
+          tag: "link",
+          attrs: { rel: "preload", href: base + fileName, as: "font", type: "font/woff2", crossorigin: true },
+          injectTo: "head",
+        }));
       },
     },
   };

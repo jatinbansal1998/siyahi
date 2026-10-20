@@ -6,7 +6,7 @@
  */
 @font-face {
   font-family: "Geist Fallback";
-  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans"), local("Arimo"), local("Arimo-Regular");
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans"), local("Arimo Regular"), local("Arimo-Regular");
   font-weight: 100 450;
   size-adjust: 102.87%;
   ascent-override: 97.7%;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: "Geist Fallback";
-  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans"), local("Arimo"), local("Arimo-Regular");
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans"), local("Arimo Regular"), local("Arimo-Regular");
   font-weight: 451 550;
   size-adjust: 105.29%;
   ascent-override: 95.45%;
@@ -46,7 +46,7 @@
 
 @font-face {
   font-family: "Geist Mono Fallback";
-  src: local("Courier New"), local("CourierNewPSMT"), local("Liberation Mono"), local("LiberationMono"), local("Cousine"), local("Cousine-Regular");
+  src: local("Courier New"), local("CourierNewPSMT"), local("Liberation Mono"), local("LiberationMono"), local("Cousine Regular"), local("Cousine-Regular");
   font-weight: 100 550;
   size-adjust: 99.98%;
   ascent-override: 100.52%;
