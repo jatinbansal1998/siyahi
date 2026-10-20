@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.6
+
+Treemap tiles can be tapped, and two open looks are settled. Published as
+`0.1.6-next.<n>` pre-releases.
+
+- `Treemap` takes `onSelect`. A tap or click on a tile selects it: the tile
+  gets a ring and `onSelect` gets the item. A second tap on it, or a tap
+  anywhere else, clears it and `onSelect` gets `null`. A phone has no hover,
+  so this is how a reader there gets a tile's figures; the catalogue example
+  prints them in a line under the map. `onHover` is unchanged.
+- Cards stay as luma draws them: every `Card`, stat tiles included, keeps
+  `shadow-md`. Flat cards (every card, or only the stat tiles) were tried side
+  by side and not taken, which closes the question 0.1.5 left open. Apps may
+  build on the shadow.
+- Categories stay neutral: a sector, a broker or a unit's kind is an outline
+  `Badge`. A badge tinted from a chart hue was tried and not taken, so nothing
+  new ships for it.
+
 ## 0.1.5
 
 shadcn's `base-luma` style replaces `base-vega`, published as `0.1.5-next.<n>`

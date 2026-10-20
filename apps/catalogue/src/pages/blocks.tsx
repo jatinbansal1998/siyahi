@@ -26,19 +26,6 @@ export const blocks: Page = {
       ),
     },
     {
-      id: "dashboard",
-      title: "Dashboard",
-      body: (
-        <>
-          <Lead>
-            dashboard-01's page: stat tiles, a chart and a table, each in a card of its own. Add ?cards=flat (every card
-            flat) or ?cards=flat-tiles (only the stat tiles flat) before the # to try the 0.1.6 flat cards.
-          </Lead>
-          <Example name="dashboard" />
-        </>
-      ),
-    },
-    {
       id: "sidebar",
       title: "AppSidebar",
       body: (
