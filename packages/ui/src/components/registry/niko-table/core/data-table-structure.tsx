@@ -4,6 +4,8 @@
 // Copied: 2026-10-20, sha256 ac49fcb1b9ca0f6df40abb9b64e0fd3fae5505e23cb56fc9256958aa7dc7753f
 // Siyahi edit: the table primitive comes from niko's own copy in ../ui/table,
 // not shadcn core's table.tsx, which has no TableComponent export.
+// Siyahi edit: the sticky header paints bg-card, not bg-background. A Siyahi
+// table sits in a card, where the page background is a darker band in dark mode.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
@@ -71,7 +73,7 @@ export const DataTableHeader = React.memo(function DataTableHeader({
   return (
     <TableHeader
       className={cn(
-        sticky && "sticky top-0 z-30 bg-background",
+        sticky && "sticky top-0 z-30 bg-card",
         // Ensure border is visible when sticky using pseudo-element
         sticky &&
           "after:absolute after:right-0 after:bottom-0 after:left-0 after:h-px after:bg-border",

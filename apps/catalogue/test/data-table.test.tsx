@@ -11,7 +11,7 @@ import {
 } from "@siyahi/ui";
 import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import DataTableExample from "../src/examples/data-table";
 
 declare global {
@@ -45,8 +45,28 @@ async function pick(menu: HTMLElement, label: string): Promise<void> {
   await act(async () => item.click());
 }
 
+// The example's six holdings, under one header row.
+const holdingsShown = 6;
+
 const firstColumn = () =>
   [...document.querySelectorAll("tbody tr")].map((row) => row.querySelector("td")?.textContent?.trim());
+
+describe("data table surfaces", () => {
+  beforeEach(async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () => root?.render(<DataTableExample />));
+  });
+
+  it("paints the pinned column in the card's colour, so it shows no stripe inside a card", () => {
+    const pinned = [...document.querySelectorAll<HTMLElement>('[data-col-id="symbol"]')];
+    expect(pinned.length).toBe(holdingsShown + 1);
+    for (const cell of pinned) expect(cell.style.backgroundColor).toBe("var(--card)");
+  });
+
+  it("paints the sticky header in the card's colour", () => {
+    expect(document.querySelector("thead")?.classList.contains("bg-card")).toBe(true);
+  });
+});
 
 describe("data table column menus", () => {
   it("DataTableColumnActions opens with its labels and sorts the column", async () => {
