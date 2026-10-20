@@ -21,19 +21,27 @@ export function parseOklch(value) {
 }
 
 /**
+ * OKLab channels of an OKLCH colour.
+ * @param {Oklch} color
+ * @returns {[number, number, number]}
+ */
+const oklab = ({ l, c, h }) => [l, c * Math.cos((h * Math.PI) / 180), c * Math.sin((h * Math.PI) / 180)];
+
+/**
  * `color-mix(in oklab, a p%, b)`: a straight line between the two in OKLab, as
  * the browser draws it, returned as OKLCH.
  * @param {Oklch} a @param {Oklch} b @param {number} p share of `a`, 0..1
  * @returns {Oklch}
  */
 export function mixOklab(a, b, p) {
-  const lab = (/** @type {Oklch} */ { l, c, h }) => [
-    l,
-    c * Math.cos((h * Math.PI) / 180),
-    c * Math.sin((h * Math.PI) / 180),
-  ];
-  const [l = 0, x = 0, y = 0] = lab(a).map((v, i) => v * p + (lab(b)[i] ?? 0) * (1 - p));
-  return { l, c: Math.hypot(x, y), h: ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360, alpha: 1 };
+  const to = oklab(b);
+  const [l, x, y] = oklab(a).map((v, i) => v * p + (to[i] ?? 0) * (1 - p));
+  return {
+    l: l ?? 0,
+    c: Math.hypot(x ?? 0, y ?? 0),
+    h: ((Math.atan2(y ?? 0, x ?? 0) * 180) / Math.PI + 360) % 360,
+    alpha: 1,
+  };
 }
 
 /**

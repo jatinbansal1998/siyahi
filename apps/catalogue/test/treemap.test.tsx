@@ -52,6 +52,16 @@ const move = async (from: Element | null | undefined, to: Element | null | undef
     to?.dispatchEvent(new PointerEvent("pointerover", { bubbles: true, relatedTarget: from ?? document.body }));
   });
 
+const tap = (el: Element | null | undefined) =>
+  act(async () => {
+    el?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    el?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+const ringed = () =>
+  tiles()
+    .filter((t) => t.querySelectorAll("rect").length === 2)
+    .map((t) => t.querySelector("tspan")?.textContent);
+
 describe("Treemap", () => {
   it("draws each group's name above its own tiles", async () => {
     await render({
@@ -155,15 +165,6 @@ describe("Treemap", () => {
       { name: "TCS", group: "IT", weight: 200, change: -0.01 },
     ];
     await render({ height: 300, items, onSelect });
-    const tap = (el: Element | null | undefined) =>
-      act(async () => {
-        el?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
-        el?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-      });
-    const ringed = () =>
-      tiles()
-        .filter((t) => t.querySelectorAll("rect").length === 2)
-        .map((t) => t.querySelector("tspan")?.textContent);
     await tap(tile("INFY")?.querySelector("rect"));
     expect(ringed()).toEqual(["INFY"]);
     await tap(tile("TCS")?.querySelector("text"));
