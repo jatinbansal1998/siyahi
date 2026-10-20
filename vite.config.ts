@@ -12,6 +12,7 @@ const REGISTRY = "packages/ui/src/components/registry/**";
 const GENERATED = [
   "packages/ui/report.css",
   "packages/ui/styles/shadcn.css",
+  "packages/ui/styles/fallback-fonts.css",
   "packages/ui/registry.lock.json",
   "packages/ui/src/index.ts",
   "packages/ui/README.md",
