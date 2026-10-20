@@ -16,6 +16,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@siyahi/ui/components/ui/sidebar"
 import { ChevronRightIcon } from "lucide-react"
 
@@ -30,12 +31,21 @@ export function NavMain({
     url: string
     icon?: React.ReactNode
     isActive?: boolean
+    // Siyahi edit: a flat item's anchor takes extra props, such as hover
+    // handlers that prefetch the view's data.
+    linkProps?: Omit<React.ComponentProps<"a">, "href">
     items?: {
       title: string
       url: string
     }[]
   }[]
 }) {
+  // Siyahi edit: on a phone the sidebar is a drawer, so following a link
+  // closes it; upstream left it open over the page it had just opened.
+  const { isMobile, setOpenMobile } = useSidebar()
+  const closeDrawer = () => {
+    if (isMobile) setOpenMobile(false)
+  }
   // Siyahi edit: an item without sub-items is a plain link, so a nav of flat
   // views navigates; upstream made every item a collapsible group.
   return (
@@ -47,7 +57,8 @@ export function NavMain({
             <SidebarMenuButton
               isActive={item.isActive}
               tooltip={item.title}
-              render={<a href={item.url} />}
+              render={<a {...item.linkProps} href={item.url} />}
+              onClick={closeDrawer}
             >
               {item.icon}
               <span>{item.title}</span>
@@ -71,7 +82,10 @@ export function NavMain({
               <SidebarMenuSub>
                 {item.items?.map((subItem) => (
                   <SidebarMenuSubItem key={subItem.title}>
-                    <SidebarMenuSubButton render={<a href={subItem.url} />}>
+                    <SidebarMenuSubButton
+                      render={<a href={subItem.url} />}
+                      onClick={closeDrawer}
+                    >
                       <span>{subItem.title}</span>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>

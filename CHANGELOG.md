@@ -7,8 +7,10 @@ Fixes from the first two consumers, dash and The Book, published as
 
 - `AppSidebar` and `NavMain`: an item without `items` is a plain link with
   `isActive` and a tooltip, so a nav of flat views navigates; an item with
-  `items` stays a collapsible group. `AppSidebar` accepts `collapsible="none"`
-  to draw in place.
+  `items` stays a collapsible group. A flat item's optional `linkProps` are
+  spread onto its anchor (handlers such as `onMouseEnter` included). On a phone,
+  following any link in the drawer closes it. `AppSidebar` accepts
+  `collapsible="none"` to draw in place.
 - Alert icons: the documented warning icon is `text-warning!`. Stock `Alert`
   colours its icons through a selector that outranks a plain `text-warning`,
   which drew the icon in the foreground colour.

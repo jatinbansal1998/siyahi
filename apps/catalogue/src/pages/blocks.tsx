@@ -46,7 +46,8 @@ export const blocks: Page = {
           <Lead>
             An item with sub-items is a collapsible group, as in this catalogue's navigation. An item without them is a
             plain link, marked by isActive and named in a tooltip when the sidebar is collapsed to icons: an app of flat
-            views passes only title, url, icon and isActive.
+            views passes only title, url, icon and isActive. linkProps go onto that link's anchor, for a new tab or for
+            hover handlers that prefetch the view's data. On a phone, following any link closes the drawer.
           </Lead>
           <Example name="app-sidebar" />
         </>

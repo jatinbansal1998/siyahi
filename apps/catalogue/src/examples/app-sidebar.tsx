@@ -2,6 +2,7 @@ import { AppSidebar, SidebarProvider } from "@siyahi/ui";
 import {
   BlocksIcon,
   ChartAreaIcon,
+  CodeIcon,
   FileTextIcon,
   HouseIcon,
   LayersIcon,
@@ -18,6 +19,13 @@ const views = [
   { title: "Data", url: "#/data", icon: <ChartAreaIcon /> },
   { title: "Blocks", url: "#/blocks", icon: <BlocksIcon />, isActive: true },
   { title: "Reports", url: "#/reports", icon: <FileTextIcon /> },
+  // linkProps go onto the anchor: here a new tab, in an app often onMouseEnter to prefetch the view's data.
+  {
+    title: "Source",
+    url: "https://github.com/jatinbansal1998/siyahi",
+    icon: <CodeIcon />,
+    linkProps: { target: "_blank", rel: "noreferrer" },
+  },
 ];
 
 export default function AppSidebarExample() {
