@@ -13,6 +13,10 @@ pre-releases.
   colours. Contrast is unchanged (64/64 pairs).
 - Data table: header and body cells take the core table's luma padding, so the
   data table and a plain `Table` share one row height.
+- Open for 0.1.6: cards, stat tiles included, now carry luma's `shadow-md`.
+  The owner prefers flat cards (no gradient, and likely no `shadow-md` on
+  stat tiles), so expect that shadow to go in 0.1.6. Apps should not build
+  on it.
 
 ## 0.1.4
 
