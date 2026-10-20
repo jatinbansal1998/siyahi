@@ -34,13 +34,13 @@ Common rules for every PR:
 | 14 | transactions-analyser | Remove adapter, `styles.css`, `web/kajal/`; preflight fully on | 13 |
 | 15 | dash | A new dash page on Siyahi: "How we set up a Node and TypeScript project", the tooling best practices taken from t3code (pnpm, Node 24, TypeScript 7, Vite+ with oxlint/oxfmt/vitest, knip, pnpm catalog, CI shape) and what Siyahi adopted; published through the publisher skill | 5 |
 
-Status, 2026-10-20 early morning: unit 1 merged (#1, #2), unit 2 done (catalogue live at
-https://siyahi.jatinbansal.com). npm publish is blocked: the NPM_TOKEN was created without
-2FA bypass, so the registry asks for a one-time code. Until Jatin replaces the token (granular,
-publish on @siyahi, bypass 2FA) or sets up trusted publishing after the first publish, every
-merge to main ships the two tarballs on a GitHub release (`v<version>` and rolling `next`), and
-dash and The Book install from `https://github.com/jatinbansal1998/siyahi/releases/download/v0.1.0-next.1/...`
-with `allow-remote=root` in `.npmrc`. Switching them to `@siyahi/ui@next` is one line each.
+Status, 2026-10-20 09:30 IST: units 1, 2, 3, 4 and 5 are done and deployed (siyahi #1 #2,
+catalogue live, agent-skills #95 installed, market-flow #2, dash #82 deployed). npm publishing
+works since Jatin replaced the token at 01:25 UTC: `@siyahi/ui@0.1.0-next.3` and
+`@siyahi/tools@0.1.0-next.3` are on npmjs under the `next` tag (and, because it was the first
+publish, also `latest`; re-point `latest` when 1.0.0 ships). Every merge to main also uploads
+the tarballs to a GitHub release. dash and The Book still install from the v0.1.0-next.1
+tarballs; they switch to `@siyahi/ui@next` when they bump to 0.1.1 (siyahi #3).
 
 Deploy steps the orchestrator runs after each merge:
 - dash: `git pull --ff-only` in `~/code/dash`, `npm run deploy`, open the live page.
