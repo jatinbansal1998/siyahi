@@ -16,10 +16,12 @@ const RULES = [
 ];
 
 const INSTALL = `npm install @siyahi/ui@next tailwindcss @tailwindcss/vite
+npm install --save-dev @siyahi/tools@next
 
 // vite.config.ts
 import tailwindcss from "@tailwindcss/vite";
-export default defineConfig({ plugins: [react(), tailwindcss()] });
+import { preloadFonts } from "@siyahi/tools/vite";
+export default defineConfig({ plugins: [react(), tailwindcss(), preloadFonts()] });
 
 /* src/index.css */
 @import "@siyahi/ui/styles.css";
@@ -71,6 +73,11 @@ export const overview: Page = {
           <p className="max-w-prose">
             Everything comes from one import path, <code className="font-mono">@siyahi/ui</code>, including the Recharts
             pieces charts are composed from. Add lucide-react only if your own code imports icons.
+          </p>
+          <p className="max-w-prose">
+            <code className="font-mono">preloadFonts()</code> has the built page fetch Geist with its scripts rather
+            than after the first paint. Until Geist arrives the theme draws Arial scaled to Geist&apos;s metrics, so
+            nothing moves when it swaps in.
           </p>
         </>
       ),

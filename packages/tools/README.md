@@ -1,6 +1,6 @@
 # @siyahi/tools
 
-Checks for pages built on [`@siyahi/ui`](https://www.npmjs.com/package/@siyahi/ui).
+Checks and build helpers for pages built on [`@siyahi/ui`](https://www.npmjs.com/package/@siyahi/ui).
 Kept apart from the UI package so installing the UI does not pull in Playwright.
 
 ## Lint plugin
@@ -27,6 +27,45 @@ that import `@siyahi/ui`.
 
 A Vite+ or ESLint config can spread every rule at once:
 `import { recommended } from "@siyahi/tools/lint"`.
+
+## Font preload
+
+A Vite plugin that adds `<link rel="preload" as="font">` tags to the built
+`index.html` for the Latin files of Geist and Geist Mono, and Geist's
+Latin Extended file, which holds ₹. Without them the browser asks for a font
+only once text in it has rendered, so on a slow network the fallback paints
+first and Geist swaps in seconds later.
+
+```ts
+// vite.config.ts
+import { preloadFonts } from "@siyahi/tools/vite";
+export default defineConfig({ plugins: [react(), tailwindcss(), preloadFonts()] });
+```
+
+It runs in `vite build` only. The fonts stay self-hosted: the tags point at
+the files Vite emitted from `@siyahi/ui`'s fontsource imports.
+
+## siyahi-cls
+
+```sh
+npx siyahi-cls http://localhost:4173/ [more URLs] [--out cls] [--font "Geist Variable"] [--wait-for h1] [--network slow-3g|none] [--hold-fonts] [--max-cls 0.01]
+```
+
+Loads each URL in Chromium with a cold cache over Chrome DevTools' Slow 3G
+profile (400 kbit/s, 2 s round trips), 1920 and 390 pixels wide, and reports
+how far the page moves after its first paint: Cumulative Layout Shift, the
+layout shifts behind it, when the first `--font` face loaded, the
+`font-display` in effect, and whether the font was already loaded at the
+first paint. It shoots the page as soon as `--wait-for` is visible and again
+once the font has loaded and the page has settled, writes both PNGs and an
+overlay of the two (ink only the first paint has shows red, ink only the
+second has shows cyan), and lists the text boxes that moved between them.
+
+`--hold-fonts` holds every woff2 response until the first shot, so the
+fallback always paints first: the worst case, a first visit on which the font
+arrives after the page. A page fails when its CLS is above `--max-cls` or a
+text box inside the first screen moved; boxes that moved further down are
+counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx playwright install chromium` once.
 
 ## siyahi-shots
 

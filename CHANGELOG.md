@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.1.3
+
+The page no longer moves when Geist loads. On a first visit over a slow
+network the system font painted first and every paragraph rewrapped when
+Geist swapped in (CLS 0.069 on the catalogue's home page at 1920 wide).
+Published as `0.1.3-next.<n>` pre-releases.
+
+- The theme names `Geist Fallback` and `Geist Mono Fallback` right after Geist
+  and Geist Mono: Arial (or Liberation Sans, Arimo) and Courier New (or
+  Liberation Mono, Cousine) scaled to Geist's width at each weight and given
+  its ascent, descent and line gap. `scripts/generate.ts` writes them to
+  `styles/fallback-fonts.css`. Text set in the fallback is within 1% of
+  Geist's width.
+- `max-w-prose` is 43.1em, the 65ch it measured in Geist. A ch is the width of
+  the "0" in whichever font is drawing, so every prose block rewrapped on the
+  swap, fallback or not.
+- `@siyahi/tools/vite` exports `preloadFonts()`, a Vite plugin that preloads
+  Geist's Latin and Latin Extended (₹) files and Geist Mono's Latin file from
+  the built `index.html`, so the fonts download with the scripts and are
+  usually in before the first paint.
+- `siyahi-cls` measures how far a page moves after its first paint on a slow
+  network, at 1920 and 390 wide: CLS, the shifts behind it, when the font
+  loaded, and an overlay of the first paint and the settled page.
+- Catalogue: the colour swatches on Foundations read their values while
+  rendering instead of after, so they no longer grow a line after the first
+  paint.
+
 ## 0.1.2
 
 Gaps found while porting The Book's Holdings view, published as

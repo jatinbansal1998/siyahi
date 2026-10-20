@@ -9,6 +9,7 @@
 @import "./shadcn.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
+@import "./fallback-fonts.css";
 
 /* Tailwind does not scan node_modules, so name the package's own classes. */
 @source "../dist";
@@ -21,9 +22,15 @@
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 @theme inline {
-  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+  --font-sans: "Geist Variable", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono Fallback", ui-monospace, monospace;
   --font-heading: var(--font-sans);
+  /*
+   * Tailwind's 65ch, measured in Geist, whose "0" is 0.663em wide. A ch
+   * follows whichever font is drawing, so a plain 65ch is narrower while the
+   * fallback draws and every prose block rewraps when Geist arrives.
+   */
+  --max-width-prose: 43.1em;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

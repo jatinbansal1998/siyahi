@@ -19,12 +19,14 @@ is Tailwind source, so a plain CSS import leaves every component unstyled.
 
 ```sh
 npm install @siyahi/ui@next tailwindcss @tailwindcss/vite
+npm install --save-dev @siyahi/tools@next
 ```
 
 ```ts
 // vite.config.ts
 import tailwindcss from "@tailwindcss/vite";
-export default defineConfig({ plugins: [react(), tailwindcss()] });
+import { preloadFonts } from "@siyahi/tools/vite";
+export default defineConfig({ plugins: [react(), tailwindcss(), preloadFonts()] });
 ```
 
 ```css
@@ -42,6 +44,14 @@ createRoot(root).render(
   </SiyahiProvider>,
 );
 ```
+
+`preloadFonts()` adds `<link rel="preload">` tags for Geist and Geist Mono to
+the built `index.html`, so the fonts download with the scripts instead of after
+the first paint. Until they arrive the theme draws Arial (or its Linux twins,
+Liberation Sans and Arimo) scaled to Geist's metrics, so nothing moves when
+Geist swaps in. An app that renders its own HTML adds the tags itself, with
+the hashed URLs of `geist-latin-wght-normal.woff2`,
+`geist-latin-ext-wght-normal.woff2` and `geist-mono-latin-wght-normal.woff2`.
 
 Everything comes from `@siyahi/ui`: the shadcn components, the registry
 add-ons (data table, heatmaps, stat tiles, sidebar), Siyahi's own components
@@ -137,17 +147,18 @@ npm install --save-dev @siyahi/tools@next oxlint
 ```
 
 `@siyahi/tools` also has `siyahi-shots` (screenshots of a page at 1920 and 390
-pixels wide in both schemes, with layout checks) and `siyahi-contrast` (the
+pixels wide in both schemes, with layout checks), `siyahi-cls` (how far a page
+moves after its first paint on a slow network) and `siyahi-contrast` (the
 theme contrast check). See [packages/tools](packages/tools/README.md).
 
 ## This repository
 
-| Path              | What                                                                              |
-| ----------------- | --------------------------------------------------------------------------------- |
-| `packages/ui`     | `@siyahi/ui`. The theme is `styles/siyahi.css`, the only file with colour values. |
-| `packages/tools`  | `@siyahi/tools`: lint plugin, contrast check, screenshot script.                  |
-| `apps/catalogue`  | The catalogue site, a Vite app deployed as a Cloudflare Worker.                   |
-| `assets/icon.svg` | The mark.                                                                         |
+| Path              | What                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| `packages/ui`     | `@siyahi/ui`. The theme is `styles/siyahi.css`, the only file with colour values.  |
+| `packages/tools`  | `@siyahi/tools`: lint plugin, font preload, contrast, screenshot and shift checks. |
+| `apps/catalogue`  | The catalogue site, a Vite app deployed as a Cloudflare Worker.                    |
+| `assets/icon.svg` | The mark.                                                                          |
 
 Development uses pnpm and [Vite+](https://viteplus.dev):
 
