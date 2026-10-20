@@ -24,7 +24,11 @@ const display: Entry[] = [
   ],
   ["badge", "Badge", "Brokers and asset classes are badges, never colours. A signed figure goes in an outline badge."],
   ["card", "Card", "A card holds data. One level only; prose sits on the page around it."],
-  ["alert", "Alert", "Default for information, destructive for errors, default with an amber icon for warnings."],
+  [
+    "alert",
+    "Alert",
+    "Default for information, destructive for errors, default with an amber icon for warnings. The icon takes text-warning! with the !: Alert colours its icons through a selector that outranks a plain text-warning.",
+  ],
   ["tabs", "Tabs", "Views switch with tabs."],
   ["progress", "Progress", "A long import or upload."],
   ["skeleton", "Skeleton", "The shape of content that is still loading."],

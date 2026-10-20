@@ -64,6 +64,11 @@ on the canvas, the card and its own fill, 3:1 for chart colours against the
 card and against the slots next to them, and every chart colour inside sRGB.
 When a check fails, change the value, never the bar.
 
+An icon in an `Alert` takes its meaning colour with Tailwind's important
+modifier: `<TriangleAlertIcon className="text-warning!" />`. `alert.tsx` sets
+its icons to the text colour with a selector that outranks a plain
+`text-warning`, and core is not edited, so the `!` is what makes the icon amber.
+
 Registry add-ons are not formatted or style-linted, but `pnpm lint:registry`
 runs the colour rules on them, so an add-on default must name a token.
 
