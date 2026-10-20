@@ -6,8 +6,9 @@ Three small fixes, published as `0.1.4-next.<n>` pre-releases.
 
 - Data table: a page's sticky header no longer slides under the table. The
   table's pinned cells (z-index 10 and 20) and sticky header row (30) ranked
-  against the whole page, so on a phone The Book's `sticky top-0 z-10`
-  masthead was painted under the pinned column. The table's scroll container
+  against the whole page, so The Book's `sticky top-0 z-10` masthead was
+  painted under the table's header row and pinned column, on a phone and on
+  desktop alike. The table's scroll container
   is now `isolate`, a stacking context of its own, so those z-indexes only
   rank inside the table. A sticky header above a data table needs a z-index of
   1 or more (`z-1` will do); it no longer has to outrank 30. At 0 or `auto`
