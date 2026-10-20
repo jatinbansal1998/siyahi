@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-ui.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 31eaf4056473bdf7215cfe02b97a330480f1e7a6dce124679bb39bb35ccfcd31
+// Siyahi edit: header cells are h-12 px-3 and body cells p-3, as in the core
+// luma table.tsx, so the data table and a plain Table share one row height.
 "use client"
 
 import * as React from "react"
@@ -86,7 +88,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-[2px]",
+        "h-12 px-3 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-[2px]",
         className,
       )}
       {...props}
@@ -99,7 +101,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-[2px]",
+        "p-3 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-[2px]",
         className,
       )}
       {...props}
