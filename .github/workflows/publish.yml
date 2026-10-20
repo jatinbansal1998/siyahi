@@ -1,7 +1,8 @@
 name: Publish
 
 # Every merge to main ships both packages as a pre-release: tarballs on a
-# GitHub release (always), and npm under the `next` dist-tag (when the token
+# GitHub release (always), and npm under the `next` dist-tag, which `latest`
+# follows until 1.0.0 (when the token
 # allows it). Stable versions are cut by hand.
 on:
   push:
@@ -99,6 +100,17 @@ jobs:
         run: >-
           pnpm -r --filter @siyahi/ui --filter @siyahi/tools
           publish --tag next --access public --no-git-checks --ignore-scripts
+      # Until 1.0.0 there is no stable release, so `latest` follows `next`:
+      # npmjs.com shows the README and version of `latest`, and a stale one
+      # misleads. Remove this step with the first stable publish.
+      - name: Point latest at this pre-release
+        if: steps.npm.outcome == 'success'
+        continue-on-error: true
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          pnpm dist-tag add "@siyahi/ui@$VERSION" latest
+          pnpm dist-tag add "@siyahi/tools@$VERSION" latest
       - name: Report the npm publish
         if: always() && steps.npm.outcome != 'skipped'
         env:
