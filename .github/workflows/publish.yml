@@ -109,8 +109,8 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          pnpm dist-tag add "@siyahi/ui@$VERSION" latest
-          pnpm dist-tag add "@siyahi/tools@$VERSION" latest
+          npm dist-tag add "@siyahi/ui@$VERSION" latest
+          npm dist-tag add "@siyahi/tools@$VERSION" latest
       - name: Report the npm publish
         if: always() && steps.npm.outcome != 'skipped'
         env:
