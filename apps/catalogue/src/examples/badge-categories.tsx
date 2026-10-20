@@ -47,7 +47,7 @@ function Category({ option, hue, children }: { option: Option; hue: Hue; childre
 function Trial({ option }: { option: Option }) {
   const { money } = useFormat();
   return (
-    <div className="grid gap-4 @xl:grid-cols-2">
+    <div className="grid gap-4 @4xl:grid-cols-2">
       <Card size="sm">
         <CardHeader>
           <CardTitle>{option}: units</CardTitle>
