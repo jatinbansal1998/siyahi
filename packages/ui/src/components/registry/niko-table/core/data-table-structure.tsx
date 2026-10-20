@@ -6,6 +6,8 @@
 // not shadcn core's table.tsx, which has no TableComponent export.
 // Siyahi edit: the sticky header paints bg-card, not bg-background. A Siyahi
 // table sits in a card, where the page background is a darker band in dark mode.
+// Siyahi edit: a pinned cell draws its row's hover and selected tint as a flat
+// gradient over its opaque inline background, which outranks bg-* classes.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
@@ -250,8 +252,10 @@ const BodyRow = React.memo(function BodyRow({
               // resize doesn't paint into neighboring columns. Skip on grouped
               // cells so the expand control + count stay visible.
               !cell.getIsGrouped() && "truncate",
+              // The opaque colour is inline (getCommonPinningStyles); the
+              // tint is a gradient layer over it, so nothing shows through.
               cell.column.getIsPinned() &&
-                "bg-background group-hover:bg-muted/50 group-data-[context-menu-open]:bg-muted/50 group-data-[state=selected]:bg-muted",
+                "bg-linear-to-r group-hover:from-muted/50 group-hover:to-muted/50 group-data-[context-menu-open]:from-muted/50 group-data-[context-menu-open]:to-muted/50 group-data-[state=selected]:from-muted group-data-[state=selected]:to-muted",
             )}
           >
             {renderCellContent(cell)}

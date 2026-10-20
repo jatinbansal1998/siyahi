@@ -20,7 +20,7 @@ interface Holding extends TreemapItem {
 // change is the return since bought; LT came in as a transfer, with no cost basis.
 const holdings: Holding[] = [
   { name: "INFY", key: "INFY-kite", broker: "Kite", group: "IT", weight: 224400, change: 0.38 },
-  { name: "INFY", key: "INFY-dhan", broker: "Dhan", group: "IT", weight: 61200, change: 0.12 },
+  { name: "INFY", key: "INFY-dhan", broker: "Dhan", group: "IT", weight: 152000, change: 0.12 },
   { name: "TCS", broker: "Kite", group: "IT", weight: 166000, change: 0.09 },
   { name: "WIPRO", broker: "Dhan", group: "IT", weight: 98000, change: -0.21 },
   { name: "HDFCBANK", broker: "Kite", group: "Banks", weight: 262500, change: -0.06 },
@@ -46,7 +46,7 @@ export default function TreemapExample() {
           <TooltipTrigger render={<div />}>
             <Treemap items={holdings} height={320} range={0.6} onHover={setHovered} />
           </TooltipTrigger>
-          <TooltipContent className="flex-col items-start gap-0 tabular-nums">
+          <TooltipContent side="bottom" className="flex-col items-start gap-0 tabular-nums">
             {hovered && (
               <>
                 <span className="font-medium">

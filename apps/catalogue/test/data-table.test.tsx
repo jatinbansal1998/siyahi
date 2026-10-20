@@ -30,6 +30,11 @@ afterEach(async () => {
 async function openColumnMenu(table: ReactNode, title: string): Promise<HTMLElement> {
   root = createRoot(document.body.appendChild(document.createElement("div")));
   await act(async () => root?.render(table));
+  return reopenColumnMenu(title);
+}
+
+/** Clicks the menu button in the header titled `title` of the table already rendered. */
+async function reopenColumnMenu(title: string): Promise<HTMLElement> {
   const header = [...document.querySelectorAll("th")].find((th) => th.textContent?.includes(title));
   const trigger = header?.querySelector<HTMLElement>('[data-slot="dropdown-menu-trigger"]');
   if (!trigger) throw new Error(`no column menu on ${title}`);
@@ -73,6 +78,22 @@ describe("data table column menus", () => {
     const menu = await openColumnMenu(<DataTableExample />, "Value");
     expect(menu.textContent).toContain("Column Actions");
     expect(menu.textContent).toContain("Column Sort");
+    await pick(menu, "High to Low");
+    expect(firstColumn().slice(0, 3)).toEqual(["ITC", "HDFCBANK", "ICICIBANK"]);
+  });
+
+  it("DataTableColumnActions opens again after Escape closes it, with both labels", async () => {
+    let menu = await openColumnMenu(<DataTableExample />, "Value");
+    for (let round = 0; round < 2; round++) {
+      await act(async () => menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+      expect(document.querySelector('[role="menu"]')).toBeNull();
+      menu = await reopenColumnMenu("Value");
+    }
+    const groups = [...menu.querySelectorAll('[role="group"]')];
+    expect(groups.map((g) => document.getElementById(g.getAttribute("aria-labelledby") ?? "")?.textContent)).toEqual([
+      "Column Actions",
+      "Column Sort",
+    ]);
     await pick(menu, "High to Low");
     expect(firstColumn().slice(0, 3)).toEqual(["ITC", "HDFCBANK", "ICICIBANK"]);
   });

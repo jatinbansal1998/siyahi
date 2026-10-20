@@ -44,6 +44,14 @@ const box = (el: Element | undefined) => ({
   right: Number(el?.getAttribute("x")) + Number(el?.getAttribute("width")),
 });
 
+// A browser fires pointerout on the element left and pointerover on the
+// one entered; React derives onPointerEnter and onPointerLeave from them.
+const move = async (from: Element | null | undefined, to: Element | null | undefined) =>
+  act(async () => {
+    from?.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: to ?? document.body }));
+    to?.dispatchEvent(new PointerEvent("pointerover", { bubbles: true, relatedTarget: from ?? document.body }));
+  });
+
 describe("Treemap", () => {
   it("draws each group's name above its own tiles", async () => {
     await render({
@@ -94,19 +102,49 @@ describe("Treemap", () => {
     expect(fill("PAST")).toContain("var(--negative) 60%");
   });
 
-  it("reports the item under the pointer, and null when the pointer leaves", async () => {
+  it("falls back to ±5% when range is not a positive number", async () => {
+    for (const range of [0, -0.05, Number.NaN, Number.POSITIVE_INFINITY]) {
+      await render({ height: 300, items: [{ name: "INFY", weight: 100, change: 0.03 }], range });
+      expect(fill("INFY")).toContain("var(--positive) 36%");
+      await act(async () => root?.unmount());
+    }
+  });
+
+  it("keeps every tile inside the box when weights are negative or infinite", async () => {
+    await render({
+      height: 300,
+      items: [
+        { name: "INFY", weight: 100, change: 0.01 },
+        { name: "TCS", weight: -40, change: 0.01 },
+        { name: "ITC", weight: 50, change: 0.01 },
+        { name: "SBIN", weight: Number.POSITIVE_INFINITY, change: 0.01 },
+        { name: "LT", weight: Number.NaN, change: 0.01 },
+      ],
+    });
+    expect(tiles().map((t) => t.querySelector("tspan")?.textContent)).toEqual(["INFY", "ITC"]);
+    for (const t of tiles()) {
+      const at = (name: string) => Number(t.getAttribute(name));
+      expect(at("x")).toBeGreaterThanOrEqual(0);
+      expect(at("y")).toBeGreaterThanOrEqual(0);
+      expect(at("x") + at("width")).toBeLessThanOrEqual(600);
+      expect(at("y") + at("height")).toBeLessThanOrEqual(300);
+    }
+  });
+
+  it("reports each tile the pointer moves onto, then null on a group's name and off the map", async () => {
     const onHover = vi.fn<(item: TreemapItem | null) => void>();
     const items = [
-      { name: "INFY", weight: 300, change: 0.01 },
-      { name: "TCS", weight: 200, change: -0.01 },
+      { name: "INFY", key: "INFY-kite", group: "IT", weight: 300, change: 0.01 },
+      { name: "INFY", key: "INFY-dhan", group: "IT", weight: 200, change: -0.01 },
     ];
     await render({ height: 300, items, onHover });
-    const rect = tile("TCS")?.querySelector("rect");
-    await act(async () => rect?.dispatchEvent(new PointerEvent("pointerover", { bubbles: true })));
-    expect(onHover).toHaveBeenLastCalledWith(items[1]);
-    await act(async () =>
-      rect?.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: document.body })),
-    );
-    expect(onHover).toHaveBeenLastCalledWith(null);
+    const [kite, dhan] = tiles().map((t) => t.querySelector("rect"));
+    const label = document.querySelector('[data-slot="treemap-group"] rect');
+    await move(undefined, kite);
+    await move(kite, dhan);
+    await move(dhan, label);
+    await move(label, undefined);
+    expect(onHover.mock.calls.map(([item]) => item?.key ?? null)).toEqual(["INFY-kite", "INFY-dhan", null, null]);
+    expect(onHover.mock.calls[1]?.[0]).toBe(items[1]);
   });
 });

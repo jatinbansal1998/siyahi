@@ -4,27 +4,27 @@ import { heat, layout } from "@siyahi/ui/lib/treemap";
 
 export interface TreemapItem {
   name: string;
-  /** Tile area, such as the holding's value. */
+  /** Tile area, such as the holding's value. Zero, negative and non-finite weights draw no tile. */
   weight: number;
   /** Signed change as a fraction; sets the heat. `null` when unknown: a muted tile marked "—". */
   change: number | null;
   /** Unique key when names repeat, such as one symbol held at two brokers. Defaults to `name`. */
   key?: string;
-  /** Tiles of one group, such as a sector, sit together under the group's name. */
+  /** Tiles of one group, such as a sector, sit together under the group's name, even a group of one. */
   group?: string;
 }
 
 export interface TreemapProps<T extends TreemapItem> {
   items: T[];
   height: number;
-  /** The change, as a fraction, that takes the deepest heat step. Default 0.05 (±5%). */
+  /** ±range: the change, as a fraction, that takes the deepest heat step. Default 0.05 (±5%); a range that is not a positive number uses the default. */
   range?: number;
-  /** Gets the item under the pointer, and null when the pointer leaves the map. */
+  /** Gets the item under the pointer, and null when the pointer moves onto a group's name or leaves the map. */
   onHover?: (item: T | null) => void;
 }
 
 /** Holdings heat map: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
-export function Treemap<T extends TreemapItem>({ items, height, range = 0.05, onHover }: TreemapProps<T>) {
+export function Treemap<T extends TreemapItem>({ items, height, range, onHover }: TreemapProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const { pct } = useFormat();
@@ -48,7 +48,8 @@ export function Treemap<T extends TreemapItem>({ items, height, range = 0.05, on
         onPointerLeave={() => onHover?.(null)}
       >
         {groups.map(({ group, ...box }) => (
-          <svg key={group} {...box} data-slot="treemap-group">
+          <svg key={group} {...box} data-slot="treemap-group" onPointerEnter={() => onHover?.(null)}>
+            <rect width="100%" height="100%" fill="none" pointerEvents="all" />
             <text x={2} y={12} className="fill-muted-foreground font-medium">
               {group}
             </text>

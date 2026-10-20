@@ -79,8 +79,9 @@ export const data: Page = {
           <Lead>
             Signed heat: five steps of --positive and --negative mixed toward the card colour, the deepest at ±range
             (default 0.05, ±5%). A change of null is a muted tile marked "—". Items with a group sit together under its
-            name; give items a key when names repeat. onHover gets the item under the pointer, or null, for a tooltip or
-            for highlighting the same item elsewhere on the page.
+            name, which draws even for a group of one. Give items a key when names repeat, such as one symbol at two
+            brokers. onHover gets the item under the pointer, and null on a group's name or off the map: drive a tooltip
+            with it, or highlight the same item elsewhere on the page.
           </Lead>
           <Example name="treemap" />
         </>
