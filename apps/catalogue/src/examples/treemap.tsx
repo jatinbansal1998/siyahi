@@ -1,27 +1,67 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Treemap } from "@siyahi/ui";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  Treemap,
+  useFormat,
+  type TreemapItem,
+} from "@siyahi/ui";
+import { useState } from "react";
 
-const holdings = [
-  { name: "ITC", weight: 276000, change: -0.012 },
-  { name: "HDFCBANK", weight: 262500, change: -0.006 },
-  { name: "ICICIBANK", weight: 258000, change: 0.022 },
-  { name: "NIFTYBEES", weight: 255600, change: 0.009 },
-  { name: "INFY", weight: 224400, change: 0.018 },
-  { name: "TCS", weight: 166000, change: 0.004 },
-  { name: "WIPRO", weight: 98000, change: -0.034 },
-  { name: "SBIN", weight: 87000, change: 0.061 },
-  { name: "ASIANPAINT", weight: 64000, change: -0.052 },
-  { name: "LT", weight: 52000, change: 0 },
+interface Holding extends TreemapItem {
+  broker: string;
+}
+
+// change is the return since bought; LT came in as a transfer, with no cost basis.
+const holdings: Holding[] = [
+  { name: "INFY", key: "INFY-kite", broker: "Kite", group: "IT", weight: 224400, change: 0.38 },
+  { name: "INFY", key: "INFY-dhan", broker: "Dhan", group: "IT", weight: 152000, change: 0.12 },
+  { name: "TCS", broker: "Kite", group: "IT", weight: 166000, change: 0.09 },
+  { name: "WIPRO", broker: "Dhan", group: "IT", weight: 98000, change: -0.21 },
+  { name: "HDFCBANK", broker: "Kite", group: "Banks", weight: 262500, change: -0.06 },
+  { name: "ICICIBANK", broker: "Kite", group: "Banks", weight: 258000, change: 0.44 },
+  { name: "SBIN", broker: "Dhan", group: "Banks", weight: 87000, change: 0.58 },
+  { name: "ITC", broker: "Kite", group: "FMCG", weight: 276000, change: 0.27 },
+  { name: "ASIANPAINT", broker: "Dhan", group: "FMCG", weight: 64000, change: -0.33 },
+  { name: "NIFTYBEES", broker: "Kite", group: "ETF", weight: 255600, change: 0.16 },
+  { name: "LT", broker: "Dhan", group: "Construction", weight: 52000, change: null },
 ];
 
 export default function TreemapExample() {
+  const [hovered, setHovered] = useState<Holding | null>(null);
+  const { money, pct } = useFormat();
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Holdings today</CardTitle>
-        <CardDescription>Area is the holding's value; colour is the day's change</CardDescription>
+        <CardTitle>Holdings by sector</CardTitle>
+        <CardDescription>Area is the holding's value; colour is its return, deepest at ±60%</CardDescription>
       </CardHeader>
       <CardContent>
-        <Treemap items={holdings} height={320} />
+        <Tooltip open={hovered !== null} trackCursorAxis="both">
+          <TooltipTrigger render={<div />}>
+            <Treemap items={holdings} height={320} range={0.6} onHover={setHovered} />
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="flex-col items-start gap-0 tabular-nums">
+            {hovered && (
+              <>
+                <span className="font-medium">
+                  {hovered.name} · {hovered.broker}
+                </span>
+                <span>
+                  {money(hovered.weight)} ·{" "}
+                  {hovered.change === null
+                    ? "no cost basis"
+                    : `${hovered.change < 0 ? "▼" : "▲"} ${pct(Math.abs(hovered.change))}`}
+                </span>
+              </>
+            )}
+          </TooltipContent>
+        </Tooltip>
       </CardContent>
     </Card>
   );

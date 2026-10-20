@@ -2,6 +2,10 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 7521bf6208309340d846b99c4e571e2cbf416ab0dbdd72f62f72971a8d332d84
+// Siyahi edit: pinned cells paint var(--card), not var(--background). A
+// Siyahi table sits in a card, and in dark mode the page background drew a
+// darker stripe down the pinned column. This inline colour outranks the
+// cells' bg-* classes.
 import { type Column, type RowData } from "@tanstack/react-table"
 import type { DataTableFeatures } from "./data-table-features"
 import type React from "react"
@@ -29,7 +33,7 @@ export const getCommonPinningStyles = <TData extends RowData>(
     // Headers: z-20 to stay above other headers and body.
     // Body: z-10 to stay above other body cells.
     zIndex: isHeader ? 20 : 10,
-    backgroundColor: "var(--background)", // Ensure opaque background
+    backgroundColor: "var(--card)", // Ensure opaque background
     // Directional separator on the pinned side — a real inner border (right for
     // left-pinned, left for right-pinned) plus a soft shadow so the frozen
     // column reads as distinct from scrolling content, even in a grid where

@@ -76,7 +76,13 @@ export const data: Page = {
       title: "Treemap",
       body: (
         <>
-          <Lead>Signed heat: steps of --positive and --negative mixed toward the card colour.</Lead>
+          <Lead>
+            Signed heat: five steps of --positive and --negative mixed toward the card colour, the deepest at ±range
+            (default 0.05, ±5%). A change of null is a muted tile marked "—". Items with a group sit together under its
+            name, which draws even for a group of one. Give items a key when names repeat, such as one symbol at two
+            brokers. onHover gets the item under the pointer, and null on a group's name or off the map: drive a tooltip
+            with it, or highlight the same item elsewhere on the page.
+          </Lead>
           <Example name="treemap" />
         </>
       ),
@@ -100,7 +106,10 @@ export const data: Page = {
       title: "Ranked list",
       body: (
         <>
-          <Lead>dashboardcn's bar list, for "needs attention" and top-N lists.</Lead>
+          <Lead>
+            dashboardcn's bar list, for "needs attention" and top-N lists. An item's detail, such as a Delta, sits after
+            its label in its own colour; a long label truncates before the detail does.
+          </Lead>
           <Example name="bar-list" />
         </>
       ),

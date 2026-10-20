@@ -4,6 +4,8 @@
 // Copied: 2026-10-20, sha256 0a567472d24e9f0391fa689a528fb2392870a521f29065c6f758837182b92a63
 // Siyahi edit: the trigger is passed as Base UI's render prop, so the
 // default Button is not nested inside the trigger's own button.
+// Siyahi edit: the label and the actions sit in a DropdownMenuGroup. Base UI's
+// Menu.GroupLabel throws outside a Menu.Group, which crashed the menu on open.
 import React from "react"
 import { MoreVertical } from "lucide-react"
 
@@ -11,6 +13,7 @@ import { Button } from "@siyahi/ui/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@siyahi/ui/components/ui/dropdown-menu"
@@ -86,10 +89,12 @@ export function TableColumnActions({
         )}
       />
       <DropdownMenuContent align={align} className="w-48">
-        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-          {label}
-        </DropdownMenuLabel>
-        {children}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+            {label}
+          </DropdownMenuLabel>
+          {children}
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )

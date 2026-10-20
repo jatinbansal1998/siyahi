@@ -4,6 +4,9 @@
 // Copied: 2026-10-20, sha256 bc19cf1f5e486fa11273e7d7ed620eb7b82ba360f72e5a15e6bf488f992d16ce
 // Siyahi edit: numbers follow the SiyahiProvider locale instead of
 // dashboardcn's en-US lib/format, which is not copied.
+// Siyahi edit: an item's optional detail (a secondary figure such as a Delta)
+// renders after its label, outside the link, and does not shrink, so a long
+// label truncates before the figure does.
 import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
@@ -16,6 +19,8 @@ export interface BarListItem {
   /** Renders the label as a link. */
   href?: string
   icon?: React.ReactNode
+  /** Secondary figure after the label, such as a `Delta`. */
+  detail?: React.ReactNode
   /** Stable key when names can repeat. */
   key?: string
 }
@@ -98,6 +103,14 @@ function BarList({
                 ) : null}
                 <span className="truncate">{item.name}</span>
               </Label>
+              {item.detail ? (
+                <span
+                  data-slot="bar-list-detail"
+                  className="text-muted-foreground relative shrink-0 pr-2 text-xs tabular-nums"
+                >
+                  {item.detail}
+                </span>
+              ) : null}
             </div>
             <div className="flex shrink-0 items-center gap-2 tabular-nums">
               <span className="font-medium">{format(item.value)}</span>

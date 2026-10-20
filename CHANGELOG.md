@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.1.2
+
+Gaps found while porting The Book's Holdings view, published as
+`0.1.2-next.<n>` pre-releases.
+
+- Data table column menus no longer crash. Opening `DataTableColumnActions`,
+  `DataTableColumnSortMenu` or a menu holding `DataTableColumnSortOptions`
+  threw `Base UI: MenuGroupContext is missing` and unmounted the app; their
+  labels now sit in a `DropdownMenuGroup`.
+- Data table, dark mode: the pinned column and the sticky header paint the
+  card's colour (`--card`), not the page's, so a table in a card has no darker
+  stripe or header row. A table placed straight on the page in dark mode now
+  shows a slightly lighter pinned column and header instead. Pinned cells also
+  take their row's hover and selected tint, which their inline background used
+  to hide.
+- `Treemap`:
+  - `onHover(item | null)` gets the item under the pointer, and null when the
+    pointer moves onto a group's name or leaves the map, for a tooltip or for
+    highlighting the same item elsewhere. `Treemap` is generic over the item type, so `onHover` hands back
+    the caller's own fields.
+  - `range` sets ±range, the change as a fraction that takes the deepest of
+    the five heat steps. Default `0.05` (±5%), as before; a range that is not a
+    positive number uses the default.
+  - `TreemapItem.change` takes `null`: a muted tile marked "—" rather than
+    "0.0%".
+  - `TreemapItem.key` keys a tile when names repeat, such as one symbol held at
+    two brokers. Defaults to `name`.
+  - `TreemapItem.group` puts the tiles of one group, such as a sector, together
+    under its name. The name draws even for a group of one.
+  - A zero, negative or non-finite `weight` draws no tile. Negative weights
+    used to push tiles out of the box, and an infinite one blanked the map.
+  - A tile's name and change are clipped to the tile instead of running into
+    the next one.
+- `BarList`: `BarListItem.detail` is a `ReactNode` drawn after the label and
+  outside its link, such as a `Delta`. It keeps its own colour and does not
+  shrink, so a long label truncates first.
+
 ## 0.1.1
 
 Fixes from the first two consumers, dash and The Book, published as

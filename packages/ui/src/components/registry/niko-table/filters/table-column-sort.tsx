@@ -2,6 +2,9 @@
 // Origin: https://niko-table.com/r/data-table-column-sort.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 327cb17765e98d206944db3342ab3929a1a8b4c76fd9923e9dbee54af7a396ce
+// Siyahi edit: the "Column Sort" label and its items sit in a
+// DropdownMenuGroup. Base UI's Menu.GroupLabel throws outside a Menu.Group,
+// which crashed the menu on open.
 "use client"
 
 /**
@@ -23,6 +26,7 @@ import { Button } from "@siyahi/ui/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -129,53 +133,55 @@ export function TableColumnSortOptions<TData extends RowData, TValue>({
   return (
     <>
       {withSeparator && <DropdownMenuSeparator />}
-      <DropdownMenuLabel className="flex items-center justify-between text-xs font-normal text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <span>Column Sort</span>
-          {showSortBadge && (
-            <Tooltip>
-              <TooltipTrigger render={<span className="flex size-4 cursor-help items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground" />}>{sortIndex + 1}</TooltipTrigger>
-              <TooltipContent side="right">
-                Sort priority (order in which columns are sorted)
-              </TooltipContent>
-            </Tooltip>
+      <DropdownMenuGroup>
+        <DropdownMenuLabel className="flex items-center justify-between text-xs font-normal text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span>Column Sort</span>
+            {showSortBadge && (
+              <Tooltip>
+                <TooltipTrigger render={<span className="flex size-4 cursor-help items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground" />}>{sortIndex + 1}</TooltipTrigger>
+                <TooltipContent side="right">
+                  Sort priority (order in which columns are sorted)
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+          <Tooltip>
+            <TooltipTrigger render={<CircleHelp className="size-3.5 cursor-help" />}></TooltipTrigger>
+            <TooltipContent side="right">
+              TIP: Hold &apos;shift&apos; key to enable multi sort
+            </TooltipContent>
+          </Tooltip>
+        </DropdownMenuLabel>
+        <DropdownMenuItem
+          onClick={e => handleSort("asc", e)}
+          className={cn(
+            "flex items-center",
+            sortState === "asc" && "bg-accent text-accent-foreground",
           )}
-        </div>
-        <Tooltip>
-          <TooltipTrigger render={<CircleHelp className="size-3.5 cursor-help" />}></TooltipTrigger>
-          <TooltipContent side="right">
-            TIP: Hold &apos;shift&apos; key to enable multi sort
-          </TooltipContent>
-        </Tooltip>
-      </DropdownMenuLabel>
-      <DropdownMenuItem
-        onClick={e => handleSort("asc", e)}
-        className={cn(
-          "flex items-center",
-          sortState === "asc" && "bg-accent text-accent-foreground",
-        )}
-      >
-        <icons.asc className="mr-2 size-4 text-muted-foreground/70" />
-        <span className="flex-1">{labels.asc}</span>
-        {sortState === "asc" && <Check className="ml-2 size-4" />}
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        onClick={e => handleSort("desc", e)}
-        className={cn(
-          "flex items-center",
-          sortState === "desc" && "bg-accent text-accent-foreground",
-        )}
-      >
-        <icons.desc className="mr-2 size-4 text-muted-foreground/70" />
-        <span className="flex-1">{labels.desc}</span>
-        {sortState === "desc" && <Check className="ml-2 size-4" />}
-      </DropdownMenuItem>
-      {sortState && (
-        <DropdownMenuItem onClick={() => column.clearSorting()}>
-          <icons.unsorted className="mr-2 size-4 text-muted-foreground/70" />
-          Clear Sort
+        >
+          <icons.asc className="mr-2 size-4 text-muted-foreground/70" />
+          <span className="flex-1">{labels.asc}</span>
+          {sortState === "asc" && <Check className="ml-2 size-4" />}
         </DropdownMenuItem>
-      )}
+        <DropdownMenuItem
+          onClick={e => handleSort("desc", e)}
+          className={cn(
+            "flex items-center",
+            sortState === "desc" && "bg-accent text-accent-foreground",
+          )}
+        >
+          <icons.desc className="mr-2 size-4 text-muted-foreground/70" />
+          <span className="flex-1">{labels.desc}</span>
+          {sortState === "desc" && <Check className="ml-2 size-4" />}
+        </DropdownMenuItem>
+        {sortState && (
+          <DropdownMenuItem onClick={() => column.clearSorting()}>
+            <icons.unsorted className="mr-2 size-4 text-muted-foreground/70" />
+            Clear Sort
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuGroup>
     </>
   )
 }

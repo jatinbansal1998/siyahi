@@ -52,19 +52,19 @@ function Money({ amount }: { amount: number }) {
 const columns: DataTableColumnDef<Holding>[] = [
   { accessorKey: "symbol", header: header("Symbol"), size: 140, meta: { label: "Symbol" } },
   { accessorKey: "sector", header: header("Sector"), size: 120, meta: { label: "Sector" } },
-  { accessorKey: "quantity", header: header("Qty"), size: 100, meta: { label: "Qty" } },
+  { accessorKey: "quantity", header: header("Qty"), size: 100, meta: { label: "Qty", variant: "number" } },
   {
     accessorKey: "value",
     header: header("Value"),
     size: 140,
-    meta: { label: "Value" },
+    meta: { label: "Value", variant: "number" },
     cell: ({ row }) => <Money amount={row.original.value} />,
   },
   {
     accessorKey: "change",
     header: header("Day"),
     size: 110,
-    meta: { label: "Day" },
+    meta: { label: "Day", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
   },
 ];
