@@ -59,7 +59,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Area | Decision |
 |---|---|
 | Stack | React 19, shadcn/ui on Base UI, Tailwind v4, Vite. TypeScript throughout, explicit types on public signatures. |
-| shadcn style | `base-luma` (24px card padding, 14px body, `rounded-4xl` cards with `shadow-md`, pill buttons, `p-3` table cells). Jatin chose luma over `base-vega` after a side-by-side trial (0.1.5); Mira is the compact style. Stock sizes from the style; no Kajal size table. (Claude's call from Jatin's preference.) |
+| shadcn style | `base-luma` (24px card padding, 14px body, `rounded-4xl` cards with `shadow-md`, pill buttons, `p-3` table cells). Jatin chose luma over `base-vega` after a side-by-side trial (0.1.5); Mira is the compact style. Stock sizes from the style; no Kajal size table. |
 | Theme values | shadcn default `neutral`, stock values, both schemes. Dark canvas `oklch(0.145 0 0)`, which is `#0a0a0a`, the value Kajal 1.0.2 already settled on. |
 | Added tokens | `--positive`, `--negative`, `--warning`, `--link`, each with a `-foreground` where a fill needs one. Values start from Tailwind green, red, amber and blue and are adjusted per scheme until text passes 4.5:1 on the canvas and on the card. Nothing else. |
 | Contrast | 4.5:1 for any text colour on canvas and card; 3:1 for each chart slot against the card and against the slots next to it (adjacent slots only; see Chart palette). Checked by a script in the package build. The check fails the build; values are fixed, never the bar. |
