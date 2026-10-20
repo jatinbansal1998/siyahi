@@ -84,3 +84,11 @@ pnpm shots http://localhost:4173/#/data   # in another shell
 looks for unused code, fails on stale generated files, builds (with the
 contrast check), typechecks and tests. Put the shots
 for every page you changed in the pull request, light and dark, 1920 and 390.
+
+## Releases
+
+Every merge to `main` publishes both packages as `<version>-next.<n>`, unless
+it changes only `docs/` or Markdown files at the repo root (`CHANGELOG.md`,
+`CONTRIBUTING.md`): those ship nothing, so `publish.yml` does not run. CI still
+checks them. A change to a package's own README, or to the root README, which
+`pnpm generate` copies into `packages/ui`, does publish.

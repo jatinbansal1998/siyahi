@@ -85,7 +85,10 @@ and the fonts are ready, so content a page renders after loading its data is
 in the shot. A mode fails when nothing matches within 15 seconds; pass a
 selector that only the finished page has, such as `--wait-for '[data-ready]'`. It fails when visible text or a
 card comes closer than `--gutter` pixels to either edge, when the page scrolls
-sideways, or when the body font is not a loaded `--font` family. Content that
+sideways, or when the body font is not a loaded `--font` family. A page with
+no `@font-face` rule, such as a static report on `report.css`, loads no font
+file by design: it only has to name `--font` first, and the run prints
+`font=system (no @font-face)`. Content that
 scrolls sideways inside its own box is exempt from the gutter, and so is
 anything inside `--chrome` (by default the shadcn sidebar, which sits flush to
 the edge by design). The font default, Geist, is Siyahi's; pass another family

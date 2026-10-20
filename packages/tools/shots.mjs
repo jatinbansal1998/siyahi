@@ -15,7 +15,9 @@
 //
 // Checks: a gutter of at least --gutter px on both sides of visible text and
 // cards, no sideways document scroll (also with a classic scrollbar taking its
-// width), and --font as the loaded body font. Exempt from the gutter: content
+// width), and --font as the loaded body font. A page with no @font-face rule,
+// such as a static report on report.css, uses the viewer's installed fonts by
+// design, so only the family it names is checked. Exempt from the gutter: content
 // inside a box that scrolls sideways, and anything inside --chrome, which by
 // default is only the shadcn sidebar, flush to the edge by design. The font
 // default is Siyahi's; other pages pass their own family.
@@ -32,7 +34,7 @@ import { parseArgs } from "node:util";
 import { chromium, errors } from "playwright";
 
 /** @typedef {{ name: string, width: number, height: number, dark: boolean }} Mode */
-/** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, font: string, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
+/** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, font: string, fontFaces: number, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
 
 /** @type {Mode[]} */
 const MODES = [
@@ -110,6 +112,7 @@ const PROBE = `((chrome) => {
     overflow,
     overflowWithScrollbar,
     font: first,
+    fontFaces: document.fonts.size,
     fontLoaded: document.fonts.check('16px "' + first + '"') && [...document.fonts].some((f) => f.family.replace(/["']/g, "") === first && f.status === "loaded"),
     docHeight: de.scrollHeight,
     h1: h1 ? h1.textContent.trim().slice(0, 60) : null,
@@ -191,7 +194,7 @@ function problemsOf(p, ready) {
   if (p.overflowWithScrollbar > 0)
     problems.push(`scrolls sideways by ${p.overflowWithScrollbar}px once a scrollbar takes its width`);
   if (!p.font.startsWith(values.font)) problems.push(`body font is ${p.font}, not ${values.font}`);
-  else if (!p.fontLoaded) problems.push(`${p.font} is named but never loaded`);
+  else if (p.fontFaces > 0 && !p.fontLoaded) problems.push(`${p.font} is named but never loaded`);
   return problems;
 }
 
@@ -204,7 +207,7 @@ for (const url of positionals) {
     failed ||= problems.length > 0;
     console.log(
       `${problems.length ? "FAIL" : "ok  "} ${mode.name.padEnd(10)} gutter=${probe.gutterLeft}/${probe.gutterRight} ` +
-        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} font=${probe.font} h1=${JSON.stringify(probe.h1)} ` +
+        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} font=${probe.fontFaces ? probe.font : "system (no @font-face)"} h1=${JSON.stringify(probe.h1)} ` +
         `height=${height} ${files.join(" ")}`,
     );
     for (const problem of problems) console.log(`     ${problem}`);
