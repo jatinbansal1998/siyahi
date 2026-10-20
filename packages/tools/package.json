@@ -1,6 +1,6 @@
 {
   "name": "@siyahi/tools",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Checks for Siyahi pages: a lint plugin, a theme contrast check and a screenshot script.",
   "homepage": "https://siyahi.jatinbansal.com",
   "license": "MIT",
