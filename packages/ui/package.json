@@ -1,6 +1,6 @@
 {
   "name": "@siyahi/ui",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Stock shadcn/ui on Base UI and Tailwind v4, a finance theme, a few compositions and formatters.",
   "keywords": [
     "base-ui",

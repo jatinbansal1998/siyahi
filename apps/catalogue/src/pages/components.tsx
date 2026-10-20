@@ -59,7 +59,7 @@ const controls: Entry[] = [
 export const components: Page = {
   id: "components",
   title: "Components",
-  lead: "shadcn/ui on Base UI in the base-vega style, installed with the shadcn CLI and never edited. Each one is shown live with its code.",
+  lead: "shadcn/ui on Base UI in the base-luma style, installed with the shadcn CLI and never edited. Each one is shown live with its code.",
   sections: sectionsOf(display),
 };
 

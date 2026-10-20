@@ -6,7 +6,7 @@ Date: 2026-10-20. Author: Claude with Jatin Bansal. Status: builder-checked twic
 
 Siyahi (Hindi for ink) replaces Kajal's hand-made token system with stock shadcn/ui on
 Tailwind v4 and Base UI, shipped as one public package, `@siyahi/ui`, that dash and The
-Book (the transactions analyser) install and anyone else may use. The look is shadcn's default neutral theme in the `base-vega` style, with four
+Book (the transactions analyser) install and anyone else may use. The look is shadcn's default neutral theme in the `base-luma` style, with four
 added colours (gain, loss, warning, link). Cards hold data, prose sits on the page. The
 Book moves to React so both apps share one component set. Components are installed, not
 written; a lint stops anyone from writing a raw colour or size. Static HTML reports get
@@ -59,7 +59,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Area | Decision |
 |---|---|
 | Stack | React 19, shadcn/ui on Base UI, Tailwind v4, Vite. TypeScript throughout, explicit types on public signatures. |
-| shadcn style | `base-vega` (24px card padding, 14px body, `shadow-xs`). Jatin chose the roomy look over the dense one; Mira is the compact style. Stock sizes from the style; no Kajal size table. (Claude's call from Jatin's preference.) |
+| shadcn style | `base-luma` (24px card padding, 14px body, `rounded-4xl` cards with `shadow-md`, pill buttons, `p-3` table cells). Jatin chose luma over `base-vega` after a side-by-side trial (0.1.5); Mira is the compact style. Stock sizes from the style; no Kajal size table. |
 | Theme values | shadcn default `neutral`, stock values, both schemes. Dark canvas `oklch(0.145 0 0)`, which is `#0a0a0a`, the value Kajal 1.0.2 already settled on. |
 | Added tokens | `--positive`, `--negative`, `--warning`, `--link`, each with a `-foreground` where a fill needs one. Values start from Tailwind green, red, amber and blue and are adjusted per scheme until text passes 4.5:1 on the canvas and on the card. Nothing else. |
 | Contrast | 4.5:1 for any text colour on canvas and card; 3:1 for each chart slot against the card and against the slots next to it (adjacent slots only; see Chart palette). Checked by a script in the package build. The check fails the build; values are fixed, never the bar. |
@@ -81,7 +81,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Releases | CI publishes a `0.x.0-next.N` pre-release to npmjs with `--tag next` on every merge to `main`, using the `NPM_TOKEN` repository secret Jatin has set. Consumers install `@siyahi/ui@next` until `1.0.0`. Stable versions are cut on Jatin's word. Trusted publishing replaces the token after the first publish, as a follow-up. |
 | Consumers | The Book moves to React and the package, shell first, then screen by screen. dash: new pages use the package; the shell moves too; old pages stay on Mantine under the layered stylesheet. |
 | dash shell | Keeps today's shape, rebuilt on the package: index page with folders and recent items, top utility bar with title, ⌘K search (Command) and width toggle, footer. No sidebar; dash is a reports site, and a sidebar would take 256px from 56 frozen pages. (Claude's call.) |
-| Stat tile | shadcn's own `SectionCards` from the `dashboard-01` block (base-vega): muted label, outline badge top right, value, bold line, muted line. `@dashboardcn`'s KPI card is dropped: it uses a Radix-only prop, hard-codes emerald and red, and formats as en-US. |
+| Stat tile | shadcn's own `SectionCards` from the `dashboard-01` block (copied from base-vega, drawn as a stock luma Card: 26px corners, `shadow-md`; flat cards are open for 0.1.6): muted label, outline badge top right, value, bold line, muted line. `@dashboardcn`'s KPI card is dropped: it uses a Radix-only prop, hard-codes emerald and red, and formats as en-US. |
 | Before/after page | dash `pages/dell/2026-10-15-why-the-dell-froze.tsx` is the only existing dash page migrated, so Jatin can compare before and after. |
 
 ## The package
@@ -190,7 +190,7 @@ The ten rules:
 6. Four meaning colours: positive, negative, warning, link. Nothing else is coloured.
 7. Notices are shadcn Alert, used as shipped: default for information, destructive for
    errors. Warnings are the default variant with an amber icon.
-8. Stock sizes from the `base-vega` style. Geist, tabular figures. Geist Mono only for
+8. Stock sizes from the `base-luma` style. Geist, tabular figures. Geist Mono only for
    identifiers and ticks.
 9. Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows
    the device, reduced motion honoured.

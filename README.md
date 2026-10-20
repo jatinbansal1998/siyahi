@@ -67,7 +67,7 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 
 ## What is in it
 
-- **shadcn/ui components** in the `base-vega` style, installed with the shadcn
+- **shadcn/ui components** in the `base-luma` style, installed with the shadcn
   CLI and never edited.
 - **Registry add-ons**, copied once with their origin and licence recorded: a
   data table on TanStack Table, calendar, weekday and status heatmaps, a ranked

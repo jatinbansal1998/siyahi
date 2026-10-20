@@ -32,7 +32,7 @@ const CHART = [
 ];
 const TYPE = [
   { name: "text-xs", className: "text-xs", note: "12px: ticks, captions" },
-  { name: "text-sm", className: "text-sm", note: "14px: body, the base-vega default" },
+  { name: "text-sm", className: "text-sm", note: "14px: body, the base-luma default" },
   { name: "text-base", className: "text-base", note: "16px: card titles" },
   { name: "text-xl", className: "text-xl", note: "20px: section headings" },
   { name: "text-3xl", className: "text-3xl", note: "30px: page title, stat values" },

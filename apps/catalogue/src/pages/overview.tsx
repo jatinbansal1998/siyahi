@@ -10,7 +10,7 @@ const RULES = [
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
   "Four meaning colours: positive, negative, warning, link. Nothing else is coloured.",
   "Notices are shadcn Alert, used as shipped: default for information, destructive for errors. Warnings are the default variant with an amber icon, coloured text-warning! (the ! outranks Alert's own icon colour).",
-  "Stock sizes from the base-vega style. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
+  "Stock sizes from the base-luma style. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
   "Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows the device, reduced motion honoured.",
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables scroll inside their card with the first column pinned, sidebar becomes a drawer.",
 ];
