@@ -135,9 +135,9 @@ export const data: Page = {
         <>
           <Lead>
             useFormat() returns money, moneyCompact, pct and time bound to the nearest SiyahiProvider. A nested provider
-            changes the locale for its subtree. time(value, {"{ withDate: true }"}) writes the date first: 20 Oct 2026,
-            14:30 IST. In an Indian-region locale moneyCompact prints amounts under one lakh in full. The formatters
-            print only a minus sign; a signed figure goes through Delta, which adds the arrow.
+            changes the locale for its subtree. useFormat().time(value, {"{ withDate: true }"}) writes the date first:
+            20 Oct 2026, 14:30 IST. In an Indian-region locale moneyCompact prints amounts under one lakh in full. The
+            formatters print only a minus sign; a signed figure goes through Delta, which adds the arrow.
           </Lead>
           <Example name="formatters" />
         </>

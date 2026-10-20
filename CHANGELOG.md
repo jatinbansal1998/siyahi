@@ -14,8 +14,9 @@ Fixes from the first two consumers, dash and The Book, published as
 - Alert icons: the documented warning icon is `text-warning!`. Stock `Alert`
   colours its icons through a selector that outranks a plain `text-warning`,
   which drew the icon in the foreground colour.
-- `LocalTime withDate` and `time(value, { withDate: true })` write the date
-  before the time in the same zone: `26 Jun 2026, 09:41 IST`.
+- `LocalTime withDate`, `useFormat().time(value, { withDate: true })` and
+  `time(value, locale, { withDate: true })` write the date before the time in
+  the same zone: `26 Jun 2026, 09:41 IST`.
 - `siyahi-shots`: a page taller than 16,000px is written as `-1`, `-2`, …
   segments that cover all of it, instead of failing. The page is measured only
   once `--wait-for` (default `h1`) is visible, two animation frames have passed
