@@ -27,13 +27,16 @@ const GEIST_PAGE = `@font-face { font-family: Geist; src: url(data:font/woff2;ba
  * each PNG it wrote per mode.
  * @param {string} body
  * @param {string} [style]
+ * @param {string[]} [flags] more siyahi-shots arguments
  */
-function shoot(body, style = GEIST_PAGE) {
+function shoot(body, style = GEIST_PAGE, flags = []) {
   const dir = mkdtempSync(path.join(tmpdir(), "siyahi-shots-"));
   const page = path.join(dir, "page.html");
   writeFileSync(page, `<!doctype html><style>${style}</style>${body}`);
   const out = path.join(dir, "shots");
-  const run = spawnSync(process.execPath, [shots, pathToFileURL(page).href, "--out", out], { encoding: "utf8" });
+  const run = spawnSync(process.execPath, [shots, pathToFileURL(page).href, "--out", out, ...flags], {
+    encoding: "utf8",
+  });
   const pngs = readdirSync(out).toSorted();
   /** @param {string} mode */
   const sizesOf = (mode) =>
@@ -67,14 +70,20 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     for (const { name, width } of MODES) expect(run.sizesOf(name)).toEqual([{ width, height: 3000 }]);
   });
 
-  // report.css names Geist and loads no font file, so the viewer's own fonts draw it.
-  it("passes a page with no @font-face that names the font, and says it is set in a system font", () => {
-    const run = shoot(
-      `<main style="padding: 16px"><h1>Report</h1></main>`,
-      `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`,
-    );
+  // A page that names Geist and loads no font file: an app whose font CSS
+  // never arrived, or a static report on report.css.
+  const UNLOADED = `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`;
+
+  it("fails a page that names the font and loads no font file", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>No font</h1></main>`, UNLOADED);
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain("Geist is named but never loaded");
+  });
+
+  it("passes the same page with --report, and says the flag allowed the fallback", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>Report</h1></main>`, UNLOADED, ["--report"]);
     expect(run.status, run.output).toBe(0);
-    expect(run.output).toContain("font=system (no @font-face)");
+    expect(run.output).toContain("font=Geist (report, system fallback allowed)");
   });
 
   it("fails a page whose @font-face for the font never loads", () => {

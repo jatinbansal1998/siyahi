@@ -16,11 +16,13 @@ Four small fixes, published as `0.1.4-next.<n>` pre-releases.
 - `SectionCards`: stat tiles use the plain card surface; the dashboard-01
   gradient is gone. A tile is the stock `Card` in light and dark, like every
   other card on the page.
-- `siyahi-shots` passes static reports. A page with no `@font-face` rule, such
-  as one on `report.css`, uses the viewer's installed fonts by design, so the
-  "named but never loaded" check no longer applies to it; the run prints
-  `font=system (no @font-face)`. The body must still name `--font` first, and a
-  page that declares the font and fails to load it still fails.
+- `siyahi-shots --report` checks a static HTML report, which loads no font
+  file by design. Without it, every page on `report.css` failed with "Geist is
+  named but never loaded". With it, the body must still name `--font` first,
+  but the viewer's installed font or the system fallback may draw it, and the
+  run prints `font=Geist (report, system fallback allowed)`. Without the flag
+  the check is as strict as before: a page that names Geist and loads no font
+  fails.
 - A merge to `main` that changes only `docs/` or Markdown files at the repo
   root no longer publishes a pre-release.
 

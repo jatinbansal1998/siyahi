@@ -72,10 +72,13 @@ describe("data table surfaces", () => {
     expect(document.querySelector("thead")?.classList.contains("bg-card")).toBe(true);
   });
 
-  // happy-dom paints nothing, so this checks the class; the stacking itself
-  // was checked in Chromium against the catalogue.
+  // happy-dom paints nothing, so this checks that the pinned cells and the
+  // sticky header sit inside an `isolate` box; the stacking itself was checked
+  // in Chromium against the catalogue.
   it("keeps its z-indexes in its own stacking context, under a page's sticky header", () => {
-    expect(document.querySelector('[data-slot="table-container"]')?.classList.contains("isolate")).toBe(true);
+    const pinned = document.querySelector('td[data-col-id="symbol"]');
+    expect(pinned?.closest(".isolate")).not.toBeNull();
+    expect(pinned?.closest(".isolate")?.contains(document.querySelector("thead"))).toBe(true);
   });
 });
 
