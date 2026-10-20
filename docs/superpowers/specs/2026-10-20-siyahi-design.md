@@ -69,7 +69,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Buttons and accent | Stock: primary is black on white and white on black. Links are `--link`. |
 | Layout | "A card holds data, prose sits on the page." Any data block (stat tile, table, chart, metric strip) is in a Card wherever it appears, including on a prose page; paragraphs and headings sit on the canvas. One level of card. Roomy density: the style's stock paddings. |
 | Scheme | Follows `prefers-color-scheme` through Tailwind's `@custom-variant dark (@media (prefers-color-scheme: dark))`. No `.dark` class, no toggle, no boot script; `<meta name="color-scheme" content="light dark">` only. The README says an app that wants its own toggle must swap the variant. |
-| CSS reset | Tailwind preflight stays on in both apps. Old CSS is placed in a lower cascade layer so the new components win: dash imports Mantine's `styles.layer.css` and declares `@layer mantine, theme, base, components, utilities`; The Book wraps `styles.css` in `@layer legacy` below Tailwind's layers during the mixed period. Frozen pages may drift from the reset; that is accepted. Leaving preflight off was tested and breaks buttons, tabs and links. |
+| CSS reset | Tailwind preflight stays on in both apps. Old CSS is placed in a cascade layer between Tailwind's `base` and `components` so preflight does not strip it and Siyahi utilities still win: dash uses `@layer kajal, theme, base, mantine, components, utilities` with Mantine through `styles.layer.css`; The Book uses `@layer theme, kajal, base, legacy, components, utilities` with `styles.css` imported into `legacy`. Putting the old CSS below `base` was tried and collapses the old components. A layer name used by an imported file must appear in the order statement (or be nested by `@import … layer(name)`), or it floats above everything. Frozen pages may drift from the reset; that is accepted. |
 | Fonts | Geist for text, Geist Mono for identifiers and chart ticks, via fontsource. Tabular figures wherever a number appears. |
 | Content rules kept from 1.x | Indian grouping (`1,53,110`), compact rupees (`₹2.4L`, `₹40Cr`), IST with the zone written (`14:30 IST`), ▲ ▼ beside every signed figure, reduced motion honoured. |
 | Name | Siyahi. Repo `jatinbansal1998/siyahi` (public, exists, `~/code/siyahi`). Package `@siyahi/ui` on npmjs (the `siyahi` name is free there; Jatin creates the `siyahi` org). The skill becomes `siyahi`; the `kajal` skill folder is deleted. |
@@ -221,7 +221,7 @@ Update `.oxlintrc.json`, `.oxfmtrc.json`, `knip.json` and the README UI section.
 2. Holdings. 3. Realized together with the React fills modal; the old Check view opens
 the React modal through the adapter from this PR on, so one modal exists. 4. Cash flow.
 5. Money. 6. Mutual Funds. 7. Discipline. 8. Check. 9. Remove the adapter, `styles.css`,
-`web/kajal/`, and turn preflight on.
+`web/kajal/` and the `legacy` and `kajal` layers.
 The read API and the Java backend do not change. Hand-drawn SVG charts move to the chart
 wrapper; the treemap is the package `Treemap`. Demo mode (`VITE_DEMO=1`) keeps working.
 
