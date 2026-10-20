@@ -163,6 +163,7 @@ Development uses pnpm and [Vite+](https://viteplus.dev):
 
 ```sh
 pnpm install
+pnpm --filter @siyahi/tools exec playwright install chromium   # once; the screenshot tests use it
 pnpm check      # format, lint, unused code, generated files, build, typecheck, tests
 pnpm dev        # the catalogue on localhost
 ```

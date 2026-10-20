@@ -37,6 +37,9 @@ jobs:
           node-version-file: package.json
           cache: true
           registry-url: https://registry.npmjs.org
+      # The siyahi-shots tests render pages in Playwright's headless Chromium.
+      - name: Install Chromium
+        run: pnpm --filter @siyahi/tools exec playwright install --with-deps --only-shell chromium
       - name: Check, build and test
         run: vp run check
       # Fails here, before anything is versioned, if the token is missing or wrong.

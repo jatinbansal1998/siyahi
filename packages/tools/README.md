@@ -35,7 +35,10 @@ npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutte
 ```
 
 Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
-writes one full-page PNG per mode to `shots/`. It fails when visible text or a
+writes one full-page PNG per mode to `shots/`. A page taller than 16,000 pixels
+is written as equal segments, `<name>-1.png`, `<name>-2.png` and so on, which
+together cover the whole page; the run lists every file. A rerun replaces the
+page's earlier shots. It fails when visible text or a
 card comes closer than `--gutter` pixels to either edge, when the page scrolls
 sideways, or when the body font is not a loaded `--font` family. Content that
 scrolls sideways inside its own box is exempt from the gutter, and so is
