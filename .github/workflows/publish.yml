@@ -4,10 +4,19 @@ name: Publish
 # GitHub release (always), and npm under the `next` dist-tag, which `latest`
 # follows until 1.0.0 (when the token
 # allows it). Stable versions are cut by hand.
+#
+# A push that changes only docs/ or Markdown at the repo root ships nothing new,
+# so it publishes nothing. CI still runs `check` on it. `*.md` matches the root
+# only: package READMEs and notices ship in the tarballs, and the root README,
+# LICENSE and notices are copied into packages/ by `pnpm generate`, so an edit
+# to those also changes a package file and publishes.
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
 
 permissions:
   contents: read

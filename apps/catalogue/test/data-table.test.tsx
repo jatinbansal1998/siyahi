@@ -71,6 +71,15 @@ describe("data table surfaces", () => {
   it("paints the sticky header in the card's colour", () => {
     expect(document.querySelector("thead")?.classList.contains("bg-card")).toBe(true);
   });
+
+  // happy-dom paints nothing, so this checks that the pinned cells and the
+  // sticky header sit inside an `isolate` box; the stacking itself was checked
+  // in Chromium against the catalogue.
+  it("keeps its z-indexes in its own stacking context, under a page's sticky header", () => {
+    const pinned = document.querySelector('td[data-col-id="symbol"]');
+    expect(pinned?.closest(".isolate")).not.toBeNull();
+    expect(pinned?.closest(".isolate")?.contains(document.querySelector("thead"))).toBe(true);
+  });
 });
 
 describe("data table column menus", () => {

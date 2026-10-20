@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.1.4
+
+Four small fixes, published as `0.1.4-next.<n>` pre-releases.
+
+- Data table: a page's sticky header no longer slides under the table. The
+  table's pinned cells (z-index 10 and 20) and sticky header row (30) ranked
+  against the whole page, so The Book's `sticky top-0 z-10` masthead was
+  painted under the table's header row and pinned column, on a phone and on
+  desktop alike. The table's scroll container
+  is now `isolate`, a stacking context of its own, so those z-indexes only
+  rank inside the table. A sticky header above a data table needs a z-index of
+  1 or more (`z-1` will do); it no longer has to outrank 30. At 0 or `auto`
+  the table, coming later in the page, still paints over it.
+- `SectionCards`: stat tiles use the plain card surface; the dashboard-01
+  gradient is gone. A tile is the stock `Card` in light and dark, like every
+  other card on the page.
+- `siyahi-shots --report` checks a static HTML report, which loads no font
+  file by design. Without it, every page on `report.css` failed with "Geist is
+  named but never loaded". With it, the body must still name `--font` first,
+  but the viewer's installed font or the system fallback may draw it, and the
+  run prints `font=Geist (report, system fallback allowed)`. Without the flag
+  the check is as strict as before: a page that names Geist and loads no font
+  fails.
+- A merge to `main` that changes only `docs/` or Markdown files at the repo
+  root no longer publishes a pre-release.
+
 ## 0.1.3
 
 The page no longer moves when Geist loads. On a first visit over a slow

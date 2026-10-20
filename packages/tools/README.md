@@ -70,7 +70,7 @@ counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx p
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1]
+npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report]
 ```
 
 Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
@@ -85,7 +85,12 @@ and the fonts are ready, so content a page renders after loading its data is
 in the shot. A mode fails when nothing matches within 15 seconds; pass a
 selector that only the finished page has, such as `--wait-for '[data-ready]'`. It fails when visible text or a
 card comes closer than `--gutter` pixels to either edge, when the page scrolls
-sideways, or when the body font is not a loaded `--font` family. Content that
+sideways, or when the body font is not a loaded `--font` family. Pass
+`--report` for a static HTML report on `report.css`, which loads no font file
+by design: the body must still name `--font` first, but the viewer's installed
+font or the system fallback may draw it, and the run prints
+`font=Geist (report, system fallback allowed)`. Without `--report`, a page that
+names Geist and loads no font fails. Content that
 scrolls sideways inside its own box is exempt from the gutter, and so is
 anything inside `--chrome` (by default the shadcn sidebar, which sits flush to
 the edge by design). The font default, Geist, is Siyahi's; pass another family

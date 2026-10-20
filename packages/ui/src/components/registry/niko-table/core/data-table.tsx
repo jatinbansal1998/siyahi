@@ -4,6 +4,10 @@
 // Copied: 2026-10-20, sha256 592177715c2ab00040354b712daa9dcaa37b96da1c6453b949d04271c97cb7ab
 // Siyahi edit: the table primitive comes from niko's own copy in ../ui/table,
 // not shadcn core's table.tsx, which has no TableComponent export.
+// Siyahi edit: the scroll container is `isolate`, its own stacking context, so
+// the z-indexes inside it (pinned cells 10 and 20, sticky header 30, resize
+// line 40) rank only against each other. A page's sticky header with any
+// positive z-index paints over the table instead of under it.
 "use client"
 
 /**
@@ -183,7 +187,7 @@ export function DataTable({
       ref={registerScrollContainer}
       data-slot="table-container"
       className={cn(
-        "relative w-full overflow-auto rounded-lg border",
+        "relative isolate w-full overflow-auto rounded-lg border",
         // Custom scrollbar styling to match ScrollArea aesthetic
         // Scrollbar visible but subtle by default, more prominent on hover
         "[&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar]:w-2.5",

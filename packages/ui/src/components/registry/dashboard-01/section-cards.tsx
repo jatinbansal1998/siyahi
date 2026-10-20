@@ -5,6 +5,9 @@
 // Siyahi edit: the four sample cards are replaced by an `items` prop, the
 // grid carries its own container so it needs no @container/main ancestor,
 // and the page, not the block, owns the side gutter.
+// Siyahi edit: no light-mode gradient (from-primary/5 to the card) and no
+// shadow-xs override, so a stat tile is the stock Card surface in both
+// schemes, like every other card on the page.
 "use client"
 
 import * as React from "react"
@@ -34,7 +37,7 @@ export interface SectionCard {
 export function SectionCards({ items }: { items: SectionCard[] }) {
   return (
     <div className="@container/main">
-      <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
+      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         {items.map((item) => (
           <Card key={item.label} className="@container/card">
             <CardHeader>

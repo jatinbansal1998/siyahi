@@ -18,21 +18,25 @@ const MODES = [
   { name: "390-dark", width: 390 },
 ];
 
+const GEIST_PAGE = `@font-face { font-family: Geist; src: url(data:font/woff2;base64,${geist}); }
+  body { margin: 0; font-family: Geist; }`;
+
 /**
- * Writes a page in Geist with the given body, runs siyahi-shots on it, and
- * returns the run with the width and height of each PNG it wrote per mode.
+ * Writes a page with the given body, in Geist unless `style` says otherwise,
+ * runs siyahi-shots on it, and returns the run with the width and height of
+ * each PNG it wrote per mode.
  * @param {string} body
+ * @param {string} [style]
+ * @param {string[]} [flags] more siyahi-shots arguments
  */
-function shoot(body) {
+function shoot(body, style = GEIST_PAGE, flags = []) {
   const dir = mkdtempSync(path.join(tmpdir(), "siyahi-shots-"));
   const page = path.join(dir, "page.html");
-  writeFileSync(
-    page,
-    `<!doctype html><style>@font-face { font-family: Geist; src: url(data:font/woff2;base64,${geist}); }
-    body { margin: 0; font-family: Geist; }</style>${body}`,
-  );
+  writeFileSync(page, `<!doctype html><style>${style}</style>${body}`);
   const out = path.join(dir, "shots");
-  const run = spawnSync(process.execPath, [shots, pathToFileURL(page).href, "--out", out], { encoding: "utf8" });
+  const run = spawnSync(process.execPath, [shots, pathToFileURL(page).href, "--out", out, ...flags], {
+    encoding: "utf8",
+  });
   const pngs = readdirSync(out).toSorted();
   /** @param {string} mode */
   const sizesOf = (mode) =>
@@ -64,5 +68,30 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     );
     expect(run.status, run.output).toBe(0);
     for (const { name, width } of MODES) expect(run.sizesOf(name)).toEqual([{ width, height: 3000 }]);
+  });
+
+  // A page that names Geist and loads no font file: an app whose font CSS
+  // never arrived, or a static report on report.css.
+  const UNLOADED = `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`;
+
+  it("fails a page that names the font and loads no font file", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>No font</h1></main>`, UNLOADED);
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain("Geist is named but never loaded");
+  });
+
+  it("passes the same page with --report, and says the flag allowed the fallback", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>Report</h1></main>`, UNLOADED, ["--report"]);
+    expect(run.status, run.output).toBe(0);
+    expect(run.output).toContain("font=Geist (report, system fallback allowed)");
+  });
+
+  it("fails a page whose @font-face for the font never loads", () => {
+    const run = shoot(
+      `<main style="padding: 16px"><h1>Broken</h1></main>`,
+      `@font-face { font-family: Geist; src: url(missing.woff2); } body { margin: 0; font-family: Geist, sans-serif; }`,
+    );
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain("Geist is named but never loaded");
   });
 });
