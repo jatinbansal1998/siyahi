@@ -54,8 +54,8 @@ the hashed URLs of `geist-latin-wght-normal.woff2`,
 `geist-latin-ext-wght-normal.woff2` and `geist-mono-latin-wght-normal.woff2`.
 
 Everything comes from `@siyahi/ui`: the shadcn components, the registry
-add-ons (data table, heatmaps, stat tiles, sidebar), Siyahi's own components
-and the Recharts pieces charts are built from. Add `lucide-react` only if your
+add-ons (chart cards, data table, heatmaps, stat tiles, sidebar) and Siyahi's
+own components. Add `lucide-react` only if your
 own code imports icons. A Next.js app compiles the same stylesheet through
 `@tailwindcss/postcss` instead of the Vite plugin.
 
@@ -69,8 +69,9 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 
 - **shadcn/ui components** in the `base-luma` style, installed with the shadcn
   CLI and never edited.
-- **Registry add-ons**, copied once with their origin and licence recorded: a
-  data table on TanStack Table, calendar, weekday and status heatmaps, a ranked
+- **Registry add-ons**, copied once with their origin and licence recorded:
+  bar, area and line chart cards from shadcn's chart blocks, a data table on
+  TanStack Table, calendar, weekday and status heatmaps, a ranked
   bar list, the `SectionCards` stat tile and the `sidebar-07` app shell.
 - **Siyahi components**: `Delta` (a signed figure with ▲ ▼), `PriceChart`
   (TradingView Lightweight Charts in theme colours), `Treemap` (holdings heat
@@ -90,6 +91,43 @@ Every merge to `main` also attaches both tarballs to a GitHub release
   the date first: `20 Oct 2026, 14:30 IST`.
 - **`report.css`** for static HTML reports that do not use React: the theme as
   plain CSS variables plus base body styles, with no network requests.
+
+## Which component
+
+| Need                                                                    | Component                                                   |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Values over time or another ordered axis (months, hours, price buckets) | `BarChartCard`, `AreaChartCard` or `LineChartCard`          |
+| Counts or amounts per period, one series or several                     | `BarChartCard`; `stacked` when the series add up to a total |
+| A running level, such as a portfolio's value against money put in       | `AreaChartCard`                                             |
+| Series compared point by point, such as a return against an index       | `LineChartCard`                                             |
+| Ranked counts or amounts by category (a name, a bar and a figure)       | `BarList`                                                   |
+| Headline figures with their change                                      | `SectionCards`, with a `Delta` in each badge                |
+| One instrument's price history                                          | `PriceChart`                                                |
+| Holdings sized by weight and coloured by change                         | `Treemap`                                                   |
+| Activity by day, by weekday and hour, or a status over time             | `CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`        |
+| Rows to sort and filter                                                 | `DataTable`, inside a `Card`                                |
+| A signed figure (a gain, a loss, a change)                              | `Delta`                                                     |
+| A time, with the viewer's own clock on hover                            | `LocalTime`                                                 |
+
+The three chart cards take the rows, the field the x axis reads and the series,
+and own everything else: the card and its header action (a range or mode
+toggle), the axes, the dashed horizontal grid, Geist Mono ticks, a tooltip that
+names the hovered point and gives each series' formatted value, and the legend
+below. A page never puts Recharts axes, grids or tooltips together itself.
+
+```tsx
+<BarChartCard
+  title="Orders by hour"
+  data={[
+    { hour: 9, orders: 42 },
+    { hour: 10, orders: 31 },
+  ]}
+  xKey="hour"
+  xFormatter={(hour) => `${String(hour).padStart(2, "0")}:00`}
+  series={{ orders: { label: "Orders", color: "var(--chart-1)" } }}
+  height={256}
+/>
+```
 
 ## Locale
 
