@@ -165,4 +165,24 @@ describe("DistributionBar", () => {
       "3 winning positions worth ₹1,16,000 against 3 losing ones worth ₹46,000",
     );
   });
+
+  it("aligns a marker label at either end of the bar to that end, so it stays inside the bar's width", async () => {
+    await render(
+      <DistributionBar
+        max={12}
+        showLegend={false}
+        markers={[
+          { at: 0, label: "Empty" },
+          { at: 6, label: "High" },
+          { at: 12, label: "Full" },
+        ]}
+        segments={[{ name: "Used", value: 5 }]}
+      />,
+    );
+    const label = (text: string) =>
+      [...document.querySelectorAll<HTMLElement>("span")].find((s) => s.textContent === text);
+    expect(label("Empty")?.className).toContain("translate-x-0");
+    expect(label("High")?.className).toContain("-translate-x-1/2");
+    expect(label("Full")?.className).toContain("-translate-x-full");
+  });
 });

@@ -15,7 +15,8 @@
 // Siyahi edit: without min and max the bar runs from the negative segments'
 // total to the positive ones', so a loss is never clipped off the left; a
 // marker past either end is dropped, and markers at one value keep their own
-// keys. A page's aria-label replaces the generated one on the bar.
+// keys. A page's aria-label replaces the generated one on the bar. A label
+// at either end aligns to that end, so it does not spill past the bar.
 // Siyahi edit: highlighted fades every segment but one, and onHover reports
 // the segment under the pointer, so a page can drive a readout from it.
 // Segments take a key for when names repeat, and chart tokens as colours.
@@ -131,7 +132,15 @@ function DistributionBar({
               marker.label ? (
                 <span
                   key={marker.key}
-                  className="absolute top-0 -translate-x-1/2 whitespace-nowrap"
+                  className={cn(
+                    "absolute top-0 whitespace-nowrap",
+                    // Centred on its line, except at the ends, where it aligns inward.
+                    position(marker.at) <= 5
+                      ? "translate-x-0"
+                      : position(marker.at) >= 95
+                        ? "-translate-x-full"
+                        : "-translate-x-1/2"
+                  )}
                   style={{ left: `${position(marker.at)}%` }}
                 >
                   {marker.label}
