@@ -9,6 +9,12 @@ Published as `0.1.7-next.<n>` pre-releases.
   questions, such as an FAQ, sits in one bordered group instead of one
   `Collapsible` per item. One item is open at a time; pass `multiple` to let
   several stay open. The catalogue shows both under Components.
+- `SectionCards` picks its columns from the number of tiles, so the last row
+  never holds one tile alone under fuller rows. Five tiles used to show 4 + 1
+  on a wide page; now they run 3 + 2, and one row of five once the container is
+  80rem (1280px) wide. Three and six run three across from 48rem; four keep the
+  stock 2 then 4. A phone still shows one tile per row. More than six tiles
+  keep the stock grid.
 
 ## 0.1.6
 
