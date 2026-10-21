@@ -88,6 +88,15 @@ interface TickProps {
 const GEIST_WIDTH = 6.6;
 const MONO_WIDTH = 7.2;
 
+/**
+ * Room to keep right of the plot when every named tick is drawn: half the last label, which centres on the
+ * domain's right end, and at least 24px.
+ */
+function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly number[]): number {
+  const last = xTicks.at(-1);
+  return Math.max(24, Math.ceil((last === undefined ? 0 : xFormatter(last as V).length * MONO_WIDTH) / 2) + 4);
+}
+
 /** Squeezes a line into its column with SVG's own textLength when it would run into the next one. */
 const fitTo = (text: string, room: number, charWidth: number) =>
   room > 0 && text.length * charWidth > room ? { textLength: room, lengthAdjust: "spacingAndGlyphs" as const } : {};
@@ -191,7 +200,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
               layout={horizontal ? "vertical" : "horizontal"}
               stackOffset={stackOffset}
               // Every named tick is drawn, so one at the domain's right end needs room for its label.
-              margin={{ left: 0, right: xTicks ? 24 : 8 }}
+              margin={{ left: 0, right: xTicks ? endRoom(xFormatter, xTicks) : 8 }}
             >
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
               {horizontal ? (

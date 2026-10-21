@@ -83,8 +83,9 @@ Page parts that dash and The Book built for themselves. Published as
   `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) are
   gone. Pages draw charts with `BarChartCard`, `AreaChartCard`,
   `LineChartCard` and `DistributionBar`; dash's pages, the Dell page included,
-  and The Book moved to them on `0.1.9-next.2` (dash#95, The Book #34). This resolves the dated notes under 0.1.8 and, in this section, under 0.1.9. A page that still needs
-  a raw part imports `recharts` from its own dependency.
+  and The Book moved to them on `0.1.9-next.2` (dash#95, The Book #34). This
+  resolves the dated notes under 0.1.8 and, in this section, under 0.1.9. A page
+  that still needs a raw part imports `recharts` from its own dependency.
 
 ## 0.1.8
 

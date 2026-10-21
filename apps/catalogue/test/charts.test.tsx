@@ -43,6 +43,8 @@ const card = (title: string): Locator =>
   page.locator('[data-slot="card"]', { has: page.getByText(title, { exact: true }) });
 
 const center = async (target: Locator): Promise<{ x: number; y: number }> => {
+  // A chart re-renders its marks as it animates in; wait for this one to be on the page before measuring it.
+  await target.waitFor({ state: "visible" });
   const box = await target.boundingBox();
   if (!box) throw new Error("not laid out");
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
