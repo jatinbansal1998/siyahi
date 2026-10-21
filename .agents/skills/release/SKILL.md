@@ -41,7 +41,9 @@ description: >
    `packages/ui/package.json` and `packages/tools/package.json` (they must
    match or `next-version.mjs` fails). PR title starts with it: `0.1.8: …`.
 2. Add or extend the `## 0.1.x` section at the top of `CHANGELOG.md`
-   ("Published as `0.1.x-next.<n>` pre-releases.").
+   ("Published as `0.1.x-next.<n>` pre-releases."). Skip it when the PR changes
+   only tests (`packages/*/test/**`, `apps/*/test/**`) or `.agents/**`: no
+   consumer gets anything new.
 3. Run CONTRIBUTING.md "Before a pull request" (`pnpm check`, plus shots for
    UI changes).
 4. Several PRs for one base: merge one, rebase the next on `main`, re-run
@@ -66,9 +68,11 @@ gh run view <run-id> --repo $R --log | grep "Published package"
   only builds, it does not run the tests.
 - `VER` is the new `v*` release tag without the `v`. If the grep prints no
   `✅ Published package @siyahi/…@<VER>` lines, npm failed (see Gotchas).
-- If the merge touched neither `packages/` nor `apps/catalogue/` (for example a
-  workflow or `.gitignore` change), the release is content-identical: skip the
-  catalogue deploy and the consumer bumps.
+- If the merge touched neither `packages/` nor `apps/catalogue/` outside their
+  `test/` folders (for example a workflow, `.gitignore` or test-only change),
+  the release is content-identical: skip the catalogue deploy and the consumer
+  bumps. `publish.yml` still runs for tests, so report the new `VER` and say it
+  ships the same code as the one before.
 
 Then the catalogue, from the main checkout, clean and on `main`:
 
@@ -106,14 +110,17 @@ or loading changes, `node packages/tools/cls.mjs https://siyahi.jatinbansal.com/
 
 ## After the release (separate repos, describe, don't do here)
 
-1. `~/code/agent-skills`: in its own PR, bump the pinned version in
-   `siyahi/SKILL.md` (Install section and the `siyahi-shots` example); if
-   `report.css` changed, run `siyahi/scripts/refresh-report-css.sh <VER>`.
-   After that PR merges, `./install.sh siyahi`.
-2. dash (`~/code/dash`): set `@siyahi/ui` and `@siyahi/tools` to the exact
-   `<VER>`, no caret, the same for both, in a dash PR. Dash's release skill is
-   in open PR jatinbansal1998/dash#91; until it merges: merging to dash `main`
-   deploys through Cloudflare Workers Builds.
+1. dash (`~/code/dash`): its release skill's "Siyahi bump"
+   (`~/code/dash/.agents/skills/release/SKILL.md`) sets `@siyahi/ui` and
+   `@siyahi/tools` to the exact `<VER>`, no caret, the same for both, in a
+   dash PR.
+2. The Book (`~/code/transactions-analyser`): the same exact `<VER>` for both
+   in `dashboard/package.json`, in its own PR.
+3. `~/code/agent-skills` needs no bump: `siyahi/SKILL.md` pins no version and
+   points at the installed package's README (agent-skills #108). Only if
+   `report.css` changed, refresh its copy with
+   `siyahi/scripts/refresh-report-css.sh <VER>` in an agent-skills PR, then
+   `./install.sh siyahi` after it merges.
 
 ## Gotchas
 
