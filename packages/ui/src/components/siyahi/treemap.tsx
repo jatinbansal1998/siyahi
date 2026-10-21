@@ -161,6 +161,10 @@ export function TreemapLegend({ range, className }: TreemapLegendProps) {
         <span>{pct(step, digits)} a step</span>
         <span>▲ over {over}</span>
       </div>
+      <p className="sr-only">
+        Tile colours run in {HEAT_STEPS} steps of {pct(step, digits)} each way, deepest over {over}; a muted tile is no
+        change or unknown.
+      </p>
     </div>
   );
 }

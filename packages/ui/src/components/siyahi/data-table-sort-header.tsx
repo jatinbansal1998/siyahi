@@ -23,7 +23,8 @@ export function DataTableSortHeader<TData extends RowData>({ title }: { title?: 
     <DataTableColumnHeader>
       <Button variant="ghost" size="sm" className="-ml-2" onClick={() => column.toggleSorting(sorted !== "desc")}>
         {label}
-        <Icon />
+        <Icon aria-hidden="true" />
+        {sorted && <span className="sr-only">, sorted {sorted === "asc" ? "ascending" : "descending"}</span>}
       </Button>
     </DataTableColumnHeader>
   );

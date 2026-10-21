@@ -169,7 +169,7 @@ describe("data table column menus", () => {
 });
 
 const sortButton = (title: string) =>
-  [...document.querySelectorAll<HTMLButtonElement>("th button")].find((b) => b.textContent === title);
+  [...document.querySelectorAll<HTMLButtonElement>("th button")].find((b) => b.textContent?.startsWith(title));
 const rowCount = () => document.querySelector('[data-slot="data-table-row-count"]')?.textContent;
 
 describe("data table toolbar and sort header", () => {
@@ -179,10 +179,13 @@ describe("data table toolbar and sort header", () => {
   });
 
   it("DataTableSortHeader sorts largest first on one click, then smallest", async () => {
+    expect(sortButton("Value")?.textContent).toBe("Value");
     await act(async () => sortButton("Value")?.click());
     expect(firstColumn().slice(0, 3)).toEqual(["ITC", "HDFCBANK", "ICICIBANK"]);
+    expect(sortButton("Value")?.textContent).toBe("Value, sorted descending");
     await act(async () => sortButton("Value")?.click());
     expect(firstColumn().slice(0, 3)).toEqual(["TCS", "INFY", "NIFTYBEES"]);
+    expect(sortButton("Value")?.textContent).toBe("Value, sorted ascending");
   });
 
   it("DataTableRowCount counts the rows the search leaves, named by the search's label", async () => {

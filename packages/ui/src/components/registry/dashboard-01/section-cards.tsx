@@ -59,7 +59,7 @@ export interface SectionCardsProps {
   items: SectionCard[]
   /** The label of the picked tile. */
   selected?: string
-  /** Makes each tile a button; gets the label of the tile picked. */
+  /** Makes each tile one button, so keep tile content non-interactive; gets the label of the tile picked. */
   onSelect?: (label: string) => void
 }
 

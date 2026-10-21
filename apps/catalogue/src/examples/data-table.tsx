@@ -68,7 +68,8 @@ export default function DataTableExample() {
       <CardHeader>
         <CardTitle>Holdings</CardTitle>
         <CardDescription>
-          Search by symbol, filter by sector, sort any column in one click; the symbol stays put when the table scrolls
+          Search every column, filter by sector, sort any column in one click; the symbol stays put when the table
+          scrolls
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -79,7 +80,7 @@ export default function DataTableExample() {
         >
           <DataTableToolbarSection>
             <DataTableSearchFilter
-              placeholder="Filter by symbol…"
+              placeholder="Search holdings…"
               label="Filter holdings"
               className="flex-none sm:w-64"
             />

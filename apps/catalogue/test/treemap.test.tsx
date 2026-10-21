@@ -210,6 +210,8 @@ describe("TreemapLegend", () => {
     const items = [
       { name: "DEEP", weight: 100, change: -0.7 },
       { name: "MID", weight: 100, change: 0.3 },
+      // 2.17 steps: ceil puts it in step 3 with MID, where rounding would drop it to step 2.
+      { name: "EDGE", weight: 100, change: 0.26 },
       { name: "FLAT", weight: 100, change: 0 },
     ];
     root = createRoot(document.body.appendChild(document.createElement("div")));
@@ -223,8 +225,8 @@ describe("TreemapLegend", () => {
     );
     expect(swatch("down over 48%")).toBe(fill("DEEP"));
     expect(swatch("up 24%–36%")).toBe(fill("MID"));
+    expect(swatch("up 24%–36%")).toBe(fill("EDGE"));
     expect(swatch("no change, or unknown")).toBe(fill("FLAT"));
-    expect(swatch("down over 48%")).toBeDefined();
     expect(document.querySelector('[data-slot="treemap-legend"]')?.textContent).toContain("12% a step");
   });
 });
