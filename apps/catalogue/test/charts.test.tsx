@@ -491,4 +491,26 @@ describe("chart cards", { timeout: 60_000 }, () => {
     // pct(value, fractionDigits = 1): handed Recharts' tick index as its second argument it would print 0, 1, 2… decimals.
     for (const tick of await ticks.allTextContents()) expect(tick).toMatch(/^-?\d+\.\d%$/);
   });
+
+  it("draws every explicit x tick inside the chart, the ones at both ends of the domain included", async () => {
+    const chart = card("Memory in use, GiB");
+    const all = ["15:00", "15:10", "15:20", "15:30", "15:40", "15:50", "16:00", "16:10"];
+    const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    // At 1920 the dash Dell page lost its first label; check there and at a phone's width.
+    for (const width of [1920, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      try {
+        await chart.scrollIntoViewIfNeeded();
+        await settled(ticks);
+        expect(await ticks.allTextContents(), `at ${width}px`).toEqual(all);
+        // The last label sits on the domain's right end; it must end inside the chart, not be cut at its edge.
+        const last = await ticks.last().boundingBox();
+        const surface = await chart.locator("svg.recharts-surface").boundingBox();
+        if (!last || !surface) throw new Error("not laid out");
+        expect(last.x + last.width, `at ${width}px`).toBeLessThanOrEqual(surface.x + surface.width);
+      } finally {
+        await page.setViewportSize({ width: 1280, height: 900 });
+      }
+    }
+  });
 });
