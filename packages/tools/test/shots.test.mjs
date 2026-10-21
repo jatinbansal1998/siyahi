@@ -21,6 +21,18 @@ const MODES = [
 const GEIST_PAGE = `@font-face { font-family: Geist; src: url(data:font/woff2;base64,${geist}); }
   body { margin: 0; font-family: Geist; }`;
 
+// A card header in stock shadcn's shape: the title and a two-item toggle in
+// columns, inside a card that hides its overflow. The document never scrolls
+// sideways, so only the cut-off check can see the toggle run past the edge.
+/** @param {string} columns grid-template-columns of the header */
+const card = (columns) => `<main style="padding: 16px"><h1>Card</h1>
+  <div style="overflow: hidden; border: 1px solid">
+    <div style="display: grid; grid-template-columns: ${columns}">
+      <p style="min-width: 120px">Return against the index</p>
+      <div style="display: flex"><button style="width: 150px">Cumulative return</button><button style="width: 150px">Monthly return</button></div>
+    </div>
+  </div></main>`;
+
 /**
  * Writes a page with the given body, in Geist unless `style` says otherwise,
  * runs siyahi-shots on it, and returns the run with the width and height of
@@ -68,6 +80,31 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     );
     expect(run.status, run.output).toBe(0);
     for (const { name, width } of MODES) expect(run.sizesOf(name)).toEqual([{ width, height: 3000 }]);
+  });
+
+  it("fails a page whose card cuts off a toggle at 390", () => {
+    const run = shoot(card("1fr auto"));
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toMatch(/390-light .*clipped=1/);
+    expect(run.output).toContain('button "Monthly return" by 64px is cut off by an overflow: hidden box');
+    expect(run.output).toMatch(/ok {3}1920-light .*clipped=0/);
+  });
+
+  it("passes the same card with the toggle under the title", () => {
+    const run = shoot(card("1fr"));
+    expect(run.status, run.output).toBe(0);
+  });
+
+  it("fails a card whose lone badge in the action runs past the edge at 390", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>Card</h1>
+      <div style="overflow: clip; border: 1px solid">
+        <div style="display: grid; grid-template-columns: 1fr auto">
+          <div data-slot="card-title" style="min-width: 120px">Return</div>
+          <div data-slot="card-action"><span data-slot="badge" style="display: inline-block; width: 300px">Beats the index</span></div>
+        </div>
+      </div></main>`);
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain('span "Beats the index" by 64px is cut off by an overflow: clip box');
   });
 
   // A page that names Geist and loads no font file: an app whose font CSS

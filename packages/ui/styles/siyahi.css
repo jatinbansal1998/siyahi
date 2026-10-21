@@ -194,3 +194,24 @@
     }
   }
 }
+
+/*
+ * On a narrow card a header action (a toggle, a button) drops under the title
+ * and description, left-aligned. Stock CardHeader keeps the action in its own
+ * column at every width, so a two-item toggle squeezes the title and runs past
+ * the card's edge, where the card's overflow-hidden cuts it off. card.tsx is
+ * core, so the fix lives here, unlayered to outrank its utility classes.
+ * A lone Badge, the stat tile's figure, is short and stays top right: tiles in
+ * a four-column row are as narrow as a phone card.
+ */
+@container card-header (width < 24rem) {
+  [data-slot="card-header"]:not(:has(> [data-slot="card-action"] > [data-slot="badge"]:only-child)) {
+    > * {
+      grid-column: 1 / -1;
+    }
+    > [data-slot="card-action"] {
+      grid-row: auto;
+      justify-self: start;
+    }
+  }
+}

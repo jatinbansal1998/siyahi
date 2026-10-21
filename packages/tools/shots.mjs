@@ -15,7 +15,9 @@
 //
 // Checks: a gutter of at least --gutter px on both sides of visible text and
 // cards, no sideways document scroll (also with a classic scrollbar taking its
-// width), and --font as the loaded body font. --report is for static HTML
+// width), no text or control cut off at the side by a box that hides its
+// overflow (a card does; the document scroll check cannot see what it cuts),
+// and --font as the loaded body font. --report is for static HTML
 // reports, which load no font file by design: the body must still name --font
 // first, but the viewer's installed font or the system fallback may draw it.
 // Exempt from the gutter: content
@@ -35,7 +37,7 @@ import { parseArgs } from "node:util";
 import { chromium, errors } from "playwright";
 
 /** @typedef {{ name: string, width: number, height: number, dark: boolean }} Mode */
-/** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, font: string, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
+/** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, clipped: string[], font: string, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
 
 /** @type {Mode[]} */
 const MODES = [
@@ -89,14 +91,35 @@ const PROBE = `((chrome) => {
     }
     return false;
   };
+  const shown = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && !el.closest(chrome) && getComputedStyle(el).visibility !== "hidden";
+  };
+  // Pixels of el cut off at the side by an ancestor that hides its overflow,
+  // and how it hides it, up to the nearest one that scrolls, which shows the
+  // rest on scroll.
+  const cutOff = (el) => {
+    const r = el.getBoundingClientRect();
+    for (let a = el.parentElement; a; a = a.parentElement) {
+      const o = getComputedStyle(a).overflowX;
+      if (o === "auto" || o === "scroll") return 0;
+      if (o !== "hidden" && o !== "clip") continue;
+      const left = a.getBoundingClientRect().left + a.clientLeft;
+      const cut = Math.max(left - r.left, r.right - (left + a.clientWidth));
+      if (cut >= 1) return { px: Math.round(cut), overflow: o };
+    }
+    return null;
+  };
   const visible = [...document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,[data-slot="card"]')].filter((el) => {
     const r = el.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) return false;
-    if (r.right <= 0 || r.left >= de.clientWidth) return false;
-    if (el.closest(chrome)) return false;
-    const s = getComputedStyle(el);
-    return s.visibility !== "hidden" && !scrollsSideways(el);
+    return shown(el) && r.right > 0 && r.left < de.clientWidth && !scrollsSideways(el);
   });
+  // Badges, card titles and descriptions are spans and divs, which the tag list misses.
+  const clipped = [...document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,a,button,input,select,textarea,label,[data-slot="badge"],[data-slot="card-title"],[data-slot="card-description"]')]
+    .filter(shown)
+    .map((el) => ({ el, cut: cutOff(el) }))
+    .filter(({ cut }) => cut)
+    .map(({ el, cut }) => el.tagName.toLowerCase() + " " + JSON.stringify(el.textContent.trim().slice(0, 40)) + " by " + cut.px + "px is cut off by an overflow: " + cut.overflow + " box");
   const lefts = visible.map((el) => el.getBoundingClientRect().left);
   const rights = visible.map((el) => de.clientWidth - el.getBoundingClientRect().right);
   const overflow = de.scrollWidth - de.clientWidth;
@@ -113,6 +136,7 @@ const PROBE = `((chrome) => {
     gutterRight: rights.length ? Math.round(Math.min(...rights)) : null,
     overflow,
     overflowWithScrollbar,
+    clipped,
     font: first,
     fontLoaded: document.fonts.check('16px "' + first + '"') && [...document.fonts].some((f) => f.family.replace(/["']/g, "") === first && f.status === "loaded"),
     docHeight: de.scrollHeight,
@@ -194,6 +218,8 @@ function problemsOf(p, ready) {
   if (p.overflow > 0) problems.push(`document scrolls sideways by ${p.overflow}px`);
   if (p.overflowWithScrollbar > 0)
     problems.push(`scrolls sideways by ${p.overflowWithScrollbar}px once a scrollbar takes its width`);
+  for (const what of p.clipped.slice(0, 5)) problems.push(what);
+  if (p.clipped.length > 5) problems.push(`and ${p.clipped.length - 5} more cut off`);
   if (!p.font.startsWith(values.font)) problems.push(`body font is ${p.font}, not ${values.font}`);
   else if (!p.fontLoaded && !values.report) problems.push(`${p.font} is named but never loaded`);
   return problems;
@@ -209,7 +235,7 @@ for (const url of positionals) {
     const font = values.report && !probe.fontLoaded ? `${probe.font} (report, system fallback allowed)` : probe.font;
     console.log(
       `${problems.length ? "FAIL" : "ok  "} ${mode.name.padEnd(10)} gutter=${probe.gutterLeft}/${probe.gutterRight} ` +
-        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} font=${font} h1=${JSON.stringify(probe.h1)} ` +
+        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} clipped=${probe.clipped.length} font=${font} h1=${JSON.stringify(probe.h1)} ` +
         `height=${height} ${files.join(" ")}`,
     );
     for (const problem of problems) console.log(`     ${problem}`);
