@@ -21,6 +21,9 @@ import {
 import type { ChartReferenceLine, ChartSeries, NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
+// Recharts 3.8 draws tick labels in a layer of their own, which the core chart's
+// muted-tick rule no longer reaches, so they would keep Recharts' #666 in both schemes.
+const TICK = { className: "fill-muted-foreground font-mono" };
 const NO_LINES: readonly ChartReferenceLine[] = [];
 
 interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesChartProps<T, K>, NumericXProps {
@@ -54,8 +57,18 @@ export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number
 interface TickProps {
   x?: number | string;
   y?: number | string;
+  /** The axis's length; with visibleTicksCount it gives each column's width. */
+  width?: number | string;
+  visibleTicksCount?: number;
   payload?: { value?: unknown };
 }
+
+// Geist at the ticks' 12px averages about 6.6px a character.
+const CHAR_WIDTH = 6.6;
+
+/** Squeezes a line into its column with SVG's own textLength when it would run into the next one. */
+const fitTo = (text: string, room: number) =>
+  room > 0 && text.length * CHAR_WIDTH > room ? { textLength: room, lengthAdjust: "spacingAndGlyphs" as const } : {};
 
 /**
  * An x tick with a second line from its row. Under a column the lines hang below the axis; beside a horizontal
@@ -69,18 +82,27 @@ function twoLineTick<T extends object, K extends keyof T>(
   detailOf: (row: T) => string,
   beside: boolean,
 ) {
-  return ({ x, y, payload }: TickProps) => {
+  return ({ x, y, width, visibleTicksCount, payload }: TickProps) => {
     const value = payload?.value as T[K];
     const row = data.find((r) => r[xKey] === value);
+    const name = xFormatter(value);
+    const detail = row ? detailOf(row) : null;
+    // Under a column each line gets its column's width, less a gap; beside a bar the axis is as wide as it needs.
+    const room = beside || !visibleTicksCount ? 0 : Number(width) / visibleTicksCount - 6;
     return (
       // Recharts measures text with this class to size an axis set to width="auto".
-      <text x={x} y={y} textAnchor={beside ? "end" : "middle"} className="recharts-cartesian-axis-tick-value font-mono">
-        <tspan x={x} dy={beside ? -4 : 12}>
-          {xFormatter(value)}
+      <text
+        x={x}
+        y={y}
+        textAnchor={beside ? "end" : "middle"}
+        className="recharts-cartesian-axis-tick-value fill-muted-foreground"
+      >
+        <tspan x={x} dy={beside ? -4 : 12} {...fitTo(name, room)}>
+          {name}
         </tspan>
-        {row && (
-          <tspan x={x} dy={15} className="tabular-nums">
-            {detailOf(row)}
+        {detail !== null && (
+          <tspan x={x} dy={15} className="tabular-nums" {...fitTo(detail, room)}>
+            {detail}
           </tspan>
         )}
       </text>
@@ -151,11 +173,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     axisLine={false}
                     tickMargin={8}
                     tickFormatter={(value: T[K]) => xFormatter(value)}
-                    tick={
-                      xTickDetail
-                        ? twoLineTick(data, xKey, xFormatter, xTickDetail, horizontal)
-                        : { className: "font-mono" }
-                    }
+                    tick={xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, horizontal) : TICK}
                     interval={0}
                   />
                 </>
@@ -172,9 +190,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     axisLine={false}
                     tickMargin={8}
                     tickFormatter={(value: T[K]) => xFormatter(value)}
-                    tick={
-                      xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, false) : { className: "font-mono" }
-                    }
+                    tick={xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, false) : TICK}
                     interval={xTickDetail ? 0 : undefined}
                   />
                   <YAxis
@@ -195,7 +211,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                         : undefined
                     }
                     tickFormatter={yTickFormatter ?? formatValue}
-                    tick={{ className: "font-mono" }}
+                    tick={TICK}
                   />
                 </>
               )}

@@ -247,8 +247,8 @@ describe("chart cards", { timeout: 60_000 }, () => {
       { stroke: "var(--muted-foreground)", dashed: false, upright: true },
       { stroke: "var(--foreground)", dashed: false, upright: true },
     ]);
-    // Recharts draws the labels in a layer of their own, in the lines' order.
-    expect(await chart.locator("text.recharts-text.fill-muted-foreground").allTextContents()).toEqual([
+    // Recharts draws the labels in a layer of their own, in the lines' order; text-xs tells them from the ticks.
+    expect(await chart.locator("text.recharts-text.fill-muted-foreground.text-xs").allTextContents()).toEqual([
       "old limit, 80%",
       "new limit, 50%",
       "limit 50%",
@@ -403,5 +403,41 @@ describe("chart cards", { timeout: 60_000 }, () => {
       expect(Math.abs(bar.y - name.y)).toBeLessThan(24);
     }
     expect(lefts.size).toBe(1);
+  });
+
+  it("two-line ticks take the muted tick colour and fit their columns on a narrow phone", async () => {
+    const chart = card("Realized by financial year");
+    const fill = (selector: string) =>
+      chart
+        .locator(selector)
+        .first()
+        .evaluate((el) => getComputedStyle(el).fill);
+    await chart.scrollIntoViewIfNeeded();
+    await settled(chart.locator(".recharts-xAxis-tick-labels text"));
+    // Every tick takes the theme's muted colour, not Recharts' fixed #666, so it follows the scheme.
+    const muted = await chart.evaluate((el) => {
+      const probe = el.appendChild(document.createElement("span"));
+      probe.style.color = "var(--muted-foreground)";
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    });
+    expect(await fill(".recharts-xAxis-tick-labels text")).toBe(muted);
+    expect(await fill(".recharts-yAxis-tick-labels text")).toBe(muted);
+    // 320px, the narrowest phones: five years with figures under them would run into each other unsqueezed.
+    await page.setViewportSize({ width: 320, height: 900 });
+    try {
+      await chart.scrollIntoViewIfNeeded();
+      const lines = chart.locator(".recharts-xAxis-tick-labels tspan");
+      await settled(lines);
+      const boxes = await lines.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+      // tspans alternate name, detail, name, detail…; neighbouring years' lines must not overlap.
+      for (const row of [0, 1]) {
+        const line = boxes.filter((_, i) => i % 2 === row);
+        for (let i = 1; i < line.length; i++) expect(line[i].left).toBeGreaterThanOrEqual(line[i - 1].right);
+      }
+    } finally {
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
   });
 });
