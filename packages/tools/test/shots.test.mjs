@@ -21,6 +21,18 @@ const MODES = [
 const GEIST_PAGE = `@font-face { font-family: Geist; src: url(data:font/woff2;base64,${geist}); }
   body { margin: 0; font-family: Geist; }`;
 
+// A card header in stock shadcn's shape: the title and a two-item toggle in
+// columns, inside a card that hides its overflow. The document never scrolls
+// sideways, so only the cut-off check can see the toggle run past the edge.
+/** @param {string} columns grid-template-columns of the header */
+const card = (columns) => `<main style="padding: 16px"><h1>Card</h1>
+  <div style="overflow: hidden; border: 1px solid">
+    <div style="display: grid; grid-template-columns: ${columns}">
+      <p style="min-width: 120px">Return against the index</p>
+      <div style="display: flex"><button style="width: 150px">Cumulative return</button><button style="width: 150px">Monthly return</button></div>
+    </div>
+  </div></main>`;
+
 /**
  * Writes a page with the given body, in Geist unless `style` says otherwise,
  * runs siyahi-shots on it, and returns the run with the width and height of
@@ -69,18 +81,6 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.status, run.output).toBe(0);
     for (const { name, width } of MODES) expect(run.sizesOf(name)).toEqual([{ width, height: 3000 }]);
   });
-
-  // A card header in stock shadcn's shape: the title and a two-item toggle in
-  // columns, inside a card that hides its overflow. The document never scrolls
-  // sideways, so only the cut-off check can see the toggle run past the edge.
-  /** @param {string} columns grid-template-columns of the header */
-  const card = (columns) => `<main style="padding: 16px"><h1>Card</h1>
-    <div style="overflow: hidden; border: 1px solid">
-      <div style="display: grid; grid-template-columns: ${columns}">
-        <p style="min-width: 120px">Return against the index</p>
-        <div style="display: flex"><button style="width: 150px">Cumulative return</button><button style="width: 150px">Monthly return</button></div>
-      </div>
-    </div></main>`;
 
   it("fails a page whose card cuts off a toggle at 390", () => {
     const run = shoot(card("1fr auto"));
