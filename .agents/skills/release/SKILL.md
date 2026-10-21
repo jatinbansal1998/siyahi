@@ -110,14 +110,17 @@ or loading changes, `node packages/tools/cls.mjs https://siyahi.jatinbansal.com/
 
 ## After the release (separate repos, describe, don't do here)
 
-1. `~/code/agent-skills`: in its own PR, bump the pinned version in
-   `siyahi/SKILL.md` (Install section and the `siyahi-shots` example); if
-   `report.css` changed, run `siyahi/scripts/refresh-report-css.sh <VER>`.
-   After that PR merges, `./install.sh siyahi`.
-2. dash (`~/code/dash`): set `@siyahi/ui` and `@siyahi/tools` to the exact
-   `<VER>`, no caret, the same for both, in a dash PR. Dash's release skill is
-   in open PR jatinbansal1998/dash#91; until it merges: merging to dash `main`
-   deploys through Cloudflare Workers Builds.
+1. dash (`~/code/dash`): its release skill's "Siyahi bump"
+   (`~/code/dash/.agents/skills/release/SKILL.md`) sets `@siyahi/ui` and
+   `@siyahi/tools` to the exact `<VER>`, no caret, the same for both, in a
+   dash PR.
+2. The Book (`~/code/transactions-analyser`): the same exact `<VER>` for both
+   in `dashboard/package.json`, in its own PR.
+3. `~/code/agent-skills` needs no bump: `siyahi/SKILL.md` pins no version and
+   points at the installed package's README (agent-skills #108). Only if
+   `report.css` changed, refresh its copy with
+   `siyahi/scripts/refresh-report-css.sh <VER>` in an agent-skills PR, then
+   `./install.sh siyahi` after it merges.
 
 ## Gotchas
 
