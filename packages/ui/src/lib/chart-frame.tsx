@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@siyahi/ui/lib/utils";
 import { AreaChart, BarChart, CartesianGrid, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import {
@@ -18,7 +19,14 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@siyahi/ui/components/ui/chart";
-import type { ChartReferenceLine, ChartSeries, NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
+import type {
+  ChartColor,
+  ChartReferenceLine,
+  ChartSeries,
+  ChartSeriesItem,
+  NumericXProps,
+  SeriesChartProps,
+} from "@siyahi/ui/lib/chart-series";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 // Recharts 3.8 draws tick labels in a layer of their own, which the core chart's
@@ -37,6 +45,20 @@ interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesCha
   horizontal?: boolean;
   /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
   stackOffset?: "sign";
+}
+
+/**
+ * The colour a series' Bar takes, which its legend chip shows: the negative colour when every value drawn is below
+ * zero, since each bar's own Cell follows its sign but the chip follows the Bar.
+ */
+export function seriesFill<T>(item: ChartSeriesItem<T>, data: readonly T[]): ChartColor {
+  const values = data
+    .map((row) => row[item.key as keyof T])
+    .filter((value) => Number.isFinite(value))
+    .map(Number);
+  return item.negativeColor && values.length > 0 && values.every((value) => value < 0)
+    ? item.negativeColor
+    : item.color;
 }
 
 /** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */
@@ -65,30 +87,43 @@ interface TickProps {
   payload?: { value?: unknown };
 }
 
-// Geist at the ticks' 12px averages about 6.6px a character.
-const CHAR_WIDTH = 6.6;
-
-/** Squeezes a line into its column with SVG's own textLength when it would run into the next one. */
-const fitTo = (text: string, room: number) =>
-  room > 0 && text.length * CHAR_WIDTH > room ? { textLength: room, lengthAdjust: "spacingAndGlyphs" as const } : {};
+// At the ticks' 12px, Geist averages about 6.6px a character and Geist Mono 7.2px.
+const GEIST_WIDTH = 6.6;
+const MONO_WIDTH = 7.2;
 
 /**
- * An x tick with a second line from its row. Under a column the lines hang below the axis; beside a horizontal
- * bar they straddle its middle. Both lines are set in Geist, not Mono: a name with a figure under it reads as a
- * label, as in BarList, and sector names in Mono would take most of a phone's width.
+ * Room to keep right of the plot when every named tick is drawn: half the last label, which centres on the
+ * domain's right end, and at least 24px.
  */
-function twoLineTick<T extends object, K extends keyof T>(
+function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly number[]): number {
+  const last = xTicks.at(-1);
+  return Math.max(24, Math.ceil((last === undefined ? 0 : xFormatter(last as V).length * MONO_WIDTH) / 2) + 4);
+}
+
+/** Squeezes a line into its column with SVG's own textLength when it would run into the next one. */
+const fitTo = (text: string, room: number, charWidth: number) =>
+  room > 0 && text.length * charWidth > room ? { textLength: room, lengthAdjust: "spacingAndGlyphs" as const } : {};
+
+/**
+ * An x tick fitted to its column, drawn whenever a page names its ticks or gives each a second line: Recharts'
+ * own ticks would rather drop a label than let it run into the next. With a detail, the second line comes from the
+ * tick's row; under a column the lines hang below the axis, and beside a horizontal bar they straddle its middle.
+ * A two-line tick is set in Geist, not Mono: a name with a figure under it reads as a label, as in BarList, and
+ * sector names in Mono would take most of a phone's width.
+ */
+function fittedTick<T extends object, K extends keyof T>(
   data: readonly T[],
   xKey: K,
   xFormatter: (value: T[K]) => string,
-  detailOf: (row: T) => string,
+  detailOf: ((row: T) => string) | undefined,
   beside: boolean,
 ) {
+  const charWidth = detailOf ? GEIST_WIDTH : MONO_WIDTH;
   return ({ x, y, width, visibleTicksCount, payload }: TickProps) => {
     const value = payload?.value as T[K];
     const row = data.find((r) => r[xKey] === value);
     const name = xFormatter(value);
-    const detail = row ? detailOf(row) : null;
+    const detail = row && detailOf ? detailOf(row) : null;
     // Under a column each line gets its column's width, less a gap; beside a bar the axis is as wide as it needs.
     const room = beside || !visibleTicksCount ? 0 : Number(width) / visibleTicksCount - 6;
     return (
@@ -97,13 +132,13 @@ function twoLineTick<T extends object, K extends keyof T>(
         x={x}
         y={y}
         textAnchor={beside ? "end" : "middle"}
-        className="recharts-cartesian-axis-tick-value fill-muted-foreground"
+        className={cn("recharts-cartesian-axis-tick-value fill-muted-foreground", !detailOf && "font-mono")}
       >
-        <tspan x={x} dy={beside ? -4 : 12} {...fitTo(name, room)}>
+        <tspan x={x} dy={beside ? -4 : 12} {...fitTo(name, room, charWidth)}>
           {name}
         </tspan>
         {detail !== null && (
-          <tspan x={x} dy={15} className="tabular-nums" {...fitTo(detail, room)}>
+          <tspan x={x} dy={15} className="tabular-nums" {...fitTo(detail, room, charWidth)}>
             {detail}
           </tspan>
         )}
@@ -167,7 +202,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
               data={data}
               layout={horizontal ? "vertical" : "horizontal"}
               stackOffset={stackOffset}
-              margin={{ left: 0, right: 8 }}
+              // Every named tick is drawn, so one at the domain's right end needs room for its label.
+              margin={{ left: 0, right: xTicks ? endRoom(xFormatter, xTicks) : 8 }}
             >
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
               {horizontal ? (
@@ -181,7 +217,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     axisLine={false}
                     tickMargin={8}
                     tickFormatter={(value: T[K]) => xFormatter(value)}
-                    tick={xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, horizontal) : TICK}
+                    tick={xTickDetail ? fittedTick(data, xKey, xFormatter, xTickDetail, horizontal) : TICK}
                     interval={0}
                   />
                 </>
@@ -198,8 +234,10 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     axisLine={false}
                     tickMargin={8}
                     tickFormatter={(value: T[K]) => xFormatter(value)}
-                    tick={xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, false) : TICK}
-                    interval={xTickDetail ? 0 : undefined}
+                    tick={xTickDetail || xTicks ? fittedTick(data, xKey, xFormatter, xTickDetail, false) : TICK}
+                    // Recharts' default drops a tick it thinks would collide or overflow; a page that
+                    // names its ticks, or gives each a second line, wants every one drawn.
+                    interval={xTickDetail || xTicks ? 0 : undefined}
                   />
                   <YAxis
                     tickLine={false}

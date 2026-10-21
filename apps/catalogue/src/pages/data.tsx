@@ -78,9 +78,11 @@ export const data: Page = {
             limits (a y value, dashed) and events (an x value, solid), each with an optional label; emphasis: "strong"
             draws the one that matters in the text colour. xTooltipFormatter gives the tooltip a fuller heading than the
             tick. yDomain and yTicks fix the value axis, here 0 to 100%. curve="linear" joins measured samples with
-            straight lines; the default smooths them.
+            straight lines; the default smooths them. Every tick in xTicks is drawn, the ones at the ends of xDomain
+            included.
           </Lead>
           <Example name="chart-line-events" />
+          <Example name="chart-line-timeline" />
         </>
       ),
     },

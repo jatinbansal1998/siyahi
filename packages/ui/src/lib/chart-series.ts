@@ -88,7 +88,7 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
 export interface NumericXProps {
   /** The x axis runs over this range of the xKey field, which must hold numbers; without it the axis is one slot per row. */
   xDomain?: [number, number];
-  /** Where the x axis puts its ticks, in the xKey field's units. */
+  /** Where the x axis puts its ticks, in the xKey field's units; give xDomain with it, so the axis is numeric. */
   xTicks?: readonly number[];
 }
 

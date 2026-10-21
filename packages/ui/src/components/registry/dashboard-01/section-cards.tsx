@@ -22,6 +22,8 @@
 // Siyahi edit: a tile marked disabled cannot be picked: its button is
 // disabled and the tile fades, as The Book's attention cards do for a flag
 // with no positions.
+// Siyahi edit: the headline wraps instead of being clamped to one line, so a
+// long figure line is not cut off on a phone.
 "use client"
 
 import * as React from "react"
@@ -106,7 +108,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
             </CardHeader>
             {(item.headline || item.detail) && (
               <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                {item.headline && <div className="line-clamp-1 flex gap-2 font-medium">{item.headline}</div>}
+                {item.headline && <div className="flex flex-wrap gap-2 font-medium">{item.headline}</div>}
                 {item.detail && <div className="text-muted-foreground">{item.detail}</div>}
               </CardFooter>
             )}
