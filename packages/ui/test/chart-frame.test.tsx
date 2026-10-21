@@ -29,8 +29,13 @@ describe("seriesFill", () => {
     expect(seriesFill(net, [{ net: -3 }, { net: -1 }])).toBe("var(--negative)");
   });
 
+  it("skips a row with no value, so one empty year does not turn the chip back", () => {
+    expect(seriesFill(net, [{ net: -3 }, { net: null }, { net: -1 }])).toBe("var(--negative)");
+  });
+
   it("keeps the series colour when any value is at or above zero", () => {
     expect(seriesFill(net, [{ net: -3 }, { net: 2 }])).toBe("var(--positive)");
     expect(seriesFill({ ...net, negativeColor: undefined }, [{ net: -3 }])).toBe("var(--positive)");
+    expect(seriesFill(net, [{ net: null }])).toBe("var(--positive)");
   });
 });

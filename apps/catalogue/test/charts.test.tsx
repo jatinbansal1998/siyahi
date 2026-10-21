@@ -516,10 +516,12 @@ describe("chart cards", { timeout: 60_000 }, () => {
     }
   });
 
-  it("bar paths carry no name attribute of undefined", async () => {
+  it("names each mark after its series, and no mark on the page carries a name of undefined", async () => {
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
-    await settled(chart.locator(".recharts-bar-rectangle path"));
-    expect(await chart.locator('.recharts-bar-rectangle path[name="undefined"]').count()).toBe(0);
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    await settled(bars);
+    expect(await chart.locator('.recharts-bar-rectangle path[name="Net realized"]').count()).toBe(await bars.count());
+    expect(await page.locator('.recharts-surface [name="undefined"]').count()).toBe(0);
   });
 });

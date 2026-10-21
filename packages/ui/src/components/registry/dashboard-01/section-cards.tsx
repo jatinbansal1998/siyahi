@@ -108,7 +108,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
             </CardHeader>
             {(item.headline || item.detail) && (
               <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                {item.headline && <div className="flex flex-wrap gap-x-2 font-medium">{item.headline}</div>}
+                {item.headline && <div className="flex flex-wrap gap-2 font-medium">{item.headline}</div>}
                 {item.detail && <div className="text-muted-foreground">{item.detail}</div>}
               </CardFooter>
             )}
