@@ -45,6 +45,8 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   yTickFormatter?: (value: number) => string;
   /** Height of the plot and legend, in pixels. */
   height: number;
+  /** Shown in the plot's place, at its height, while the data loads or after it failed to. */
+  placeholder?: ReactNode;
   /** Lines under the chart, such as a caption or a takeaway, in the card's footer. */
   footer?: ReactNode;
 }

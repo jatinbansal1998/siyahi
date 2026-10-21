@@ -19,4 +19,10 @@ describe("chart cards", () => {
     const html = renderToStaticMarkup(<LineChartCard {...base} footer={<p>Swap full, RAM 60% used.</p>} />);
     expect(html).toMatch(/data-slot="card-footer"[^>]*><p>Swap full, RAM 60% used\.<\/p>/);
   });
+
+  it("shows the placeholder in the plot's place, at the plot's height", () => {
+    const html = renderToStaticMarkup(<LineChartCard {...base} placeholder={<p>Loading the index…</p>} />);
+    expect(html).toMatch(/data-slot="chart-placeholder"[^>]*style="height:200px"><p>Loading the index…<\/p>/);
+    expect(html).not.toContain('data-slot="chart"');
+  });
 });
