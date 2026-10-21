@@ -1,10 +1,20 @@
 name: CI
 
+# docs/ is skipped by the formatter and read by nothing else, and .claude/ holds
+# only the skills symlink, which no step follows. Root *.md and .agents/ stay:
+# the formatter checks them, and generate:check copies the root README and
+# notices into packages/.
 on:
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - ".claude/**"
   push:
     branches:
       - main
+    paths-ignore:
+      - "docs/**"
+      - ".claude/**"
 
 permissions:
   contents: read
