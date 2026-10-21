@@ -2,9 +2,9 @@ import { Delta, SectionCards, useFormat, type SectionCard } from "@siyahi/ui";
 import { useState } from "react";
 
 const classes = [
-  { label: "All", net: 148600, positions: 212 },
+  { label: "All", net: 110200, positions: 181 },
   { label: "Equity", net: 171400, positions: 164 },
-  { label: "Mutual funds", net: 38400, positions: 31 },
+  { label: "Gold bonds", net: 0, positions: 0 },
   { label: "F&O", net: -61200, positions: 17 },
 ];
 
@@ -15,6 +15,8 @@ export default function SectionCardsSelectExample() {
     label: c.label,
     value: <Delta value={c.net} format="money" />,
     detail: `${count(c.positions)} positions`,
+    // Nothing to show for a class with no positions, so it cannot be picked.
+    disabled: c.positions === 0,
   }));
   return (
     <div className="flex flex-col gap-3">

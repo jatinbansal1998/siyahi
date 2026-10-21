@@ -33,10 +33,21 @@ export const data: Page = {
             list (a name, a bar and a figure per row, largest first) use BarList. Series take the slots --chart-1 to
             --chart-5 in order: each reaches 3:1 against the card and the slots next to it, and slots two apart share a
             lightness and differ by hue, so do not skip slots. Past five, fold the rest into "Other" in
-            --muted-foreground. xFormatter writes the axis and the tooltip's heading, here an hour as 09:00.
+            --muted-foreground. xFormatter writes the axis and the tooltip's heading, here an hour as 09:00; xLabel and
+            yLabel title the axes. xTickDetail adds a second line under each tick from its row, so a year's net reads
+            without a hover. A gain and a loss take var(--positive) and var(--negative): give the series color and
+            negativeColor, and each bar takes the one its sign calls for. selected and onSelect let a click on a bar
+            pick its category; the other bars fade, and a second click clears it. The page owns the pick. horizontal
+            lays the bars sideways with the categories down the left, for long names such as sectors; give it a height
+            that fits the rows. footer puts a caption under the chart, and placeholder stands in for the plot while its
+            data loads or after it failed. Stacked, negative values run down from zero and positive ones up, as money in
+            and out does here.
           </Lead>
           <Example name="chart-bar" />
           <Example name="chart-bar-hourly" />
+          <Example name="chart-bar-years" />
+          <Example name="chart-bar-sectors" />
+          <Example name="chart-bar-flows" />
         </>
       ),
     },
@@ -53,6 +64,23 @@ export const data: Page = {
             labels is never cut off at the card's edge. Not for ranked categories: that is BarList.
           </Lead>
           <Example name="chart-line" />
+        </>
+      ),
+    },
+    {
+      id: "limits-and-events",
+      title: "Limits and events",
+      body: (
+        <>
+          <Lead>
+            A line chart over samples in time. xDomain makes the x axis numeric, so a tick or an event can sit between
+            two samples; xTicks puts the ticks where the page wants them, here on whole minutes. referenceLines mark
+            limits (a y value, dashed) and events (an x value, solid), each with an optional label; emphasis: "strong"
+            draws the one that matters in the text colour. xTooltipFormatter gives the tooltip a fuller heading than the
+            tick. yDomain and yTicks fix the value axis, here 0 to 100%. curve="linear" joins measured samples with
+            straight lines; the default smooths them.
+          </Lead>
+          <Example name="chart-line-events" />
         </>
       ),
     },
@@ -129,9 +157,28 @@ export const data: Page = {
             dashboardcn's bar list, for "needs attention" and top-N lists: ranked counts or amounts by category, where
             each row is a name, a bar and a figure. Values over an ordered axis such as time go in BarChartCard. An
             item's detail, such as a Delta, sits after its label in its own colour; a long label truncates before the
-            detail does.
+            detail does. max sets the value a full bar stands for: give two lists the same max, as the gains and losses
+            here, and they share one scale.
           </Lead>
           <Example name="bar-list" />
+          <Example name="bar-list-sides" />
+        </>
+      ),
+    },
+    {
+      id: "stacked-bar",
+      title: "Stacked bar",
+      body: (
+        <>
+          <Lead>
+            dashboardcn's distribution bar: one bar split into segments, with a legend that gives each one's share, or
+            its value when the bar has a fixed scale. max fixes that scale, for a budget or a capacity the segments do
+            not fill, and markers draw a labelled line at a limit. With a min below zero, a negative segment stacks
+            leftward from zero, so losses and gains pull against each other; highlighted and onHover drive a readout
+            from the segment under the pointer. For a ranked list of categories, use BarList.
+          </Lead>
+          <Example name="distribution-bar-budget" />
+          <Example name="distribution-bar-tug" />
         </>
       ),
     },

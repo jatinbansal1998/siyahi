@@ -208,4 +208,287 @@ describe("chart cards", { timeout: 60_000 }, () => {
       quarterLines("Q1", "₹1,20,000", "₹40,000", "₹15,000", "₹9,000", "₹4,000"),
     );
   });
+
+  it("a numeric x axis puts each tick at its value, not in a slot per row", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    expect(await ticks.allTextContents()).toEqual(["19:34", "19:35", "19:36", "19:37", "19:38", "19:39", "19:40"]);
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    // The domain is [0, 390]; the ticks sit at 2, 62, … 362 seconds.
+    for (const [index, value] of [2, 62, 122, 182, 242, 302, 362].entries()) {
+      const { x } = await center(ticks.nth(index));
+      expect(x).toBeCloseTo(grid.x + (value / 390) * grid.width, 0);
+    }
+  });
+
+  it("reference lines mark limits dashed and events solid, each with its label and emphasis", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const lines = chart.locator(".recharts-reference-line");
+    await settled(lines);
+    const drawn = await lines.evaluateAll((groups) =>
+      groups.map((g) => {
+        const line = g.querySelector("line");
+        const box = line?.getBoundingClientRect();
+        return {
+          stroke: line?.getAttribute("stroke"),
+          dashed: Boolean(line?.getAttribute("stroke-dasharray")),
+          upright: box ? box.width < 1 : false,
+          left: box?.left ?? Number.NaN,
+        };
+      }),
+    );
+    expect(drawn.map(({ stroke, dashed, upright }) => ({ stroke, dashed, upright }))).toEqual([
+      { stroke: "var(--muted-foreground)", dashed: true, upright: false },
+      { stroke: "var(--foreground)", dashed: true, upright: false },
+      { stroke: "var(--muted-foreground)", dashed: false, upright: true },
+      { stroke: "var(--foreground)", dashed: false, upright: true },
+    ]);
+    // Recharts draws the labels in a layer of their own, in the lines' order; text-xs tells them from the ticks.
+    expect(await chart.locator("text.recharts-text.fill-muted-foreground.text-xs").allTextContents()).toEqual([
+      "old limit, 80%",
+      "new limit, 50%",
+      "limit 50%",
+      "killed",
+    ]);
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    // Events sit at their second on the numeric axis, between samples.
+    expect(drawn[2]?.left).toBeCloseTo(grid.x + (313 / 390) * grid.width, 0);
+    expect(drawn[3]?.left).toBeCloseTo(grid.x + (367 / 390) * grid.width, 0);
+  });
+
+  it("the tooltip heading can say more than the x tick", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    await settled(chart.locator(".recharts-line-curve"));
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    // The sample at 75 s: ticks read 19:35, the tooltip the whole time and what was measured.
+    const x = grid.x + (75 / 390) * grid.width;
+    expect(await tooltipAt(chart, x, grid.y + grid.height / 2, "19:35:13 IST, 10 s average")).toEqual([
+      "19:35:13 IST, 10 s average",
+      "Full pressure",
+      "66%",
+    ]);
+  });
+
+  it("a fixed y domain and ticks hold the value axis at 0 to 100%", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    expect(await ticks.allTextContents()).toEqual(["0%", "25%", "50%", "75%", "100%"]);
+    // The 80% limit sits a fifth of the way down from the top of a 0 to 100 axis.
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    const limit = await chart.locator(".recharts-reference-line line").first().boundingBox();
+    if (!grid || !limit) throw new Error("not laid out");
+    expect(limit.y).toBeCloseTo(grid.y + 0.2 * grid.height, 0);
+  });
+
+  it("a linear curve joins samples with straight segments", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const path = chart.locator("path.recharts-line-curve");
+    await settled(path);
+    // A straight-segment path has only move and line commands; a monotone one has cubic curves (C).
+    expect(await path.getAttribute("d")).toMatch(/^M[\d.,\sL-]+$/);
+  });
+
+  it("axis titles sit under the x ticks and beside the y ticks, read bottom to top", async () => {
+    const chart = card("Orders by hour");
+    await chart.scrollIntoViewIfNeeded();
+    // Recharts draws an axis title as text with the class it is given, in a layer of its own.
+    const titles = chart.locator("text.recharts-text.fill-muted-foreground");
+    await settled(titles);
+    const drawn = await titles.evaluateAll((els) =>
+      els.map((el) => ({
+        text: el.textContent,
+        transform: el.getAttribute("transform"),
+        box: el.getBoundingClientRect().toJSON(),
+      })),
+    );
+    const x = drawn.find((t) => t.text === "Hour of day (IST)");
+    const y = drawn.find((t) => t.text === "Orders");
+    const xTicks = await chart.locator(".recharts-xAxis-tick-labels").boundingBox();
+    const yTicks = await chart.locator(".recharts-yAxis-tick-labels").boundingBox();
+    if (!x || !y || !xTicks || !yTicks) throw new Error(`titles not drawn: ${JSON.stringify(drawn)}`);
+    expect(x.box.top).toBeGreaterThanOrEqual(xTicks.y + xTicks.height - 1);
+    expect(y.transform).toContain("rotate(-90");
+    expect(y.box.right).toBeLessThanOrEqual(yTicks.x + 1);
+  });
+
+  it("a two-line x tick prints each row's figure under its name", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-xAxis-tick-labels text");
+    await settled(ticks);
+    const lines = await ticks.evaluateAll((els) =>
+      els.map((el) => [...el.querySelectorAll("tspan")].map((t) => t.textContent)),
+    );
+    expect(lines).toEqual([
+      ["FY22", "▲₹1.4L"],
+      ["FY23", "▲₹1.9L"],
+      ["FY24", "▼₹1.6L"],
+      ["FY25", "▲₹1.3L"],
+      ["FY26", "▼₹1.2L"],
+    ]);
+    // The second line sits under the first.
+    const [name, detail] = await ticks
+      .first()
+      .locator("tspan")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
+    expect(detail).toBeGreaterThan(name ?? Number.POSITIVE_INFINITY);
+  });
+
+  it("a bar below zero takes the series' negative colour, in the plot and the tooltip", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    await settled(bars);
+    expect(await bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill")))).toEqual([
+      "var(--positive)",
+      "var(--positive)",
+      "var(--negative)",
+      "var(--positive)",
+      "var(--negative)",
+    ]);
+    const { x, y } = await center(bars.nth(2));
+    await tooltipAt(chart, x, y, "FY24");
+    const swatch = chart.locator(".recharts-tooltip-wrapper span").first();
+    expect(await swatch.evaluate((el) => (el as HTMLElement).style.backgroundColor)).toBe("var(--negative)");
+  });
+
+  it("a click picks a year, fading the others, and a second click clears it", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    const opacities = async () => {
+      await settled(bars);
+      return bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity")));
+    };
+    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
+    await bars.nth(2).click();
+    expect(await opacities()).toEqual(["0.35", "0.35", "1", "0.35", "0.35"]);
+    await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
+    await bars.nth(2).click();
+    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
+  });
+
+  it("horizontal bars put the categories down the left, each name beside its own bars", async () => {
+    const chart = card("Sectors against the index");
+    await chart.scrollIntoViewIfNeeded();
+    const names = chart.locator(".recharts-yAxis-tick-labels text tspan:first-child");
+    await settled(names);
+    expect(await names.allTextContents()).toEqual([
+      "Financial Services",
+      "Information Technology",
+      "Oil, Gas & Consumable Fuels",
+      "Fast Moving Consumer Goods",
+      "Automobile and Auto Components",
+      "Healthcare",
+    ]);
+    const bars = chart.locator(".recharts-bar").first().locator(".recharts-bar-rectangle path");
+    const lefts = new Set<number>();
+    for (let i = 0; i < 6; i++) {
+      const bar = await bars.nth(i).boundingBox();
+      const name = await names.nth(i).boundingBox();
+      if (!bar || !name) throw new Error("not laid out");
+      // Bars grow rightwards from one baseline, right of the names; a sector's bar sits by its name's first line.
+      lefts.add(Math.round(bar.x));
+      expect(bar.x).toBeGreaterThanOrEqual(name.x + name.width);
+      expect(Math.abs(bar.y - name.y)).toBeLessThan(24);
+    }
+    expect(lefts.size).toBe(1);
+  });
+
+  it("two-line ticks take the muted tick colour and fit their columns on a narrow phone", async () => {
+    const chart = card("Realized by financial year");
+    const fill = (selector: string) =>
+      chart
+        .locator(selector)
+        .first()
+        .evaluate((el) => getComputedStyle(el).fill);
+    await chart.scrollIntoViewIfNeeded();
+    await settled(chart.locator(".recharts-xAxis-tick-labels text"));
+    // Every tick takes the theme's muted colour, not Recharts' fixed #666, so it follows the scheme.
+    const muted = await chart.evaluate((el) => {
+      const probe = el.appendChild(document.createElement("span"));
+      probe.style.color = "var(--muted-foreground)";
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    });
+    expect(await fill(".recharts-xAxis-tick-labels text")).toBe(muted);
+    expect(await fill(".recharts-yAxis-tick-labels text")).toBe(muted);
+    // 320px, the narrowest phones: five years with figures under them would run into each other unsqueezed.
+    await page.setViewportSize({ width: 320, height: 900 });
+    try {
+      await chart.scrollIntoViewIfNeeded();
+      const lines = chart.locator(".recharts-xAxis-tick-labels tspan");
+      await settled(lines);
+      const boxes = await lines.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+      // tspans alternate name, detail, name, detail…; neighbouring years' lines must not overlap.
+      for (const row of [0, 1]) {
+        const line = boxes.filter((_, i) => i % 2 === row);
+        for (let i = 1; i < line.length; i++) expect(line[i].left).toBeGreaterThanOrEqual(line[i - 1].right);
+      }
+    } finally {
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
+  });
+
+  it("stacked bars put negative values below zero, not hanging from the positive stack", async () => {
+    const chart = card("Cash in and out by month");
+    await chart.scrollIntoViewIfNeeded();
+    const layers = chart.locator(".recharts-bar");
+    await settled(chart.locator(".recharts-bar-rectangle"));
+    const zero = await chart.locator(".recharts-reference-line line").first().boundingBox();
+    if (!zero) throw new Error("no zero line");
+    const ins = await layers
+      .nth(0)
+      .locator(".recharts-bar-rectangle path")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+    const outs = await layers
+      .nth(1)
+      .locator(".recharts-bar-rectangle path")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+    // Within a pixel and a half: bar edges and the zero line round to different half pixels.
+    for (const bar of ins) expect(Math.abs(bar.bottom - zero.y)).toBeLessThanOrEqual(1.5);
+    for (const bar of outs) expect(Math.abs(bar.top - zero.y)).toBeLessThanOrEqual(1.5);
+  });
+
+  it("sideways, a value level runs down the plot at its value on the fixed axis", async () => {
+    const chart = card("Sectors against the index");
+    await chart.scrollIntoViewIfNeeded();
+    const line = chart.locator(".recharts-reference-line line");
+    await settled(line);
+    const cap = await line.boundingBox();
+    const bars = await chart
+      .locator(".recharts-bar-rectangle path")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+    if (!cap || bars.length === 0) throw new Error("not laid out");
+    // The value axis starts where every bar does and runs 0 to 40%; the 30% cap sits three quarters along it.
+    const start = Math.min(...bars.map((bar) => bar.left));
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    expect(cap.height).toBeGreaterThan(cap.width);
+    expect(await line.getAttribute("stroke-dasharray")).toBeTruthy();
+    expect(Math.abs(cap.x - (start + 0.75 * (grid.x + grid.width - start)))).toBeLessThanOrEqual(1.5);
+    expect(await chart.locator("text.recharts-text.fill-muted-foreground.text-xs").allTextContents()).toEqual([
+      "cap 30%",
+    ]);
+  });
+
+  it("a value formatter is called with the value alone, so its own second parameter keeps its default", async () => {
+    const chart = card("Return against the index");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    // pct(value, fractionDigits = 1): handed Recharts' tick index as its second argument it would print 0, 1, 2… decimals.
+    for (const tick of await ticks.allTextContents()) expect(tick).toMatch(/^-?\d+\.\d%$/);
+  });
 });

@@ -19,6 +19,8 @@ export default function ChartBarHourlyExample() {
       data={data}
       xKey="hour"
       xFormatter={(hour) => `${String(hour).padStart(2, "0")}:00`}
+      xLabel="Hour of day (IST)"
+      yLabel="Orders"
       series={[{ key: "orders", label: "Orders", color: "var(--chart-1)" }]}
       height={256}
     />

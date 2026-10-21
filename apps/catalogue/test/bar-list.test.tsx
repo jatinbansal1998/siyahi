@@ -31,4 +31,23 @@ describe("BarList", () => {
     expect(detail?.textContent).toBe("▲up59.8%");
     expect(detail?.querySelector('[data-slot="delta"]')?.classList.contains("text-positive")).toBe(true);
   });
+
+  it("draws its bars against max when given one, so two lists can share a scale", async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <BarList
+          data={[
+            { name: "ITC", value: 50 },
+            { name: "TCS", value: 25 },
+          ]}
+          max={200}
+        />,
+      ),
+    );
+    const widths = [...document.querySelectorAll<HTMLElement>('[data-slot="bar-list-row"] [aria-hidden="true"]')].map(
+      (bar) => bar.style.width,
+    );
+    expect(widths).toEqual(["25%", "12.5%"]);
+  });
 });

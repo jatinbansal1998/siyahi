@@ -10,23 +10,33 @@
 // Siyahi edit: areas overlap by default, each drawn over the one before;
 // `stacked` stacks them as the block does. Curves are monotone, not natural,
 // so a curve never overshoots past a data point.
+// Siyahi edit: xDomain and xTicks make the x axis numeric, so a mark can sit
+// between two samples, as the Dell page's events do between 15 s samples.
+// Siyahi edit: curve picks monotone or straight edges (chart-area-linear).
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
 import { Area, AreaChart } from "recharts"
 
 import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
-import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
+import type {
+  ChartCurve,
+  NumericXProps,
+  SeriesChartProps,
+} from "@siyahi/ui/lib/chart-series"
 
 export interface AreaChartCardProps<T extends object, K extends keyof T>
-  extends SeriesChartProps<T, K> {
+  extends SeriesChartProps<T, K>,
+    NumericXProps {
   /** Stack the series into a total instead of overlapping them. */
   stacked?: boolean
+  curve?: ChartCurve
 }
 
 /** Values over an ordered axis as filled areas: one series, or several overlapping or stacked. */
 export function AreaChartCard<T extends object, K extends keyof T>({
   stacked = false,
+  curve = "monotone",
   ...props
 }: AreaChartCardProps<T, K>) {
   return (
@@ -35,7 +45,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
         <Area
           key={key}
           dataKey={key}
-          type="monotone"
+          type={curve}
           fill={color}
           fillOpacity={stacked ? 0.4 : 0.2}
           stroke={color}

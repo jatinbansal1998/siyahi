@@ -25,7 +25,8 @@ export const blocks: Page = {
           <Example name="section-cards" />
           <Lead>
             With selected and onSelect the tiles become a picker, such as one tile per asset class that scopes the page:
-            each tile is a button that says whether it is pressed, and the picked one takes a primary ring.
+            each tile is a button that says whether it is pressed, and the picked one takes a primary ring. A tile with
+            disabled set, such as a class with no positions, fades and cannot be picked.
           </Lead>
           <Example name="section-cards-select" />
         </>

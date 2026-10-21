@@ -34,6 +34,11 @@ const display: Entry[] = [
     "A command or a file to read or paste, in Geist Mono on the muted fill. A copy button goes in CodeBlockActions: in a CodeBlockHeader beside a title, or on its own, where it shows on hover (always on a touch screen). Long lines scroll sideways; wrap breaks them instead, for a command the reader should see whole. A max-h class on CodeBlockContent makes a long log scroll inside the block.",
   ],
   [
+    "copy-button",
+    "Copy button",
+    "MiniDev's copy button: an outline button with a label, for copying more than one block, such as a whole section's commands. It reads Copied with a check for 2 s. Inside a code block, use CodeBlockCopyButton, which is icon-only.",
+  ],
+  [
     "alert",
     "Alert",
     "Default for information, destructive for errors, default with an amber icon for warnings. The icon takes text-warning! with the !: Alert colours its icons through a selector that outranks a plain text-warning.",
