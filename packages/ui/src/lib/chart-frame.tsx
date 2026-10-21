@@ -1,7 +1,15 @@
 import type { ReactNode } from "react";
 import { AreaChart, BarChart, CartesianGrid, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@siyahi/ui/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@siyahi/ui/components/ui/card";
 import {
   ChartContainer,
   ChartLegend,
@@ -53,6 +61,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   valueFormatter,
   yTickFormatter,
   height,
+  footer,
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
   const formatValue = valueFormatter ?? new Intl.NumberFormat(numberLocale).format;
@@ -103,6 +112,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
           </Chart>
         </ChartContainer>
       </CardContent>
+      {/* shadcn's chart blocks lay their footer out this way. */}
+      {footer && <CardFooter className="flex-col items-start gap-2 text-sm">{footer}</CardFooter>}
     </Card>
   );
 }
