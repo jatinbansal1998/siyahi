@@ -5,8 +5,9 @@ name: Publish
 # follows until 1.0.0 (when the token
 # allows it). Stable versions are cut by hand.
 #
-# A push that changes only docs/ or Markdown at the repo root ships nothing new,
-# so it publishes nothing. CI still runs `check` on it. `*.md` matches the root
+# A push that changes only docs/, Markdown at the repo root or the agent skills
+# under .agents/ (.claude/skills links there) ships nothing new, so it
+# publishes nothing. CI still runs `check` on it. `*.md` matches the root
 # only: package READMEs and notices ship in the tarballs, and the root README,
 # LICENSE and notices are copied into packages/ by `pnpm generate`, so an edit
 # to those also changes a package file and publishes.
@@ -17,6 +18,8 @@ on:
     paths-ignore:
       - "docs/**"
       - "*.md"
+      - ".agents/**"
+      - ".claude/**"
 
 permissions:
   contents: read
