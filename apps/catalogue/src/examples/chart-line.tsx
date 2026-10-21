@@ -49,8 +49,8 @@ export default function ChartLineExample() {
       data={mode === "cumulative" ? cumulative : monthly}
       xKey="month"
       series={series}
-      valueFormatter={(v) => pct(v)}
-      yTickFormatter={(v) => pct(v, 0)}
+      // A formatter goes in as it is: the card calls it with the value alone.
+      valueFormatter={pct}
       height={256}
     />
   );

@@ -218,7 +218,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
                           }
                         : undefined
                     }
-                    tickFormatter={yTickFormatter ?? formatValue}
+                    // Recharts calls a tick formatter with (value, index); a page's formatter may
+                    // read a second parameter of its own, such as pct's decimals, so it gets the value alone.
+                    tickFormatter={(value: number) => (yTickFormatter ?? formatValue)(value)}
                     tick={TICK}
                   />
                 </>

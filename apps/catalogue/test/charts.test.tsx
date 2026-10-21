@@ -482,4 +482,13 @@ describe("chart cards", { timeout: 60_000 }, () => {
       "cap 30%",
     ]);
   });
+
+  it("a value formatter is called with the value alone, so its own second parameter keeps its default", async () => {
+    const chart = card("Return against the index");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    // pct(value, fractionDigits = 1): handed Recharts' tick index as its second argument it would print 0, 1, 2… decimals.
+    for (const tick of await ticks.allTextContents()) expect(tick).toMatch(/^-?\d+\.\d%$/);
+  });
 });
