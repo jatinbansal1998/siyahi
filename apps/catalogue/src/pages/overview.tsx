@@ -5,7 +5,7 @@ import type { Page } from "../page";
 const RULES = [
   "A card holds data, prose sits on the page. One level of card.",
   "A stat tile is SectionCards from shadcn's dashboard block: muted label, outline badge, value, bold line, muted line.",
-  "Charts: area, bar or line, chart tokens only, dashed horizontal grid, legend below, range or mode toggle top right. Fixed pixel height.",
+  "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws the dashed horizontal grid, the tooltip and the legend below; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
   "Tables are the registry data table, inside a Card.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
   "Four meaning colours: positive, negative, warning, link. Nothing else is coloured.",
@@ -71,8 +71,8 @@ export const overview: Page = {
           </Lead>
           <Code>{INSTALL}</Code>
           <p className="max-w-prose">
-            Everything comes from one import path, <code className="font-mono">@siyahi/ui</code>, including the Recharts
-            pieces charts are composed from. Add lucide-react only if your own code imports icons.
+            Everything comes from one import path, <code className="font-mono">@siyahi/ui</code>, including the chart
+            cards. Add lucide-react only if your own code imports icons.
           </p>
           <p className="max-w-prose">
             <code className="font-mono">preloadFonts()</code> has the built page fetch Geist with its scripts rather

@@ -12,10 +12,11 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            shadcn's chart over Recharts. Chart tokens only, a dashed horizontal grid, the legend below, a range toggle
-            top right. Give each series a colour with color: "var(--chart-n)", never a theme map: shadcn's chart applies
-            a map's dark half under a .dark class Siyahi never sets, while the variable already follows the scheme. The
-            lint rule siyahi/no-chart-theme-map catches it.
+            AreaChartCard: values over an ordered axis (months, days, hours) as filled areas, such as a portfolio's
+            value against the money put in. Pass rows, the axis field as xKey and the series; the card draws the axes,
+            the dashed grid, Geist Mono ticks, a tooltip naming the hovered point with each series' formatted value, and
+            the legend below. Areas overlap; stacked adds them into a total. A range toggle goes in action, top right.
+            For ranked counts by category, with no order between the rows, use the BarList under Ranked list instead.
           </Lead>
           <Example name="chart-area" />
         </>
@@ -27,11 +28,15 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            Categorical series take the slots --chart-1 to --chart-5 in order. Each slot reaches 3:1 against the card
-            and the slots next to it; slots two apart share a lightness and are told apart by hue, so do not skip slots.
-            Past five, fold the rest into "Other" in --muted-foreground.
+            BarChartCard: values over an ordered axis as bars, one series or several, grouped side by side or stacked.
+            Use it when the axis has an order of its own, such as quarters, hours of day or price buckets; for a ranked
+            list (a name, a bar and a figure per row, largest first) use BarList. Series take the slots --chart-1 to
+            --chart-5 in order: each reaches 3:1 against the card and the slots next to it, and slots two apart share a
+            lightness and differ by hue, so do not skip slots. Past five, fold the rest into "Other" in
+            --muted-foreground. xFormatter writes the axis and the tooltip's heading, here an hour as 09:00.
           </Lead>
           <Example name="chart-bar" />
+          <Example name="chart-bar-hourly" />
         </>
       ),
     },
@@ -41,9 +46,11 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            Reference lines mark a level such as zero or a target. A mode toggle sits top right; on a card narrower than
-            about 430px it drops under the title and description, left-aligned, so a toggle with longer labels is never
-            cut off at the card's edge. A lone badge, like a stat tile's, stays top right.
+            LineChartCard: values over an ordered axis as lines, for comparing series such as a portfolio against its
+            index. A level of zero gets a reference line whenever a value goes below it. valueFormatter writes the
+            tooltip's figures and yTickFormatter the shorter axis ticks. A mode toggle sits top right; on a card
+            narrower than about 430px it drops under the title and description, left-aligned, so a toggle with longer
+            labels is never cut off at the card's edge. Not for ranked categories: that is BarList.
           </Lead>
           <Example name="chart-line" />
         </>
@@ -114,8 +121,10 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            dashboardcn's bar list, for "needs attention" and top-N lists. An item's detail, such as a Delta, sits after
-            its label in its own colour; a long label truncates before the detail does.
+            dashboardcn's bar list, for "needs attention" and top-N lists: ranked counts or amounts by category, where
+            each row is a name, a bar and a figure. Values over an ordered axis such as time go in BarChartCard. An
+            item's detail, such as a Delta, sits after its label in its own colour; a long label truncates before the
+            detail does.
           </Lead>
           <Example name="bar-list" />
         </>
