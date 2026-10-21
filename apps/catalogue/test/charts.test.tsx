@@ -115,6 +115,23 @@ async function hoverEachBar(title: string, expected: string[][]): Promise<void> 
   }
 }
 
+/**
+ * Where Q1's bar of each series starts, once the bars stop moving. Recharts draws each
+ * series in its own layer, one bar per quarter in axis order, so the first bar of every
+ * layer is Q1's, however many quarters there are: five places when grouped, one when stacked.
+ */
+async function q1Lefts(chart: Locator): Promise<Set<number>> {
+  await settled(chart.locator(".recharts-bar-rectangle"));
+  const lefts = await chart
+    .locator(".recharts-bar")
+    .evaluateAll((layers) =>
+      layers.map((layer) =>
+        Math.round(layer.querySelector(".recharts-bar-rectangle")?.getBoundingClientRect().left ?? NaN),
+      ),
+    );
+  return new Set(lefts);
+}
+
 const quarterLines = (quarter: string, ...values: string[]) => [
   quarter,
   ...["Equity", "Debt", "Gold", "Cash", "REITs"].flatMap((label, i) => [label, values[i] ?? ""]),
@@ -170,34 +187,21 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("the quarterly bar example starts grouped and stacks on Stacked", async () => {
+    // A fresh page, so the default is what this reads and not a layout an earlier test chose.
+    await page.reload();
     const chart = card("Money invested by quarter");
     await chart.scrollIntoViewIfNeeded();
-    const bars = chart.locator(".recharts-bar-rectangle");
-    // Recharts draws each series in its own layer, one bar per quarter in axis order,
-    // so the first bar of every layer is Q1's, however many quarters there are.
-    const q1Lefts = async (): Promise<Set<number>> => {
-      await settled(bars);
-      const lefts = await chart
-        .locator(".recharts-bar")
-        .evaluateAll((layers) =>
-          layers.map((layer) =>
-            Math.round(layer.querySelector(".recharts-bar-rectangle")?.getBoundingClientRect().left ?? NaN),
-          ),
-        );
-      return new Set(lefts);
-    };
-    expect((await q1Lefts()).size).toBe(5);
+    expect((await q1Lefts(chart)).size).toBe(5);
     await chart.getByRole("button", { name: "Stacked" }).click();
-    expect((await q1Lefts()).size).toBe(1);
+    expect((await q1Lefts(chart)).size).toBe(1);
   });
 
   it("the quarterly bar example's stacked tooltip lists every series at the hovered quarter", async () => {
     const chart = card("Money invested by quarter");
     await chart.scrollIntoViewIfNeeded();
-    // Pressing the selected item keeps it, so this stacks whatever ran before.
     await chart.getByRole("button", { name: "Stacked" }).click();
-    const bars = chart.locator(".recharts-bar-rectangle");
-    await settled(bars);
+    // Grouped and stacked tooltips list the same figures, so prove the bars are stacked first.
+    expect((await q1Lefts(chart)).size).toBe(1);
     const q1Equity = chart.locator(".recharts-bar").first().locator(".recharts-bar-rectangle").first();
     const { x, y } = await center(q1Equity);
     expect(await tooltipAt(chart, x, y, "Q1")).toEqual(
