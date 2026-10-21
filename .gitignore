@@ -8,4 +8,4 @@ cls/
 packages/tools/types/
 .wrangler/
 *.tsbuildinfo
-release/
+/release/

@@ -88,7 +88,8 @@ for every page you changed in the pull request, light and dark, 1920 and 390.
 ## Releases
 
 Every merge to `main` publishes both packages as `<version>-next.<n>`, unless
-it changes only `docs/**` or root `*.md` (README, CHANGELOG, CONTRIBUTING, …):
+it changes only `docs/**`, root `*.md` (README, CHANGELOG, CONTRIBUTING, …) or
+the agent skills under `.agents/**` and `.claude/**`:
 those ship nothing, so `publish.yml` does not run, while CI still checks them.
 Files under `packages/` always publish, including the copy of the root README
 that `pnpm generate` writes to `packages/ui/README.md`.
