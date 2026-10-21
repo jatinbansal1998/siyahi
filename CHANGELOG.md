@@ -34,6 +34,34 @@ Page parts that dash and The Book built for themselves. Published as
   locale's grouping, `1,53,110`.
 - The catalogue's code samples are code blocks with a copy button, and a new
   Page layout page shows the page parts.
+- The chart cards cover what the Dell page and The Book still drew with raw
+  Recharts:
+  - `footer`, lines under the chart in the card's footer.
+  - `placeholder`, shown in the plot's place, at its height, while data loads
+    or after it failed.
+  - `referenceLines`, labelled limits (a `y`, dashed) and events (an `x`,
+    solid), with an `emphasis` and a label corner.
+  - `xDomain` and `xTicks` on the line and area cards: a numeric x axis, so a
+    mark can sit between samples.
+  - `xTooltipFormatter`, a tooltip heading fuller than the tick.
+  - `yDomain` and `yTicks`, a fixed value axis such as 0 to 100%.
+  - `curve: "linear"` on the line and area cards, for measured samples.
+  - `xLabel` and `yLabel`, axis titles.
+  - `xTickDetail`, a second line under each x tick from its row.
+  - `var(--positive)` and `var(--negative)` as series colours, and a series'
+    `negativeColor` for its bars below zero.
+  - `selected` and `onSelect` on `BarChartCard`: a click on a bar picks its
+    category and fades the rest.
+  - `horizontal` on `BarChartCard`: bars sideways, categories down the left.
+- `DistributionBar`, from dashboardcn's `distribution-bar`: one stacked bar
+  with a legend. `max` (and `min`) fix its scale, a segment below zero stacks
+  left of zero, `markers` draw labelled lines at limits, and `highlighted` and
+  `onHover` drive a readout.
+- `BarList` takes `max`, so two lists share one scale.
+- 2026-10-22: raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
+  `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) stay
+  until dash's pages, the Dell page included, and The Book move to the chart
+  cards and `DistributionBar`; remove after.
 
 ## 0.1.8
 

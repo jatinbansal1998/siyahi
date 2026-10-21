@@ -104,7 +104,11 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 | Counts or amounts per period, one series or several                     | `BarChartCard`; `stacked` when the series add up to a total         |
 | A running level, such as a portfolio's value against money put in       | `AreaChartCard`                                                     |
 | Series compared point by point, such as a return against an index       | `LineChartCard`                                                     |
-| Ranked counts or amounts by category (a name, a bar and a figure)       | `BarList`                                                           |
+| Samples in time with limits and events marked                           | `LineChartCard` with `xDomain`, `xTicks` and `referenceLines`       |
+| Long category names, such as sectors                                    | `BarChartCard` with `horizontal`                                    |
+| A gain above zero and a loss below it                                   | a series with `color` and `negativeColor`                           |
+| Ranked counts or amounts by category (a name, a bar and a figure)       | `BarList`; give two lists one `max` to share a scale                |
+| Where a budget sits, a split of a whole, or losses against gains        | `DistributionBar`                                                   |
 | Headline figures with their change                                      | `SectionCards`, with a `Delta` in each badge                        |
 | One instrument's price history                                          | `PriceChart`                                                        |
 | Holdings sized by weight and coloured by change                         | `Treemap`                                                           |
@@ -125,7 +129,10 @@ The three chart cards take the rows, the field the x axis reads and the series,
 and own everything else: the card and its header action (a range or mode
 toggle), the axes, the dashed horizontal grid, Geist Mono ticks, a tooltip that
 names the hovered point and gives each series' formatted value, and the legend
-below. A page never puts Recharts axes, grids or tooltips together itself.
+below. Props cover the rest: a footer, a placeholder while data loads,
+reference lines, a numeric x axis, a fixed value axis, axis titles, a second
+line under each tick, a picked category, sideways bars and straight segments.
+A page never puts Recharts axes, grids or tooltips together itself.
 
 ```tsx
 <BarChartCard
