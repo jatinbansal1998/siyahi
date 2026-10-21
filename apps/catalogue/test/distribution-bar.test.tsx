@@ -1,0 +1,117 @@
+// @vitest-environment happy-dom
+import { DistributionBar, type DistributionSegment } from "@siyahi/ui";
+import { act } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+
+declare global {
+  var IS_REACT_ACT_ENVIRONMENT: boolean;
+}
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+let root: Root | undefined;
+
+afterEach(async () => {
+  await act(async () => root?.unmount());
+  document.body.replaceChildren();
+});
+
+async function render(element: React.ReactElement): Promise<void> {
+  root = createRoot(document.body.appendChild(document.createElement("div")));
+  await act(async () => root?.render(element));
+}
+
+const segments = () => [...document.querySelectorAll<HTMLElement>('[data-slot="distribution-segment"]')];
+const placed = () => segments().map((s) => [s.style.left, s.style.width]);
+const legend = () => [...document.querySelectorAll("li")].map((li) => li.textContent);
+
+describe("DistributionBar", () => {
+  it("splits the bar by share of the total when it has no max, as upstream does", async () => {
+    await render(
+      <DistributionBar
+        segments={[
+          { name: "Winners", value: 30 },
+          { name: "Losers", value: 10 },
+        ]}
+      />,
+    );
+    expect(placed()).toEqual([
+      ["0%", "75%"],
+      ["75%", "25%"],
+    ]);
+    expect(legend()).toEqual(["Winners75.0%", "Losers25.0%"]);
+  });
+
+  it("draws on a fixed scale with max, leaving the rest of the track empty, and gives values in the legend", async () => {
+    await render(
+      <DistributionBar
+        max={10}
+        valueFormatter={(v) => `${v} GiB`}
+        segments={[
+          { name: "Under High", value: 3 },
+          { name: "Over High", value: 2 },
+        ]}
+      />,
+    );
+    expect(placed()).toEqual([
+      ["0%", "30%"],
+      ["30%", "20%"],
+    ]);
+    expect(legend()).toEqual(["Under High3 GiB", "Over High2 GiB"]);
+  });
+
+  it("stacks a negative segment leftward from zero on a scale that runs below it", async () => {
+    await render(
+      <DistributionBar
+        min={-10}
+        max={10}
+        showLegend={false}
+        segments={[
+          { name: "INFY", value: 4 },
+          { name: "ITC", value: -3 },
+          { name: "TCS", value: 2 },
+          { name: "WIPRO", value: -1 },
+        ]}
+      />,
+    );
+    expect(placed()).toEqual([
+      ["50%", "20%"],
+      ["35%", "15%"],
+      ["70%", "10%"],
+      ["30%", "5%"],
+    ]);
+  });
+
+  it("draws each marker as a labelled line at its value", async () => {
+    await render(
+      <DistributionBar max={10} markers={[{ at: 8, label: "Max" }]} segments={[{ name: "Used", value: 5 }]} />,
+    );
+    const line = document.querySelector<HTMLElement>('[data-slot="distribution-marker"]');
+    const label = [...document.querySelectorAll<HTMLElement>("span")].find((s) => s.textContent === "Max");
+    expect(line?.style.left).toBe("80%");
+    expect(label?.style.left).toBe("80%");
+  });
+
+  it("fades every segment but the highlighted one, and reports the segment under the pointer", async () => {
+    const onHover = vi.fn<(segment: DistributionSegment | null) => void>();
+    await render(
+      <DistributionBar
+        showLegend={false}
+        highlighted="itc-dhan"
+        onHover={onHover}
+        segments={[
+          { name: "ITC", key: "itc-kite", value: 3 },
+          { name: "ITC", key: "itc-dhan", value: 2 },
+        ]}
+      />,
+    );
+    expect(segments().map((s) => s.style.opacity)).toEqual(["0.35", "1"]);
+    await act(async () => {
+      segments()[1]?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, relatedTarget: document.body }));
+      segments()[1]?.parentElement?.dispatchEvent(
+        new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body }),
+      );
+    });
+    expect(onHover.mock.calls.map(([s]) => s?.key ?? null)).toEqual(["itc-dhan", null]);
+  });
+});

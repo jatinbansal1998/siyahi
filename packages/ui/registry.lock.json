@@ -42,6 +42,14 @@
       "sha256": "bc19cf1f5e486fa11273e7d7ed620eb7b82ba360f72e5a15e6bf488f992d16ce"
     },
     {
+      "file": "src/components/registry/dashboardcn/distribution-bar.tsx",
+      "registry": "@dashboardcn/distribution-bar",
+      "origin": "https://dashboardcn.com/r/distribution-bar.json",
+      "licence": "MIT, Copyright (c) 2026 dashboardcn contributors, https://github.com/NoahGdev/dashboardcn/blob/main/LICENSE",
+      "copied": "2026-10-22",
+      "sha256": "9028368f1363732cef765dabad2eca3ba98b608f1e237123b09df701c41c8b5a"
+    },
+    {
       "file": "src/components/registry/heatmap/calendar-heatmap.tsx",
       "registry": "@heatmap/calendar-heatmap",
       "origin": "https://shadcn-heatmap.pages.dev/r/calendar-heatmap.json",

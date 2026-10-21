@@ -163,6 +163,23 @@ export const data: Page = {
       ),
     },
     {
+      id: "stacked-bar",
+      title: "Stacked bar",
+      body: (
+        <>
+          <Lead>
+            dashboardcn's distribution bar: one bar split into segments, with a legend that gives each one's share, or
+            its value when the bar has a fixed scale. max fixes that scale, for a budget or a capacity the segments do
+            not fill, and markers draw a labelled line at a limit. With a min below zero, a negative segment stacks
+            leftward from zero, so losses and gains pull against each other; highlighted and onHover drive a readout
+            from the segment under the pointer. For a ranked list of categories, use BarList.
+          </Lead>
+          <Example name="distribution-bar-budget" />
+          <Example name="distribution-bar-tug" />
+        </>
+      ),
+    },
+    {
       id: "delta",
       title: "Delta",
       body: (
