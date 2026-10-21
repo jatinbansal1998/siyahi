@@ -61,6 +61,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
   xTooltipFormatter = xFormatter,
   valueFormatter,
   yTickFormatter,
+  yDomain,
+  yTicks,
   height,
   referenceLines = [],
   placeholder,
@@ -103,6 +105,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 tickLine={false}
                 axisLine={false}
                 width="auto"
+                domain={yDomain}
+                ticks={yTicks as number[] | undefined}
                 tickFormatter={yTickFormatter ?? formatValue}
                 tick={{ className: "font-mono" }}
               />

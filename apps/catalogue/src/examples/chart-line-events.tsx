@@ -31,6 +31,8 @@ export default function ChartLineEventsExample() {
       xTooltipFormatter={(second) => `${clock(second)} IST, 10 s average`}
       series={series}
       valueFormatter={(v) => `${v}%`}
+      yDomain={[0, 100]}
+      yTicks={[0, 25, 50, 75, 100]}
       referenceLines={[
         { y: 80, label: "old limit, 80%" },
         { y: 50, label: "new limit, 50%", emphasis: "strong" },

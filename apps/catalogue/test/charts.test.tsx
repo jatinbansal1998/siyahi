@@ -275,4 +275,17 @@ describe("chart cards", { timeout: 60_000 }, () => {
       "66%",
     ]);
   });
+
+  it("a fixed y domain and ticks hold the value axis at 0 to 100%", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    expect(await ticks.allTextContents()).toEqual(["0%", "25%", "50%", "75%", "100%"]);
+    // The 80% limit sits a fifth of the way down from the top of a 0 to 100 axis.
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    const limit = await chart.locator(".recharts-reference-line line").first().boundingBox();
+    if (!grid || !limit) throw new Error("not laid out");
+    expect(limit.y).toBeCloseTo(grid.y + 0.2 * grid.height, 0);
+  });
 });
