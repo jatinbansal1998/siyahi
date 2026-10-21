@@ -58,6 +58,17 @@ Page parts that dash and The Book built for themselves. Published as
   left of zero, `markers` draw labelled lines at limits, and `highlighted` and
   `onHover` drive a readout.
 - `BarList` takes `max`, so two lists share one scale.
+- Stacked bar cards stack by sign: money out sits below zero rather than
+  hanging from the top of money in.
+- Chart ticks take the theme's muted colour. Recharts 3.8 draws tick labels in
+  a layer the core chart's muted-tick rule no longer reaches, so every tick
+  was Recharts' fixed `#666` in light and dark.
+- A chart card calls its value formatter with the value alone. Recharts calls
+  a tick formatter as `(value, index)`, so `useFormat().pct` read the index as
+  its decimals and `count` as its locale.
+- `CopyButton`, from MiniDev's `copy-button`: an outline button with a label,
+  such as "Copy all", that reads "Copied" with a check for 2 s.
+  `CodeBlockCopyButton` stays the icon-only one inside a code block.
 - 2026-10-22: raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
   `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) stay
   until dash's pages, the Dell page included, and The Book move to the chart

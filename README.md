@@ -121,6 +121,7 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 | One part of a long page: rule, eyebrow, heading, lead, action           | `PageSection`, with `PageSubheading` inside                         |
 | Label and value pairs, such as a record's fields                        | `DataList` and `DataListItem`                                       |
 | A command or file to copy, wrapped or scrolling                         | `CodeBlock` with `CodeBlockCopyButton`                              |
+| A labelled copy action, such as "Copy all" for a section                | `CopyButton`                                                        |
 | A command, file or identifier inside prose                              | `InlineCode`                                                        |
 | A signed figure (a gain, a loss, a change)                              | `Delta`                                                             |
 | A time, with the viewer's own clock on hover                            | `LocalTime`                                                         |
