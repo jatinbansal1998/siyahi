@@ -521,6 +521,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
     await settled(bars);
+    expect(await bars.count()).toBeGreaterThan(0);
     expect(await chart.locator('.recharts-bar-rectangle path[name="Net realized"]').count()).toBe(await bars.count());
     expect(await page.locator('.recharts-surface [name="undefined"]').count()).toBe(0);
   });

@@ -54,7 +54,7 @@ interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesCha
 export function seriesFill<T>(item: ChartSeriesItem<T>, data: readonly T[]): ChartColor {
   const values = data
     .map((row) => row[item.key as keyof T])
-    .filter((value) => value != null)
+    .filter((value) => Number.isFinite(value))
     .map(Number);
   return item.negativeColor && values.length > 0 && values.every((value) => value < 0)
     ? item.negativeColor

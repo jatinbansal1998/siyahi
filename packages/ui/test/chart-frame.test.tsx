@@ -31,6 +31,7 @@ describe("seriesFill", () => {
 
   it("skips a row with no value, so one empty year does not turn the chip back", () => {
     expect(seriesFill(net, [{ net: -3 }, { net: null }, { net: -1 }])).toBe("var(--negative)");
+    expect(seriesFill(net, [{ net: -3 }, { net: Number.NaN }])).toBe("var(--negative)");
   });
 
   it("keeps the series colour when any value is at or above zero", () => {
