@@ -20,6 +20,8 @@ import {
 } from "@siyahi/ui/components/ui/chart";
 import type { ChartSeries, NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
+const AXIS_TITLE = "fill-muted-foreground text-xs";
+
 interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesChartProps<T, K>, NumericXProps {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
   /** One Bar, Area or Line per series. */
@@ -64,6 +66,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
   yDomain,
   yTicks,
   height,
+  xLabel,
+  yLabel,
   referenceLines = [],
   placeholder,
   footer,
@@ -95,6 +99,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 type={xDomain ? "number" : "category"}
                 domain={xDomain}
                 ticks={xTicks as number[] | undefined}
+                height={xLabel ? 48 : undefined}
+                label={xLabel ? { value: xLabel, position: "insideBottom", className: AXIS_TITLE } : undefined}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -107,6 +113,17 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 width="auto"
                 domain={yDomain}
                 ticks={yTicks as number[] | undefined}
+                label={
+                  yLabel
+                    ? {
+                        value: yLabel,
+                        angle: -90,
+                        position: "insideLeft",
+                        style: { textAnchor: "middle" },
+                        className: AXIS_TITLE,
+                      }
+                    : undefined
+                }
                 tickFormatter={yTickFormatter ?? formatValue}
                 tick={{ className: "font-mono" }}
               />

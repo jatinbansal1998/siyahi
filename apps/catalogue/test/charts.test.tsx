@@ -297,4 +297,27 @@ describe("chart cards", { timeout: 60_000 }, () => {
     // A straight-segment path has only move and line commands; a monotone one has cubic curves (C).
     expect(await path.getAttribute("d")).toMatch(/^M[\d.,\sL-]+$/);
   });
+
+  it("axis titles sit under the x ticks and beside the y ticks, read bottom to top", async () => {
+    const chart = card("Orders by hour");
+    await chart.scrollIntoViewIfNeeded();
+    // Recharts draws an axis title as text with the class it is given, in a layer of its own.
+    const titles = chart.locator("text.recharts-text.fill-muted-foreground");
+    await settled(titles);
+    const drawn = await titles.evaluateAll((els) =>
+      els.map((el) => ({
+        text: el.textContent,
+        transform: el.getAttribute("transform"),
+        box: el.getBoundingClientRect().toJSON(),
+      })),
+    );
+    const x = drawn.find((t) => t.text === "Hour of day (IST)");
+    const y = drawn.find((t) => t.text === "Orders");
+    const xTicks = await chart.locator(".recharts-xAxis-tick-labels").boundingBox();
+    const yTicks = await chart.locator(".recharts-yAxis-tick-labels").boundingBox();
+    if (!x || !y || !xTicks || !yTicks) throw new Error(`titles not drawn: ${JSON.stringify(drawn)}`);
+    expect(x.box.top).toBeGreaterThanOrEqual(xTicks.y + xTicks.height - 1);
+    expect(y.transform).toContain("rotate(-90");
+    expect(y.box.right).toBeLessThanOrEqual(yTicks.x + 1);
+  });
 });

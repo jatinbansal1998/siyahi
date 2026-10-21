@@ -63,6 +63,10 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   yTicks?: readonly number[];
   /** Height of the plot and legend, in pixels. */
   height: number;
+  /** A title under the x axis, such as "Hour of day (IST)". */
+  xLabel?: string;
+  /** A title beside the value axis, read bottom to top, such as "Orders". */
+  yLabel?: string;
   /** Limits and events to mark on the plot. A zero line draws by itself when a value goes below zero. */
   referenceLines?: readonly ChartReferenceLine[];
   /** Shown in the plot's place, at its height, while the data loads or after it failed to. */
