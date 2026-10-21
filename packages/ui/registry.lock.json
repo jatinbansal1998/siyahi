@@ -74,6 +74,14 @@
       "sha256": "b7af6139e3764e1479880fb232988e758edb27ce4e4280d9e0349cbdf9b3d30c"
     },
     {
+      "file": "src/components/registry/minidev/copy-button.tsx",
+      "registry": "@minidev/copy-button",
+      "origin": "https://ui.minidev.pro/r/copy-button.json",
+      "licence": "MIT, Copyright (c) 2026 MiniDev, https://github.com/amankaushik481/minidev-ui/blob/main/LICENSE",
+      "copied": "2026-10-22",
+      "sha256": "67f491ea6c947ebf3bf058423a373347badd49ad07861e022599ebdbb11cab44"
+    },
+    {
       "file": "src/components/registry/niko-table/components/data-table-column-actions.tsx",
       "registry": "@niko-table/data-table",
       "origin": "https://niko-table.com/r/data-table.json",
