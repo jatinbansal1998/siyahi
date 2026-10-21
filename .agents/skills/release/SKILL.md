@@ -31,8 +31,9 @@ description: >
 - **Manual:** the base version bump (in the PR), the catalogue deploy, and the
   consumer bumps.
 - **1.0.0 / stable:** `publish.yml` says stable versions are "cut by hand", but
-  no procedure exists and none has been done. Don't invent one; ask. Its first
-  run must also delete the "Point latest at this pre-release" step.
+  no procedure exists and none has been done. Don't invent one; ask. The PR
+  that cuts the first stable version also deletes the "Point latest at this
+  pre-release" step from `publish.yml`.
 
 ## In the PR
 
@@ -41,9 +42,8 @@ description: >
    match or `next-version.mjs` fails). PR title starts with it: `0.1.8: …`.
 2. Add or extend the `## 0.1.x` section at the top of `CHANGELOG.md`
    ("Published as `0.1.x-next.<n>` pre-releases.").
-3. `pnpm check`. For UI changes, screenshots of the built catalogue:
-   `pnpm --filter @siyahi/catalogue build && pnpm --filter @siyahi/catalogue preview`,
-   then `pnpm shots http://localhost:4173/` and attach them to the PR.
+3. Run CONTRIBUTING.md "Before a pull request" (`pnpm check`, plus shots for
+   UI changes).
 4. Several PRs for one base: merge one, rebase the next on `main`, re-run
    `pnpm check`. The usual conflict is `CHANGELOG.md`: keep both entries under
    one heading.
@@ -53,13 +53,22 @@ description: >
 ```bash
 R=jatinbansal1998/siyahi
 gh pr merge <n> --repo $R --squash --delete-branch --match-head-commit <head-sha>
-gh run list --repo $R --workflow publish.yml --limit 3      # find the new run
-gh run watch <run-id> --repo $R --exit-status                # ~2.5 min
+sha=$(gh pr view <n> --repo $R --json mergeCommit -q .mergeCommit.oid)
+gh run list --repo $R --workflow publish.yml --commit "$sha"   # repeat until it appears
+gh run watch <run-id> --repo $R --exit-status                   # ~2.5 min
+gh release list --repo $R --limit 3                             # the new v<VER> tag
 gh run view <run-id> --repo $R --log | grep "Published package"
 ```
 
-The last line prints `✅ Published package @siyahi/ui@<version>` and the same for
-tools; that `<version>` is `VER` below.
+- No Publish run for `$sha` (docs or skill-only merge): nothing was published.
+  Stop here.
+- Run red: stop and report. Do not deploy the catalogue; `deploy:catalogue`
+  only builds, it does not run the tests.
+- `VER` is the new `v*` release tag without the `v`. If the grep prints no
+  `✅ Published package @siyahi/…@<VER>` lines, npm failed (see Gotchas).
+- If the merge touched neither `packages/` nor `apps/catalogue/` (for example a
+  workflow or `.gitignore` change), the release is content-identical: skip the
+  catalogue deploy and the consumer bumps.
 
 Then the catalogue, from the main checkout, clean and on `main`:
 
@@ -92,7 +101,8 @@ curl -s "https://siyahi.jatinbansal.com$js" | grep -o '<string unique to this ch
 # pass: more than 0 (0.1.7 used "Accordion": 17)
 ```
 
-For layout changes, also `pnpm shots https://siyahi.jatinbansal.com/`.
+For layout changes, also `pnpm shots https://siyahi.jatinbansal.com/`; for font
+or loading changes, `node packages/tools/cls.mjs https://siyahi.jatinbansal.com/`.
 
 ## After the release (separate repos, describe, don't do here)
 
@@ -101,7 +111,9 @@ For layout changes, also `pnpm shots https://siyahi.jatinbansal.com/`.
    `report.css` changed, run `siyahi/scripts/refresh-report-css.sh <VER>`.
    After that PR merges, `./install.sh siyahi`.
 2. dash (`~/code/dash`): set `@siyahi/ui` and `@siyahi/tools` to the exact
-   `<VER>`, no caret, the same for both. Follow dash's own release skill.
+   `<VER>`, no caret, the same for both, in a dash PR. Dash's release skill is
+   in open PR jatinbansal1998/dash#91; until it merges: merging to dash `main`
+   deploys through Cloudflare Workers Builds.
 
 ## Gotchas
 
@@ -126,5 +138,11 @@ For layout changes, also `pnpm shots https://siyahi.jatinbansal.com/`.
   same for `@siyahi/tools`). Needs an npm login with publish rights on `@siyahi`.
 - Consumers pin the previous exact version; every `next.N` stays on npm and as
   a `v*` GitHub release.
-- Catalogue: `wrangler rollback <version-id>` from `apps/catalogue`, or
-  redeploy from the older commit.
+- Catalogue: use the repo's wrangler and the `.env` token, not the global
+  `wrangler` (other version, OAuth login). `<version-id>` is the
+  `Current Version ID` of the older deploy, or one from `deployments list`:
+
+  ```bash
+  cd ~/code/siyahi/apps/catalogue
+  (set -a; . ../../.env; set +a; pnpm exec wrangler deployments list; pnpm exec wrangler rollback <version-id>)
+  ```
