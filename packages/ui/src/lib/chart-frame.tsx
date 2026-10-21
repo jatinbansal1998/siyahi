@@ -19,7 +19,14 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@siyahi/ui/components/ui/chart";
-import type { ChartReferenceLine, ChartSeries, NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
+import type {
+  ChartColor,
+  ChartReferenceLine,
+  ChartSeries,
+  ChartSeriesItem,
+  NumericXProps,
+  SeriesChartProps,
+} from "@siyahi/ui/lib/chart-series";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 // Recharts 3.8 draws tick labels in a layer of their own, which the core chart's
@@ -38,6 +45,17 @@ interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesCha
   horizontal?: boolean;
   /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
   stackOffset?: "sign";
+}
+
+/**
+ * The colour a series' Bar takes, which its legend chip shows: the negative colour when every value is below zero,
+ * since each bar's own Cell follows its sign but the chip follows the Bar.
+ */
+export function seriesFill<T>(item: ChartSeriesItem<T>, data: readonly T[]): ChartColor {
+  const values = data.map((row) => Number(row[item.key as keyof T]));
+  return item.negativeColor && values.length > 0 && values.every((value) => value < 0)
+    ? item.negativeColor
+    : item.color;
 }
 
 /** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */

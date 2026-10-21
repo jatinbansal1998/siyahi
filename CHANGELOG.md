@@ -75,6 +75,10 @@ Page parts that dash and The Book built for themselves. Published as
   of `xDomain` included: Recharts' default dropped a label it thought would
   overflow, so the Dell page lost its first one. Crowded labels squeeze to
   their column instead, and the plot keeps room on the right for the last.
+- A `BarChartCard` series whose bars are all below zero shows its
+  `negativeColor` in the legend too, and bar paths no longer carry
+  `name="undefined"`.
+- A `SectionCards` headline wraps rather than clipping to one line on a phone.
 - The raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
   `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) are
   gone. Pages draw charts with `BarChartCard`, `AreaChartCard`,

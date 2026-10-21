@@ -17,12 +17,15 @@
 // as shadcn's chart-bar-horizontal does, for long names such as sectors.
 // Siyahi edit: a stack runs negative values down from zero and positive ones
 // up, so money out sits below the line rather than hanging from money in.
+// Siyahi edit: a series whose bars are all below zero takes its negativeColor
+// as the Bar's fill, so its legend chip matches the bars; each Bar is named
+// after its series, so no bar path carries name="undefined".
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
 import { Bar, BarChart, Cell } from "recharts"
 
-import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame, seriesFill } from "@siyahi/ui/lib/chart-frame"
 import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 
 export interface BarChartCardProps<T extends object, K extends keyof T>
@@ -50,47 +53,51 @@ export function BarChartCard<T extends object, K extends keyof T>({
       {...props}
       stackOffset={stacked ? "sign" : undefined}
     >
-      {props.series.map(({ key, color, negativeColor }, index) => (
-        <Bar
-          key={key}
-          dataKey={key}
-          fill={color}
-          stackId={stacked ? "stack" : undefined}
-          radius={
-            !stacked
-              ? 2
-              : index === props.series.length - 1
-                ? props.horizontal
-                  ? [0, 2, 2, 0]
-                  : [2, 2, 0, 0]
-                : 0
-          }
-          className={onSelect ? "cursor-pointer" : undefined}
-          onClick={
-            onSelect &&
-            ((bar: { payload?: T }) => {
-              const value = bar.payload?.[props.xKey]
-              if (value !== undefined)
-                onSelect(value === selected ? null : value)
-            })
-          }
-        >
-          {(negativeColor || selected !== null) &&
-            props.data.map((row, i) => (
-              <Cell
-                key={i}
-                fill={
-                  negativeColor && Number(row[key as keyof T]) < 0
-                    ? negativeColor
-                    : color
-                }
-                fillOpacity={
-                  selected === null || row[props.xKey] === selected ? 1 : 0.35
-                }
-              />
-            ))}
-        </Bar>
-      ))}
+      {props.series.map((item, index) => {
+        const { key, label, color, negativeColor } = item
+        return (
+          <Bar
+            key={key}
+            dataKey={key}
+            name={label}
+            fill={seriesFill(item, props.data)}
+            stackId={stacked ? "stack" : undefined}
+            radius={
+              !stacked
+                ? 2
+                : index === props.series.length - 1
+                  ? props.horizontal
+                    ? [0, 2, 2, 0]
+                    : [2, 2, 0, 0]
+                  : 0
+            }
+            className={onSelect ? "cursor-pointer" : undefined}
+            onClick={
+              onSelect &&
+              ((bar: { payload?: T }) => {
+                const value = bar.payload?.[props.xKey]
+                if (value !== undefined)
+                  onSelect(value === selected ? null : value)
+              })
+            }
+          >
+            {(negativeColor || selected !== null) &&
+              props.data.map((row, i) => (
+                <Cell
+                  key={i}
+                  fill={
+                    negativeColor && Number(row[key as keyof T]) < 0
+                      ? negativeColor
+                      : color
+                  }
+                  fillOpacity={
+                    selected === null || row[props.xKey] === selected ? 1 : 0.35
+                  }
+                />
+              ))}
+          </Bar>
+        )
+      })}
     </ChartFrame>
   )
 }

@@ -513,4 +513,11 @@ describe("chart cards", { timeout: 60_000 }, () => {
       }
     }
   });
+
+  it("bar paths carry no name attribute of undefined", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    await settled(chart.locator(".recharts-bar-rectangle path"));
+    expect(await chart.locator('.recharts-bar-rectangle path[name="undefined"]').count()).toBe(0);
+  });
 });
