@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.1.8
+
+Chart components that take data as props. Published as `0.1.8-next.<n>`
+pre-releases.
+
+- `BarChartCard`, `AreaChartCard` and `LineChartCard`, from shadcn's
+  `chart-bar-multiple`, `chart-area-stacked` and `chart-line-multiple` blocks.
+  A page passes `data`, the `xKey` its x axis reads, the `series` (a label and
+  a chart token each, drawn in key order), `valueFormatter`, `xFormatter`,
+  optional `yTickFormatter` and a pixel `height`; a range or mode toggle goes
+  in `action`, which sits in the card's `CardAction`. The card owns the axes,
+  the dashed horizontal grid, Geist Mono ticks, the tooltip and the legend
+  below. The tooltip's heading is read from the hovered row, so it names the
+  category even when the axis holds numbers such as hours: stock
+  `ChartTooltipContent` falls back to the series label there, the "Count on
+  every row" bug of dash#88. Bars group or `stacked`; areas overlap or
+  `stacked`. A zero line draws when a value goes below zero. `ChartSeries`,
+  `ChartSeriesItem`, `ChartColor` and `SeriesChartProps` type them; a series
+  colour is one of `var(--chart-1)` to `var(--chart-5)` or
+  `var(--muted-foreground)`, so a theme map or a hex value does not compile.
+- The catalogue's area, bar and line examples use them, and a new hourly bar
+  example shows a numeric axis. Each entry says when to use it and when to use
+  `BarList` (ranked counts by category) instead.
+- The README has a "Which component" table: need → component.
+- 2026-10-21: raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
+  `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) stay
+  until dash pages move to the chart components; remove after.
+
 ## 0.1.7
 
 Published as `0.1.7-next.<n>` pre-releases.
