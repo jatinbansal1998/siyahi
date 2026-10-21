@@ -154,9 +154,11 @@ export const data: Page = {
             dashboardcn's bar list, for "needs attention" and top-N lists: ranked counts or amounts by category, where
             each row is a name, a bar and a figure. Values over an ordered axis such as time go in BarChartCard. An
             item's detail, such as a Delta, sits after its label in its own colour; a long label truncates before the
-            detail does.
+            detail does. max sets the value a full bar stands for: give two lists the same max, as the gains and losses
+            here, and they share one scale.
           </Lead>
           <Example name="bar-list" />
+          <Example name="bar-list-sides" />
         </>
       ),
     },

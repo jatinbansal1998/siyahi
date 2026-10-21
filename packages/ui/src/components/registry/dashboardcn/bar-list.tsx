@@ -4,6 +4,8 @@
 // Copied: 2026-10-20, sha256 bc19cf1f5e486fa11273e7d7ed620eb7b82ba360f72e5a15e6bf488f992d16ce
 // Siyahi edit: numbers follow the SiyahiProvider locale instead of
 // dashboardcn's en-US lib/format, which is not copied.
+// Siyahi edit: max sets the value a full-width bar stands for, so two lists
+// (the biggest gains beside the biggest losses) can share one scale.
 // Siyahi edit: an item's optional detail (a secondary figure such as a Delta)
 // renders after its label, outside the link, and does not shrink, so a long
 // label truncates before the figure does.
@@ -33,6 +35,8 @@ export interface BarListProps extends React.ComponentProps<"div"> {
   color?: string
   /** Show each row's share of the total next to its value. */
   showPercentage?: boolean
+  /** The value a full-width bar stands for. Give two lists the same max to draw them on one scale. Defaults to the largest value. */
+  max?: number
   onItemClick?: (item: BarListItem) => void
 }
 
@@ -42,6 +46,7 @@ function BarList({
   sortOrder = "descending",
   color = "var(--chart-1)",
   showPercentage = false,
+  max: scale,
   onItemClick,
   className,
   ...props
@@ -56,7 +61,7 @@ function BarList({
     const sorted = [...data].sort((a, b) => a.value - b.value)
     return sortOrder === "descending" ? sorted.reverse() : sorted
   }, [data, sortOrder])
-  const max = Math.max(...items.map((item) => item.value), 0)
+  const max = scale ?? Math.max(...items.map((item) => item.value), 0)
   const total = items.reduce((sum, item) => sum + item.value, 0)
 
   return (
