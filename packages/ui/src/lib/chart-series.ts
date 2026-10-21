@@ -50,3 +50,11 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   /** Lines under the chart, such as a caption or a takeaway, in the card's footer. */
   footer?: ReactNode;
 }
+
+/** A numeric x axis, for samples in time or any measure where a mark can sit between two rows. */
+export interface NumericXProps {
+  /** The x axis runs over this range of the xKey field, which must hold numbers; without it the axis is one slot per row. */
+  xDomain?: [number, number];
+  /** Where the x axis puts its ticks, in the xKey field's units. */
+  xTicks?: readonly number[];
+}

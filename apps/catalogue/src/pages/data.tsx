@@ -57,6 +57,19 @@ export const data: Page = {
       ),
     },
     {
+      id: "limits-and-events",
+      title: "Limits and events",
+      body: (
+        <>
+          <Lead>
+            A line chart over samples in time. xDomain makes the x axis numeric, so a tick or an event can sit between
+            two samples; xTicks puts the ticks where the page wants them, here on whole minutes.
+          </Lead>
+          <Example name="chart-line-events" />
+        </>
+      ),
+    },
+    {
       id: "data-table",
       title: "Data table",
       body: (

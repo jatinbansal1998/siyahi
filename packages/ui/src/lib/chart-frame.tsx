@@ -18,9 +18,9 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@siyahi/ui/components/ui/chart";
-import type { ChartSeries, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
+import type { ChartSeries, NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
-interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesChartProps<T, K> {
+interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesChartProps<T, K>, NumericXProps {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
   /** One Bar, Area or Line per series. */
   children: ReactNode;
@@ -63,6 +63,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
   height,
   placeholder,
   footer,
+  xDomain,
+  xTicks,
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
   const formatValue = valueFormatter ?? new Intl.NumberFormat(numberLocale).format;
@@ -86,6 +88,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey={xKey as string}
+                type={xDomain ? "number" : "category"}
+                domain={xDomain}
+                ticks={xTicks as number[] | undefined}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}

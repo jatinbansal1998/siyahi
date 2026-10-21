@@ -208,4 +208,19 @@ describe("chart cards", { timeout: 60_000 }, () => {
       quarterLines("Q1", "₹1,20,000", "₹40,000", "₹15,000", "₹9,000", "₹4,000"),
     );
   });
+
+  it("a numeric x axis puts each tick at its value, not in a slot per row", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    expect(await ticks.allTextContents()).toEqual(["19:34", "19:35", "19:36", "19:37", "19:38", "19:39", "19:40"]);
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    // The domain is [0, 390]; the ticks sit at 2, 62, … 362 seconds.
+    for (const [index, value] of [2, 62, 122, 182, 242, 302, 362].entries()) {
+      const { x } = await center(ticks.nth(index));
+      expect(x).toBeCloseTo(grid.x + (value / 390) * grid.width, 0);
+    }
+  });
 });

@@ -7,17 +7,24 @@
 // Siyahi edit: the card, axes, dashed grid, tooltip and legend come from
 // lib/chart-frame, shared with BarChartCard and AreaChartCard. The axes keep
 // Recharts' default ids, which a page can no longer change (dash#88).
+// Siyahi edit: xDomain and xTicks make the x axis numeric, so a mark can sit
+// between two samples, as the Dell page's events do between 15 s samples.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
 import { Line, LineChart } from "recharts"
 
 import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
-import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
+import type { NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series"
+
+export type LineChartCardProps<
+  T extends object,
+  K extends keyof T,
+> = SeriesChartProps<T, K> & NumericXProps
 
 /** Values over an ordered axis as lines: one series, or several to compare, such as a portfolio against its index. */
 export function LineChartCard<T extends object, K extends keyof T>(
-  props: SeriesChartProps<T, K>
+  props: LineChartCardProps<T, K>
 ) {
   return (
     <ChartFrame chart={LineChart} {...props}>
