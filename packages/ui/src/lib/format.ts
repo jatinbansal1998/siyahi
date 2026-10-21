@@ -28,6 +28,11 @@ export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale
   }).format(value);
 }
 
+/** A whole count with the locale's grouping: 1,53,110 in en-IN. */
+export function count(value: number, locale: SiyahiLocale = defaultLocale): string {
+  return new Intl.NumberFormat(locale.numberLocale, { maximumFractionDigits: 0 }).format(value);
+}
+
 /** A fraction as a percentage: 0.1234 is 12.3%. */
 export function pct(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 1): string {
   return new Intl.NumberFormat(locale.numberLocale, {
@@ -60,6 +65,7 @@ export function time(
 }
 
 export interface Formatters {
+  count: (value: number) => string;
   money: (value: number, fractionDigits?: number) => string;
   moneyCompact: (value: number) => string;
   pct: (value: number, fractionDigits?: number) => string;
@@ -71,6 +77,7 @@ export function useFormat(): Formatters {
   const locale = useLocale();
   return useMemo(
     () => ({
+      count: (value) => count(value, locale),
       money: (value, fractionDigits) => money(value, locale, fractionDigits),
       moneyCompact: (value) => moneyCompact(value, locale),
       pct: (value, fractionDigits) => pct(value, locale, fractionDigits),

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { Treemap, type TreemapItem, type TreemapProps } from "@siyahi/ui";
+import { Treemap, TreemapLegend, type TreemapItem, type TreemapProps } from "@siyahi/ui";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -196,5 +196,37 @@ describe("Treemap", () => {
       "INFY",
       null,
     ]);
+  });
+});
+
+const swatch = (title: string) =>
+  [...document.querySelectorAll('[data-slot="treemap-legend-swatch"]')]
+    .find((s) => s.querySelector("title")?.textContent === title)
+    ?.querySelector("rect")?.style.fill;
+
+describe("TreemapLegend", () => {
+  // Each swatch is titled with its span; a tile inside that span must take its colour.
+  it("paints each step the colour of a tile whose change falls in its span", async () => {
+    const items = [
+      { name: "DEEP", weight: 100, change: -0.7 },
+      { name: "MID", weight: 100, change: 0.3 },
+      // 2.17 steps: ceil puts it in step 3 with MID, where rounding would drop it to step 2.
+      { name: "EDGE", weight: 100, change: 0.26 },
+      { name: "FLAT", weight: 100, change: 0 },
+    ];
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <>
+          <Treemap items={items} height={300} range={0.6} />
+          <TreemapLegend range={0.6} />
+        </>,
+      ),
+    );
+    expect(swatch("down over 48%")).toBe(fill("DEEP"));
+    expect(swatch("up 24%–36%")).toBe(fill("MID"));
+    expect(swatch("up 24%–36%")).toBe(fill("EDGE"));
+    expect(swatch("no change, or unknown")).toBe(fill("FLAT"));
+    expect(document.querySelector('[data-slot="treemap-legend"]')?.textContent).toContain("12% a step");
   });
 });

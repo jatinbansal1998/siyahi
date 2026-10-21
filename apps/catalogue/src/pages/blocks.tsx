@@ -23,6 +23,11 @@ export const blocks: Page = {
             row: four run 2 then 4 across, three and six run 3 across, five runs 3 + 2 and then 5 in a row.
           </Lead>
           <Example name="section-cards" />
+          <Lead>
+            With selected and onSelect the tiles become a picker, such as one tile per asset class that scopes the page:
+            each tile is a button that says whether it is pressed, and the picked one takes a primary ring.
+          </Lead>
+          <Example name="section-cards-select" />
         </>
       ),
     },

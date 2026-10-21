@@ -154,6 +154,14 @@
       "sha256": "8b0c9768a5f1b90d7b4e2bf467a32ca86a43d5d546653f3a64d7abea277aa68b"
     },
     {
+      "file": "src/components/registry/niko-table/components/data-table-search-filter.tsx",
+      "registry": "@niko-table/data-table-search-filter",
+      "origin": "https://niko-table.com/r/data-table-search-filter.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-22",
+      "sha256": "5aeb91ef34ff0dd87a92f1ad7ebd4500e8733b8ae30ecf836eae78304a10fad0"
+    },
+    {
       "file": "src/components/registry/niko-table/components/data-table-toolbar-section.tsx",
       "registry": "@niko-table/data-table",
       "origin": "https://niko-table.com/r/data-table.json",
@@ -256,6 +264,14 @@
       "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
       "copied": "2026-10-20",
       "sha256": "dba551593726fa342b8c61daf5e5b9c79125df391af8ed31504e7dfedf7a71ba"
+    },
+    {
+      "file": "src/components/registry/niko-table/filters/table-search-filter.tsx",
+      "registry": "@niko-table/data-table-search-filter",
+      "origin": "https://niko-table.com/r/data-table-search-filter.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-10-22",
+      "sha256": "c672763c02894a579f6cc7cddbe5fc17149b1eef484f992b9a35441b4e3b1c42"
     },
     {
       "file": "src/components/registry/niko-table/hooks/use-derived-column-title.ts",

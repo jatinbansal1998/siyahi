@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
-import { heat, layout } from "@siyahi/ui/lib/treemap";
+import { cn } from "cn";
+import { HEAT_STEPS, heat, heatFill, heatRange, layout } from "@siyahi/ui/lib/treemap";
 
 export interface TreemapItem {
   name: string;
@@ -111,6 +112,59 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
           );
         })}
       </svg>
+    </div>
+  );
+}
+
+// Painted with an SVG fill, as the tiles are, so a swatch and a tile of one step are the same colour.
+function Swatch({ label, fill }: { label: string; fill: string }) {
+  return (
+    <svg data-slot="treemap-legend-swatch" className="h-3 flex-1">
+      <title>{label}</title>
+      <rect width="100%" height="100%" rx={2} style={{ fill }} />
+    </svg>
+  );
+}
+
+export interface TreemapLegendProps {
+  /** The Treemap's own range, so each swatch matches its tiles. */
+  range?: number;
+  className?: string;
+}
+
+/** The Treemap's colour scale under the map: five steps of loss, no change, five steps of gain, deepest at the ends. */
+export function TreemapLegend({ range, className }: TreemapLegendProps) {
+  const { pct } = useFormat();
+  const step = heatRange(range) / HEAT_STEPS;
+  // Whole percentages print without a decimal; a step such as 1.2% keeps one.
+  const digits = Number.isInteger(Math.round(step * 1e6) / 1e4) ? 0 : 1;
+  const over = pct(step * (HEAT_STEPS - 1), digits);
+  const swatch = (side: "positive" | "negative", n: number) => {
+    const word = side === "positive" ? "up" : "down";
+    const label =
+      n === HEAT_STEPS ? `${word} over ${over}` : `${word} ${pct(step * (n - 1), digits)}–${pct(step * n, digits)}`;
+    return <Swatch key={`${side}-${n}`} label={label} fill={heatFill(side, n)} />;
+  };
+  const steps = Array.from({ length: HEAT_STEPS }, (_, i) => i + 1);
+  return (
+    <div
+      data-slot="treemap-legend"
+      className={cn("flex w-full max-w-xs flex-col gap-1 text-xs text-muted-foreground", className)}
+    >
+      <div className="flex gap-0.5" aria-hidden="true">
+        {steps.toReversed().map((n) => swatch("negative", n))}
+        <Swatch label="no change, or unknown" fill={heat(null)} />
+        {steps.map((n) => swatch("positive", n))}
+      </div>
+      <div className="flex justify-between gap-2 tabular-nums">
+        <span>▼ over {over}</span>
+        <span>{pct(step, digits)} a step</span>
+        <span>▲ over {over}</span>
+      </div>
+      <p className="sr-only">
+        Tile colours run in {HEAT_STEPS} steps of {pct(step, digits)} each way, deepest over {over}; a muted tile is no
+        change or unknown.
+      </p>
     </div>
   );
 }

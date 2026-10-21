@@ -63,7 +63,11 @@ export const data: Page = {
         <>
           <Lead>
             niko-table on TanStack Table: faceted filters, sorting, a pinned first column. On a phone it scrolls inside
-            its card.
+            its card. DataTableSortHeader as a column's header sorts on one click, largest (or Z) first, taking its
+            title from meta.label; DataTableColumnActions with DataTableColumnSortOptions is the menu version. In the
+            toolbar, DataTableSearchFilter is the search across columns (label names it for screen readers) and
+            DataTableRowCount, last, says how many rows the filters leave: "3 of 6", or "6 holdings" when they leave
+            all. Pass total when the page narrowed the data before the table.
           </Lead>
           <Example name="data-table" />
         </>
@@ -95,7 +99,8 @@ export const data: Page = {
             with it, or highlight the same item elsewhere on the page. A phone has no hover, so a tap selects a tile:
             onSelect gets the item, and the tile passed back as selected gets a ring; a second tap or a tap anywhere
             else gives null. The selection is the page's state, so a filter that drops the item drops its ring too. The
-            example prints the selection under the map.
+            example prints the selection under the map. TreemapLegend, given the same range, draws the scale: five steps
+            of loss, no change, five of gain, each swatch naming its span on hover.
           </Lead>
           <Example name="treemap" />
         </>
@@ -159,10 +164,10 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            useFormat() returns money, moneyCompact, pct and time bound to the nearest SiyahiProvider. A nested provider
-            changes the locale for its subtree. useFormat().time(value, {"{ withDate: true }"}) writes the date first:
-            20 Oct 2026, 14:30 IST. In an Indian-region locale moneyCompact prints amounts under one lakh in full. The
-            formatters print only a minus sign; a signed figure goes through Delta, which adds the arrow.
+            useFormat() returns count, money, moneyCompact, pct and time bound to the nearest SiyahiProvider. A nested
+            provider changes the locale for its subtree. useFormat().time(value, {"{ withDate: true }"}) writes the date
+            first: 20 Oct 2026, 14:30 IST. In an Indian-region locale moneyCompact prints amounts under one lakh in
+            full. The formatters print only a minus sign; a signed figure goes through Delta, which adds the arrow.
           </Lead>
           <Example name="formatters" />
         </>

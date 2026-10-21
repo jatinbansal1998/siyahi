@@ -4,12 +4,13 @@ import { blocks } from "./pages/blocks";
 import { components, inputs } from "./pages/components";
 import { data } from "./pages/data";
 import { foundations } from "./pages/foundations";
+import { layout } from "./pages/layout";
 import { overview } from "./pages/overview";
 import { reports } from "./pages/reports";
 import { useRoute } from "./route";
 import { Shell } from "./shell";
 
-const PAGES: Page[] = [overview, foundations, components, inputs, data, blocks, reports];
+const PAGES: Page[] = [overview, foundations, components, inputs, layout, data, blocks, reports];
 
 export function App() {
   const route = useRoute();

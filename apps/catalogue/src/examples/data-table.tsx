@@ -6,13 +6,12 @@ import {
   CardTitle,
   DataTable,
   DataTableBody,
-  DataTableColumnActions,
-  DataTableColumnHeader,
-  DataTableColumnSortOptions,
-  DataTableColumnTitle,
   DataTableFacetedFilter,
   DataTableHeader,
   DataTableRoot,
+  DataTableRowCount,
+  DataTableSearchFilter,
+  DataTableSortHeader,
   DataTableToolbarSection,
   Delta,
   useFormat,
@@ -36,33 +35,27 @@ const holdings: Holding[] = [
   { symbol: "NIFTYBEES", sector: "ETF", quantity: 900, value: 255600, change: 0.009 },
 ];
 
-const header = (title: string) => () => (
-  <DataTableColumnHeader>
-    <DataTableColumnTitle title={title} />
-    <DataTableColumnActions>
-      <DataTableColumnSortOptions />
-    </DataTableColumnActions>
-  </DataTableColumnHeader>
-);
+// One click sorts largest (or Z) first; the title comes from meta.label.
+const header = () => <DataTableSortHeader />;
 
 function Money({ amount }: { amount: number }) {
   return useFormat().money(amount);
 }
 
 const columns: DataTableColumnDef<Holding>[] = [
-  { accessorKey: "symbol", header: header("Symbol"), size: 140, meta: { label: "Symbol" } },
-  { accessorKey: "sector", header: header("Sector"), size: 120, meta: { label: "Sector" } },
-  { accessorKey: "quantity", header: header("Qty"), size: 100, meta: { label: "Qty", variant: "number" } },
+  { accessorKey: "symbol", header, size: 140, meta: { label: "Symbol" } },
+  { accessorKey: "sector", header, size: 120, meta: { label: "Sector" } },
+  { accessorKey: "quantity", header, size: 100, meta: { label: "Qty", variant: "number" } },
   {
     accessorKey: "value",
-    header: header("Value"),
+    header,
     size: 140,
     meta: { label: "Value", variant: "number" },
     cell: ({ row }) => <Money amount={row.original.value} />,
   },
   {
     accessorKey: "change",
-    header: header("Day"),
+    header,
     size: 110,
     meta: { label: "Day", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
@@ -75,7 +68,8 @@ export default function DataTableExample() {
       <CardHeader>
         <CardTitle>Holdings</CardTitle>
         <CardDescription>
-          Filter by sector, sort any column; the symbol stays put when the table scrolls
+          Search every column, filter by sector, sort any column in one click; the symbol stays put when the table
+          scrolls
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -85,7 +79,13 @@ export default function DataTableExample() {
           initialState={{ columnPinning: { start: ["symbol"], end: [] } }}
         >
           <DataTableToolbarSection>
+            <DataTableSearchFilter
+              placeholder="Search holdings…"
+              label="Filter holdings"
+              className="flex-none sm:w-64"
+            />
             <DataTableFacetedFilter accessorKey="sector" title="Sector" />
+            <DataTableRowCount unit="holdings" />
           </DataTableToolbarSection>
           <DataTable>
             <DataTableHeader />

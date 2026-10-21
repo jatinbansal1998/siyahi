@@ -1,3 +1,4 @@
+import { InlineCode } from "@siyahi/ui";
 import { Code } from "../code";
 import { Lead } from "../example";
 import type { Page } from "../page";
@@ -71,13 +72,13 @@ export const overview: Page = {
           </Lead>
           <Code>{INSTALL}</Code>
           <p className="max-w-prose">
-            Everything comes from one import path, <code className="font-mono">@siyahi/ui</code>, including the chart
-            cards. Add lucide-react only if your own code imports icons.
+            Everything comes from one import path, <InlineCode>@siyahi/ui</InlineCode>, including the chart cards. Add
+            lucide-react only if your own code imports icons.
           </p>
           <p className="max-w-prose">
-            <code className="font-mono">preloadFonts()</code> has the built page fetch Geist with its scripts rather
-            than after the first paint. Until Geist arrives the theme draws Arial scaled to Geist&apos;s metrics, so
-            nothing moves when it swaps in.
+            <InlineCode>preloadFonts()</InlineCode> has the built page fetch Geist with its scripts rather than after
+            the first paint. Until Geist arrives the theme draws Arial scaled to Geist&apos;s metrics, so nothing moves
+            when it swaps in.
           </p>
         </>
       ),

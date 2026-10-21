@@ -8,6 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
   Treemap,
+  TreemapLegend,
   useFormat,
   type TreemapItem,
 } from "@siyahi/ui";
@@ -67,6 +68,7 @@ export default function TreemapExample() {
             )}
           </TooltipContent>
         </Tooltip>
+        <TreemapLegend range={0.6} className="mt-3 ml-auto" />
         <p data-slot="treemap-selection" className="mt-3 text-sm tabular-nums">
           {selected ? (
             <>

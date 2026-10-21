@@ -1,10 +1,11 @@
 import { SiyahiProvider, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, useFormat } from "@siyahi/ui";
 
 function Row({ label }: { label: string }) {
-  const { money, moneyCompact, pct, time } = useFormat();
+  const { count, money, moneyCompact, pct, time } = useFormat();
   return (
     <TableRow>
       <TableCell>{label}</TableCell>
+      <TableCell className="text-right">{count(153110)}</TableCell>
       <TableCell className="text-right">{money(153110)}</TableCell>
       <TableCell className="text-right">{moneyCompact(99999)}</TableCell>
       <TableCell className="text-right">{moneyCompact(240000)}</TableCell>
@@ -21,6 +22,7 @@ export default function FormattersExample() {
       <TableHeader>
         <TableRow>
           <TableHead>Locale</TableHead>
+          <TableHead className="text-right">count</TableHead>
           <TableHead className="text-right">money</TableHead>
           <TableHead className="text-right">moneyCompact</TableHead>
           <TableHead className="text-right">moneyCompact</TableHead>

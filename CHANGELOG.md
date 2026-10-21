@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.1.9
+
+Page parts that dash and The Book built for themselves. Published as
+`0.1.9-next.<n>` pre-releases.
+
+- `CodeBlock`, `CodeBlockHeader`, `CodeBlockTitle`, `CodeBlockActions`,
+  `CodeBlockCopyButton`, `CodeBlockContent`, `CodeBlockLine` and
+  `CodeBlockFooter`: shadcn's core code block, as the CLI wrote it. A copy
+  button sits in the header beside a title, or alone at the top right, shown on
+  hover (always on a touch screen). Long lines scroll sideways; `wrap` breaks
+  them. No syntax highlighting: the shiki hook shadcn offers with it is left
+  out, since no page highlights and its GitHub themes bring colours from
+  outside the theme.
+- `DataTableSearchFilter`: niko-table's search across columns, from its
+  registry, with a `label` prop for the field's accessible name.
+- `DataTableSortHeader`: a column header that sorts on one click, largest (or
+  Z) first, then the other way; its title defaults to the column's
+  `meta.label`. It turns on the table's sorting itself, like niko-table's own
+  sort components.
+- `DataTableRowCount`: how many rows the filters leave, "12 of 48", or
+  "48 positions" when they leave all. `total` covers data the page narrowed
+  before the table.
+- `SectionCards` takes `selected` and `onSelect`: each tile becomes a button
+  with `aria-pressed`, and the picked one takes a primary ring, in dark mode
+  too.
+- `ToneProgress`: Progress with its bar in `--positive` or `--negative`.
+- `TreemapLegend`: the Treemap's colour scale, five steps each way and no
+  change, drawn from the same formula as the tiles, each swatch naming its span.
+- `PageSection` (rule, eyebrow, h2, muted lead, action), `PageSubheading` (h3),
+  `DataList` with `DataListItem` (label and value pairs) and `InlineCode`.
+- `count` in the formatters and `useFormat()`: a whole number with the
+  locale's grouping, `1,53,110`.
+- The catalogue's code samples are code blocks with a copy button, and a new
+  Page layout page shows the page parts.
+
 ## 0.1.8
 
 Chart components that take data as props. Published as `0.1.8-next.<n>`

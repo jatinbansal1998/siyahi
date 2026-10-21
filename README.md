@@ -75,8 +75,12 @@ Every merge to `main` also attaches both tarballs to a GitHub release
   bar list, the `SectionCards` stat tile and the `sidebar-07` app shell.
 - **Siyahi components**: `Delta` (a signed figure with ▲ ▼), `PriceChart`
   (TradingView Lightweight Charts in theme colours), `Treemap` (holdings heat
-  map; hover or tap a tile for its figures), `LocalTime` (a time in the configured zone with the viewer's own clock
-  in a tooltip) and `SiyahiProvider`.
+  map; hover or tap a tile for its figures) with `TreemapLegend` (its colour
+  scale), `LocalTime` (a time in the configured zone with the viewer's own clock
+  in a tooltip), `ToneProgress` (Progress in a meaning colour), the page parts
+  `PageSection`, `PageSubheading`, `DataList` and `InlineCode`, the data table
+  parts `DataTableSortHeader` (sorts on one click) and `DataTableRowCount`
+  ("12 of 48"), and `SiyahiProvider`.
 - **Cards and badges as installed**: every `Card`, stat tiles included, keeps
   luma's `rounded-4xl`, `shadow-md` and faint ring. A category (a sector, a
   broker, a unit's kind) is an outline `Badge`: categories stay neutral, and
@@ -84,7 +88,7 @@ Every merge to `main` also attaches both tarballs to a GitHub release
   (header under 24rem, so any phone) a header action such as a toggle drops
   under the title and description, left-aligned; a stat tile's badge stays
   top right.
-- **Formatters**: `money`, `moneyCompact`, `pct` and `time`, or `useFormat()`
+- **Formatters**: `count`, `money`, `moneyCompact`, `pct` and `time`, or `useFormat()`
   for the same bound to the provider's locale.
   `useFormat().time(value, { withDate: true })` (or
   `time(value, locale, { withDate: true })`) and `<LocalTime withDate>` write
@@ -94,20 +98,28 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 
 ## Which component
 
-| Need                                                                    | Component                                                   |
-| ----------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Values over time or another ordered axis (months, hours, price buckets) | `BarChartCard`, `AreaChartCard` or `LineChartCard`          |
-| Counts or amounts per period, one series or several                     | `BarChartCard`; `stacked` when the series add up to a total |
-| A running level, such as a portfolio's value against money put in       | `AreaChartCard`                                             |
-| Series compared point by point, such as a return against an index       | `LineChartCard`                                             |
-| Ranked counts or amounts by category (a name, a bar and a figure)       | `BarList`                                                   |
-| Headline figures with their change                                      | `SectionCards`, with a `Delta` in each badge                |
-| One instrument's price history                                          | `PriceChart`                                                |
-| Holdings sized by weight and coloured by change                         | `Treemap`                                                   |
-| Activity by day, by weekday and hour, or a status over time             | `CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`        |
-| Rows to sort and filter                                                 | `DataTable`, inside a `Card`                                |
-| A signed figure (a gain, a loss, a change)                              | `Delta`                                                     |
-| A time, with the viewer's own clock on hover                            | `LocalTime`                                                 |
+| Need                                                                    | Component                                                           |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Values over time or another ordered axis (months, hours, price buckets) | `BarChartCard`, `AreaChartCard` or `LineChartCard`                  |
+| Counts or amounts per period, one series or several                     | `BarChartCard`; `stacked` when the series add up to a total         |
+| A running level, such as a portfolio's value against money put in       | `AreaChartCard`                                                     |
+| Series compared point by point, such as a return against an index       | `LineChartCard`                                                     |
+| Ranked counts or amounts by category (a name, a bar and a figure)       | `BarList`                                                           |
+| Headline figures with their change                                      | `SectionCards`, with a `Delta` in each badge                        |
+| One instrument's price history                                          | `PriceChart`                                                        |
+| Holdings sized by weight and coloured by change                         | `Treemap`                                                           |
+| Activity by day, by weekday and hour, or a status over time             | `CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`                |
+| Rows to sort and filter                                                 | `DataTable`, inside a `Card`                                        |
+| A column that sorts on one click; a search and an "n of m" count        | `DataTableSortHeader`; `DataTableSearchFilter`, `DataTableRowCount` |
+| Stat tiles that pick a scope for the page                               | `SectionCards` with `selected` and `onSelect`                       |
+| A share or a part of a whole, coloured as a gain or a loss              | `ToneProgress`                                                      |
+| The colour scale under a `Treemap`                                      | `TreemapLegend`, with the map's `range`                             |
+| One part of a long page: rule, eyebrow, heading, lead, action           | `PageSection`, with `PageSubheading` inside                         |
+| Label and value pairs, such as a record's fields                        | `DataList` and `DataListItem`                                       |
+| A command or file to copy, wrapped or scrolling                         | `CodeBlock` with `CodeBlockCopyButton`                              |
+| A command, file or identifier inside prose                              | `InlineCode`                                                        |
+| A signed figure (a gain, a loss, a change)                              | `Delta`                                                             |
+| A time, with the viewer's own clock on hover                            | `LocalTime`                                                         |
 
 The three chart cards take the rows, the field the x axis reads and the series,
 and own everything else: the card and its header action (a range or mode

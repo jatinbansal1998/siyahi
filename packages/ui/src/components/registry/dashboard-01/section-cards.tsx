@@ -14,6 +14,11 @@
 // Three, five and six skip the two-column step and run three across; five goes
 // to one row of five on a container 80rem wide. Steps stay where a tile is at
 // least about 240px, as on the stock grid, and a phone keeps one tile per row.
+// Siyahi edit: `selected` and `onSelect` make the tiles a picker, such as one
+// tile per asset class that scopes the page: a button laid over each tile
+// carries aria-pressed, and the picked tile takes a primary ring. The ring is
+// important (`!`): the stock Card sets `dark:ring-foreground/10`, which would
+// otherwise win in dark mode.
 "use client"
 
 import * as React from "react"
@@ -50,12 +55,33 @@ const COLUMNS: Record<number, string> = {
   6: "@3xl/main:grid-cols-3",
 }
 
-export function SectionCards({ items }: { items: SectionCard[] }) {
+export interface SectionCardsProps {
+  items: SectionCard[]
+  /** The label of the picked tile. */
+  selected?: string
+  /** Makes each tile one button, so keep tile content non-interactive; gets the label of the tile picked. */
+  onSelect?: (label: string) => void
+}
+
+export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
   return (
     <div className="@container/main">
       <div className={cn("grid grid-cols-1 gap-4", COLUMNS[items.length] ?? COLUMNS[4])}>
         {items.map((item) => (
-          <Card key={item.label} className="@container/card">
+          <Card
+            key={item.label}
+            className={cn("@container/card", onSelect && "relative", item.label === selected && "ring-2 ring-primary!")}
+          >
+            {/* A Card is a div, which a button cannot hold, so the button lies over the tile with its radius, for the focus ring to follow the corner. */}
+            {onSelect && (
+              <button
+                type="button"
+                aria-label={item.label}
+                aria-pressed={item.label === selected}
+                onClick={() => onSelect(item.label)}
+                className="absolute inset-0 z-10 rounded-4xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
+              />
+            )}
             <CardHeader>
               <CardDescription>{item.label}</CardDescription>
               <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

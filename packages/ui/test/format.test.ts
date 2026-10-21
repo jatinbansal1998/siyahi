@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { money, moneyCompact, pct, time } from "../src/lib/format";
+import { count, money, moneyCompact, pct, time } from "../src/lib/format";
 import type { SiyahiLocale } from "../src/lib/locale";
 
 const us: SiyahiLocale = { numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" };
@@ -8,6 +8,10 @@ const nineUtc = "2026-10-20T09:00:00Z";
 describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
   it("groups money in lakhs", () => {
     expect(money(153110)).toBe("₹1,53,110");
+  });
+
+  it("groups a count in lakhs", () => {
+    expect(count(153110)).toBe("1,53,110");
   });
 
   it("rounds money to whole rupees unless asked for paise", () => {
@@ -48,6 +52,7 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
 
 describe("another locale", () => {
   it("follows the locale it is given", () => {
+    expect(count(153110, us)).toBe("153,110");
     expect(money(153110, us)).toBe("$153,110");
     expect(moneyCompact(2400000, us)).toBe("$2.4M");
     expect(moneyCompact(1000, us)).toBe("$1K");
