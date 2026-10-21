@@ -64,7 +64,10 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   valueFormatter?: (value: number) => string;
   /** The y axis, when its ticks should be shorter than the tooltip's figures: moneyCompact against money. */
   yTickFormatter?: (value: number) => string;
-  /** A fixed range for the value axis, such as [0, 100] for a percentage; by default it fits the data. */
+  /**
+   * A fixed range for the value axis, such as [0, 100] for a percentage. By default it fits the data; a bar
+   * chart's always reaches zero.
+   */
   yDomain?: [number, number];
   /** Where the value axis puts its ticks, such as [0, 25, 50, 75, 100]. */
   yTicks?: readonly number[];

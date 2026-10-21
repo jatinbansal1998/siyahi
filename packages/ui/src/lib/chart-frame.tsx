@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
-import { AreaChart, BarChart, CartesianGrid, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
+import { AreaChart, BarChart, CartesianGrid, LineChart, ReferenceLine, XAxis, YAxis, type YAxisProps } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import {
   Card,
@@ -34,8 +34,11 @@ const AXIS_TITLE = "fill-muted-foreground text-xs";
 const TICK = { className: "fill-muted-foreground font-mono" };
 const NO_LINES: readonly ChartReferenceLine[] = [];
 
-interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesChartProps<T, K>, NumericXProps {
+interface ChartFrameProps<T extends object, K extends keyof T>
+  extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
+  /** The value axis' range: a page's fixed one, or a card's rule such as bars reaching zero. */
+  yDomain?: YAxisProps["domain"];
   /** One Bar, Area or Line per series. */
   children: ReactNode;
   /**

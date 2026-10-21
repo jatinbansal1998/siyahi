@@ -278,6 +278,23 @@ describe("chart cards", { timeout: 60_000 }, () => {
     ]);
   });
 
+  it("a series of losses runs down from zero, unstacked, with the negative colour in its legend", async () => {
+    const chart = card("F&O realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    await settled(bars);
+    const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    expect(await ticks.allTextContents()).toEqual(["-₹1L", "-₹75,000", "-₹50,000", "-₹25,000", "₹0"]);
+    // Zero ends the value axis, so every bar hangs from the plot's top edge (the grid's box adds half a stroke).
+    const plot = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!plot) throw new Error("not laid out");
+    const tops = await bars.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
+    expect(tops).toHaveLength(4);
+    for (const top of tops) expect(Math.abs(top - plot.y)).toBeLessThanOrEqual(1);
+    const chip = chart.locator(".recharts-legend-wrapper .rounded-\\[2px\\]");
+    expect(await chip.evaluate((el) => (el as HTMLElement).style.backgroundColor)).toBe("var(--negative)");
+  });
+
   it("a fixed y domain and ticks hold the value axis at 0 to 100%", async () => {
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();

@@ -20,10 +20,12 @@
 // Siyahi edit: a series whose bars are all below zero takes its negativeColor
 // as the Bar's fill, so its legend chip matches the bars; each Bar is named
 // after its series, so no bar path carries name="undefined".
+// Siyahi edit: the value axis reaches zero when no value is above it, so a
+// series of losses runs down from zero unstacked too.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
-import { Bar, BarChart, Cell } from "recharts"
+import { Bar, BarChart, Cell, type YAxisProps } from "recharts"
 
 import { ChartFrame, seriesFill } from "@siyahi/ui/lib/chart-frame"
 import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
@@ -40,6 +42,11 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
   onSelect?: (value: T[K] | null) => void
 }
 
+// Recharts' value axis defaults to [0, "auto"], which reaches zero only from above:
+// with no value above zero it falls back to the data's range, and the bars hang
+// from the smallest loss. "auto" keeps its rounded ticks.
+const DOWN_FROM_ZERO: YAxisProps["domain"] = ["auto", 0]
+
 /** Values over an ordered axis as bars: one series, or several grouped or stacked. */
 export function BarChartCard<T extends object, K extends keyof T>({
   stacked = false,
@@ -51,6 +58,12 @@ export function BarChartCard<T extends object, K extends keyof T>({
     <ChartFrame
       chart={BarChart}
       {...props}
+      yDomain={
+        props.yDomain ??
+        (props.data.some((row) => props.series.some(({ key }) => Number(row[key as keyof T]) > 0))
+          ? undefined
+          : DOWN_FROM_ZERO)
+      }
       stackOffset={stacked ? "sign" : undefined}
     >
       {props.series.map((item, index) => {
