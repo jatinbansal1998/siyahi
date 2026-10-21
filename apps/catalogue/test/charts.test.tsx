@@ -168,4 +168,19 @@ describe("chart cards", { timeout: 60_000 }, () => {
       returnLines("Oct", "5.2%", "3.6%"),
     ]);
   });
+
+  it("the quarterly bar example starts grouped and stacks on Stacked", async () => {
+    const chart = card("Money invested by quarter");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle");
+    // Recharts draws one series' bars after another, so Q1's five bars are every fourth.
+    const q1Lefts = async (): Promise<Set<number>> => {
+      await settled(bars);
+      const lefts = await bars.evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().left)));
+      return new Set(lefts.filter((_, i) => i % 4 === 0));
+    };
+    expect((await q1Lefts()).size).toBe(5);
+    await chart.getByRole("button", { name: "Stacked" }).click();
+    expect((await q1Lefts()).size).toBe(1);
+  });
 });

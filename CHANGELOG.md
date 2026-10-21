@@ -25,6 +25,9 @@ pre-releases.
 - The catalogue's area, bar and line examples use them, and a new hourly bar
   example shows a numeric axis. Each entry says when to use it and when to use
   `BarList` (ranked counts by category) instead.
+- The catalogue's quarterly bar example has a Grouped / Stacked toggle as its
+  header action. It starts grouped, the component's default; 0.1.8-next.1 and
+  next.2 showed it stacked only.
 - The README has a "Which component" table: need → component.
 - 2026-10-21: raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
   `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) stay

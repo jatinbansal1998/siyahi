@@ -1,4 +1,5 @@
-import { BarChartCard, useFormat, type ChartSeries } from "@siyahi/ui";
+import { useState } from "react";
+import { BarChartCard, ToggleGroup, ToggleGroupItem, useFormat, type ChartSeries } from "@siyahi/ui";
 
 const data = [
   { quarter: "Q1", equity: 120000, debt: 40000, gold: 15000, cash: 9000, reits: 4000 },
@@ -19,14 +20,34 @@ const series: ChartSeries<(typeof data)[number]> = [
 
 export default function ChartBarExample() {
   const { money, moneyCompact } = useFormat();
+  const [layout, setLayout] = useState("grouped");
   return (
     <BarChartCard
       title="Money invested by quarter"
-      description="All five chart colours, stacked in series order"
+      description={
+        layout === "grouped"
+          ? "All five chart colours side by side, in series order"
+          : "All five chart colours stacked into the quarter's total"
+      }
+      action={
+        <ToggleGroup
+          value={[layout]}
+          onValueChange={([next]) => {
+            // Pressing the selected layout again would leave none selected; keep it.
+            if (next) setLayout(next);
+          }}
+          variant="outline"
+          size="sm"
+          aria-label="Layout"
+        >
+          <ToggleGroupItem value="grouped">Grouped</ToggleGroupItem>
+          <ToggleGroupItem value="stacked">Stacked</ToggleGroupItem>
+        </ToggleGroup>
+      }
       data={data}
       xKey="quarter"
       series={series}
-      stacked
+      stacked={layout === "stacked"}
       valueFormatter={money}
       yTickFormatter={moneyCompact}
       height={256}
