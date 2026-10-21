@@ -63,6 +63,8 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   yTicks?: readonly number[];
   /** Height of the plot and legend, in pixels. */
   height: number;
+  /** A second line under each x tick, so a row's figure reads without a hover: "FY24" then "▲₹1.2L". */
+  xTickDetail?: (row: T) => string;
   /** A title under the x axis, such as "Hour of day (IST)". */
   xLabel?: string;
   /** A title beside the value axis, read bottom to top, such as "Orders". */

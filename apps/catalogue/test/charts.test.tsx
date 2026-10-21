@@ -320,4 +320,28 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(y.transform).toContain("rotate(-90");
     expect(y.box.right).toBeLessThanOrEqual(yTicks.x + 1);
   });
+
+  it("a two-line x tick prints each row's figure under its name", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-xAxis-tick-labels text");
+    await settled(ticks);
+    const lines = await ticks.evaluateAll((els) =>
+      els.map((el) => [...el.querySelectorAll("tspan")].map((t) => t.textContent)),
+    );
+    expect(lines).toEqual([
+      ["FY21", "▲₹42,000"],
+      ["FY22", "▲₹1.9L"],
+      ["FY23", "▼₹64,000"],
+      ["FY24", "▲₹1.3L"],
+      ["FY25", "▼₹21,000"],
+      ["FY26", "▲₹73,000"],
+    ]);
+    // The second line sits under the first.
+    const [name, detail] = await ticks
+      .first()
+      .locator("tspan")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
+    expect(detail).toBeGreaterThan(name ?? Number.POSITIVE_INFINITY);
+  });
 });

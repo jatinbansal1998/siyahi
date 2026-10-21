@@ -33,10 +33,13 @@ export const data: Page = {
             list (a name, a bar and a figure per row, largest first) use BarList. Series take the slots --chart-1 to
             --chart-5 in order: each reaches 3:1 against the card and the slots next to it, and slots two apart share a
             lightness and differ by hue, so do not skip slots. Past five, fold the rest into "Other" in
-            --muted-foreground. xFormatter writes the axis and the tooltip's heading, here an hour as 09:00.
+            --muted-foreground. xFormatter writes the axis and the tooltip's heading, here an hour as 09:00; xLabel and
+            yLabel title the axes. xTickDetail adds a second line under each tick from its row, so a year's net reads
+            without a hover.
           </Lead>
           <Example name="chart-bar" />
           <Example name="chart-bar-hourly" />
+          <Example name="chart-bar-years" />
         </>
       ),
     },

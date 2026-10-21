@@ -44,6 +44,41 @@ export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number
   };
 }
 
+interface TickProps {
+  x?: number | string;
+  y?: number | string;
+  payload?: { value?: unknown };
+}
+
+/**
+ * An x tick with a second line from its row. Under a column the lines hang below the axis; beside a horizontal
+ * bar they straddle its middle.
+ */
+function twoLineTick<T extends object, K extends keyof T>(
+  data: readonly T[],
+  xKey: K,
+  xFormatter: (value: T[K]) => string,
+  detailOf: (row: T) => string,
+  beside: boolean,
+) {
+  return ({ x, y, payload }: TickProps) => {
+    const value = payload?.value as T[K];
+    const row = data.find((r) => r[xKey] === value);
+    return (
+      <text x={x} y={y} textAnchor={beside ? "end" : "middle"} className="font-mono">
+        <tspan x={x} dy={beside ? -4 : 12}>
+          {xFormatter(value)}
+        </tspan>
+        {row && (
+          <tspan x={x} dy={15} className="font-sans tabular-nums">
+            {detailOf(row)}
+          </tspan>
+        )}
+      </text>
+    );
+  };
+}
+
 /**
  * The card, axes, grid, tooltip and legend the three chart cards share. Both
  * axes keep Recharts' default ids: marks find their axes by id, and a page
@@ -66,6 +101,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   yDomain,
   yTicks,
   height,
+  xTickDetail,
   xLabel,
   yLabel,
   referenceLines = [],
@@ -99,13 +135,16 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 type={xDomain ? "number" : "category"}
                 domain={xDomain}
                 ticks={xTicks as number[] | undefined}
-                height={xLabel ? 48 : undefined}
+                height={(xTickDetail ? 40 : 30) + (xLabel ? 18 : 0)}
                 label={xLabel ? { value: xLabel, position: "insideBottom", className: AXIS_TITLE } : undefined}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
                 tickFormatter={(value: T[K]) => xFormatter(value)}
-                tick={{ className: "font-mono" }}
+                tick={
+                  xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, false) : { className: "font-mono" }
+                }
+                interval={xTickDetail ? 0 : undefined}
               />
               <YAxis
                 tickLine={false}
