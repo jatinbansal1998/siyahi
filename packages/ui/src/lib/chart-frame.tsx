@@ -10,12 +10,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@siyahi/ui/components/ui/chart";
-import type { ChartSeries, ChartSeriesItem, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
-
-/** The series in draw order, keyed by the field each reads. */
-export function seriesEntries<T>(series: ChartSeries<T>): [string, ChartSeriesItem][] {
-  return Object.entries(series).filter((entry): entry is [string, ChartSeriesItem] => Boolean(entry[1]));
-}
+import type { ChartSeries, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
 interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesChartProps<T, K> {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
@@ -23,15 +18,17 @@ interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesCha
   children: ReactNode;
 }
 
-/** A tooltip row: the series' colour and label, then its value as the page formats it. */
-function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number) => string) {
+/** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */
+export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number) => string) {
   return (value: unknown, _name: unknown, item: { dataKey?: unknown }) => {
-    const entry = series[item.dataKey as keyof T];
+    const entry = series.find(({ key }) => key === item.dataKey);
     return (
       <>
         <span className="size-2.5 shrink-0 rounded-xs" style={{ backgroundColor: entry?.color }} />
         <span className="text-muted-foreground">{entry?.label}</span>
-        <span className="ml-auto font-mono font-medium text-foreground tabular-nums">{formatValue(Number(value))}</span>
+        <span className="ml-auto font-mono font-medium text-foreground tabular-nums">
+          {value == null ? "—" : formatValue(Number(value))}
+        </span>
       </>
     );
   };
@@ -59,9 +56,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
   const formatValue = valueFormatter ?? new Intl.NumberFormat(numberLocale).format;
-  const entries = seriesEntries(series);
-  const config: ChartConfig = Object.fromEntries(entries);
-  const crossesZero = data.some((row) => entries.some(([key]) => Number(row[key as keyof T]) < 0));
+  const config: ChartConfig = Object.fromEntries(series.map(({ key, label, color }) => [key, { label, color }]));
+  const crossesZero = data.some((row) => series.some(({ key }) => Number(row[key as keyof T]) < 0));
   return (
     <Card>
       <CardHeader>

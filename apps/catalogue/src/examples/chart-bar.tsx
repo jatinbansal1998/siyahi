@@ -9,13 +9,13 @@ const data = [
 
 // Series take the slots in order: neighbours differ in lightness, slots two
 // apart differ in hue.
-const series: ChartSeries<(typeof data)[number]> = {
-  equity: { label: "Equity", color: "var(--chart-1)" },
-  debt: { label: "Debt", color: "var(--chart-2)" },
-  gold: { label: "Gold", color: "var(--chart-3)" },
-  cash: { label: "Cash", color: "var(--chart-4)" },
-  reits: { label: "REITs", color: "var(--chart-5)" },
-};
+const series: ChartSeries<(typeof data)[number]> = [
+  { key: "equity", label: "Equity", color: "var(--chart-1)" },
+  { key: "debt", label: "Debt", color: "var(--chart-2)" },
+  { key: "gold", label: "Gold", color: "var(--chart-3)" },
+  { key: "cash", label: "Cash", color: "var(--chart-4)" },
+  { key: "reits", label: "REITs", color: "var(--chart-5)" },
+];
 
 export default function ChartBarExample() {
   const { money, moneyCompact } = useFormat();

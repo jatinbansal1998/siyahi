@@ -10,10 +10,10 @@ const data = [
 ];
 
 // Drawn in this order, so value sits over the money put in.
-const series: ChartSeries<(typeof data)[number]> = {
-  invested: { label: "Invested", color: "var(--chart-2)" },
-  value: { label: "Value", color: "var(--chart-1)" },
-};
+const series: ChartSeries<(typeof data)[number]> = [
+  { key: "invested", label: "Invested", color: "var(--chart-2)" },
+  { key: "value", label: "Value", color: "var(--chart-1)" },
+];
 
 export default function ChartAreaExample() {
   const { money, moneyCompact } = useFormat();

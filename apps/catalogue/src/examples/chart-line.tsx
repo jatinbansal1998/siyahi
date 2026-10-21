@@ -19,10 +19,10 @@ const monthly = [
   { month: "Oct", portfolio: 0.011, index: 0.005 },
 ];
 
-const series: ChartSeries<(typeof cumulative)[number]> = {
-  portfolio: { label: "Portfolio", color: "var(--chart-1)" },
-  index: { label: "Nifty 50", color: "var(--chart-2)" },
-};
+const series: ChartSeries<(typeof cumulative)[number]> = [
+  { key: "portfolio", label: "Portfolio", color: "var(--chart-1)" },
+  { key: "index", label: "Nifty 50", color: "var(--chart-2)" },
+];
 
 export default function ChartLineExample() {
   const { pct } = useFormat();

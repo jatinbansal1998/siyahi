@@ -124,7 +124,7 @@ below. A page never puts Recharts axes, grids or tooltips together itself.
   ]}
   xKey="hour"
   xFormatter={(hour) => `${String(hour).padStart(2, "0")}:00`}
-  series={{ orders: { label: "Orders", color: "var(--chart-1)" } }}
+  series={[{ key: "orders", label: "Orders", color: "var(--chart-1)" }]}
   height={256}
 />
 ```

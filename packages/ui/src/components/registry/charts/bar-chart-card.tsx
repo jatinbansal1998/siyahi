@@ -14,7 +14,7 @@
 
 import { Bar, BarChart } from "recharts"
 
-import { ChartFrame, seriesEntries } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
 import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 
 export interface BarChartCardProps<T extends object, K extends keyof T>
@@ -28,17 +28,16 @@ export function BarChartCard<T extends object, K extends keyof T>({
   stacked = false,
   ...props
 }: BarChartCardProps<T, K>) {
-  const entries = seriesEntries(props.series)
   return (
     <ChartFrame chart={BarChart} {...props}>
-      {entries.map(([key, item], index) => (
+      {props.series.map(({ key, color }, index) => (
         <Bar
           key={key}
           dataKey={key}
-          fill={item.color}
+          fill={color}
           stackId={stacked ? "stack" : undefined}
           radius={
-            !stacked ? 2 : index === entries.length - 1 ? [2, 2, 0, 0] : 0
+            !stacked ? 2 : index === props.series.length - 1 ? [2, 2, 0, 0] : 0
           }
         />
       ))}

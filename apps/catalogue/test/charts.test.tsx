@@ -75,6 +75,12 @@ async function tooltipAt(chart: Locator, x: number, y: number, heading: string):
   return (await tooltip.innerText()).split("\n").filter(Boolean);
 }
 
+/** One x axis and one y axis: a mark that misses its axis by id makes Recharts add a second one and split the plot (dash#88). */
+async function onePlot(chart: Locator): Promise<void> {
+  expect(await chart.locator(".recharts-xAxis").count()).toBe(1);
+  expect(await chart.locator(".recharts-yAxis").count()).toBe(1);
+}
+
 /** Hovers the plot above each x axis tick, as a reader sliding along an area or line chart does. */
 async function hoverEachPoint(title: string, expected: string[][]): Promise<void> {
   const chart = card(title);
@@ -82,6 +88,7 @@ async function hoverEachPoint(title: string, expected: string[][]): Promise<void
   const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
   await expect.poll(() => ticks.count()).toBe(expected.length);
   await settled(ticks);
+  await onePlot(chart);
   const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
   if (!grid) throw new Error("not laid out");
   for (const [index, lines] of expected.entries()) {
@@ -99,6 +106,7 @@ async function hoverEachBar(title: string, expected: string[][]): Promise<void> 
   const series = (expected[0]!.length - 1) / 2;
   await expect.poll(() => bars.count()).toBe(expected.length * series);
   await settled(bars);
+  await onePlot(chart);
   // Recharts draws one series' bars after another, so bar i is category i % categories.
   for (let i = 0; i < expected.length * series; i++) {
     const lines = expected[i % expected.length]!;

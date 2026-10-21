@@ -15,7 +15,7 @@
 
 import { Area, AreaChart } from "recharts"
 
-import { ChartFrame, seriesEntries } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
 import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 
 export interface AreaChartCardProps<T extends object, K extends keyof T>
@@ -31,14 +31,14 @@ export function AreaChartCard<T extends object, K extends keyof T>({
 }: AreaChartCardProps<T, K>) {
   return (
     <ChartFrame chart={AreaChart} {...props}>
-      {seriesEntries(props.series).map(([key, item]) => (
+      {props.series.map(({ key, color }) => (
         <Area
           key={key}
           dataKey={key}
           type="monotone"
-          fill={item.color}
+          fill={color}
           fillOpacity={stacked ? 0.4 : 0.2}
-          stroke={item.color}
+          stroke={color}
           stackId={stacked ? "stack" : undefined}
         />
       ))}

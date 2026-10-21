@@ -7,8 +7,9 @@ pre-releases.
 
 - `BarChartCard`, `AreaChartCard` and `LineChartCard`, from shadcn's
   `chart-bar-multiple`, `chart-area-stacked` and `chart-line-multiple` blocks.
-  A page passes `data`, the `xKey` its x axis reads, the `series` (a label and
-  a chart token each, drawn in key order), `valueFormatter`, `xFormatter`,
+  A page passes `data`, the `xKey` its x axis reads, the `series` (a list of
+  the field to plot, a label and a chart token, in draw and legend order),
+  `valueFormatter`, `xFormatter`,
   optional `yTickFormatter` and a pixel `height`; a range or mode toggle goes
   in `action`, which sits in the card's `CardAction`. The card owns the axes,
   the dashed horizontal grid, Geist Mono ticks, the tooltip and the legend
@@ -16,7 +17,8 @@ pre-releases.
   category even when the axis holds numbers such as hours: stock
   `ChartTooltipContent` falls back to the series label there, the "Count on
   every row" bug of dash#88. Bars group or `stacked`; areas overlap or
-  `stacked`. A zero line draws when a value goes below zero. `ChartSeries`,
+  `stacked`. A zero line draws when a value goes below zero, and a missing
+  value shows as — in the tooltip, not 0. `ChartSeries`,
   `ChartSeriesItem`, `ChartColor` and `SeriesChartProps` type them; a series
   colour is one of `var(--chart-1)` to `var(--chart-5)` or
   `var(--muted-foreground)`, so a theme map or a hex value does not compile.

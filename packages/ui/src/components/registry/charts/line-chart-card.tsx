@@ -12,7 +12,7 @@
 
 import { Line, LineChart } from "recharts"
 
-import { ChartFrame, seriesEntries } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
 import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 
 /** Values over an ordered axis as lines: one series, or several to compare, such as a portfolio against its index. */
@@ -21,12 +21,12 @@ export function LineChartCard<T extends object, K extends keyof T>(
 ) {
   return (
     <ChartFrame chart={LineChart} {...props}>
-      {seriesEntries(props.series).map(([key, item]) => (
+      {props.series.map(({ key, color }) => (
         <Line
           key={key}
           dataKey={key}
           type="monotone"
-          stroke={item.color}
+          stroke={color}
           strokeWidth={2}
           dot={false}
         />

@@ -9,17 +9,22 @@ export type ChartColor =
   | "var(--chart-5)"
   | "var(--muted-foreground)";
 
-/** One series: its name in the legend and tooltip, and its colour. */
-export interface ChartSeriesItem {
+/** The fields of a row that hold numbers: the ones a series can plot. */
+type NumericKey<T> = { [K in keyof T]-?: T[K] extends number | null | undefined ? K : never }[keyof T] & string;
+
+/** One series: the field it plots, its name in the legend and tooltip, and its colour. */
+export interface ChartSeriesItem<T> {
+  key: NumericKey<T>;
   label: string;
   color: ChartColor;
 }
 
 /**
- * The series to draw, keyed by the data field each one reads. Key order is
- * draw and legend order; give the slots in order from --chart-1.
+ * The series in draw, stack and legend order; give the slots in order from
+ * --chart-1. A list, not an object keyed by field, because an object puts
+ * number-like keys such as "2024" first whatever order the page wrote them in.
  */
-export type ChartSeries<T> = { [K in keyof T]?: ChartSeriesItem };
+export type ChartSeries<T> = readonly ChartSeriesItem<T>[];
 
 /** What BarChartCard, AreaChartCard and LineChartCard all take. */
 export interface SeriesChartProps<T extends object, K extends keyof T> {
@@ -29,7 +34,7 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   action?: ReactNode;
   /** One row per point on the axis, in axis order. */
   data: T[];
-  /** The field the x axis reads: a month, an hour of day, a price bucket. */
+  /** The field the x axis reads: a month, an hour of day, a price bucket. One row per value; a repeated value is hidden behind the first. */
   xKey: K;
   series: ChartSeries<NoInfer<T>>;
   /** The x axis ticks and the tooltip's heading. Defaults to the value as text. */
