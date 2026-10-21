@@ -23,6 +23,7 @@ async function render(element: React.ReactElement): Promise<void> {
 
 const segments = () => [...document.querySelectorAll<HTMLElement>('[data-slot="distribution-segment"]')];
 const placed = () => segments().map((s) => [s.style.left, s.style.width]);
+const span = (text: string) => [...document.querySelectorAll<HTMLElement>("span")].find((s) => s.textContent === text);
 const legend = () => [...document.querySelectorAll("li")].map((li) => li.textContent);
 
 describe("DistributionBar", () => {
@@ -179,10 +180,8 @@ describe("DistributionBar", () => {
         segments={[{ name: "Used", value: 5 }]}
       />,
     );
-    const label = (text: string) =>
-      [...document.querySelectorAll<HTMLElement>("span")].find((s) => s.textContent === text);
-    expect(label("Empty")?.className).toContain("translate-x-0");
-    expect(label("High")?.className).toContain("-translate-x-1/2");
-    expect(label("Full")?.className).toContain("-translate-x-full");
+    expect(span("Empty")?.className).toContain("translate-x-0");
+    expect(span("High")?.className).toContain("-translate-x-1/2");
+    expect(span("Full")?.className).toContain("-translate-x-full");
   });
 });
