@@ -460,4 +460,26 @@ describe("chart cards", { timeout: 60_000 }, () => {
     for (const bar of ins) expect(Math.abs(bar.bottom - zero.y)).toBeLessThanOrEqual(1.5);
     for (const bar of outs) expect(Math.abs(bar.top - zero.y)).toBeLessThanOrEqual(1.5);
   });
+
+  it("sideways, a value level runs down the plot at its value on the fixed axis", async () => {
+    const chart = card("Sectors against the index");
+    await chart.scrollIntoViewIfNeeded();
+    const line = chart.locator(".recharts-reference-line line");
+    await settled(line);
+    const cap = await line.boundingBox();
+    const bars = await chart
+      .locator(".recharts-bar-rectangle path")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+    if (!cap || bars.length === 0) throw new Error("not laid out");
+    // The value axis starts where every bar does and runs 0 to 40%; the 30% cap sits three quarters along it.
+    const start = Math.min(...bars.map((bar) => bar.left));
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    expect(cap.height).toBeGreaterThan(cap.width);
+    expect(await line.getAttribute("stroke-dasharray")).toBeTruthy();
+    expect(Math.abs(cap.x - (start + 0.75 * (grid.x + grid.width - start)))).toBeLessThanOrEqual(1.5);
+    expect(await chart.locator("text.recharts-text.fill-muted-foreground.text-xs").allTextContents()).toEqual([
+      "cap 30%",
+    ]);
+  });
 });

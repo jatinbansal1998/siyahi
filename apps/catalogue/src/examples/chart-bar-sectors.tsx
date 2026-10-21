@@ -60,6 +60,9 @@ export default function ChartBarSectorsExample() {
       xTickDetail={(row) => `${pct(row.you)} vs ${pct(row.index)} · ${gap(row)}`}
       series={series}
       valueFormatter={(v) => pct(v)}
+      // Sideways, y is still the value: the axis runs 0 to 40% and the cap is a value level.
+      yDomain={[0, 0.4]}
+      referenceLines={[{ y: 0.3, label: "cap 30%", labelPosition: "insideBottomRight" }]}
       height={rows.length * 56 + 48}
       footer={<p className="text-muted-foreground">Company shares only; ETFs and funds are left out.</p>}
     />

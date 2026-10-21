@@ -72,9 +72,9 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   height: number;
   /** A second line under each x tick, so a row's figure reads without a hover: "FY24" then "▲₹1.2L". */
   xTickDetail?: (row: T) => string;
-  /** A title under the x axis, such as "Hour of day (IST)". */
+  /** A title under the x axis, such as "Hour of day (IST)". Not drawn on sideways bars. */
   xLabel?: string;
-  /** A title beside the value axis, read bottom to top, such as "Orders". */
+  /** A title beside the value axis, read bottom to top, such as "Orders". Not drawn on sideways bars. */
   yLabel?: string;
   /** Limits and events to mark on the plot. A zero line draws by itself when a value goes below zero. */
   referenceLines?: readonly ChartReferenceLine[];
