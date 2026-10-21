@@ -30,6 +30,12 @@ export default function ChartLineEventsExample() {
       xFormatter={(second) => clock(second).slice(0, 5)}
       series={series}
       valueFormatter={(v) => `${v}%`}
+      referenceLines={[
+        { y: 80, label: "old limit, 80%" },
+        { y: 50, label: "new limit, 50%", emphasis: "strong" },
+        { x: 313, label: "limit 50%", labelPosition: "insideBottomLeft" },
+        { x: 367, label: "killed", emphasis: "strong", labelPosition: "insideTopRight" },
+      ]}
       height={224}
     />
   );

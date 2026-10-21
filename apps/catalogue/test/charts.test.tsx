@@ -223,4 +223,41 @@ describe("chart cards", { timeout: 60_000 }, () => {
       expect(x).toBeCloseTo(grid.x + (value / 390) * grid.width, 0);
     }
   });
+
+  it("reference lines mark limits dashed and events solid, each with its label and emphasis", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const lines = chart.locator(".recharts-reference-line");
+    await settled(lines);
+    const drawn = await lines.evaluateAll((groups) =>
+      groups.map((g) => {
+        const line = g.querySelector("line");
+        const box = line?.getBoundingClientRect();
+        return {
+          stroke: line?.getAttribute("stroke"),
+          dashed: Boolean(line?.getAttribute("stroke-dasharray")),
+          upright: box ? box.width < 1 : false,
+          left: box?.left ?? Number.NaN,
+        };
+      }),
+    );
+    expect(drawn.map(({ stroke, dashed, upright }) => ({ stroke, dashed, upright }))).toEqual([
+      { stroke: "var(--muted-foreground)", dashed: true, upright: false },
+      { stroke: "var(--foreground)", dashed: true, upright: false },
+      { stroke: "var(--muted-foreground)", dashed: false, upright: true },
+      { stroke: "var(--foreground)", dashed: false, upright: true },
+    ]);
+    // Recharts draws the labels in a layer of their own, in the lines' order.
+    expect(await chart.locator("text.recharts-text.fill-muted-foreground").allTextContents()).toEqual([
+      "old limit, 80%",
+      "new limit, 50%",
+      "limit 50%",
+      "killed",
+    ]);
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    // Events sit at their second on the numeric axis, between samples.
+    expect(drawn[2]?.left).toBeCloseTo(grid.x + (313 / 390) * grid.width, 0);
+    expect(drawn[3]?.left).toBeCloseTo(grid.x + (367 / 390) * grid.width, 0);
+  });
 });

@@ -61,6 +61,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   valueFormatter,
   yTickFormatter,
   height,
+  referenceLines = [],
   placeholder,
   footer,
   xDomain,
@@ -105,6 +106,19 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 tick={{ className: "font-mono" }}
               />
               {crossesZero && <ReferenceLine y={0} stroke="var(--border)" />}
+              {referenceLines.map(({ label, emphasis = "muted", labelPosition = "insideTopLeft", ...at }) => (
+                <ReferenceLine
+                  key={`${at.x ?? ""}:${at.y ?? ""}:${label ?? ""}`}
+                  {...at}
+                  stroke={emphasis === "strong" ? "var(--foreground)" : "var(--muted-foreground)"}
+                  strokeDasharray={at.y === undefined ? undefined : "4 4"}
+                  label={
+                    label === undefined
+                      ? undefined
+                      : { value: label, position: labelPosition, className: "fill-muted-foreground text-xs" }
+                  }
+                />
+              ))}
               <ChartTooltip
                 content={
                   <ChartTooltipContent

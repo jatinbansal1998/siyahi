@@ -26,6 +26,18 @@ export interface ChartSeriesItem<T> {
  */
 export type ChartSeries<T> = readonly ChartSeriesItem<T>[];
 
+/**
+ * A labelled line across the plot: a level on the value axis (y), such as a limit, or a point on the x axis, such
+ * as an event. A level is dashed, an event solid.
+ */
+export type ChartReferenceLine = ({ y: number; x?: never } | { x: number | string; y?: never }) & {
+  label?: string;
+  /** "strong" draws it in the text colour, for the line that matters most; "muted" by default. */
+  emphasis?: "muted" | "strong";
+  /** Where the label sits against the line. Defaults to insideTopLeft. */
+  labelPosition?: "insideTopLeft" | "insideTopRight" | "insideBottomLeft" | "insideBottomRight";
+};
+
 /** What BarChartCard, AreaChartCard and LineChartCard all take. */
 export interface SeriesChartProps<T extends object, K extends keyof T> {
   title: ReactNode;
@@ -45,6 +57,8 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   yTickFormatter?: (value: number) => string;
   /** Height of the plot and legend, in pixels. */
   height: number;
+  /** Limits and events to mark on the plot. A zero line draws by itself when a value goes below zero. */
+  referenceLines?: readonly ChartReferenceLine[];
   /** Shown in the plot's place, at its height, while the data loads or after it failed to. */
   placeholder?: ReactNode;
   /** Lines under the chart, such as a caption or a takeaway, in the card's footer. */
