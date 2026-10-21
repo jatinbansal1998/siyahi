@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { Card, SectionCards } from "@siyahi/ui";
-import { act } from "react";
+import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
@@ -37,5 +37,35 @@ describe("SectionCards", () => {
     const tile = document.querySelector('[data-slot="card"]:not([data-testid])');
     expect(surface(tile?.parentElement?.className)).toEqual([]);
     expect(surface(tile?.className)).toEqual(surface(plain?.className));
+  });
+});
+
+function Picker() {
+  const [scope, setScope] = useState("All");
+  return (
+    <SectionCards
+      items={[
+        { label: "All", value: "₹1,48,600" },
+        { label: "Equity", value: "₹1,71,400" },
+      ]}
+      selected={scope}
+      onSelect={setScope}
+    />
+  );
+}
+
+const button = (label: string) => document.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`);
+
+describe("SectionCards as a picker", () => {
+  it("presses the tile picked and rings it alone", async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () => root?.render(<Picker />));
+    await act(async () => button("Equity")?.click());
+    expect(button("Equity")?.getAttribute("aria-pressed")).toBe("true");
+    expect(button("All")?.getAttribute("aria-pressed")).toBe("false");
+    const ringed = [...document.querySelectorAll('[data-slot="card"]')].filter((c) =>
+      c.classList.contains("ring-primary!"),
+    );
+    expect(ringed.map((c) => c.querySelector("button")?.getAttribute("aria-label"))).toEqual(["Equity"]);
   });
 });

@@ -2,8 +2,10 @@
 import {
   DataTable,
   DataTableBody,
+  DataTableColumnActions,
   DataTableColumnHeader,
   DataTableColumnSortMenu,
+  DataTableColumnSortOptions,
   DataTableColumnTitle,
   DataTableHeader,
   DataTableRoot,
@@ -82,9 +84,40 @@ describe("data table surfaces", () => {
   });
 });
 
+// The example's holdings by value, each column with the full column menu.
+const menuHeader = (title: string) => () => (
+  <DataTableColumnHeader>
+    <DataTableColumnTitle title={title} />
+    <DataTableColumnActions>
+      <DataTableColumnSortOptions />
+    </DataTableColumnActions>
+  </DataTableColumnHeader>
+);
+const menuTable = (
+  <DataTableRoot
+    data={[
+      { symbol: "INFY", value: 224400 },
+      { symbol: "HDFCBANK", value: 262500 },
+      { symbol: "TCS", value: 166000 },
+      { symbol: "ITC", value: 276000 },
+      { symbol: "ICICIBANK", value: 258000 },
+      { symbol: "NIFTYBEES", value: 255600 },
+    ]}
+    columns={[
+      { accessorKey: "symbol", header: menuHeader("Symbol") },
+      { accessorKey: "value", header: menuHeader("Value"), meta: { variant: "number" } },
+    ]}
+  >
+    <DataTable>
+      <DataTableHeader />
+      <DataTableBody />
+    </DataTable>
+  </DataTableRoot>
+);
+
 describe("data table column menus", () => {
   it("DataTableColumnActions opens with its labels and sorts the column", async () => {
-    const menu = await openColumnMenu(<DataTableExample />, "Value");
+    const menu = await openColumnMenu(menuTable, "Value");
     expect(menu.textContent).toContain("Column Actions");
     expect(menu.textContent).toContain("Column Sort");
     await pick(menu, "High to Low");
@@ -92,7 +125,7 @@ describe("data table column menus", () => {
   });
 
   it("DataTableColumnActions opens again after Escape closes it, with both labels", async () => {
-    let menu = await openColumnMenu(<DataTableExample />, "Value");
+    let menu = await openColumnMenu(menuTable, "Value");
     for (let round = 0; round < 2; round++) {
       await act(async () => menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
       expect(document.querySelector('[role="menu"]')).toBeNull();
@@ -132,5 +165,35 @@ describe("data table column menus", () => {
     expect(menu.textContent).toContain("Column Sort");
     await pick(menu, "Desc");
     expect(firstColumn()).toEqual(["TCS", "ITC", "INFY"]);
+  });
+});
+
+const sortButton = (title: string) =>
+  [...document.querySelectorAll<HTMLButtonElement>("th button")].find((b) => b.textContent === title);
+const rowCount = () => document.querySelector('[data-slot="data-table-row-count"]')?.textContent;
+
+describe("data table toolbar and sort header", () => {
+  beforeEach(async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () => root?.render(<DataTableExample />));
+  });
+
+  it("DataTableSortHeader sorts largest first on one click, then smallest", async () => {
+    await act(async () => sortButton("Value")?.click());
+    expect(firstColumn().slice(0, 3)).toEqual(["ITC", "HDFCBANK", "ICICIBANK"]);
+    await act(async () => sortButton("Value")?.click());
+    expect(firstColumn().slice(0, 3)).toEqual(["TCS", "INFY", "NIFTYBEES"]);
+  });
+
+  it("DataTableRowCount counts the rows the search leaves, named by the search's label", async () => {
+    expect(rowCount()).toBe("6 holdings");
+    const search = document.querySelector<HTMLInputElement>('input[aria-label="Filter holdings"]');
+    if (!search) throw new Error("no search field labelled Filter holdings");
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(search, "bank");
+      search.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    expect(firstColumn()).toEqual(["HDFCBANK", "ICICIBANK"]);
+    expect(rowCount()).toBe("2 of 6");
   });
 });

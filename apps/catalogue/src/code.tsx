@@ -1,8 +1,14 @@
-/** A static code sample, for snippets that are not live examples. */
-export function Code({ children }: { children: string }) {
+import { CodeBlock, CodeBlockActions, CodeBlockContent, CodeBlockCopyButton } from "@siyahi/ui";
+
+/** A static code sample with a copy button, for snippets that are not live examples. */
+export function Code({ children, className }: { children: string; className?: string }) {
+  const code = children.trim();
   return (
-    <pre className="max-w-full min-w-0 overflow-x-auto rounded-lg bg-muted p-4 font-mono text-xs leading-relaxed">
-      <code>{children.trim()}</code>
-    </pre>
+    <CodeBlock size="sm">
+      <CodeBlockActions>
+        <CodeBlockCopyButton value={code} />
+      </CodeBlockActions>
+      <CodeBlockContent className={className}>{code}</CodeBlockContent>
+    </CodeBlock>
   );
 }

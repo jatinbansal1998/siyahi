@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
+import { Code } from "./code";
 
 const modules = import.meta.glob<{ default: ComponentType }>("./examples/*.tsx", { eager: true });
 const sources = import.meta.glob<string>("./examples/*.tsx", { eager: true, query: "?raw", import: "default" });
@@ -30,9 +31,7 @@ export function Example({ name }: { name: string }) {
       <div className="flex min-w-0 flex-col justify-center gap-4 rounded-lg border border-dashed p-4 md:p-6">
         <Component />
       </div>
-      <pre className="max-h-96 min-w-0 overflow-auto rounded-lg bg-muted p-4 font-mono text-xs leading-relaxed">
-        <code>{source.trim()}</code>
-      </pre>
+      <Code className="max-h-96">{source}</Code>
     </div>
   );
 }

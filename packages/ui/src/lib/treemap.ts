@@ -62,14 +62,23 @@ export function layout<T extends { weight: number; group?: string }>(
   };
 }
 
-// Five equal steps across ±range: 12% to 60% of --positive or --negative mixed
-// into the card. oklab, not oklch: the card is achromatic, and an oklch mix
-// would swing green through orange on its way to it. A range that is not a
-// positive number falls back to the default rather than painting every tile
-// at one end of the scale.
-export function heat(change: number | null, range = 0.05): string {
+const DEFAULT_RANGE = 0.05;
+export const HEAT_STEPS = 5;
+
+/** The range the heat scale uses: one that is not a positive number falls back to ±5%. */
+export const heatRange = (range = DEFAULT_RANGE): number =>
+  Number.isFinite(range) && range > 0 ? range : DEFAULT_RANGE;
+
+// Step 1 to 5: 12% to 60% of --positive or --negative mixed into the card.
+// oklab, not oklch: the card is achromatic, and an oklch mix would swing green
+// through orange on its way to it.
+export const heatFill = (side: "positive" | "negative", step: number): string =>
+  `color-mix(in oklab, var(--${side}) ${step * 12}%, var(--card))`;
+
+// Five equal steps across ±range. A range that is not a positive number falls
+// back to the default rather than painting every tile at one end of the scale.
+export function heat(change: number | null, range?: number): string {
   if (!change) return "var(--muted)";
-  const scale = Number.isFinite(range) && range > 0 ? range : 0.05;
-  const mix = Math.min(5, Math.ceil((Math.abs(change) / scale) * 5)) * 12;
-  return `color-mix(in oklab, var(${change > 0 ? "--positive" : "--negative"}) ${mix}%, var(--card))`;
+  const step = Math.min(HEAT_STEPS, Math.ceil((Math.abs(change) / heatRange(range)) * HEAT_STEPS));
+  return heatFill(change > 0 ? "positive" : "negative", step);
 }

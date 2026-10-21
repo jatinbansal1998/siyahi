@@ -29,12 +29,22 @@ const display: Entry[] = [
   ],
   ["card", "Card", "A card holds data. One level only; prose sits on the page around it."],
   [
+    "code-block",
+    "Code block",
+    "A command or a file to read or paste, in Geist Mono on the muted fill. A copy button goes in CodeBlockActions: in a CodeBlockHeader beside a title, or on its own, where it shows on hover (always on a touch screen). Long lines scroll sideways; wrap breaks them instead, for a command the reader should see whole. A max-h class on CodeBlockContent makes a long log scroll inside the block.",
+  ],
+  [
     "alert",
     "Alert",
     "Default for information, destructive for errors, default with an amber icon for warnings. The icon takes text-warning! with the !: Alert colours its icons through a selector that outranks a plain text-warning.",
   ],
   ["tabs", "Tabs", "Views switch with tabs."],
   ["progress", "Progress", "A long import or upload."],
+  [
+    "progress-tone",
+    "ToneProgress",
+    'Progress with its bar in a meaning colour: tone="positive" for a gain\'s share, tone="negative" for a loss\'s. Write the figure beside the bar; the colour is never the only cue.',
+  ],
   ["skeleton", "Skeleton", "The shape of content that is still loading."],
   ["separator", "Separator", "A thin rule between items."],
   ["breadcrumb", "Breadcrumb", "Where the page sits."],
