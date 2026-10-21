@@ -173,14 +173,35 @@ describe("chart cards", { timeout: 60_000 }, () => {
     const chart = card("Money invested by quarter");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle");
-    // Recharts draws one series' bars after another, so Q1's five bars are every fourth.
+    // Recharts draws each series in its own layer, one bar per quarter in axis order,
+    // so the first bar of every layer is Q1's, however many quarters there are.
     const q1Lefts = async (): Promise<Set<number>> => {
       await settled(bars);
-      const lefts = await bars.evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().left)));
-      return new Set(lefts.filter((_, i) => i % 4 === 0));
+      const lefts = await chart
+        .locator(".recharts-bar")
+        .evaluateAll((layers) =>
+          layers.map((layer) =>
+            Math.round(layer.querySelector(".recharts-bar-rectangle")?.getBoundingClientRect().left ?? NaN),
+          ),
+        );
+      return new Set(lefts);
     };
     expect((await q1Lefts()).size).toBe(5);
     await chart.getByRole("button", { name: "Stacked" }).click();
     expect((await q1Lefts()).size).toBe(1);
+  });
+
+  it("the quarterly bar example's stacked tooltip lists every series at the hovered quarter", async () => {
+    const chart = card("Money invested by quarter");
+    await chart.scrollIntoViewIfNeeded();
+    // Pressing the selected item keeps it, so this stacks whatever ran before.
+    await chart.getByRole("button", { name: "Stacked" }).click();
+    const bars = chart.locator(".recharts-bar-rectangle");
+    await settled(bars);
+    const q1Equity = chart.locator(".recharts-bar").first().locator(".recharts-bar-rectangle").first();
+    const { x, y } = await center(q1Equity);
+    expect(await tooltipAt(chart, x, y, "Q1")).toEqual(
+      quarterLines("Q1", "₹1,20,000", "₹40,000", "₹15,000", "₹9,000", "₹4,000"),
+    );
   });
 });
