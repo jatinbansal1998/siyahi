@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BarChartCard, useFormat, type ChartSeries } from "@siyahi/ui";
 
 // Net realized gain per financial year (April to March); made-up figures.
@@ -17,14 +18,20 @@ const series: ChartSeries<(typeof data)[number]> = [
 
 export default function ChartBarYearsExample() {
   const { money, moneyCompact } = useFormat();
+  // The page owns the pick, so it can narrow the rest of the page to that year.
+  const [year, setYear] = useState<string | null>(null);
   const signed = (v: number) => `${v < 0 ? "▼" : "▲"}${moneyCompact(Math.abs(v))}`;
   return (
     <BarChartCard
       title="Realized by financial year"
-      description="April to March, gross"
+      description={
+        year ? `${year} picked; click it again for every year` : "April to March, gross. Click a year to pick it."
+      }
       data={data}
       xKey="fy"
       xTickDetail={(row) => signed(row.net)}
+      selected={year}
+      onSelect={setYear}
       series={series}
       valueFormatter={money}
       yTickFormatter={moneyCompact}

@@ -11,6 +11,8 @@
 // only its top, so the series meet flush.
 // Siyahi edit: a series' negativeColor colours its bars below zero, with one
 // Cell per row as shadcn's chart-bar-negative does.
+// Siyahi edit: selected and onSelect pick a category by a click on its bar;
+// the other bars fade, as shadcn's chart-bar-active marks its bar.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
@@ -23,11 +25,17 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K> {
   /** Stack the series in one bar per point instead of side by side. */
   stacked?: boolean
+  /** The picked category's x value: its bars stay solid and the rest fade. */
+  selected?: T[K] | null
+  /** Called with a clicked category's x value, or null when the picked one is clicked again. */
+  onSelect?: (value: T[K] | null) => void
 }
 
 /** Values over an ordered axis as bars: one series, or several grouped or stacked. */
 export function BarChartCard<T extends object, K extends keyof T>({
   stacked = false,
+  selected = null,
+  onSelect,
   ...props
 }: BarChartCardProps<T, K>) {
   return (
@@ -41,12 +49,28 @@ export function BarChartCard<T extends object, K extends keyof T>({
           radius={
             !stacked ? 2 : index === props.series.length - 1 ? [2, 2, 0, 0] : 0
           }
+          className={onSelect ? "cursor-pointer" : undefined}
+          onClick={
+            onSelect &&
+            ((bar: { payload?: T }) => {
+              const value = bar.payload?.[props.xKey]
+              if (value !== undefined)
+                onSelect(value === selected ? null : value)
+            })
+          }
         >
-          {negativeColor &&
+          {(negativeColor || selected !== null) &&
             props.data.map((row, i) => (
               <Cell
                 key={i}
-                fill={Number(row[key as keyof T]) < 0 ? negativeColor : color}
+                fill={
+                  negativeColor && Number(row[key as keyof T]) < 0
+                    ? negativeColor
+                    : color
+                }
+                fillOpacity={
+                  selected === null || row[props.xKey] === selected ? 1 : 0.35
+                }
               />
             ))}
         </Bar>

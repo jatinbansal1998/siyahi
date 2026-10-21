@@ -363,4 +363,20 @@ describe("chart cards", { timeout: 60_000 }, () => {
     const swatch = chart.locator(".recharts-tooltip-wrapper span").first();
     expect(await swatch.evaluate((el) => (el as HTMLElement).style.backgroundColor)).toBe("var(--negative)");
   });
+
+  it("a click picks a year, fading the others, and a second click clears it", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    const opacities = async () => {
+      await settled(bars);
+      return bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity")));
+    };
+    expect(await opacities()).toEqual(["1", "1", "1", "1", "1", "1"]);
+    await bars.nth(2).click();
+    expect(await opacities()).toEqual(["0.35", "0.35", "1", "0.35", "0.35", "0.35"]);
+    await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY23 picked");
+    await bars.nth(2).click();
+    expect(await opacities()).toEqual(["1", "1", "1", "1", "1", "1"]);
+  });
 });
