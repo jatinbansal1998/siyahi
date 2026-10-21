@@ -328,6 +328,7 @@ function barrel(): string {
       (file) => !INTERNAL.test(file.replace("src/components/registry", "")),
     ),
     ...filesUnder("src/components/siyahi"),
+    "src/lib/chart-series.ts",
     "src/lib/format.ts",
     "src/lib/locale.ts",
     "src/lib/recharts.ts",

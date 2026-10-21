@@ -1,0 +1,47 @@
+// Registry: @shadcn/chart-area-stacked
+// Origin: https://ui.shadcn.com/r/styles/new-york-v4/chart-area-stacked.json
+// Licence: MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md
+// Copied: 2026-10-21, sha256 d65dbe0690431811cfb4c1117506b6ff4c411eb65db70c29c97cca1030abb0b5
+// Siyahi edit: the sample data, config and footer are replaced by props, so a
+// page passes rows and series and never puts Recharts parts together itself.
+// Siyahi edit: the card, axes, dashed grid, tooltip and legend come from
+// lib/chart-frame, shared with BarChartCard and LineChartCard. The axes keep
+// Recharts' default ids, which a page can no longer change (dash#88).
+// Siyahi edit: areas overlap by default, each drawn over the one before;
+// `stacked` stacks them as the block does. Curves are monotone, not natural,
+// so a curve never overshoots past a data point.
+// Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
+"use client"
+
+import { Area, AreaChart } from "recharts"
+
+import { ChartFrame, seriesEntries } from "@siyahi/ui/lib/chart-frame"
+import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
+
+export interface AreaChartCardProps<T extends object, K extends keyof T>
+  extends SeriesChartProps<T, K> {
+  /** Stack the series into a total instead of overlapping them. */
+  stacked?: boolean
+}
+
+/** Values over an ordered axis as filled areas: one series, or several overlapping or stacked. */
+export function AreaChartCard<T extends object, K extends keyof T>({
+  stacked = false,
+  ...props
+}: AreaChartCardProps<T, K>) {
+  return (
+    <ChartFrame chart={AreaChart} {...props}>
+      {seriesEntries(props.series).map(([key, item]) => (
+        <Area
+          key={key}
+          dataKey={key}
+          type="monotone"
+          fill={item.color}
+          fillOpacity={stacked ? 0.4 : 0.2}
+          stroke={item.color}
+          stackId={stacked ? "stack" : undefined}
+        />
+      ))}
+    </ChartFrame>
+  )
+}
