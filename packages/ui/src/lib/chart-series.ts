@@ -49,8 +49,10 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   /** The field the x axis reads: a month, an hour of day, a price bucket. One row per value; a repeated value is hidden behind the first. */
   xKey: K;
   series: ChartSeries<NoInfer<T>>;
-  /** The x axis ticks and the tooltip's heading. Defaults to the value as text. */
+  /** The x axis ticks, and the tooltip's heading unless xTooltipFormatter is set. Defaults to the value as text. */
   xFormatter?: (value: T[K]) => string;
+  /** The tooltip's heading, when it should say more than a tick: "19:34:13 IST, 10 s average" against "19:34". */
+  xTooltipFormatter?: (value: T[K]) => string;
   /** A series' value in the tooltip, and the y axis unless yTickFormatter is set. Defaults to the locale's numbers. */
   valueFormatter?: (value: number) => string;
   /** The y axis, when its ticks should be shorter than the tooltip's figures: moneyCompact against money. */

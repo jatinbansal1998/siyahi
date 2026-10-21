@@ -58,6 +58,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   xKey,
   series,
   xFormatter = String,
+  xTooltipFormatter = xFormatter,
   valueFormatter,
   yTickFormatter,
   height,
@@ -126,7 +127,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     // which is the series name whenever the category is not a string.
                     labelFormatter={(_, payload) => {
                       const row = payload[0]?.payload as T | undefined;
-                      return row ? xFormatter(row[xKey]) : null;
+                      return row ? xTooltipFormatter(row[xKey]) : null;
                     }}
                     formatter={seriesRow(series, formatValue)}
                   />

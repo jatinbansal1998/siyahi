@@ -260,4 +260,19 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(drawn[2]?.left).toBeCloseTo(grid.x + (313 / 390) * grid.width, 0);
     expect(drawn[3]?.left).toBeCloseTo(grid.x + (367 / 390) * grid.width, 0);
   });
+
+  it("the tooltip heading can say more than the x tick", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    await settled(chart.locator(".recharts-line-curve"));
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    // The sample at 75 s: ticks read 19:35, the tooltip the whole time and what was measured.
+    const x = grid.x + (75 / 390) * grid.width;
+    expect(await tooltipAt(chart, x, grid.y + grid.height / 2, "19:35:13 IST, 10 s average")).toEqual([
+      "19:35:13 IST, 10 s average",
+      "Full pressure",
+      "66%",
+    ]);
+  });
 });

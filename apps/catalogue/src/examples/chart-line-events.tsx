@@ -28,6 +28,7 @@ export default function ChartLineEventsExample() {
       xDomain={[0, 390]}
       xTicks={[2, 62, 122, 182, 242, 302, 362]}
       xFormatter={(second) => clock(second).slice(0, 5)}
+      xTooltipFormatter={(second) => `${clock(second)} IST, 10 s average`}
       series={series}
       valueFormatter={(v) => `${v}%`}
       referenceLines={[
