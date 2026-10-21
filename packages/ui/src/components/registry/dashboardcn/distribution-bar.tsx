@@ -12,6 +12,10 @@
 // Siyahi edit: markers draw a labelled line across the bar at a value, such
 // as a limit; on a fixed scale the legend gives each segment's value, since a
 // share of the total says little against a capacity.
+// Siyahi edit: without min and max the bar runs from the negative segments'
+// total to the positive ones', so a loss is never clipped off the left; a
+// marker past either end is dropped, and markers at one value keep their own
+// keys. A page's aria-label replaces the generated one on the bar.
 // Siyahi edit: highlighted fades every segment but one, and onHover reports
 // the segment under the pointer, so a page can drive a readout from it.
 // Segments take a key for when names repeat, and chart tokens as colours.
@@ -43,9 +47,12 @@ export interface DistributionBarProps extends Omit<React.ComponentProps<"div">, 
   showLegend?: boolean
   /** Show absolute values in the legend in addition to the share. */
   showValues?: boolean
-  /** The value the bar's right end stands for. Defaults to the segments' total. */
+  /** The value the bar's right end stands for. Defaults to the positive segments' total. */
   max?: number
-  /** The value the bar's left end stands for, below zero when segments can be negative. Defaults to 0. */
+  /**
+   * The value the bar's left end stands for. Defaults to the negative segments' total, or 0 when there are none.
+   * Above zero, segments (which start at zero) fall off the bar.
+   */
   min?: number
   markers?: DistributionMarker[]
   /** The key (or name) of the one segment to keep solid; the rest fade. */
@@ -68,11 +75,12 @@ function DistributionBar({
   showLegend = true,
   showValues = false,
   max,
-  min = 0,
+  min,
   markers = [],
   highlighted = null,
   onHover,
   className,
+  "aria-label": ariaLabel,
   ...props
 }: DistributionBarProps) {
   const locale = useLocale()
@@ -81,9 +89,16 @@ function DistributionBar({
     ((value: number) =>
       new Intl.NumberFormat(locale.numberLocale, { notation: "compact", maximumFractionDigits: 1 }).format(value))
   const total = segments.reduce((sum, segment) => sum + Math.abs(segment.value), 0)
-  const top = max ?? total
-  const span = top - min || 1
-  const position = (value: number) => ((value - min) / span) * 100
+  const gains = segments.reduce((sum, segment) => sum + Math.max(segment.value, 0), 0)
+  const losses = segments.reduce((sum, segment) => sum + Math.min(segment.value, 0), 0)
+  const bottom = min ?? losses
+  const top = max ?? gains
+  const span = top - bottom || 1
+  const position = (value: number) => ((value - bottom) / span) * 100
+  // A marker past either end has nowhere on the bar to go, as Recharts drops a reference line outside its domain.
+  const shown = markers
+    .filter((marker) => marker.at >= bottom && marker.at <= top)
+    .map((marker, index) => ({ ...marker, key: `${marker.at}:${marker.label ?? ""}:${index}` }))
   let above = 0
   let below = 0
   const resolved = segments.map((segment, index) => {
@@ -110,12 +125,12 @@ function DistributionBar({
       {...props}
     >
       <div className="relative">
-        {markers.some((m) => m.label) ? (
+        {shown.some((m) => m.label) ? (
           <div className="text-muted-foreground relative h-4 font-mono text-xs">
-            {markers.map((marker) =>
+            {shown.map((marker) =>
               marker.label ? (
                 <span
-                  key={marker.at}
+                  key={marker.key}
                   className="absolute top-0 -translate-x-1/2 whitespace-nowrap"
                   style={{ left: `${position(marker.at)}%` }}
                 >
@@ -127,9 +142,12 @@ function DistributionBar({
         ) : null}
         <div
           role="img"
-          aria-label={resolved
-            .map((segment) => `${segment.name} ${figure(segment)}`)
-            .join(", ")}
+          aria-label={
+            ariaLabel ??
+            resolved
+              .map((segment) => `${segment.name} ${figure(segment)}`)
+              .join(", ")
+          }
           className="bg-muted relative h-2.5 w-full overflow-hidden rounded-full"
           onMouseLeave={onHover ? () => onHover(null) : undefined}
         >
@@ -150,9 +168,9 @@ function DistributionBar({
             ) : null
           )}
         </div>
-        {markers.map((marker) => (
+        {shown.map((marker) => (
           <div
-            key={marker.at}
+            key={marker.key}
             data-slot="distribution-marker"
             aria-hidden="true"
             className="bg-foreground absolute bottom-0 h-2.5 w-0.5 -translate-x-1/2"

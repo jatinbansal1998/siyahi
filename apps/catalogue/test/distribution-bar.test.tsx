@@ -114,4 +114,55 @@ describe("DistributionBar", () => {
     });
     expect(onHover.mock.calls.map(([s]) => s?.key ?? null)).toEqual(["itc-dhan", null]);
   });
+
+  it("fits a negative segment on the bar when no min is given, instead of clipping it off the left", async () => {
+    await render(
+      <DistributionBar
+        showLegend={false}
+        segments={[
+          { name: "Gains", value: 6 },
+          { name: "Losses", value: -2 },
+        ]}
+      />,
+    );
+    // The scale runs from the losses' total to the gains': -2 to 6.
+    expect(placed()).toEqual([
+      ["25%", "75%"],
+      ["0%", "25%"],
+    ]);
+  });
+
+  it("draws two markers at one value, and none outside the scale", async () => {
+    const error = vi.spyOn(console, "error");
+    await render(
+      <DistributionBar
+        max={10}
+        showLegend={false}
+        markers={[
+          { at: 8, label: "High" },
+          { at: 8, label: "Max" },
+          { at: 14, label: "Past the end" },
+        ]}
+        segments={[{ name: "Used", value: 5 }]}
+      />,
+    );
+    const lines = [...document.querySelectorAll<HTMLElement>('[data-slot="distribution-marker"]')];
+    expect(lines.map((line) => line.style.left)).toEqual(["80%", "80%"]);
+    expect(document.body.textContent).not.toContain("Past the end");
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
+
+  it("takes the page's aria-label for the bar, when given one", async () => {
+    await render(
+      <DistributionBar
+        aria-label="3 winning positions worth ₹1,16,000 against 3 losing ones worth ₹46,000"
+        showLegend={false}
+        segments={[{ name: "INFY", value: 4 }]}
+      />,
+    );
+    expect(document.querySelector('[role="img"]')?.getAttribute("aria-label")).toBe(
+      "3 winning positions worth ₹1,16,000 against 3 losing ones worth ₹46,000",
+    );
+  });
 });
