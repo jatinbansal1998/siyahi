@@ -40,12 +40,14 @@ export const data: Page = {
             pick its category; the other bars fade, and a second click clears it. The page owns the pick. horizontal
             lays the bars sideways with the categories down the left, for long names such as sectors; give it a height
             that fits the rows. footer puts a caption under the chart, and placeholder stands in for the plot while its
-            data loads or after it failed.
+            data loads or after it failed. Stacked, negative values run down from zero and positive ones up, as money in
+            and out does here.
           </Lead>
           <Example name="chart-bar" />
           <Example name="chart-bar-hourly" />
           <Example name="chart-bar-years" />
           <Example name="chart-bar-sectors" />
+          <Example name="chart-bar-flows" />
         </>
       ),
     },

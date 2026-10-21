@@ -15,6 +15,8 @@
 // the other bars fade, as shadcn's chart-bar-active marks its bar.
 // Siyahi edit: horizontal lays the bars sideways, categories down the left,
 // as shadcn's chart-bar-horizontal does, for long names such as sectors.
+// Siyahi edit: a stack runs negative values down from zero and positive ones
+// up, so money out sits below the line rather than hanging from money in.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
@@ -43,7 +45,11 @@ export function BarChartCard<T extends object, K extends keyof T>({
   ...props
 }: BarChartCardProps<T, K>) {
   return (
-    <ChartFrame chart={BarChart} {...props}>
+    <ChartFrame
+      chart={BarChart}
+      {...props}
+      stackOffset={stacked ? "sign" : undefined}
+    >
       {props.series.map(({ key, color, negativeColor }, index) => (
         <Bar
           key={key}

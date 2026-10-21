@@ -440,4 +440,24 @@ describe("chart cards", { timeout: 60_000 }, () => {
       await page.setViewportSize({ width: 1280, height: 900 });
     }
   });
+
+  it("stacked bars put negative values below zero, not hanging from the positive stack", async () => {
+    const chart = card("Cash in and out by month");
+    await chart.scrollIntoViewIfNeeded();
+    const layers = chart.locator(".recharts-bar");
+    await settled(chart.locator(".recharts-bar-rectangle"));
+    const zero = await chart.locator(".recharts-reference-line line").first().boundingBox();
+    if (!zero) throw new Error("no zero line");
+    const ins = await layers
+      .nth(0)
+      .locator(".recharts-bar-rectangle path")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+    const outs = await layers
+      .nth(1)
+      .locator(".recharts-bar-rectangle path")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
+    // Within a pixel and a half: bar edges and the zero line round to different half pixels.
+    for (const bar of ins) expect(Math.abs(bar.bottom - zero.y)).toBeLessThanOrEqual(1.5);
+    for (const bar of outs) expect(Math.abs(bar.top - zero.y)).toBeLessThanOrEqual(1.5);
+  });
 });

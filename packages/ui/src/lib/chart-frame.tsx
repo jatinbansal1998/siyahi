@@ -35,6 +35,8 @@ interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesCha
    * in shadcn's chart-bar-horizontal. x and y keep their meaning: x is the category, y the value.
    */
   horizontal?: boolean;
+  /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
+  stackOffset?: "sign";
 }
 
 /** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */
@@ -120,6 +122,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   chart: Chart,
   children,
   horizontal = false,
+  stackOffset,
   title,
   description,
   action,
@@ -160,7 +163,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
           </div>
         ) : (
           <ChartContainer config={config} className="aspect-auto w-full" style={{ height }}>
-            <Chart data={data} layout={horizontal ? "vertical" : "horizontal"} margin={{ left: 0, right: 8 }}>
+            <Chart
+              data={data}
+              layout={horizontal ? "vertical" : "horizontal"}
+              stackOffset={stackOffset}
+              margin={{ left: 0, right: 8 }}
+            >
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
               {horizontal ? (
                 <>
