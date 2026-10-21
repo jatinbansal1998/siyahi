@@ -2,7 +2,7 @@
 import { Card, SectionCards } from "@siyahi/ui";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -67,5 +67,29 @@ describe("SectionCards as a picker", () => {
       c.classList.contains("ring-primary!"),
     );
     expect(ringed.map((c) => c.querySelector("button")?.getAttribute("aria-label"))).toEqual(["Equity"]);
+  });
+
+  it("will not pick a disabled tile, and fades it", async () => {
+    const onSelect = vi.fn<(label: string) => void>();
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <SectionCards
+          items={[
+            { label: "Equity", value: 164 },
+            { label: "Gold bonds", value: 0, disabled: true },
+          ]}
+          onSelect={onSelect}
+        />,
+      ),
+    );
+    await act(async () => button("Gold bonds")?.click());
+    await act(async () => button("Equity")?.click());
+    expect(onSelect.mock.calls).toEqual([["Equity"]]);
+    expect(button("Gold bonds")?.disabled).toBe(true);
+    const faded = [...document.querySelectorAll('[data-slot="card"]')].filter((c) =>
+      c.classList.contains("opacity-60"),
+    );
+    expect(faded.map((c) => c.querySelector("button")?.getAttribute("aria-label"))).toEqual(["Gold bonds"]);
   });
 });

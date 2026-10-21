@@ -19,6 +19,9 @@
 // carries aria-pressed, and the picked tile takes a primary ring. The ring is
 // important (`!`): the stock Card sets `dark:ring-foreground/10`, which would
 // otherwise win in dark mode.
+// Siyahi edit: a tile marked disabled cannot be picked: its button is
+// disabled and the tile fades, as The Book's attention cards do for a flag
+// with no positions.
 "use client"
 
 import * as React from "react"
@@ -44,6 +47,8 @@ export interface SectionCard {
   headline?: React.ReactNode
   /** Muted second footer line. */
   detail?: React.ReactNode
+  /** In a picker, a tile that cannot be picked, such as one with nothing in it: faded, and its button disabled. */
+  disabled?: boolean
 }
 
 // Tailwind finds classes by scanning source, so each step is written out whole.
@@ -70,7 +75,12 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
         {items.map((item) => (
           <Card
             key={item.label}
-            className={cn("@container/card", onSelect && "relative", item.label === selected && "ring-2 ring-primary!")}
+            className={cn(
+              "@container/card",
+              onSelect && "relative",
+              item.label === selected && "ring-2 ring-primary!",
+              onSelect && item.disabled && "opacity-60",
+            )}
           >
             {/* A Card is a div, which a button cannot hold, so the button lies over the tile with its radius, for the focus ring to follow the corner. */}
             {onSelect && (
@@ -78,6 +88,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
                 type="button"
                 aria-label={item.label}
                 aria-pressed={item.label === selected}
+                disabled={item.disabled}
                 onClick={() => onSelect(item.label)}
                 className="absolute inset-0 z-10 rounded-4xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
               />

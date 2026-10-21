@@ -66,6 +66,8 @@ Page parts that dash and The Book built for themselves. Published as
 - A chart card calls its value formatter with the value alone. Recharts calls
   a tick formatter as `(value, index)`, so `useFormat().pct` read the index as
   its decimals and `count` as its locale.
+- A `SectionCards` tile takes `disabled`: in a picker it fades and cannot be
+  picked, such as a class with no positions.
 - `CopyButton`, from MiniDev's `copy-button`: an outline button with a label,
   such as "Copy all", that reads "Copied" with a check for 2 s.
   `CodeBlockCopyButton` stays the icon-only one inside a code block.
