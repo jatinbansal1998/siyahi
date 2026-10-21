@@ -331,7 +331,6 @@ function barrel(): string {
     "src/lib/chart-series.ts",
     "src/lib/format.ts",
     "src/lib/locale.ts",
-    "src/lib/recharts.ts",
   ];
   const taken = new Set<string>();
   const lines = modules.map((file) => {

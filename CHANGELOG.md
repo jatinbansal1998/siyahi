@@ -71,10 +71,13 @@ Page parts that dash and The Book built for themselves. Published as
 - `CopyButton`, from MiniDev's `copy-button`: an outline button with a label,
   such as "Copy all", that reads "Copied" with a check for 2 s.
   `CodeBlockCopyButton` stays the icon-only one inside a code block.
-- 2026-10-22: raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
-  `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) stay
-  until dash's pages, the Dell page included, and The Book move to the chart
-  cards and `DistributionBar`; remove after.
+- The raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
+  `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) are
+  gone. Pages draw charts with `BarChartCard`, `AreaChartCard`,
+  `LineChartCard` and `DistributionBar`; dash's pages, the Dell page included,
+  and The Book moved to them on `0.1.9-next.2` (dash#95, The Book #34). This
+  resolves the dated notes of 0.1.8 and 0.1.9-next.2. A page that still needs
+  a raw part imports `recharts` from its own dependency.
 
 ## 0.1.8
 
