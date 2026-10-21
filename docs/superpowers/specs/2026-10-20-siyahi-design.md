@@ -95,7 +95,7 @@ Contents of `~/code/siyahi`:
 - `components/ui/*`: shadcn core components, installed with `npx shadcn add` and taken
   as is: button, badge, card, table, tabs, toggle-group, select, input, tooltip, dialog,
   sheet, dropdown-menu, command, alert, skeleton, separator, chart, sidebar, breadcrumb,
-  scroll-area, popover, calendar, slider, progress.
+  scroll-area, popover, calendar, slider, progress, accordion.
 - `components/registry/*`: add-ons installed from shadcn-format registries, taken as is,
   pinned in `registry.lock.json` (registry, item, version). Initial set, each read once
   before install because it is third-party code:
