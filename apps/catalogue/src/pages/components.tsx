@@ -41,6 +41,11 @@ const display: Entry[] = [
   ["scroll-area", "Scroll area", "A fixed-height box that scrolls on its own."],
   ["avatar", "Avatar", "A person or an account, by initials."],
   ["collapsible", "Collapsible", "Detail that stays out of the way until asked for."],
+  [
+    "accordion",
+    "Accordion",
+    "A list of questions, such as an FAQ, in one bordered group. One item open at a time by default; multiple lets several stay open.",
+  ],
   ["table", "Table", "The plain table, for small fixed lists. Anything to sort or filter uses the data table."],
 ];
 

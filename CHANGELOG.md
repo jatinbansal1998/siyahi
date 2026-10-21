@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.7
+
+Published as `0.1.7-next.<n>` pre-releases.
+
+- `Accordion`, `AccordionItem`, `AccordionTrigger` and `AccordionContent`:
+  shadcn's core Accordion on Base UI, as the CLI wrote it. A list of
+  questions, such as an FAQ, sits in one bordered group instead of one
+  `Collapsible` per item. One item is open at a time; pass `multiple` to let
+  several stay open. The catalogue shows both under Components.
+
 ## 0.1.6
 
 Treemap tiles can be tapped, and two open looks are settled. Published as
