@@ -127,7 +127,7 @@ Contents of `~/code/siyahi`:
     literals, no Tailwind arbitrary values for colour or size, no `dark:` variants, no
     numeric font-size props. Frozen dash pages are outside the rule by construction.
   - `shots.mjs`: generalised from dash. Takes a URL, renders 1920 and 390 in light and
-    dark, checks gutter, horizontal overflow and font. dash keeps a thin `npm run shots`
+    dark, checks gutter, horizontal overflow, content cut off by an overflow-hidden box, and font. dash keeps a thin `npm run shots`
     that resolves its routes and calls it.
   - `contrast.mjs`: the 4.5:1 text and 3:1 chart checks, run in the `@siyahi/ui` build.
 - `catalogue/`: a Vite site that is the style guide. Every installed and written

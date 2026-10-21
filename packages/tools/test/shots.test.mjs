@@ -70,6 +70,31 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     for (const { name, width } of MODES) expect(run.sizesOf(name)).toEqual([{ width, height: 3000 }]);
   });
 
+  // A card header in stock shadcn's shape: the title and a two-item toggle in
+  // columns, inside a card that hides its overflow. The document never scrolls
+  // sideways, so only the cut-off check can see the toggle run past the edge.
+  /** @param {string} columns grid-template-columns of the header */
+  const card = (columns) => `<main style="padding: 16px"><h1>Card</h1>
+    <div style="overflow: hidden; border: 1px solid">
+      <div style="display: grid; grid-template-columns: ${columns}">
+        <p style="min-width: 120px">Return against the index</p>
+        <div style="display: flex"><button style="width: 150px">Cumulative return</button><button style="width: 150px">Monthly return</button></div>
+      </div>
+    </div></main>`;
+
+  it("fails a page whose card cuts off a toggle at 390", () => {
+    const run = shoot(card("1fr auto"));
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toMatch(/390-light .*clipped=1/);
+    expect(run.output).toContain('button "Monthly return" by 64px is cut off by an overflow: hidden box');
+    expect(run.output).toMatch(/ok {3}1920-light .*clipped=0/);
+  });
+
+  it("passes the same card with the toggle under the title", () => {
+    const run = shoot(card("1fr"));
+    expect(run.status, run.output).toBe(0);
+  });
+
   // A page that names Geist and loads no font file: an app whose font CSS
   // never arrived, or a static report on report.css.
   const UNLOADED = `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`;

@@ -85,7 +85,11 @@ and the fonts are ready, so content a page renders after loading its data is
 in the shot. A mode fails when nothing matches within 15 seconds; pass a
 selector that only the finished page has, such as `--wait-for '[data-ready]'`. It fails when visible text or a
 card comes closer than `--gutter` pixels to either edge, when the page scrolls
-sideways, or when the body font is not a loaded `--font` family. Pass
+sideways, when text or a control (a heading, paragraph, cell, link, button or
+field) is cut off at the side by a box that hides its overflow, such as a card,
+or when the body font is not a loaded `--font` family. The cut-off check names
+each element and the pixels it loses, `button "Monthly return" by 56px`; the
+page never scrolls sideways in that case, so the scroll check cannot see it. Pass
 `--report` for a static HTML report on `report.css`, which loads no font file
 by design: the body must still name `--font` first, but the viewer's installed
 font or the system fallback may draw it, and the run prints
