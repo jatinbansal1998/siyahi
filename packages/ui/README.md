@@ -79,7 +79,10 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 - **Cards and badges as installed**: every `Card`, stat tiles included, keeps
   luma's `rounded-4xl`, `shadow-md` and faint ring. A category (a sector, a
   broker, a unit's kind) is an outline `Badge`: categories stay neutral, and
-  colour is left to the four meaning colours and the charts.
+  colour is left to the four meaning colours and the charts. On a narrow card
+  (header under 24rem, so any phone) a header action such as a toggle drops
+  under the title and description, left-aligned; a stat tile's badge stays
+  top right.
 - **Formatters**: `money`, `moneyCompact`, `pct` and `time`, or `useFormat()`
   for the same bound to the provider's locale.
   `useFormat().time(value, { withDate: true })` (or

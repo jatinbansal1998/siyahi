@@ -186,7 +186,9 @@ The ten rules:
 2. A stat tile is `SectionCards` from shadcn's dashboard block: muted label, outline
    badge, value, bold line, muted line.
 3. Charts: area, bar or line, chart tokens only, dashed horizontal grid, legend below,
-   range or mode toggle top right. Fixed pixel height.
+   range or mode toggle top right. Fixed pixel height. On a card whose header is
+   narrower than 24rem (a phone), the theme puts the toggle under the title and
+   description, left-aligned; a stat tile's lone badge stays top right (0.1.7).
 4. Tables are the registry data table, inside a Card.
 5. Views switch with Tabs; secondary actions are outline buttons with an icon.
 6. Four meaning colours: positive, negative, warning, link. Nothing else is coloured.

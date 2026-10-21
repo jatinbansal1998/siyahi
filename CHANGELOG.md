@@ -15,6 +15,19 @@ Published as `0.1.7-next.<n>` pre-releases.
   80rem (1280px) wide. Three and six run three across from 48rem; four keep the
   stock 2 then 4. A phone still shows one tile per row. More than six tiles
   keep the stock grid.
+- A card's header action drops under the title and description, left-aligned,
+  when the header is narrower than 24rem (384px, so any phone). Stock
+  `CardHeader` kept it in a column of its own at every width: on a phone a
+  two-item toggle squeezed the title to a few words and ran past the card's
+  edge, where the card cut the second item off. The rule is a container query
+  in `styles.css`; `card.tsx` is unchanged. A `CardAction` holding only a
+  `Badge`, like a stat tile's, stays top right. Pages that worked around it
+  with `max-md:grid-cols-1!` on the header can drop the classes.
+- `siyahi-shots` fails a page when a heading, text, link, button or field is
+  cut off at the side by a box that hides its overflow, and names it:
+  `button "Monthly return" by 56px`. The page-level sideways-scroll check
+  could not see this, since a card that cuts content off never makes the
+  document wider.
 
 ## 0.1.6
 
