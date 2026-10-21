@@ -40,7 +40,11 @@ export const data: Page = {
       title: "Line chart",
       body: (
         <>
-          <Lead>Reference lines mark a level such as zero or a target.</Lead>
+          <Lead>
+            Reference lines mark a level such as zero or a target. A mode toggle sits top right; on a card narrower than
+            about 430px it drops under the title and description, left-aligned, so a toggle with longer labels is never
+            cut off at the card's edge. A lone badge, like a stat tile's, stays top right.
+          </Lead>
           <Example name="chart-line" />
         </>
       ),
