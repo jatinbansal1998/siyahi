@@ -330,12 +330,11 @@ describe("chart cards", { timeout: 60_000 }, () => {
       els.map((el) => [...el.querySelectorAll("tspan")].map((t) => t.textContent)),
     );
     expect(lines).toEqual([
-      ["FY21", "▲₹42,000"],
-      ["FY22", "▲₹1.9L"],
-      ["FY23", "▼₹64,000"],
-      ["FY24", "▲₹1.3L"],
-      ["FY25", "▼₹21,000"],
-      ["FY26", "▲₹73,000"],
+      ["FY22", "▲₹1.4L"],
+      ["FY23", "▲₹1.9L"],
+      ["FY24", "▼₹1.6L"],
+      ["FY25", "▲₹1.3L"],
+      ["FY26", "▼₹1.2L"],
     ]);
     // The second line sits under the first.
     const [name, detail] = await ticks
@@ -356,10 +355,9 @@ describe("chart cards", { timeout: 60_000 }, () => {
       "var(--negative)",
       "var(--positive)",
       "var(--negative)",
-      "var(--positive)",
     ]);
     const { x, y } = await center(bars.nth(2));
-    await tooltipAt(chart, x, y, "FY23");
+    await tooltipAt(chart, x, y, "FY24");
     const swatch = chart.locator(".recharts-tooltip-wrapper span").first();
     expect(await swatch.evaluate((el) => (el as HTMLElement).style.backgroundColor)).toBe("var(--negative)");
   });
@@ -372,11 +370,38 @@ describe("chart cards", { timeout: 60_000 }, () => {
       await settled(bars);
       return bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity")));
     };
-    expect(await opacities()).toEqual(["1", "1", "1", "1", "1", "1"]);
+    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
     await bars.nth(2).click();
-    expect(await opacities()).toEqual(["0.35", "0.35", "1", "0.35", "0.35", "0.35"]);
-    await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY23 picked");
+    expect(await opacities()).toEqual(["0.35", "0.35", "1", "0.35", "0.35"]);
+    await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await bars.nth(2).click();
-    expect(await opacities()).toEqual(["1", "1", "1", "1", "1", "1"]);
+    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
+  });
+
+  it("horizontal bars put the categories down the left, each name beside its own bars", async () => {
+    const chart = card("Sectors against the index");
+    await chart.scrollIntoViewIfNeeded();
+    const names = chart.locator(".recharts-yAxis-tick-labels text tspan:first-child");
+    await settled(names);
+    expect(await names.allTextContents()).toEqual([
+      "Financial Services",
+      "Information Technology",
+      "Oil, Gas & Consumable Fuels",
+      "Fast Moving Consumer Goods",
+      "Automobile and Auto Components",
+      "Healthcare",
+    ]);
+    const bars = chart.locator(".recharts-bar").first().locator(".recharts-bar-rectangle path");
+    const lefts = new Set<number>();
+    for (let i = 0; i < 6; i++) {
+      const bar = await bars.nth(i).boundingBox();
+      const name = await names.nth(i).boundingBox();
+      if (!bar || !name) throw new Error("not laid out");
+      // Bars grow rightwards from one baseline, right of the names; a sector's bar sits by its name's first line.
+      lefts.add(Math.round(bar.x));
+      expect(bar.x).toBeGreaterThanOrEqual(name.x + name.width);
+      expect(Math.abs(bar.y - name.y)).toBeLessThan(24);
+    }
+    expect(lefts.size).toBe(1);
   });
 });

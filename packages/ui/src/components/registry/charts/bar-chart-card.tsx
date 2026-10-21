@@ -13,6 +13,8 @@
 // Cell per row as shadcn's chart-bar-negative does.
 // Siyahi edit: selected and onSelect pick a category by a click on its bar;
 // the other bars fade, as shadcn's chart-bar-active marks its bar.
+// Siyahi edit: horizontal lays the bars sideways, categories down the left,
+// as shadcn's chart-bar-horizontal does, for long names such as sectors.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
@@ -25,6 +27,8 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K> {
   /** Stack the series in one bar per point instead of side by side. */
   stacked?: boolean
+  /** Bars run sideways, categories down the left: for long names, such as sectors. */
+  horizontal?: boolean
   /** The picked category's x value: its bars stay solid and the rest fade. */
   selected?: T[K] | null
   /** Called with a clicked category's x value, or null when the picked one is clicked again. */
@@ -47,7 +51,13 @@ export function BarChartCard<T extends object, K extends keyof T>({
           fill={color}
           stackId={stacked ? "stack" : undefined}
           radius={
-            !stacked ? 2 : index === props.series.length - 1 ? [2, 2, 0, 0] : 0
+            !stacked
+              ? 2
+              : index === props.series.length - 1
+                ? props.horizontal
+                  ? [0, 2, 2, 0]
+                  : [2, 2, 0, 0]
+                : 0
           }
           className={onSelect ? "cursor-pointer" : undefined}
           onClick={

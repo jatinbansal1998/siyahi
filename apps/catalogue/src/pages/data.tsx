@@ -37,11 +37,15 @@ export const data: Page = {
             yLabel title the axes. xTickDetail adds a second line under each tick from its row, so a year's net reads
             without a hover. A gain and a loss take var(--positive) and var(--negative): give the series color and
             negativeColor, and each bar takes the one its sign calls for. selected and onSelect let a click on a bar
-            pick its category; the other bars fade, and a second click clears it. The page owns the pick.
+            pick its category; the other bars fade, and a second click clears it. The page owns the pick. horizontal
+            lays the bars sideways with the categories down the left, for long names such as sectors; give it a height
+            that fits the rows. footer puts a caption under the chart, and placeholder stands in for the plot while its
+            data loads or after it failed.
           </Lead>
           <Example name="chart-bar" />
           <Example name="chart-bar-hourly" />
           <Example name="chart-bar-years" />
+          <Example name="chart-bar-sectors" />
         </>
       ),
     },

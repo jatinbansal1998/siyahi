@@ -3,12 +3,11 @@ import { BarChartCard, useFormat, type ChartSeries } from "@siyahi/ui";
 
 // Net realized gain per financial year (April to March); made-up figures.
 const data = [
-  { fy: "FY21", net: 42000 },
-  { fy: "FY22", net: 186000 },
-  { fy: "FY23", net: -64000 },
-  { fy: "FY24", net: 128000 },
-  { fy: "FY25", net: -21000 },
-  { fy: "FY26", net: 73000 },
+  { fy: "FY22", net: 142000 },
+  { fy: "FY23", net: 186000 },
+  { fy: "FY24", net: -164000 },
+  { fy: "FY25", net: 128000 },
+  { fy: "FY26", net: -121000 },
 ];
 
 // A gain and a loss take the meaning colours; the arrow in each tick says the same without colour.

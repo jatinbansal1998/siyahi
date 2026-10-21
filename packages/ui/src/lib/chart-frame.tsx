@@ -26,6 +26,11 @@ interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesCha
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
   /** One Bar, Area or Line per series. */
   children: ReactNode;
+  /**
+   * Bars run sideways: the categories go down the left, where long names fit, and the value axis is hidden, as
+   * in shadcn's chart-bar-horizontal. x and y keep their meaning: x is the category, y the value.
+   */
+  horizontal?: boolean;
 }
 
 /** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */
@@ -53,7 +58,8 @@ interface TickProps {
 
 /**
  * An x tick with a second line from its row. Under a column the lines hang below the axis; beside a horizontal
- * bar they straddle its middle.
+ * bar they straddle its middle. Both lines are set in Geist, not Mono: a name with a figure under it reads as a
+ * label, as in BarList, and sector names in Mono would take most of a phone's width.
  */
 function twoLineTick<T extends object, K extends keyof T>(
   data: readonly T[],
@@ -66,12 +72,13 @@ function twoLineTick<T extends object, K extends keyof T>(
     const value = payload?.value as T[K];
     const row = data.find((r) => r[xKey] === value);
     return (
-      <text x={x} y={y} textAnchor={beside ? "end" : "middle"} className="font-mono">
+      // Recharts measures text with this class to size an axis set to width="auto".
+      <text x={x} y={y} textAnchor={beside ? "end" : "middle"} className="recharts-cartesian-axis-tick-value font-mono">
         <tspan x={x} dy={beside ? -4 : 12}>
           {xFormatter(value)}
         </tspan>
         {row && (
-          <tspan x={x} dy={15} className="font-sans tabular-nums">
+          <tspan x={x} dy={15} className="tabular-nums">
             {detailOf(row)}
           </tspan>
         )}
@@ -89,6 +96,7 @@ function twoLineTick<T extends object, K extends keyof T>(
 export function ChartFrame<T extends object, K extends keyof T>({
   chart: Chart,
   children,
+  horizontal = false,
   title,
   description,
   action,
@@ -129,49 +137,78 @@ export function ChartFrame<T extends object, K extends keyof T>({
           </div>
         ) : (
           <ChartContainer config={config} className="aspect-auto w-full" style={{ height }}>
-            <Chart data={data} margin={{ left: 0, right: 8 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis
-                dataKey={xKey as string}
-                type={xDomain ? "number" : "category"}
-                domain={xDomain}
-                ticks={xTicks as number[] | undefined}
-                height={(xTickDetail ? 40 : 30) + (xLabel ? 18 : 0)}
-                label={xLabel ? { value: xLabel, position: "insideBottom", className: AXIS_TITLE } : undefined}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value: T[K]) => xFormatter(value)}
-                tick={
-                  xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, false) : { className: "font-mono" }
-                }
-                interval={xTickDetail ? 0 : undefined}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                width="auto"
-                domain={yDomain}
-                ticks={yTicks as number[] | undefined}
-                label={
-                  yLabel
-                    ? {
-                        value: yLabel,
-                        angle: -90,
-                        position: "insideLeft",
-                        style: { textAnchor: "middle" },
-                        className: AXIS_TITLE,
-                      }
-                    : undefined
-                }
-                tickFormatter={yTickFormatter ?? formatValue}
-                tick={{ className: "font-mono" }}
-              />
-              {crossesZero && <ReferenceLine y={0} stroke="var(--border)" />}
+            <Chart data={data} layout={horizontal ? "vertical" : "horizontal"} margin={{ left: 0, right: 8 }}>
+              <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
+              {horizontal ? (
+                <>
+                  <XAxis type="number" hide domain={yDomain} ticks={yTicks as number[] | undefined} />
+                  <YAxis
+                    dataKey={xKey as string}
+                    type="category"
+                    width="auto"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value: T[K]) => xFormatter(value)}
+                    tick={
+                      xTickDetail
+                        ? twoLineTick(data, xKey, xFormatter, xTickDetail, horizontal)
+                        : { className: "font-mono" }
+                    }
+                    interval={0}
+                  />
+                </>
+              ) : (
+                <>
+                  <XAxis
+                    dataKey={xKey as string}
+                    type={xDomain ? "number" : "category"}
+                    domain={xDomain}
+                    ticks={xTicks as number[] | undefined}
+                    height={(xTickDetail ? 40 : 30) + (xLabel ? 18 : 0)}
+                    label={xLabel ? { value: xLabel, position: "insideBottom", className: AXIS_TITLE } : undefined}
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value: T[K]) => xFormatter(value)}
+                    tick={
+                      xTickDetail ? twoLineTick(data, xKey, xFormatter, xTickDetail, false) : { className: "font-mono" }
+                    }
+                    interval={xTickDetail ? 0 : undefined}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    width="auto"
+                    domain={yDomain}
+                    ticks={yTicks as number[] | undefined}
+                    label={
+                      yLabel
+                        ? {
+                            value: yLabel,
+                            angle: -90,
+                            position: "insideLeft",
+                            style: { textAnchor: "middle" },
+                            className: AXIS_TITLE,
+                          }
+                        : undefined
+                    }
+                    tickFormatter={yTickFormatter ?? formatValue}
+                    tick={{ className: "font-mono" }}
+                  />
+                </>
+              )}
+              {crossesZero &&
+                (horizontal ? (
+                  <ReferenceLine x={0} stroke="var(--border)" />
+                ) : (
+                  <ReferenceLine y={0} stroke="var(--border)" />
+                ))}
               {referenceLines.map(({ label, emphasis = "muted", labelPosition = "insideTopLeft", ...at }) => (
                 <ReferenceLine
                   key={`${at.x ?? ""}:${at.y ?? ""}:${label ?? ""}`}
-                  {...at}
+                  // Sideways, a value level runs down the plot and a category mark across it.
+                  {...(horizontal ? { x: at.y, y: at.x } : at)}
                   stroke={emphasis === "strong" ? "var(--foreground)" : "var(--muted-foreground)"}
                   strokeDasharray={at.y === undefined ? undefined : "4 4"}
                   label={
