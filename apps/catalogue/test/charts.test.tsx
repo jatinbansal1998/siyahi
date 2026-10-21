@@ -288,4 +288,13 @@ describe("chart cards", { timeout: 60_000 }, () => {
     if (!grid || !limit) throw new Error("not laid out");
     expect(limit.y).toBeCloseTo(grid.y + 0.2 * grid.height, 0);
   });
+
+  it("a linear curve joins samples with straight segments", async () => {
+    const chart = card("Memory pressure of a test group, %");
+    await chart.scrollIntoViewIfNeeded();
+    const path = chart.locator("path.recharts-line-curve");
+    await settled(path);
+    // A straight-segment path has only move and line commands; a monotone one has cubic curves (C).
+    expect(await path.getAttribute("d")).toMatch(/^M[\d.,\sL-]+$/);
+  });
 });

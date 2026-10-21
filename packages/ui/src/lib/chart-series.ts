@@ -78,3 +78,9 @@ export interface NumericXProps {
   /** Where the x axis puts its ticks, in the xKey field's units. */
   xTicks?: readonly number[];
 }
+
+/**
+ * How a line or an area's edge joins its points: "linear" draws straight segments, as measured samples should
+ * be drawn; "monotone", the default, smooths between them without overshooting a point.
+ */
+export type ChartCurve = "monotone" | "linear";

@@ -30,6 +30,7 @@ export default function ChartLineEventsExample() {
       xFormatter={(second) => clock(second).slice(0, 5)}
       xTooltipFormatter={(second) => `${clock(second)} IST, 10 s average`}
       series={series}
+      curve="linear"
       valueFormatter={(v) => `${v}%`}
       yDomain={[0, 100]}
       yTicks={[0, 25, 50, 75, 100]}
