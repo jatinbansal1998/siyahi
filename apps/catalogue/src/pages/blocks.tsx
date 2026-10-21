@@ -19,7 +19,8 @@ export const blocks: Page = {
         <>
           <Lead>
             The stat tile, from shadcn's dashboard-01: muted label, outline badge top right, value, bold line, muted
-            line. One tile per row on a phone, four on a wide screen.
+            line. One tile per row on a phone. Wider, the columns follow the count so no tile sits alone under a full
+            row: four run 2 then 4 across, three and six run 3 across, five runs 3 + 2 and then 5 in a row.
           </Lead>
           <Example name="section-cards" />
         </>
