@@ -41,7 +41,9 @@ description: >
    `packages/ui/package.json` and `packages/tools/package.json` (they must
    match or `next-version.mjs` fails). PR title starts with it: `0.1.8: …`.
 2. Add or extend the `## 0.1.x` section at the top of `CHANGELOG.md`
-   ("Published as `0.1.x-next.<n>` pre-releases.").
+   ("Published as `0.1.x-next.<n>` pre-releases."). Skip it when the PR changes
+   only tests (`packages/*/test/**`, `apps/*/test/**`) or `.agents/**`: no
+   consumer gets anything new.
 3. Run CONTRIBUTING.md "Before a pull request" (`pnpm check`, plus shots for
    UI changes).
 4. Several PRs for one base: merge one, rebase the next on `main`, re-run
@@ -66,9 +68,11 @@ gh run view <run-id> --repo $R --log | grep "Published package"
   only builds, it does not run the tests.
 - `VER` is the new `v*` release tag without the `v`. If the grep prints no
   `✅ Published package @siyahi/…@<VER>` lines, npm failed (see Gotchas).
-- If the merge touched neither `packages/` nor `apps/catalogue/` (for example a
-  workflow or `.gitignore` change), the release is content-identical: skip the
-  catalogue deploy and the consumer bumps.
+- If the merge touched neither `packages/` nor `apps/catalogue/` outside their
+  `test/` folders (for example a workflow, `.gitignore` or test-only change),
+  the release is content-identical: skip the catalogue deploy and the consumer
+  bumps. `publish.yml` still runs for tests, so report the new `VER` and say it
+  ships the same code as the one before.
 
 Then the catalogue, from the main checkout, clean and on `main`:
 
