@@ -41,9 +41,10 @@ export default function DistributionBarTugExample() {
           markers={[{ at: 0 }]}
           highlighted={focus?.name ?? null}
           onHover={setFocus}
-          segments={positions.map((p) => ({
-            ...p,
-            color: p.value > 0 ? "var(--positive)" : "var(--negative)",
+          segments={positions.map(({ name, value }) => ({
+            name,
+            value,
+            color: value > 0 ? "var(--positive)" : "var(--negative)",
           }))}
         />
         <div className="grid grid-cols-3 text-xs text-muted-foreground tabular-nums">

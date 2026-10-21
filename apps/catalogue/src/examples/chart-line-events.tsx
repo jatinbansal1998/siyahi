@@ -11,9 +11,10 @@ const series: ChartSeries<(typeof data)[number]> = [
   { key: "pressure", label: "Full pressure", color: "var(--chart-1)" },
 ];
 
+const pad = (n: number) => String(n).padStart(2, "0");
+
 function clock(second: number) {
   const t = START + second;
-  const pad = (n: number) => String(n).padStart(2, "0");
   return `${Math.floor(t / 3600)}:${pad(Math.floor(t / 60) % 60)}:${pad(t % 60)}`;
 }
 

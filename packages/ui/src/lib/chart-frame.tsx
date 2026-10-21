@@ -18,9 +18,10 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@siyahi/ui/components/ui/chart";
-import type { ChartSeries, NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
+import type { ChartReferenceLine, ChartSeries, NumericXProps, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
+const NO_LINES: readonly ChartReferenceLine[] = [];
 
 interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesChartProps<T, K>, NumericXProps {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
@@ -113,7 +114,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   xTickDetail,
   xLabel,
   yLabel,
-  referenceLines = [],
+  referenceLines = NO_LINES,
   placeholder,
   footer,
   xDomain,
