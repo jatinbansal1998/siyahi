@@ -79,6 +79,9 @@ Page parts that dash and The Book built for themselves. Published as
   aside, shows its `negativeColor` in the legend too, and bar paths no longer
   carry `name="undefined"`.
 - A `SectionCards` headline wraps rather than clipping to one line on a phone.
+- A `BarChartCard`'s value axis always reaches zero. With no value above zero,
+  unstacked, Recharts fitted the axis to the data, so a series of losses hung
+  from the smallest one; The Book stacked its one series to get round it.
 - The raw Recharts exports (`Area`, `AreaChart`, `Bar`, `BarChart`,
   `CartesianGrid`, `Line`, `LineChart`, `ReferenceLine`, `XAxis`, `YAxis`) are
   gone. Pages draw charts with `BarChartCard`, `AreaChartCard`,
