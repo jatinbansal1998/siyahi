@@ -9,6 +9,11 @@
 // shadow override, so a stat tile is the stock Card in both schemes, like
 // every other card on the page. Under luma the stock Card carries shadow-md,
 // and tiles keep it (flat cards were tried in 0.1.6; the default stayed).
+// Siyahi edit: the column steps follow the tile count, so no row holds one
+// tile under fuller rows (five on the stock 1-2-4 grid showed 4 + 1, siyahi#16).
+// Three, five and six skip the two-column step and run three across; five goes
+// to one row of five on a container 80rem wide. Steps stay where a tile is at
+// least about 240px, as on the stock grid, and a phone keeps one tile per row.
 "use client"
 
 import * as React from "react"
@@ -22,6 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@siyahi/ui/components/ui/card"
+import { cn } from "@siyahi/ui/lib/utils"
 
 export interface SectionCard {
   /** Muted label above the value. */
@@ -35,10 +41,19 @@ export interface SectionCard {
   detail?: React.ReactNode
 }
 
+// Tailwind finds classes by scanning source, so each step is written out whole.
+const COLUMNS: Record<number, string> = {
+  2: "@xl/main:grid-cols-2",
+  3: "@3xl/main:grid-cols-3",
+  4: "@xl/main:grid-cols-2 @5xl/main:grid-cols-4",
+  5: "@3xl/main:grid-cols-3 @7xl/main:grid-cols-5",
+  6: "@3xl/main:grid-cols-3",
+}
+
 export function SectionCards({ items }: { items: SectionCard[] }) {
   return (
     <div className="@container/main">
-      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      <div className={cn("grid grid-cols-1 gap-4", COLUMNS[items.length] ?? COLUMNS[4])}>
         {items.map((item) => (
           <Card key={item.label} className="@container/card">
             <CardHeader>
