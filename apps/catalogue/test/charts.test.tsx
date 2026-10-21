@@ -344,4 +344,23 @@ describe("chart cards", { timeout: 60_000 }, () => {
       .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
     expect(detail).toBeGreaterThan(name ?? Number.POSITIVE_INFINITY);
   });
+
+  it("a bar below zero takes the series' negative colour, in the plot and the tooltip", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    await settled(bars);
+    expect(await bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill")))).toEqual([
+      "var(--positive)",
+      "var(--positive)",
+      "var(--negative)",
+      "var(--positive)",
+      "var(--negative)",
+      "var(--positive)",
+    ]);
+    const { x, y } = await center(bars.nth(2));
+    await tooltipAt(chart, x, y, "FY23");
+    const swatch = chart.locator(".recharts-tooltip-wrapper span").first();
+    expect(await swatch.evaluate((el) => (el as HTMLElement).style.backgroundColor)).toBe("var(--negative)");
+  });
 });

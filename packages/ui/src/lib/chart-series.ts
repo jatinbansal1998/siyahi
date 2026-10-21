@@ -1,13 +1,18 @@
 import type { ReactNode } from "react";
 
-/** The colours a series may take: the five chart slots, and muted for an "Other" past five. */
+/**
+ * The colours a series may take: the five chart slots, muted for an "Other" past five, and the two meaning
+ * colours for a gain and a loss.
+ */
 export type ChartColor =
   | "var(--chart-1)"
   | "var(--chart-2)"
   | "var(--chart-3)"
   | "var(--chart-4)"
   | "var(--chart-5)"
-  | "var(--muted-foreground)";
+  | "var(--muted-foreground)"
+  | "var(--positive)"
+  | "var(--negative)";
 
 /** The fields of a row that hold numbers: the ones a series can plot. */
 type NumericKey<T> = { [K in keyof T]-?: T[K] extends number | null | undefined ? K : never }[keyof T] & string;
@@ -17,6 +22,8 @@ export interface ChartSeriesItem<T> {
   key: NumericKey<T>;
   label: string;
   color: ChartColor;
+  /** A bar below zero takes this colour instead, such as var(--negative) for a loss beside var(--positive). */
+  negativeColor?: ChartColor;
 }
 
 /**

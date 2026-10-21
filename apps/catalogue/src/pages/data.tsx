@@ -35,7 +35,8 @@ export const data: Page = {
             lightness and differ by hue, so do not skip slots. Past five, fold the rest into "Other" in
             --muted-foreground. xFormatter writes the axis and the tooltip's heading, here an hour as 09:00; xLabel and
             yLabel title the axes. xTickDetail adds a second line under each tick from its row, so a year's net reads
-            without a hover.
+            without a hover. A gain and a loss take var(--positive) and var(--negative): give the series color and
+            negativeColor, and each bar takes the one its sign calls for.
           </Lead>
           <Example name="chart-bar" />
           <Example name="chart-bar-hourly" />

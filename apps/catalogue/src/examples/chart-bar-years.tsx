@@ -10,11 +10,13 @@ const data = [
   { fy: "FY26", net: 73000 },
 ];
 
-const series: ChartSeries<(typeof data)[number]> = [{ key: "net", label: "Net realized", color: "var(--chart-1)" }];
+// A gain and a loss take the meaning colours; the arrow in each tick says the same without colour.
+const series: ChartSeries<(typeof data)[number]> = [
+  { key: "net", label: "Net realized", color: "var(--positive)", negativeColor: "var(--negative)" },
+];
 
 export default function ChartBarYearsExample() {
   const { money, moneyCompact } = useFormat();
-  // The arrow carries the sign, so the figure never relies on colour alone.
   const signed = (v: number) => `${v < 0 ? "▼" : "▲"}${moneyCompact(Math.abs(v))}`;
   return (
     <BarChartCard

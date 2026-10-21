@@ -32,9 +32,10 @@ interface ChartFrameProps<T extends object, K extends keyof T> extends SeriesCha
 export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number) => string) {
   return (value: unknown, _name: unknown, item: { dataKey?: unknown }) => {
     const entry = series.find(({ key }) => key === item.dataKey);
+    const color = entry?.negativeColor && Number(value) < 0 ? entry.negativeColor : entry?.color;
     return (
       <>
-        <span className="size-2.5 shrink-0 rounded-xs" style={{ backgroundColor: entry?.color }} />
+        <span className="size-2.5 shrink-0 rounded-xs" style={{ backgroundColor: color }} />
         <span className="text-muted-foreground">{entry?.label}</span>
         <span className="ml-auto font-mono font-medium text-foreground tabular-nums">
           {value == null ? "—" : formatValue(Number(value))}

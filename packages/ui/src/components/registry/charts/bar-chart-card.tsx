@@ -9,10 +9,12 @@
 // Recharts' default ids, which a page can no longer change (dash#88).
 // Siyahi edit: bars are grouped, or stacked with `stacked`; a stack rounds
 // only its top, so the series meet flush.
+// Siyahi edit: a series' negativeColor colours its bars below zero, with one
+// Cell per row as shadcn's chart-bar-negative does.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
-import { Bar, BarChart } from "recharts"
+import { Bar, BarChart, Cell } from "recharts"
 
 import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
 import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
@@ -30,7 +32,7 @@ export function BarChartCard<T extends object, K extends keyof T>({
 }: BarChartCardProps<T, K>) {
   return (
     <ChartFrame chart={BarChart} {...props}>
-      {props.series.map(({ key, color }, index) => (
+      {props.series.map(({ key, color, negativeColor }, index) => (
         <Bar
           key={key}
           dataKey={key}
@@ -39,7 +41,15 @@ export function BarChartCard<T extends object, K extends keyof T>({
           radius={
             !stacked ? 2 : index === props.series.length - 1 ? [2, 2, 0, 0] : 0
           }
-        />
+        >
+          {negativeColor &&
+            props.data.map((row, i) => (
+              <Cell
+                key={i}
+                fill={Number(row[key as keyof T]) < 0 ? negativeColor : color}
+              />
+            ))}
+        </Bar>
       ))}
     </ChartFrame>
   )
