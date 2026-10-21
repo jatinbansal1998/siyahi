@@ -95,6 +95,18 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.status, run.output).toBe(0);
   });
 
+  it("fails a card whose lone badge in the action runs past the edge at 390", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>Card</h1>
+      <div style="overflow: clip; border: 1px solid">
+        <div style="display: grid; grid-template-columns: 1fr auto">
+          <div data-slot="card-title" style="min-width: 120px">Return</div>
+          <div data-slot="card-action"><span data-slot="badge" style="display: inline-block; width: 300px">Beats the index</span></div>
+        </div>
+      </div></main>`);
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain('span "Beats the index" by 64px is cut off by an overflow: clip box');
+  });
+
   // A page that names Geist and loads no font file: an app whose font CSS
   // never arrived, or a static report on report.css.
   const UNLOADED = `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`;

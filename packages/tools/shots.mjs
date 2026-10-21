@@ -96,7 +96,8 @@ const PROBE = `((chrome) => {
     return r.width > 0 && r.height > 0 && !el.closest(chrome) && getComputedStyle(el).visibility !== "hidden";
   };
   // Pixels of el cut off at the side by an ancestor that hides its overflow,
-  // up to the nearest one that scrolls, which shows the rest on scroll.
+  // and how it hides it, up to the nearest one that scrolls, which shows the
+  // rest on scroll.
   const cutOff = (el) => {
     const r = el.getBoundingClientRect();
     for (let a = el.parentElement; a; a = a.parentElement) {
@@ -105,19 +106,20 @@ const PROBE = `((chrome) => {
       if (o !== "hidden" && o !== "clip") continue;
       const left = a.getBoundingClientRect().left + a.clientLeft;
       const cut = Math.max(left - r.left, r.right - (left + a.clientWidth));
-      if (cut >= 1) return Math.round(cut);
+      if (cut >= 1) return { px: Math.round(cut), overflow: o };
     }
-    return 0;
+    return null;
   };
   const visible = [...document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,[data-slot="card"]')].filter((el) => {
     const r = el.getBoundingClientRect();
     return shown(el) && r.right > 0 && r.left < de.clientWidth && !scrollsSideways(el);
   });
-  const clipped = [...document.querySelectorAll("h1,h2,h3,h4,p,li,td,th,a,button,input,select,textarea,label")]
+  // Badges, card titles and descriptions are spans and divs, which the tag list misses.
+  const clipped = [...document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,a,button,input,select,textarea,label,[data-slot="badge"],[data-slot="card-title"],[data-slot="card-description"]')]
     .filter(shown)
     .map((el) => ({ el, cut: cutOff(el) }))
-    .filter(({ cut }) => cut > 0)
-    .map(({ el, cut }) => el.tagName.toLowerCase() + " " + JSON.stringify(el.textContent.trim().slice(0, 40)) + " by " + cut + "px");
+    .filter(({ cut }) => cut)
+    .map(({ el, cut }) => el.tagName.toLowerCase() + " " + JSON.stringify(el.textContent.trim().slice(0, 40)) + " by " + cut.px + "px is cut off by an overflow: " + cut.overflow + " box");
   const lefts = visible.map((el) => el.getBoundingClientRect().left);
   const rights = visible.map((el) => de.clientWidth - el.getBoundingClientRect().right);
   const overflow = de.scrollWidth - de.clientWidth;
@@ -216,7 +218,7 @@ function problemsOf(p, ready) {
   if (p.overflow > 0) problems.push(`document scrolls sideways by ${p.overflow}px`);
   if (p.overflowWithScrollbar > 0)
     problems.push(`scrolls sideways by ${p.overflowWithScrollbar}px once a scrollbar takes its width`);
-  for (const what of p.clipped.slice(0, 5)) problems.push(`${what} is cut off by an overflow: hidden box`);
+  for (const what of p.clipped.slice(0, 5)) problems.push(what);
   if (p.clipped.length > 5) problems.push(`and ${p.clipped.length - 5} more cut off`);
   if (!p.font.startsWith(values.font)) problems.push(`body font is ${p.font}, not ${values.font}`);
   else if (!p.fontLoaded && !values.report) problems.push(`${p.font} is named but never loaded`);
