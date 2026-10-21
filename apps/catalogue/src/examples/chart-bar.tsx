@@ -1,22 +1,4 @@
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-  XAxis,
-  YAxis,
-  useFormat,
-  type ChartConfig,
-} from "@siyahi/ui";
+import { BarChartCard, useFormat, type ChartSeries } from "@siyahi/ui";
 
 const data = [
   { quarter: "Q1", equity: 120000, debt: 40000, gold: 15000, cash: 9000, reits: 4000 },
@@ -27,48 +9,27 @@ const data = [
 
 // Series take the slots in order: neighbours differ in lightness, slots two
 // apart differ in hue.
-const config = {
-  equity: { label: "Equity", color: "var(--chart-1)" },
-  debt: { label: "Debt", color: "var(--chart-2)" },
-  gold: { label: "Gold", color: "var(--chart-3)" },
-  cash: { label: "Cash", color: "var(--chart-4)" },
-  reits: { label: "REITs", color: "var(--chart-5)" },
-} satisfies ChartConfig;
+const series: ChartSeries<(typeof data)[number]> = [
+  { key: "equity", label: "Equity", color: "var(--chart-1)" },
+  { key: "debt", label: "Debt", color: "var(--chart-2)" },
+  { key: "gold", label: "Gold", color: "var(--chart-3)" },
+  { key: "cash", label: "Cash", color: "var(--chart-4)" },
+  { key: "reits", label: "REITs", color: "var(--chart-5)" },
+];
 
 export default function ChartBarExample() {
-  const { moneyCompact } = useFormat();
+  const { money, moneyCompact } = useFormat();
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Money invested by quarter</CardTitle>
-        <CardDescription>All five chart colours, in series order</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={config} className="aspect-auto h-64 w-full">
-          <BarChart data={data} margin={{ left: 0, right: 8 }}>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis
-              dataKey="quarter"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tick={{ className: "font-mono" }}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              width={56}
-              tickFormatter={moneyCompact}
-              tick={{ className: "font-mono" }}
-            />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            {Object.keys(config).map((key) => (
-              <Bar key={key} dataKey={key} fill={`var(--color-${key})`} radius={2} />
-            ))}
-            <ChartLegend content={<ChartLegendContent />} itemSorter={null} />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+    <BarChartCard
+      title="Money invested by quarter"
+      description="All five chart colours, stacked in series order"
+      data={data}
+      xKey="quarter"
+      series={series}
+      stacked
+      valueFormatter={money}
+      yTickFormatter={moneyCompact}
+      height={256}
+    />
   );
 }

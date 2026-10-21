@@ -2,6 +2,30 @@
   "generatedBy": "packages/ui/scripts/generate.ts",
   "items": [
     {
+      "file": "src/components/registry/charts/area-chart-card.tsx",
+      "registry": "@shadcn/chart-area-stacked",
+      "origin": "https://ui.shadcn.com/r/styles/new-york-v4/chart-area-stacked.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-21",
+      "sha256": "d65dbe0690431811cfb4c1117506b6ff4c411eb65db70c29c97cca1030abb0b5"
+    },
+    {
+      "file": "src/components/registry/charts/bar-chart-card.tsx",
+      "registry": "@shadcn/chart-bar-multiple",
+      "origin": "https://ui.shadcn.com/r/styles/new-york-v4/chart-bar-multiple.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-21",
+      "sha256": "46fbdcf8c66b0def3836211e4e186eb3777b3daaca3b09dc6f94eb82ccc86309"
+    },
+    {
+      "file": "src/components/registry/charts/line-chart-card.tsx",
+      "registry": "@shadcn/chart-line-multiple",
+      "origin": "https://ui.shadcn.com/r/styles/new-york-v4/chart-line-multiple.json",
+      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "copied": "2026-10-21",
+      "sha256": "20c708ac3e313e275a84119970b6046142f24c869a9355caec5483aa4feb6ddd"
+    },
+    {
       "file": "src/components/registry/dashboard-01/section-cards.tsx",
       "registry": "@shadcn/dashboard-01",
       "origin": "https://ui.shadcn.com/r/styles/base-vega/dashboard-01.json",

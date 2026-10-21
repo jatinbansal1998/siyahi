@@ -25,6 +25,8 @@
     "apps/catalogue": {
       // Examples are loaded with import.meta.glob.
       "entry": ["src/main.tsx", "src/examples/*.tsx", "test/**/*.test.tsx"],
+      // The chart hover test hands it to Vite by path, as the theme to serve.
+      "ignore": ["test/from-source.css"],
     },
   },
 }

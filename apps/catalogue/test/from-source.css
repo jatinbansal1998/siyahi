@@ -1,0 +1,4 @@
+/* The theme as the catalogue imports it, with Tailwind also scanning the
+   package source, so the chart hover test needs no build of @siyahi/ui. */
+@import "../../../packages/ui/styles/siyahi.css";
+@source "../../../packages/ui/src";

@@ -65,7 +65,7 @@ every page, and agents follow typed components and lint better than prose rules.
 | Contrast | 4.5:1 for any text colour on canvas and card; 3:1 for each chart slot against the card and against the slots next to it (adjacent slots only; see Chart palette). Checked by a script in the package build. The check fails the build; values are fixed, never the bar. |
 | Graded colour | Heat maps and signed scales use `color-mix()` steps of `--positive` and `--negative` toward the card colour. Gain is green, loss is red, in both apps. Ordered (unsigned) scales use steps of `--chart-1`. Categorical series use `--chart-1` to `--chart-5`; past five, fold into "Other" in `--muted-foreground`. Brokers and asset classes have no colours of their own; they are badges or series. |
 | Chart palette | Five distinct hues, the same hue order in both schemes (blue, emerald, amber, violet, rose), one lightness step apart between schemes so each passes 3:1 on its card. Adjacent slots, and each slot against the card, reach 3:1. Five hues cannot all be pairwise 3:1 against each other and the card through lightness alone, so the palette alternates light and deep (emerald and violet are deep) and non-adjacent slots are told apart by hue. Series therefore take slots in order. Every chart value is inside sRGB so the browser paints what the script scored. shadcn's single-hue `blue` preset was measured at 1.3 to 1.8:1 between neighbours and is rejected. (Claude's call; adjacent-only rule confirmed by the orchestrator after review round 1.) |
-| Charts | shadcn `chart` component (ChartContainer over Recharts): area, bar and line, with reference lines, composed in the package's catalogue examples since no chart blocks exist for the base styles. Range and mode toggles use ToggleGroup. TradingView Lightweight Charts for price charts, with one credit link per page. Chart colours are read from CSS variables at run time. |
+| Charts | `AreaChartCard`, `BarChartCard` and `LineChartCard`, from shadcn's new-york-v4 chart blocks (none exist for the base styles) over shadcn's `chart` component: a page passes rows, the x axis field and the series, and the card owns the axes, grid, tooltip and legend (0.1.8, after dash#88 gave its category axis its own id and broke the tooltip). A zero line draws when a value goes below zero. Range and mode toggles use ToggleGroup. TradingView Lightweight Charts for price charts, with one credit link per page. Chart colours are read from CSS variables at run time. |
 | Buttons and accent | Stock: primary is black on white and white on black. Links are `--link`. |
 | Layout | "A card holds data, prose sits on the page." Any data block (stat tile, table, chart, metric strip) is in a Card wherever it appears, including on a prose page; paragraphs and headings sit on the canvas. One level of card. Roomy density: the style's stock paddings. |
 | Scheme | Follows `prefers-color-scheme` through Tailwind's `@custom-variant dark (@media (prefers-color-scheme: dark))`. No `.dark` class, no toggle, no boot script; `<meta name="color-scheme" content="light dark">` only. The README says an app that wants its own toggle must swap the variant. |
@@ -107,6 +107,9 @@ Contents of `~/code/siyahi`:
     react-query or dnd-kit; if none fits, TanStack Table plus stock parts.
   - `@dashboardcn` ranked list ("needs attention"), if its licence is clear; otherwise a
     twenty-line composition of Table.
+  - shadcn chart blocks `chart-bar-multiple`, `chart-area-stacked` and
+    `chart-line-multiple`, made into `BarChartCard`, `AreaChartCard` and
+    `LineChartCard` with data props (0.1.8).
   - shadcn blocks: `sidebar-07` for The Book's app shell (stock behaviour: drawer under
     768px) and `dashboard-01` for `SectionCards` and the reference layout, both with
     their sample data removed.
@@ -185,8 +188,9 @@ The ten rules:
    the default stayed).
 2. A stat tile is `SectionCards` from shadcn's dashboard block: muted label, outline
    badge, value, bold line, muted line.
-3. Charts: area, bar or line, chart tokens only, dashed horizontal grid, legend below,
-   range or mode toggle top right. Fixed pixel height. On a card whose header is
+3. Charts: `AreaChartCard`, `BarChartCard` or `LineChartCard` (0.1.8), chart tokens
+   only, dashed horizontal grid, legend below, range or mode toggle top right. Fixed
+   pixel height. Ranked categories are `BarList`. On a card whose header is
    narrower than 24rem (a phone), the theme puts the toggle under the title and
    description, left-aligned; a stat tile's lone badge stays top right (0.1.7).
 4. Tables are the registry data table, inside a Card.
