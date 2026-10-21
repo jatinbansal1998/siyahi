@@ -1,0 +1,1 @@
+- npm publish may lag. Poll `npm view <pkg> version` for a few minutes before declaring failure.
