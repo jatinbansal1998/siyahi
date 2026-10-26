@@ -42,7 +42,9 @@ export function Shell({ nav, title, children }: ShellProps) {
   return (
     <SidebarProvider>
       <AppSidebar header={<Brand />} navMain={nav} navLabel="Catalogue" />
-      <SidebarInset>
+      {/* min-w-0: as a flex item the inset would otherwise grow to its widest content, so the page scrolls
+          sideways and the sticky header slides under the fixed sidebar. */}
+      <SidebarInset className="min-w-0">
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
@@ -54,7 +56,7 @@ export function Shell({ nav, title, children }: ShellProps) {
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <main className="flex w-full max-w-screen-2xl min-w-0 flex-col gap-12 px-4 py-8 md:px-8">{children}</main>
+        <main className="flex w-full max-w-screen-2xl flex-col gap-12 px-4 py-8 md:px-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
