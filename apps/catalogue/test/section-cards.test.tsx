@@ -93,6 +93,21 @@ describe("SectionCards as a picker", () => {
     expect(faded.map((c) => c.querySelector("button")?.getAttribute("aria-label"))).toEqual(["Gold bonds"]);
   });
 
+  it("puts a trend between the figure and the footer lines", async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <SectionCards
+          items={[{ label: "Value", value: 1, trend: <svg data-testid="trend" />, detail: "Six months" }]}
+        />,
+      ),
+    );
+    const slots = [...(document.querySelector('[data-slot="card"]')?.children ?? [])].map((el) =>
+      el.querySelector('[data-testid="trend"]') ? "trend" : el.getAttribute("data-slot"),
+    );
+    expect(slots).toEqual(["card-header", "trend", "card-footer"]);
+  });
+
   it("lets a long headline wrap instead of clipping it to one line", async () => {
     root = createRoot(document.body.appendChild(document.createElement("div")));
     const headline = "▲₹1,48,600 this year across 212 positions at two brokers";

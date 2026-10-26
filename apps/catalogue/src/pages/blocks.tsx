@@ -31,6 +31,28 @@ export const blocks: Page = {
             disabled set, such as a class with no positions, fades and cannot be picked.
           </Lead>
           <Example name="section-cards-select" />
+          <Lead>
+            trend puts a small chart between the figure and the footer lines, usually a Sparkline of the run behind the
+            value. A run of gains or losses takes var(--positive) or var(--negative); any other run keeps --chart-1.
+          </Lead>
+          <Example name="section-cards-trend" />
+        </>
+      ),
+    },
+    {
+      id: "metric-strip",
+      title: "MetricStrip",
+      body: (
+        <>
+          <Lead>
+            dashboardcn's KPI row: one card holding a row of small figures, each with its change as a Delta and its
+            recent run as a sparkline that takes the change's colour. It fits two or three times the figures of
+            SectionCards in the same room, so use it where the page has many numbers of equal weight and SectionCards
+            where three or four headline figures each need a sentence. Rules part the tiles across and down; the columns
+            follow the count, two to a row on a phone, and up to eight in a row on a wide card. The title is optional,
+            for a strip heading a page; a period toggle goes in action, as on the chart cards.
+          </Lead>
+          <Example name="metric-strip" />
         </>
       ),
     },
