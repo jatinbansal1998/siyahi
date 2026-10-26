@@ -128,6 +128,13 @@ Page parts that dash and The Book built for themselves. Published as
   popovers match the canvas; the sidebar is a shade darker (`#0a0a0a`).
   Muted text is 7.3:1, every meaning colour at least 6.5:1 and every chart
   colour at least 3.4:1. The light scheme is unchanged.
+- On a ruled page `SectionCards` parts its tiles with hairlines across and
+  down, with a rule above and below the row, as `PanelGrid` parts blocks;
+  boxless, the tiles had floated as loose figures. A picked tile's ring sits
+  inside the tile there.
+- On ruled and open pages a card's footer has no top padding: Nova's footer
+  pads itself for the tinted band those pages drop, and the padding stacked
+  on the card's gap, leaving a hole between a tile's figure and its lines.
 - `MetricStrip` takes its box off with every other card on a ruled page: its
   `data-slot` moved from the `Card`, where it replaced the card's own, to the
   strip inside it.

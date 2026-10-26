@@ -246,6 +246,8 @@
   [data-slot="card-footer"] {
     background: none;
     border-top-width: 0;
+    /* The band's own top padding stacked on the card's gap, and with no band it read as a hole under the figure. */
+    padding-top: 0;
   }
 }
 
