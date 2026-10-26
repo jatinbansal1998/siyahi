@@ -21,6 +21,9 @@ import {
 import { ChevronRightIcon } from "lucide-react"
 
 // Siyahi edit: the group label is a prop instead of the sample "Platform".
+// Siyahi edit: every item takes an icon. The sidebar collapses to a strip
+// one icon wide, so an item without one showed the first letters of its
+// title cut off ("Siya", "Fou") on the catalogue.
 export function NavMain({
   items,
   label = "Navigation",
@@ -29,7 +32,7 @@ export function NavMain({
   items: {
     title: string
     url: string
-    icon?: React.ReactNode
+    icon: React.ReactNode
     isActive?: boolean
     // Siyahi edit: a flat item's anchor takes extra props, such as hover
     // handlers that prefetch the view's data.

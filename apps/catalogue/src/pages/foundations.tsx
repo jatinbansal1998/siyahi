@@ -1,3 +1,4 @@
+import { PaletteIcon } from "lucide-react";
 import { Card, CardContent } from "@siyahi/ui";
 import { useSyncExternalStore } from "react";
 import { Lead } from "../example";
@@ -83,6 +84,7 @@ const grid = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4";
 export const foundations: Page = {
   id: "foundations",
   title: "Foundations",
+  icon: <PaletteIcon />,
   lead: "Every value comes from one theme file, styles/siyahi.css. Pages name tokens; they never write a colour or a size.",
   sections: [
     {

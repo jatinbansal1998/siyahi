@@ -27,8 +27,9 @@ export function Example({ name }: { name: string }) {
   const source = sources[path];
   if (!Component || source === undefined) throw new Error(`no example ${path}`);
   return (
-    <div className="grid min-w-0 gap-4 xl:grid-cols-2">
-      <div className="flex min-w-0 flex-col justify-center gap-4 rounded-lg border border-dashed p-4 md:p-6">
+    // The frame hugs its example rather than stretching to the code beside it.
+    <div className="grid min-w-0 items-start gap-4 xl:grid-cols-2">
+      <div className="flex min-w-0 flex-col gap-4 rounded-lg border border-dashed p-4 md:p-6">
         <Component />
       </div>
       <Code className="max-h-96">{source}</Code>

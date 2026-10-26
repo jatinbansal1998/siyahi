@@ -1,3 +1,4 @@
+import { FileTextIcon } from "lucide-react";
 import reportCss from "@siyahi/ui/report.css?raw";
 import { Code } from "../code";
 import { Lead } from "../example";
@@ -35,6 +36,7 @@ const SAMPLE = `<!doctype html>
 export const reports: Page = {
   id: "reports",
   title: "Reports",
+  icon: <FileTextIcon />,
   lead: "Static HTML reports skip React. They inline report.css, generated from the same theme, and follow five layout rules.",
   sections: [
     {
