@@ -107,6 +107,22 @@ export const data: Page = {
       ),
     },
     {
+      id: "data-bar",
+      title: "Bars and sparklines in a table",
+      body: (
+        <>
+          <Lead>
+            DataBar puts a short bar before a cell's figure, its length the figure's share of max, so a column reads as
+            a bar chart without leaving the table. Give max the column's largest figure, so every row draws to one
+            scale. tone="sign" draws a gain in --positive and a loss in --negative; by default every bar is --chart-1.
+            The bar sits on the figure's line, so the row keeps its height. A Sparkline in a cell gives each row its
+            recent run; pass animate={"{false}"} in a table, so a sort does not redraw every line.
+          </Lead>
+          <Example name="data-bar" />
+        </>
+      ),
+    },
+    {
       id: "price-chart",
       title: "PriceChart",
       body: (

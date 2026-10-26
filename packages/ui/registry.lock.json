@@ -50,6 +50,22 @@
       "sha256": "9028368f1363732cef765dabad2eca3ba98b608f1e237123b09df701c41c8b5a"
     },
     {
+      "file": "src/components/registry/dashboardcn/kpi-row-card.tsx",
+      "registry": "@dashboardcn/kpi-row-card",
+      "origin": "https://dashboardcn.com/r/kpi-row-card.json",
+      "licence": "MIT, Copyright (c) 2026 dashboardcn contributors, https://github.com/NoahGdev/dashboardcn/blob/main/LICENSE",
+      "copied": "2026-10-26",
+      "sha256": "b49fa95b3efa19086b3df2e3a18f6a0d5a95204951448c5d93fc41c2bdb6326f"
+    },
+    {
+      "file": "src/components/registry/dashboardcn/sparkline.tsx",
+      "registry": "@dashboardcn/sparkline",
+      "origin": "https://dashboardcn.com/r/sparkline.json",
+      "licence": "MIT, Copyright (c) 2026 dashboardcn contributors, https://github.com/NoahGdev/dashboardcn/blob/main/LICENSE",
+      "copied": "2026-10-26",
+      "sha256": "54b43e63d866bcdf8071744df08e87f29385ba60d480ab9ee8aa1fac3eb33d5c"
+    },
+    {
       "file": "src/components/registry/heatmap/calendar-heatmap.tsx",
       "registry": "@heatmap/calendar-heatmap",
       "origin": "https://shadcn-heatmap.pages.dev/r/calendar-heatmap.json",

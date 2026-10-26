@@ -72,7 +72,8 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 - **Registry add-ons**, copied once with their origin and licence recorded:
   bar, area and line chart cards from shadcn's chart blocks, a data table on
   TanStack Table, calendar, weekday and status heatmaps, a ranked
-  bar list, the `SectionCards` stat tile and the `sidebar-07` app shell.
+  bar list, a `Sparkline`, the `MetricStrip` row of figures, the
+  `SectionCards` stat tile and the `sidebar-07` app shell.
 - **Siyahi components**: `Delta` (a signed figure with ▲ ▼), `PriceChart`
   (TradingView Lightweight Charts in theme colours), `Treemap` (holdings heat
   map; hover or tap a tile for its figures) with `TreemapLegend` (its colour
@@ -80,7 +81,8 @@ Every merge to `main` also attaches both tarballs to a GitHub release
   in a tooltip), `ToneProgress` (Progress in a meaning colour), the page parts
   `PageSection`, `PageSubheading`, `DataList` and `InlineCode`, the data table
   parts `DataTableSortHeader` (sorts on one click) and `DataTableRowCount`
-  ("12 of 48"), and `SiyahiProvider`.
+  ("12 of 48"), `DataBar` (a figure in a table cell with a bar giving its size
+  against the column's largest), and `SiyahiProvider`.
 - **Cards and badges as installed**: every `Card`, stat tiles included, keeps
   luma's `rounded-4xl`, `shadow-md` and faint ring. A category (a sector, a
   broker, a unit's kind) is an outline `Badge`: categories stay neutral, and
@@ -110,6 +112,9 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 | Ranked counts or amounts by category (a name, a bar and a figure)       | `BarList`; give two lists one `max` to share a scale                |
 | Where a budget sits, a split of a whole, or losses against gains        | `DistributionBar`                                                   |
 | Headline figures with their change                                      | `SectionCards`, with a `Delta` in each badge                        |
+| Many figures of equal weight, each with its change and recent run       | `MetricStrip`                                                       |
+| A run of values beside a figure, in a tile, a strip or a table cell     | `Sparkline`; in a tile, `SectionCards`' `trend`                     |
+| A table column that should read as a bar chart                          | `DataBar` in the column's cell                                      |
 | One instrument's price history                                          | `PriceChart`                                                        |
 | Holdings sized by weight and coloured by change                         | `Treemap`                                                           |
 | Activity by day, by weekday and hour, or a status over time             | `CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`                |

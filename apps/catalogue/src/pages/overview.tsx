@@ -6,7 +6,7 @@ import type { Page } from "../page";
 
 const RULES = [
   "A card holds data, prose sits on the page. One level of card.",
-  "A stat tile is SectionCards from shadcn's dashboard block: muted label, outline badge, value, bold line, muted line.",
+  "A stat tile is SectionCards from shadcn's dashboard block: muted label, outline badge, value, bold line, muted line. Many figures of equal weight go in one MetricStrip instead.",
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws the dashed horizontal grid, the tooltip and the legend below; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
   "Tables are the registry data table, inside a Card.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",

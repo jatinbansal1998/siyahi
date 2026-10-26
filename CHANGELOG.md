@@ -93,6 +93,18 @@ Page parts that dash and The Book built for themselves. Published as
   collapses to a strip one icon wide, and an item without an icon showed the
   first letters of its title cut off; an app that left one out now fails to
   typecheck instead.
+- `Sparkline`, from dashboardcn's `sparkline`: a small line or area chart with
+  no axes, in a chart token or a meaning colour. Its hidden value axis fits the
+  data, so a run from ₹38L to ₹45L shows its shape instead of a flat line.
+- `MetricStrip`, from dashboardcn's `kpi-row-card`: one card holding a row of
+  small figures, each with a `Delta` and a sparkline coloured by the change's
+  sign. Rules part the tiles; the columns follow the count, two to a row on a
+  phone and up to eight on a wide card.
+- `DataBar`: a table cell's figure behind a short bar, its length the figure's
+  share of the column's largest, in `--chart-1` or by sign. It sits on the
+  figure's line, so the row keeps its height.
+- A `SectionCards` tile takes `trend`, a small chart such as a `Sparkline`
+  between the figure and the footer lines.
 
 ## 0.1.8
 

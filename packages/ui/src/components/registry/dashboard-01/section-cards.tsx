@@ -22,6 +22,8 @@
 // Siyahi edit: a tile marked disabled cannot be picked: its button is
 // disabled and the tile fades, as The Book's attention cards do for a flag
 // with no positions.
+// Siyahi edit: `trend` puts a chart, usually a Sparkline, between the
+// figure and the footer lines, so a tile shows the run behind its value.
 // Siyahi edit: the headline wraps instead of being clamped to one line, so a
 // long figure line is not cut off on a phone.
 "use client"
@@ -32,6 +34,7 @@ import { Badge } from "@siyahi/ui/components/ui/badge"
 import {
   Card,
   CardAction,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -45,6 +48,8 @@ export interface SectionCard {
   value: React.ReactNode
   /** Outline badge, top right; usually a <Delta />. */
   badge?: React.ReactNode
+  /** A small chart under the value, usually a <Sparkline /> of the recent run. */
+  trend?: React.ReactNode
   /** Bold first footer line. */
   headline?: React.ReactNode
   /** Muted second footer line. */
@@ -106,6 +111,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
                 </CardAction>
               )}
             </CardHeader>
+            {item.trend && <CardContent>{item.trend}</CardContent>}
             {(item.headline || item.detail) && (
               <CardFooter className="flex-col items-start gap-1.5 text-sm">
                 {item.headline && <div className="flex flex-wrap gap-2 font-medium">{item.headline}</div>}
