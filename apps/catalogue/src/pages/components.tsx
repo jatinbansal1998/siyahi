@@ -1,3 +1,4 @@
+import { LayersIcon, SlidersHorizontalIcon } from "lucide-react";
 import { Example, Lead } from "../example";
 import type { Page, PageSection } from "../page";
 
@@ -83,6 +84,7 @@ const controls: Entry[] = [
 export const components: Page = {
   id: "components",
   title: "Components",
+  icon: <LayersIcon />,
   lead: "shadcn/ui on Base UI in the base-luma style, installed with the shadcn CLI and never edited. Each one is shown live with its code.",
   sections: sectionsOf(display),
 };
@@ -90,6 +92,7 @@ export const components: Page = {
 export const inputs: Page = {
   id: "inputs",
   title: "Inputs and overlays",
+  icon: <SlidersHorizontalIcon />,
   lead: "Controls, menus and layers from shadcn/ui on Base UI, as installed.",
   sections: sectionsOf(controls),
 };

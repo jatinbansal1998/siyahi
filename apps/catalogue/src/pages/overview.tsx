@@ -1,3 +1,4 @@
+import { HouseIcon } from "lucide-react";
 import { InlineCode } from "@siyahi/ui";
 import { Code } from "../code";
 import { Lead } from "../example";
@@ -58,6 +59,7 @@ const SCHEME = `/* After the @siyahi/ui import: tokens and dark: utilities then 
 export const overview: Page = {
   id: "overview",
   title: "Siyahi",
+  icon: <HouseIcon />,
   lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a finance theme, a few compositions, locale-aware formatters, a lint and this catalogue.",
   sections: [
     {

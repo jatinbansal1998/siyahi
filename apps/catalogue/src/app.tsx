@@ -18,6 +18,7 @@ export function App() {
   const nav = PAGES.map((p) => ({
     title: p.title,
     url: `#/${p.id}`,
+    icon: p.icon,
     isActive: p.id === page.id,
     items: p.sections.map((s) => ({ title: s.title, url: `#/${p.id}/${s.id}` })),
   }));

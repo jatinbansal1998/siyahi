@@ -1,9 +1,11 @@
+import { LayoutTemplateIcon } from "lucide-react";
 import { Example, Lead } from "../example";
 import type { Page } from "../page";
 
 export const layout: Page = {
   id: "layout",
   title: "Page layout",
+  icon: <LayoutTemplateIcon />,
   lead: "The parts of a long page that are not data: its sections, headings, facts and code in prose. Siyahi's own, each a few lines.",
   sections: [
     {

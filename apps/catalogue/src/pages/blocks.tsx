@@ -1,3 +1,4 @@
+import { BlocksIcon } from "lucide-react";
 import { Code } from "../code";
 import { Example, Lead } from "../example";
 import type { Page } from "../page";
@@ -10,6 +11,7 @@ const shellSource = Object.values(
 export const blocks: Page = {
   id: "blocks",
   title: "Blocks",
+  icon: <BlocksIcon />,
   lead: "shadcn blocks with their sample data taken out, so an app passes its own.",
   sections: [
     {

@@ -4,6 +4,7 @@ import type { DetachedWindowAPI } from "happy-dom";
 import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { ChartAreaIcon } from "lucide-react";
 import AppSidebarExample from "../src/examples/app-sidebar";
 
 declare global {
@@ -63,7 +64,16 @@ describe("AppSidebar with flat items", () => {
 
   it("spreads an item's linkProps onto its anchor, handlers included", async () => {
     const prefetch = vi.fn();
-    await render(shell([{ title: "Data", url: "#/data", linkProps: { target: "_blank", onMouseEnter: prefetch } }]));
+    await render(
+      shell([
+        {
+          title: "Data",
+          url: "#/data",
+          icon: <ChartAreaIcon />,
+          linkProps: { target: "_blank", onMouseEnter: prefetch },
+        },
+      ]),
+    );
     const anchor = document.querySelector('a[href="#/data"]');
     expect(anchor?.getAttribute("target")).toBe("_blank");
     await act(async () => anchor?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
@@ -72,7 +82,7 @@ describe("AppSidebar with flat items", () => {
 
   it("closes the phone drawer when a flat link is followed", async () => {
     window.happyDOM.setViewport({ width: 390, height: 844 });
-    await render(shell([{ title: "Data", url: "#/data" }]));
+    await render(shell([{ title: "Data", url: "#/data", icon: <ChartAreaIcon /> }]));
     await click('[data-sidebar="trigger"]');
     expect(drawerOpen()).toBe(true);
     await click('[data-mobile="true"] a[href="#/data"]');
@@ -82,7 +92,15 @@ describe("AppSidebar with flat items", () => {
   it("closes the phone drawer when a sub-item link is followed", async () => {
     window.happyDOM.setViewport({ width: 390, height: 844 });
     await render(
-      shell([{ title: "Data", url: "#/data", isActive: true, items: [{ title: "Charts", url: "#/data/charts" }] }]),
+      shell([
+        {
+          title: "Data",
+          url: "#/data",
+          icon: <ChartAreaIcon />,
+          isActive: true,
+          items: [{ title: "Charts", url: "#/data/charts" }],
+        },
+      ]),
     );
     await click('[data-sidebar="trigger"]');
     expect(drawerOpen()).toBe(true);

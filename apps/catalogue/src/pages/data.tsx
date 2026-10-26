@@ -1,9 +1,11 @@
+import { ChartAreaIcon } from "lucide-react";
 import { Example, Lead } from "../example";
 import type { Page } from "../page";
 
 export const data: Page = {
   id: "data",
   title: "Data",
+  icon: <ChartAreaIcon />,
   lead: "Charts, tables and figures. Each data block sits in a card, with a fixed height for charts.",
   sections: [
     {

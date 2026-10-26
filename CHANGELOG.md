@@ -89,6 +89,10 @@ Page parts that dash and The Book built for themselves. Published as
   and The Book moved to them on `0.1.9-next.2` (dash#95, The Book #34). This
   resolves the dated notes under 0.1.8 and, in this section, under 0.1.9. A page
   that still needs a raw part imports `recharts` from its own dependency.
+- `NavMain` and `AppSidebar` require an `icon` on every nav item. The sidebar
+  collapses to a strip one icon wide, and an item without an icon showed the
+  first letters of its title cut off; an app that left one out now fails to
+  typecheck instead.
 
 ## 0.1.8
 

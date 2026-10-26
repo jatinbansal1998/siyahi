@@ -1,42 +1,20 @@
 // Hovers every bar and point of the catalogue's chart examples in Chromium
 // and reads the tooltip. happy-dom cannot do this: Recharts picks the hovered
 // point from laid-out pixel positions.
-import { fileURLToPath } from "node:url";
-import { chromium, type Browser, type Locator, type Page } from "playwright";
-import { createServer, type ViteDevServer } from "vite";
+import type { Locator, Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
+import { openCatalogue, type Catalogue } from "./catalogue";
 
-const at = (path: string) => fileURLToPath(new URL(path, import.meta.url));
-
-let server: ViteDevServer;
-let browser: Browser;
+let catalogue: Catalogue;
 let page: Page;
 
 beforeAll(async () => {
-  server = await createServer({
-    configFile: at("../vite.config.ts"),
-    root: at(".."),
-    logLevel: "error",
-    server: { port: 0 },
-    // The package from source, as the other tests use it, so no build is needed.
-    resolve: {
-      alias: [
-        { find: /^@siyahi\/ui$/, replacement: at("../../../packages/ui/src/index.ts") },
-        { find: /^@siyahi\/ui\/styles\.css$/, replacement: at("./from-source.css") },
-        { find: /^@siyahi\/ui\/report\.css/, replacement: at("../../../packages/ui/report.css") },
-        { find: /^@siyahi\/ui\/(.*)$/, replacement: at("../../../packages/ui/src/$1") },
-      ],
-    },
-  });
-  await server.listen();
-  browser = await chromium.launch();
-  page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await page.goto(`${server.resolvedUrls?.local[0]}#/data`);
+  catalogue = await openCatalogue("data");
+  page = catalogue.page;
 }, 60_000);
 
 afterAll(async () => {
-  await browser?.close();
-  await server?.close();
+  await catalogue?.close();
 });
 
 const card = (title: string): Locator =>
