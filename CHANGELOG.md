@@ -122,6 +122,12 @@ Page parts that dash and The Book built for themselves. Published as
 - `PanelGrid`: data blocks side by side, one to four across, with a hairline
   between them and a rule above and below on a ruled page, whitespace on an
   open one and a gap between boxes on a card one.
+- Dark scheme, for readability: the canvas is `#121212` (was `#0a0a0a`) and
+  text `#e5e5e5` (was `#fafafa`), 14.9:1 rather than 19:1, which blurs for
+  many readers once the cards' grey no longer sits behind the text. Cards and
+  popovers match the canvas; the sidebar is a shade darker (`#0a0a0a`).
+  Muted text is 7.3:1, every meaning colour at least 6.5:1 and every chart
+  colour at least 3.4:1. The light scheme is unchanged.
 - `MetricStrip` takes its box off with every other card on a ruled page: its
   `data-slot` moved from the `Card`, where it replaced the card's own, to the
   strip inside it.
