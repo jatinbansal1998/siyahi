@@ -67,8 +67,8 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 
 ## What is in it
 
-- **shadcn/ui components** in the `base-luma` style, installed with the shadcn
-  CLI and never edited.
+- **shadcn/ui components** in the `base-nova` style, shadcn's flat and compact
+  one, installed with the shadcn CLI and never edited.
 - **Registry add-ons**, copied once with their origin and licence recorded:
   bar, area and line chart cards from shadcn's chart blocks, a data table on
   TanStack Table, calendar, weekday and status heatmaps, a ranked
@@ -82,9 +82,12 @@ Every merge to `main` also attaches both tarballs to a GitHub release
   `PageSection`, `PageSubheading`, `DataList` and `InlineCode`, the data table
   parts `DataTableSortHeader` (sorts on one click) and `DataTableRowCount`
   ("12 of 48"), `DataBar` (a figure in a table cell with a bar giving its size
-  against the column's largest), and `SiyahiProvider`.
-- **Cards and badges as installed**: every `Card`, stat tiles included, keeps
-  luma's `rounded-4xl`, `shadow-md` and faint ring. A category (a sector, a
+  against the column's largest), `PanelGrid` (data blocks side by side, with
+  hairlines between them on a ruled page), and `SiyahiProvider`.
+- **Surfaces**: by default a data block has no box. Every `Card` on a ruled
+  page, chart cards and stat tiles included, loses its fill, corner and ring,
+  and a `PanelGrid` draws hairlines between blocks; see Surfaces below. A
+  category (a sector, a
   broker, a unit's kind) is an outline `Badge`: categories stay neutral, and
   colour is left to the four meaning colours and the charts. On a narrow card
   (header under 24rem, so any phone) a header action such as a toggle drops
@@ -127,6 +130,8 @@ Every merge to `main` also attaches both tarballs to a GitHub release
 | Label and value pairs, such as a record's fields                        | `DataList` and `DataListItem`                                       |
 | A command or file to copy, wrapped or scrolling                         | `CodeBlock` with `CodeBlockCopyButton`                              |
 | A labelled copy action, such as "Copy all" for a section                | `CopyButton`                                                        |
+| Data blocks side by side: charts, tables, a strip of figures            | `PanelGrid`                                                         |
+| Boxes back, or no lines at all, for a page or a part of one             | `SiyahiProvider` with `surface="card"` or `surface="open"`          |
 | A command, file or identifier inside prose                              | `InlineCode`                                                        |
 | A signed figure (a gain, a loss, a change)                              | `Delta`                                                             |
 | A time, with the viewer's own clock on hover                            | `LocalTime`                                                         |
@@ -170,6 +175,28 @@ The formatters print a minus sign and nothing else. A signed figure (a gain, a
 loss, a change) goes through `<Delta>`, which adds ▲ or ▼ and the meaning
 colour. Time zone names come from the runtime's ICU data; a slim Node or
 browser build may print `GMT+5:30` where a full one prints `IST`.
+
+## Surfaces
+
+A data block sits on the page in one of three ways, set by `SiyahiProvider`'s
+`surface`:
+
+- `"ruled"`, the default: no box. Every `Card` loses its fill, corner and ring,
+  and blocks side by side in a `PanelGrid` are parted by hairlines, with a rule
+  above and below the grid. One surface, as on a trading screen.
+- `"open"`: no box and no lines. The card's padding goes too, so a block's
+  content sits level with the page's text; for pages read top to bottom.
+- `"card"`: shadcn's own Nova card, a filled box with a 1px ring.
+
+A component outside any provider is ruled. A nested provider sets the surface
+for one part of a page. A picked `SectionCards` tile keeps its ring on every
+surface.
+
+```tsx
+<SiyahiProvider surface="open">
+  <PageSection title="Why XIRR fell">…</PageSection>
+</SiyahiProvider>
+```
 
 ## Dark mode
 

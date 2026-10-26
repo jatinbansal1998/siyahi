@@ -215,3 +215,33 @@
     }
   }
 }
+
+/*
+ * Surfaces, from SiyahiProvider's surface prop. Ruled, the default, and open
+ * take the box off every core Card: no fill, no corner, no ring, and no
+ * tinted footer band; PanelGrid draws the hairlines between ruled blocks.
+ * Open also drops the card's padding, so a block's content sits level with
+ * the page's text. A card provider gives shadcn's own card back. Each scope
+ * starts at the root, so a Card outside any provider is ruled too, and stops
+ * at a provider that says otherwise. Unlayered, like the rule above, to
+ * outrank the core components' utility classes; a picked SectionCards tile
+ * keeps its ring, which is important.
+ */
+@scope (:root, [data-surface="ruled"], [data-surface="open"]) to ([data-surface="card"]) {
+  [data-slot="card"] {
+    background: none;
+    border-radius: 0;
+    --tw-ring-color: transparent;
+  }
+  [data-slot="card-footer"] {
+    background: none;
+    border-top-width: 0;
+  }
+}
+
+@scope ([data-surface="open"]) to ([data-surface="ruled"], [data-surface="card"]) {
+  [data-slot="card"] {
+    --card-spacing: 0px;
+    gap: calc(var(--spacing) * 4);
+  }
+}

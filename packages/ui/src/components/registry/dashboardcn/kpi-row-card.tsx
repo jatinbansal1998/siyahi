@@ -18,6 +18,9 @@
 // rules sit on each tile's left and top edge, and the strip clips the ones on
 // its own edges, so they stay right on every row whatever the count.
 // Siyahi edit: the title is optional, for a strip of figures heading a page.
+// Siyahi edit: data-slot="metric-strip" sits on the strip inside the card,
+// not on the Card, where it replaced the card's own slot and so hid the
+// strip from the theme's surface rule, which finds cards by that slot.
 import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
@@ -89,7 +92,7 @@ function MetricStrip({
 }: MetricStripProps) {
   const columns = COLUMNS[Math.min(items.length, 8)] ?? COLUMNS[8]
   return (
-    <Card data-slot="metric-strip" className={cn("gap-4", className)} {...props}>
+    <Card className={cn("gap-4", className)} {...props}>
       {(title || description || action) && (
         <CardHeader>
           {title && <CardTitle>{title}</CardTitle>}
@@ -98,7 +101,7 @@ function MetricStrip({
         </CardHeader>
       )}
       <CardContent>
-        <div className="@container/strip -mx-4 -my-3 overflow-hidden">
+        <div data-slot="metric-strip" className="@container/strip -mx-4 -my-3 overflow-hidden">
           <div className="-mt-px -ml-px flex flex-wrap">
             {items.map((item) => (
               <div

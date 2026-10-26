@@ -7,8 +7,7 @@
 // and the page, not the block, owns the side gutter.
 // Siyahi edit: no light-mode gradient (from-primary/5 to the card) and no
 // shadow override, so a stat tile is the stock Card in both schemes, like
-// every other card on the page. Under luma the stock Card carries shadow-md,
-// and tiles keep it (flat cards were tried in 0.1.6; the default stayed).
+// every other card on the page.
 // Siyahi edit: the column steps follow the tile count, so no row holds one
 // tile under fuller rows (five on the stock 1-2-4 grid showed 4 + 1, siyahi#16).
 // Three, five and six skip the two-column step and run three across; five goes
@@ -89,7 +88,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
               onSelect && item.disabled && "opacity-60",
             )}
           >
-            {/* A Card is a div, which a button cannot hold, so the button lies over the tile with its radius, for the focus ring to follow the corner. */}
+            {/* A Card is a div, which a button cannot hold, so the button lies over the tile and takes its radius, square on a ruled page, for the focus ring to follow the corner. */}
             {onSelect && (
               <button
                 type="button"
@@ -97,7 +96,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
                 aria-pressed={item.label === selected}
                 disabled={item.disabled}
                 onClick={() => onSelect(item.label)}
-                className="absolute inset-0 z-10 rounded-4xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
+                className="absolute inset-0 z-10 rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
               />
             )}
             <CardHeader>
