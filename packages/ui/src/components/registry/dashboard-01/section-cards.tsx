@@ -21,6 +21,10 @@
 // Siyahi edit: a tile marked disabled cannot be picked: its button is
 // disabled and the tile fades, as The Book's attention cards do for a flag
 // with no positions.
+// Siyahi edit: on a ruled page a hairline parts the tiles across and down,
+// with a rule above and below the row, as PanelGrid parts blocks; without
+// it the boxless tiles floated as loose figures. The picked tile's ring is
+// drawn inside the tile there, so the row's edge does not clip it.
 // Siyahi edit: `trend` puts a chart, usually a Sparkline, between the
 // figure and the footer lines, so a tile shows the run behind its value.
 // Siyahi edit: the headline wraps instead of being clamped to one line, so a
@@ -40,6 +44,7 @@ import {
   CardTitle,
 } from "@siyahi/ui/components/ui/card"
 import { cn } from "@siyahi/ui/lib/utils"
+import { useSurface } from "@siyahi/ui/components/siyahi/siyahi-provider"
 
 export interface SectionCard {
   /** Muted label above the value. */
@@ -75,16 +80,19 @@ export interface SectionCardsProps {
 }
 
 export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
+  const ruled = useSurface() === "ruled"
   return (
-    <div className="@container/main">
-      <div className={cn("grid grid-cols-1 gap-4", COLUMNS[items.length] ?? COLUMNS[4])}>
+    <div className={cn("@container/main", ruled && "overflow-hidden border-y")}>
+      <div className={cn("grid grid-cols-1", ruled ? "-mt-px -ml-px" : "gap-4", COLUMNS[items.length] ?? COLUMNS[4])}>
         {items.map((item) => (
           <Card
             key={item.label}
             className={cn(
               "@container/card",
+              ruled && "border-t border-l",
               onSelect && "relative",
               item.label === selected && "ring-2 ring-primary!",
+              item.label === selected && ruled && "ring-inset",
               onSelect && item.disabled && "opacity-60",
             )}
           >

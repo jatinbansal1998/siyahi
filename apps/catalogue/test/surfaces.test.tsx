@@ -105,4 +105,25 @@ describe("surfaces", { timeout: 60_000 }, () => {
     await picked.waitFor();
     expect(transparentRing((await box(picked)).ring)).toBe(false);
   });
+
+  it("parts stat tiles with hairlines on a ruled page, its ring inside the picked tile and no gap above the footer", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/blocks/section-cards"));
+    const picker = page.locator('[data-slot="card"]', { has: page.locator('button[aria-label="All"]') });
+    await picker.waitFor();
+    const row = await picker.evaluate((tile) => {
+      const wrapper = tile.parentElement?.parentElement as Element;
+      const tiles = [...(tile.parentElement?.children ?? [])];
+      return {
+        rule: [getComputedStyle(wrapper).borderTopWidth, getComputedStyle(wrapper).borderBottomWidth],
+        tiles: tiles.map((t) => [getComputedStyle(t).borderTopWidth, getComputedStyle(t).borderLeftWidth]),
+        pickedRing: getComputedStyle(tile).boxShadow,
+        footerTop: getComputedStyle(tile.querySelector('[data-slot="card-footer"]') as Element).paddingTop,
+      };
+    });
+    expect(row.rule).toEqual(["1px", "1px"]);
+    expect(row.tiles.every(([top, left]) => top === "1px" && left === "1px")).toBe(true);
+    expect(row.pickedRing).toContain("inset");
+    // The footer lines follow the figure at the card's own gap, with no band's padding above them.
+    expect(row.footerTop).toBe("0px");
+  });
 });
