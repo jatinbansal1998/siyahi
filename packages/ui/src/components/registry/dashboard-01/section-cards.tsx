@@ -23,8 +23,11 @@
 // with no positions.
 // Siyahi edit: on a ruled page a hairline parts the tiles across and down,
 // with a rule above and below the row, as PanelGrid parts blocks; without
-// it the boxless tiles floated as loose figures. The picked tile's ring is
-// drawn inside the tile there, so the row's edge does not clip it.
+// it the boxless tiles floated as loose figures. As in PanelGrid the rules
+// sit on a div around each tile, not on the Card: a Card shifted 1px to
+// hide its outer rule started 1px into the page gutter (siyahi#34). The
+// picked tile's ring is drawn inside the tile there, so the row's edge does
+// not clip it.
 // Siyahi edit: `trend` puts a chart, usually a Sparkline, between the
 // figure and the footer lines, so a tile shows the run behind its value.
 // Siyahi edit: the headline wraps instead of being clamped to one line, so a
@@ -85,47 +88,47 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
     <div className={cn("@container/main", ruled && "overflow-hidden border-y")}>
       <div className={cn("grid grid-cols-1", ruled ? "-mt-px -ml-px" : "gap-4", COLUMNS[items.length] ?? COLUMNS[4])}>
         {items.map((item) => (
-          <Card
-            key={item.label}
-            className={cn(
-              "@container/card",
-              ruled && "border-t border-l",
-              onSelect && "relative",
-              item.label === selected && "ring-2 ring-primary!",
-              item.label === selected && ruled && "ring-inset",
-              onSelect && item.disabled && "opacity-60",
-            )}
-          >
-            {/* A Card is a div, which a button cannot hold, so the button lies over the tile and takes its radius, square on a ruled page, for the focus ring to follow the corner. */}
-            {onSelect && (
-              <button
-                type="button"
-                aria-label={item.label}
-                aria-pressed={item.label === selected}
-                disabled={item.disabled}
-                onClick={() => onSelect(item.label)}
-                className="absolute inset-0 z-10 rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
-              />
-            )}
-            <CardHeader>
-              <CardDescription>{item.label}</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {item.value}
-              </CardTitle>
-              {item.badge && (
-                <CardAction>
-                  <Badge variant="outline">{item.badge}</Badge>
-                </CardAction>
+          <div key={item.label} data-slot="section-card" className={cn("min-w-0", ruled && "border-t border-l")}>
+            <Card
+              className={cn(
+                "@container/card h-full",
+                onSelect && "relative",
+                item.label === selected && "ring-2 ring-primary!",
+                item.label === selected && ruled && "ring-inset",
+                onSelect && item.disabled && "opacity-60",
               )}
-            </CardHeader>
-            {item.trend && <CardContent>{item.trend}</CardContent>}
-            {(item.headline || item.detail) && (
-              <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                {item.headline && <div className="flex flex-wrap gap-2 font-medium">{item.headline}</div>}
-                {item.detail && <div className="text-muted-foreground">{item.detail}</div>}
-              </CardFooter>
-            )}
-          </Card>
+            >
+              {/* A Card is a div, which a button cannot hold, so the button lies over the tile and takes its radius, square on a ruled page, for the focus ring to follow the corner. */}
+              {onSelect && (
+                <button
+                  type="button"
+                  aria-label={item.label}
+                  aria-pressed={item.label === selected}
+                  disabled={item.disabled}
+                  onClick={() => onSelect(item.label)}
+                  className="absolute inset-0 z-10 rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
+                />
+              )}
+              <CardHeader>
+                <CardDescription>{item.label}</CardDescription>
+                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                  {item.value}
+                </CardTitle>
+                {item.badge && (
+                  <CardAction>
+                    <Badge variant="outline">{item.badge}</Badge>
+                  </CardAction>
+                )}
+              </CardHeader>
+              {item.trend && <CardContent>{item.trend}</CardContent>}
+              {(item.headline || item.detail) && (
+                <CardFooter className="flex-col items-start gap-1.5 text-sm">
+                  {item.headline && <div className="flex flex-wrap gap-2 font-medium">{item.headline}</div>}
+                  {item.detail && <div className="text-muted-foreground">{item.detail}</div>}
+                </CardFooter>
+              )}
+            </Card>
+          </div>
         ))}
       </div>
     </div>

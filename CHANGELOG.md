@@ -132,6 +132,11 @@ Page parts that dash and The Book built for themselves. Published as
   down, with a rule above and below the row, as `PanelGrid` parts blocks;
   boxless, the tiles had floated as loose figures. A picked tile's ring sits
   inside the tile there.
+- `SectionCards` draws those rules on a `div` around each tile, as
+  `PanelGrid` does, instead of on the `Card`. The Card had been shifted 1px
+  to hide its outer rule, which started the first tile 1px into the page's
+  gutter and failed `siyahi-shots` at 390 wide on every page with stat tiles
+  (siyahi#34). Tiles in a row still share one height.
 - On ruled and open pages a card's footer has no top padding: Nova's footer
   pads itself for the tinted band those pages drop, and the padding stacked
   on the card's gap, leaving a hole between a tile's figure and its lines.

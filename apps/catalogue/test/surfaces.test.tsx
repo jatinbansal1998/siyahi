@@ -111,13 +111,20 @@ describe("surfaces", { timeout: 60_000 }, () => {
     const picker = page.locator('[data-slot="card"]', { has: page.locator('button[aria-label="All"]') });
     await picker.waitFor();
     const row = await picker.evaluate((tile) => {
-      const wrapper = tile.parentElement?.parentElement as Element;
-      const tiles = [...(tile.parentElement?.children ?? [])];
+      const cell = tile.closest('[data-slot="section-card"]') as Element;
+      const grid = cell.parentElement as Element;
+      const wrapper = grid.parentElement as Element;
       return {
         rule: [getComputedStyle(wrapper).borderTopWidth, getComputedStyle(wrapper).borderBottomWidth],
-        tiles: tiles.map((t) => [getComputedStyle(t).borderTopWidth, getComputedStyle(t).borderLeftWidth]),
+        tiles: [...grid.children].map((t) => [getComputedStyle(t).borderTopWidth, getComputedStyle(t).borderLeftWidth]),
         pickedRing: getComputedStyle(tile).boxShadow,
         footerTop: getComputedStyle(tile.querySelector('[data-slot="card-footer"]') as Element).paddingTop,
+        // siyahi-shots measures cards against the page gutter, so no tile may start left of its row (siyahi#34).
+        outdent: Math.min(
+          ...[...grid.querySelectorAll('[data-slot="card"]')].map(
+            (c) => c.getBoundingClientRect().left - wrapper.getBoundingClientRect().left,
+          ),
+        ),
       };
     });
     expect(row.rule).toEqual(["1px", "1px"]);
@@ -125,5 +132,6 @@ describe("surfaces", { timeout: 60_000 }, () => {
     expect(row.pickedRing).toContain("inset");
     // The footer lines follow the figure at the card's own gap, with no band's padding above them.
     expect(row.footerTop).toBe("0px");
+    expect(row.outdent).toBeGreaterThanOrEqual(0);
   });
 });
