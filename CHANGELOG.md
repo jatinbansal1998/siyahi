@@ -105,6 +105,32 @@ Page parts that dash and The Book built for themselves. Published as
   figure's line, so the row keeps its height.
 - A `SectionCards` tile takes `trend`, a small chart such as a `Sparkline`
   between the figure and the footer lines.
+- Core components are shadcn's `base-nova` style instead of `base-luma`: the
+  flat, compact one. Cards pad 16px (was 24px) with 14px corners and a 1px
+  ring, no `shadow-md`, and a footer drawn as a tinted band; table headers are
+  `h-10` and cells `p-2`, so a one-line row is 36px (was 44px), the data table
+  included; buttons are 32px (`sm` 28px, `lg` 36px, icon 32px) with rounded
+  corners instead of pills. The theme, Geist, the chart palette and the
+  meaning colours are unchanged. The highlighter hook shadcn adds with the code
+  block is left out again, so `shiki` is not a dependency.
+- Surfaces: `SiyahiProvider` takes `surface`. `"ruled"`, the default, takes
+  the box off every `Card` (fill, corner, ring and the footer band) on the
+  page, in dash and The Book too with no change on their side; `"open"` also
+  drops its padding, so a block's content sits level with the page's text;
+  `"card"` gives Nova's card back. A nested provider sets it for one part of a
+  page. A picked `SectionCards` tile keeps its ring on every surface.
+- `PanelGrid`: data blocks side by side, one to four across, with a hairline
+  between them and a rule above and below on a ruled page, whitespace on an
+  open one and a gap between boxes on a card one.
+- Dark scheme, for readability: the canvas is `#121212` (was `#0a0a0a`) and
+  text `#e5e5e5` (was `#fafafa`), 14.9:1 rather than 19:1, which blurs for
+  many readers once the cards' grey no longer sits behind the text. Cards and
+  popovers match the canvas; the sidebar is a shade darker (`#0a0a0a`).
+  Muted text is 7.3:1, every meaning colour at least 6.5:1 and every chart
+  colour at least 3.4:1. The light scheme is unchanged.
+- `MetricStrip` takes its box off with every other card on a ruled page: its
+  `data-slot` moved from the `Card`, where it replaced the card's own, to the
+  strip inside it.
 
 ## 0.1.8
 

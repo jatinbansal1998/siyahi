@@ -1,7 +1,7 @@
 import { PaletteIcon } from "lucide-react";
 import { Card, CardContent } from "@siyahi/ui";
 import { useSyncExternalStore } from "react";
-import { Lead } from "../example";
+import { Example, Lead } from "../example";
 import type { Page } from "../page";
 
 // Classes are spelled out so Tailwind sees them.
@@ -33,7 +33,7 @@ const CHART = [
 ];
 const TYPE = [
   { name: "text-xs", className: "text-xs", note: "12px: ticks, captions" },
-  { name: "text-sm", className: "text-sm", note: "14px: body, the base-luma default" },
+  { name: "text-sm", className: "text-sm", note: "14px: body, the base-nova default" },
   { name: "text-base", className: "text-base", note: "16px: card titles" },
   { name: "text-xl", className: "text-xl", note: "20px: section headings" },
   { name: "text-3xl", className: "text-3xl", note: "30px: page title, stat values" },
@@ -210,7 +210,7 @@ export const foundations: Page = {
       body: (
         <>
           <Lead>
-            Tailwind's 4px scale. Cards pad 24px (16px for size="sm"), page gutters are 16px on a phone. Radii derive
+            Tailwind's 4px scale. Cards pad 16px (12px for size="sm"), page gutters are 16px on a phone. Radii derive
             from one --radius.
           </Lead>
           <div className="flex flex-col gap-2">
@@ -231,6 +231,23 @@ export const foundations: Page = {
               </div>
             ))}
           </div>
+        </>
+      ),
+    },
+    {
+      id: "surfaces",
+      title: "Surfaces",
+      body: (
+        <>
+          <Lead>
+            How a data block sits on the page, set by SiyahiProvider's surface. Ruled, the default, takes the box off
+            every card and draws a hairline between the blocks of a PanelGrid, with a rule above and below it: one
+            surface, parted by lines, as on a trading screen. Open drops the lines too, and the card's padding, so a
+            block's content sits level with the page's text, for pages read top to bottom. Card gives shadcn's own card
+            back, a filled box with a 1px ring. A nested provider sets the surface for one part of a page. A picked
+            SectionCards tile keeps its ring on every surface.
+          </Lead>
+          <Example name="surfaces" />
         </>
       ),
     },

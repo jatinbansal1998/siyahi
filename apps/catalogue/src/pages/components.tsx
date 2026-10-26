@@ -85,7 +85,7 @@ export const components: Page = {
   id: "components",
   title: "Components",
   icon: <LayersIcon />,
-  lead: "shadcn/ui on Base UI in the base-luma style, installed with the shadcn CLI and never edited. Each one is shown live with its code.",
+  lead: "shadcn/ui on Base UI in the base-nova style, installed with the shadcn CLI and never edited. Each one is shown live with its code.",
   sections: sectionsOf(display),
 };
 
