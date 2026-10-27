@@ -137,6 +137,9 @@ Page parts that dash and The Book built for themselves. Published as
   to hide its outer rule, which started the first tile 1px into the page's
   gutter and failed `siyahi-shots` at 390 wide on every page with stat tiles
   (siyahi#34). Tiles in a row still share one height.
+- `SectionCards` tiles are compact: 12px in from each edge instead of 16px,
+  a 24px figure at every width instead of 30px on a wide tile, and 4px
+  between the footer lines instead of 6px.
 - On ruled and open pages a card's footer has no top padding: Nova's footer
   pads itself for the tinted band those pages drop, and the padding stacked
   on the card's gap, leaving a hole between a tile's figure and its lines.
