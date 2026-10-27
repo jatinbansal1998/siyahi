@@ -124,12 +124,14 @@ or loading changes, `node packages/tools/cls.mjs https://siyahi.jatinbansal.com/
 
 ## Gotchas
 
-- **A green Publish run can hide an npm failure.** "Publish to npm" is
-  `continue-on-error`; on failure the run stays green and only an
-  `npm publish failed` annotation shows. The first publish (run 39339828051,
-  2026-10-20) failed with `ERR_PNPM_OTP_NON_INTERACTIVE` because `NPM_TOKEN`
-  lacked 2FA bypass; that run went red only because the step was not yet
-  `continue-on-error`. Always run the `npm view` checks.
+- **npm auth is trusted publishing (OIDC), not a token.** npmjs.com trusts
+  `publish.yml` in `jatinbansal1998/siyahi` for both packages, with "Allow npm
+  publish" and "Allow npm dist-tag" on. Renaming the workflow, adding a GitHub
+  environment, or dropping `id-token: write` breaks the publish. `npm whoami`
+  does not work under OIDC and proves nothing about it.
+- **A red Publish run after the GitHub release step means npm failed.** The
+  `v<VER>` release already holds the tarballs, so a rerun ships as `next.<N+1>`
+  and `<VER>` never reaches npm. Bump consumers to the version npm has.
 - **npm lags.** Right after the run, `dist-tags` can still show the previous
   version. Poll `npm view @siyahi/ui@<VER> version --prefer-online` every ~30 s
   for a few minutes before calling it failed.
