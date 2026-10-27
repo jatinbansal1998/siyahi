@@ -134,4 +134,16 @@ describe("surfaces", { timeout: 60_000 }, () => {
     expect(row.footerTop).toBe("0px");
     expect(row.outdent).toBeGreaterThanOrEqual(0);
   });
+
+  it("draws stat tiles compact: 12px in from the edge and a 24px figure", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/blocks/section-cards"));
+    const tile = page.locator('[data-slot="card"]', { has: page.locator('button[aria-label="All"]') });
+    await tile.waitFor();
+    const size = await tile.evaluate((card) => ({
+      padding: getComputedStyle(card).paddingTop,
+      inset: getComputedStyle(card.querySelector('[data-slot="card-header"]') as Element).paddingLeft,
+      figure: getComputedStyle(card.querySelector('[data-slot="card-title"]') as Element).fontSize,
+    }));
+    expect(size).toEqual({ padding: "12px", inset: "12px", figure: "24px" });
+  });
 });

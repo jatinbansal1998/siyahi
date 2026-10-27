@@ -32,6 +32,11 @@
 // figure and the footer lines, so a tile shows the run behind its value.
 // Siyahi edit: the headline wraps instead of being clamped to one line, so a
 // long figure line is not cut off on a phone.
+// Siyahi edit: tiles sit 12px in from each edge, the small Card's spacing,
+// with a 24px figure at every width and 4px between footer lines, so a row of
+// figures stays dense; the stock 16px padding and 30px figure ran a six-tile
+// block taller than the reading it summed up. The spacing is set, not
+// size="sm", which would also shrink the figure to 14px.
 "use client"
 
 import * as React from "react"
@@ -91,7 +96,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
           <div key={item.label} data-slot="section-card" className={cn("min-w-0", ruled && "border-t border-l")}>
             <Card
               className={cn(
-                "@container/card h-full",
+                "@container/card h-full [--card-spacing:--spacing(3)]",
                 onSelect && "relative",
                 item.label === selected && "ring-2 ring-primary!",
                 item.label === selected && ruled && "ring-inset",
@@ -111,7 +116,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
               )}
               <CardHeader>
                 <CardDescription>{item.label}</CardDescription>
-                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                <CardTitle className="text-2xl font-semibold tabular-nums">
                   {item.value}
                 </CardTitle>
                 {item.badge && (
@@ -122,7 +127,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
               </CardHeader>
               {item.trend && <CardContent>{item.trend}</CardContent>}
               {(item.headline || item.detail) && (
-                <CardFooter className="flex-col items-start gap-1.5 text-sm">
+                <CardFooter className="flex-col items-start gap-1 text-sm">
                   {item.headline && <div className="flex flex-wrap gap-2 font-medium">{item.headline}</div>}
                   {item.detail && <div className="text-muted-foreground">{item.detail}</div>}
                 </CardFooter>

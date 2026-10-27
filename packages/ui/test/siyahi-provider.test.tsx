@@ -30,7 +30,7 @@ describe("SiyahiProvider", () => {
       </SiyahiProvider>,
     );
     // Open parts blocks with whitespace; a ruled grid would rule each panel's edges.
-    expect(html).toContain("gap-x-10");
+    expect(html).toContain("gap-x-8");
     expect(html).not.toContain("border-l");
   });
 });
