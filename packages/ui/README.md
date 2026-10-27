@@ -198,6 +198,10 @@ surface.
 </SiyahiProvider>
 ```
 
+Pages are dense. A `PageSection` sits 24px under its rule with 16px to its
+content, so stack sections 24px apart (`flex flex-col gap-6`) and the rule sits
+midway. Stat tiles are 12px in from each edge with a 24px figure.
+
 ## Dark mode
 
 The colour scheme follows the device (`prefers-color-scheme`). There is no

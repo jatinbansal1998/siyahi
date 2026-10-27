@@ -13,14 +13,17 @@ export interface PageSectionProps {
   children?: ReactNode;
 }
 
-/** One part of a long page: a rule above, then the heading and lead on the canvas, then its content. */
+/**
+ * One part of a long page: a rule above, then the heading and lead on the canvas, then its content. Spaced for
+ * density, 24px under the rule and 16px to the content, so sections stacked 24px apart sit 24px either side of it.
+ */
 export function PageSection({ id, eyebrow, title, lead, action, children }: PageSectionProps) {
   return (
-    <section id={id} data-slot="page-section" className="flex scroll-mt-6 flex-col gap-6 border-t pt-10">
+    <section id={id} data-slot="page-section" className="flex scroll-mt-6 flex-col gap-4 border-t pt-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
           {eyebrow && <p className="text-sm text-muted-foreground">{eyebrow}</p>}
-          <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+          <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
           {lead && <div className="flex max-w-prose flex-col gap-2 text-muted-foreground">{lead}</div>}
         </div>
         {action}

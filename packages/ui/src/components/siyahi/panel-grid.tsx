@@ -31,7 +31,7 @@ export function PanelGrid({ columns = 2, children, className }: PanelGridProps) 
         className={cn(
           "grid grid-cols-1",
           COLUMNS[columns],
-          ruled ? "-mt-px -ml-px" : surface === "open" ? "gap-x-10 gap-y-8" : "gap-4",
+          ruled ? "-mt-px -ml-px" : surface === "open" ? "gap-x-8 gap-y-6" : "gap-4",
         )}
       >
         {Children.map(children, (child) => (

@@ -56,7 +56,7 @@ export function Shell({ nav, title, children }: ShellProps) {
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <main className="flex w-full max-w-screen-2xl flex-col gap-12 px-4 py-8 md:px-8">{children}</main>
+        <main className="flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
