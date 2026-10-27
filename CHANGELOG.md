@@ -151,6 +151,9 @@ Page parts that dash and The Book built for themselves. Published as
 - `MetricStrip` takes its box off with every other card on a ruled page: its
   `data-slot` moved from the `Card`, where it replaced the card's own, to the
   strip inside it.
+- Both packages publish through npm trusted publishing, with provenance: npm
+  shows which commit and workflow run built each version. No npm token is
+  stored anywhere.
 
 ## 0.1.8
 

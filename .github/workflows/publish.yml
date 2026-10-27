@@ -2,8 +2,7 @@ name: Publish
 
 # Every merge to main ships both packages as a pre-release: tarballs on a
 # GitHub release (always), and npm under the `next` dist-tag, which `latest`
-# follows until 1.0.0 (when the token
-# allows it). Stable versions are cut by hand.
+# follows until 1.0.0. Stable versions are cut by hand.
 #
 # A push that changes only docs/, Markdown at the repo root or the agent skills
 # under .agents/ (.claude/skills links there) ships nothing new, so it
@@ -36,28 +35,20 @@ jobs:
     permissions:
       # Creates the release tags and uploads the tarballs.
       contents: write
-    # NPM_TOKEN must be a granular access token with read and write (publish)
-    # rights on the @siyahi scope, set to bypass 2FA for automation. npm no
-    # longer accepts classic tokens.
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # npm trusted publishing: npmjs.com trusts publish.yml in this repo for
+      # both packages (publish and dist-tag), so no npm token is stored.
+      id-token: write
     steps:
       - uses: actions/checkout@v7
-      # With registry-url set, setup-vp writes an .npmrc that reads
-      # NODE_AUTH_TOKEN; the job-level env gives every step the same token.
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version-file: package.json
           cache: true
-          registry-url: https://registry.npmjs.org
       # The siyahi-shots tests render pages in Playwright's headless Chromium.
       - name: Install Chromium
         run: pnpm --filter @siyahi/tools exec playwright install --with-deps --only-shell chromium
       - name: Check, build and test
         run: vp run check
-      # Fails here, before anything is versioned, if the token is missing or wrong.
-      - name: Confirm the npm token
-        run: pnpm whoami
       # N is one past the highest next.N on npm or among the v* release tags.
       - name: Version as <base>-next.<N>
         id: version
@@ -99,40 +90,20 @@ jobs:
           fi
           gh release upload next release/next/siyahi-ui-next.tgz release/next/siyahi-tools-next.tgz --clobber
           echo "Tarballs: $REPO_URL/releases/tag/$tag" >> "$GITHUB_STEP_SUMMARY"
-      # The tarballs above are the delivery path until npm accepts the token,
-      # so an npm failure is reported but does not fail the run.
       # --ignore-scripts publishes what the check step built (each package's
-      # prepublishOnly is a no-op too). Provenance stays off until trusted
-      # publishing replaces the token.
+      # prepublishOnly is a no-op too).
       - name: Publish to npm
-        id: npm
-        continue-on-error: true
-        env:
-          NPM_CONFIG_PROVENANCE: "false"
         run: >-
           pnpm -r --filter @siyahi/ui --filter @siyahi/tools
-          publish --tag next --access public --no-git-checks --ignore-scripts
+          publish --tag next --access public --no-git-checks --ignore-scripts --provenance
       # Until 1.0.0 there is no stable release, so `latest` follows `next`:
       # npmjs.com shows the README and version of `latest`, and a stale one
       # misleads. Remove this step with the first stable publish.
+      # npm moves dist-tags over OIDC only from 11.21; Node 24 bundles 11.19.
       - name: Point latest at this pre-release
-        if: steps.npm.outcome == 'success'
-        continue-on-error: true
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          npm dist-tag add "@siyahi/ui@$VERSION" latest
-          npm dist-tag add "@siyahi/tools@$VERSION" latest
-      - name: Report the npm publish
-        if: always() && steps.npm.outcome != 'skipped'
-        env:
-          OUTCOME: ${{ steps.npm.outcome }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          if [ "$OUTCOME" = "success" ]; then
-            echo "npm: published $VERSION under the next tag." >> "$GITHUB_STEP_SUMMARY"
-          else
-            message="npm publish of $VERSION failed. The NPM_TOKEN needs 2FA bypass (a granular token with bypass 2FA), or trusted publishing must replace it. The GitHub release has the tarballs."
-            echo "::error title=npm publish failed::$message"
-            echo "npm: $message" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          npx --yes npm@11.21.1 dist-tag add "@siyahi/ui@$VERSION" latest
+          npx --yes npm@11.21.1 dist-tag add "@siyahi/tools@$VERSION" latest
+          echo "npm: published $VERSION under next and latest." >> "$GITHUB_STEP_SUMMARY"
