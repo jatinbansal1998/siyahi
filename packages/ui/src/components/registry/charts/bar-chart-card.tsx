@@ -11,8 +11,9 @@
 // only its top, so the series meet flush.
 // Siyahi edit: a series' negativeColor colours its bars below zero, with one
 // Cell per row as shadcn's chart-bar-negative does.
-// Siyahi edit: selected and onSelect pick a category by a click on its bar;
+// Siyahi edit: selected and onSelect pick a category;
 // the other bars fade, as shadcn's chart-bar-active marks its bar.
+// Siyahi edit: the entire tooltip category selects, including empty space around a bar.
 // Siyahi edit: horizontal lays the bars sideways, categories down the left,
 // as shadcn's chart-bar-horizontal does, for long names such as sectors.
 // Siyahi edit: a stack runs negative values down from zero and positive ones
@@ -65,6 +66,15 @@ export function BarChartCard<T extends object, K extends keyof T>({
           : DOWN_FROM_ZERO)
       }
       stackOffset={stacked ? "sign" : undefined}
+      onClick={
+        onSelect
+          ? ({ activeTooltipIndex, isTooltipActive }) => {
+              if (!isTooltipActive || activeTooltipIndex == null) return
+              const row = props.data[Number(activeTooltipIndex)]
+              if (row) onSelect(row[props.xKey] === selected ? null : row[props.xKey])
+            }
+          : undefined
+      }
     >
       {props.series.map((item, index) => {
         const { key, label, color, negativeColor } = item
@@ -83,15 +93,6 @@ export function BarChartCard<T extends object, K extends keyof T>({
                     ? [0, 2, 2, 0]
                     : [2, 2, 0, 0]
                   : 0
-            }
-            className={onSelect ? "cursor-pointer" : undefined}
-            onClick={
-              onSelect &&
-              ((bar: { payload?: T }) => {
-                const value = bar.payload?.[props.xKey]
-                if (value !== undefined)
-                  onSelect(value === selected ? null : value)
-              })
             }
           >
             {(negativeColor || selected !== null) &&

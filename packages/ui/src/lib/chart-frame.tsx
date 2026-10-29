@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 import { AreaChart, BarChart, CartesianGrid, LineChart, ReferenceLine, XAxis, YAxis, type YAxisProps } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
@@ -48,6 +48,7 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   horizontal?: boolean;
   /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
   stackOffset?: "sign";
+  onClick?: ComponentProps<typeof BarChart>["onClick"];
 }
 
 /**
@@ -161,6 +162,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   children,
   horizontal = false,
   stackOffset,
+  onClick,
   title,
   description,
   action,
@@ -200,11 +202,18 @@ export function ChartFrame<T extends object, K extends keyof T>({
             {placeholder}
           </div>
         ) : (
-          <ChartContainer config={config} className="aspect-auto w-full" style={{ height }}>
+          <ChartContainer
+            config={config}
+            className={cn("aspect-auto w-full", onClick && "cursor-pointer")}
+            style={{ height }}
+          >
             <Chart
               data={data}
               layout={horizontal ? "vertical" : "horizontal"}
               stackOffset={stackOffset}
+              onClick={onClick}
+              // Selection reads the hovered category in this event; defer no pointer updates.
+              throttledEvents={onClick ? [] : undefined}
               // Every named tick is drawn, so one at the domain's right end needs room for its label.
               margin={{ left: 0, right: xTicks ? endRoom(xFormatter, xTicks) : 8 }}
             >

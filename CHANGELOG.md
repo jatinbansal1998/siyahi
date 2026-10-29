@@ -2,6 +2,8 @@
 
 ## 0.1.9
 
+- Bar charts select the entire highlighted category area, including zero-height bars.
+
 Page parts that dash and The Book built for themselves. Published as
 `0.1.9-next.<n>` pre-releases.
 

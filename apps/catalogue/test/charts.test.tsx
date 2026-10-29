@@ -375,6 +375,23 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
   });
 
+  it("selects the full highlighted category outside the bar", async () => {
+    const chart = card("Realized by financial year");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    await settled(bars);
+    const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    const { x } = await center(bars.nth(2));
+    await tooltipAt(chart, x, grid.y + 2, "FY24");
+    await page.mouse.click(x, grid.y + 2);
+    await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
+    await page.mouse.click(x, grid.y + 2);
+    await expect
+      .poll(() => bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity"))))
+      .toEqual(["1", "1", "1", "1", "1"]);
+  });
+
   it("horizontal bars put the categories down the left, each name beside its own bars", async () => {
     const chart = card("Sectors against the index");
     await chart.scrollIntoViewIfNeeded();
