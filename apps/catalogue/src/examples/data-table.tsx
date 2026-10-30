@@ -30,7 +30,7 @@ const holdings: Holding[] = [
   { symbol: "INFY", sector: "IT", quantity: 120, value: 224400, change: 0.018 },
   { symbol: "HDFCBANK", sector: "Banks", quantity: 150, value: 262500, change: -0.006 },
   { symbol: "TCS", sector: "IT", quantity: 40, value: 166000, change: 0.004 },
-  { symbol: "ITC", sector: "FMCG", quantity: 600, value: 276000, change: -0.012 },
+  { symbol: "ITC", sector: "Fast Moving Consumer Goods", quantity: 600, value: 276000, change: -0.012 },
   { symbol: "ICICIBANK", sector: "Banks", quantity: 200, value: 258000, change: 0.022 },
   { symbol: "NIFTYBEES", sector: "ETF", quantity: 900, value: 255600, change: 0.009 },
 ];

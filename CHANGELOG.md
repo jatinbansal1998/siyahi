@@ -2,6 +2,8 @@
 
 ## 0.1.9
 
+- Table filter dropdowns grow to fit full option names, stay within the viewport,
+  and wrap long labels while keeping checkboxes and counts visible.
 - Bar charts select the entire highlighted category area, including zero-height bars.
 
 Page parts that dash and The Book built for themselves. Published as
