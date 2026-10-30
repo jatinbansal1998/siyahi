@@ -4,6 +4,8 @@
 // Copied: 2026-10-20, sha256 dba551593726fa342b8c61daf5e5b9c79125df391af8ed31504e7dfedf7a71ba
 // Siyahi edit: the trigger is passed as Base UI's render prop, so the
 // default Button is not nested inside the trigger's own button.
+// Siyahi edit: fit full option labels, constrain the popup to the viewport,
+// and wrap long labels without squeezing checkboxes or counts.
 "use client"
 
 /**
@@ -255,7 +257,7 @@ export function TableFacetedFilter<TData extends RowData, TValue>({
           </Button>
         )}
       />
-      <PopoverContent className="w-52 p-0" align="start">
+      <PopoverContent className="w-max min-w-52 max-w-(--available-width) p-0" align="start">
         <TableFacetedFilterContent
           title={title}
           options={options}
@@ -297,7 +299,7 @@ export function TableFacetedFilterContent({
               >
                 <div
                   className={cn(
-                    "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
+                    "mr-2 flex size-4 shrink-0 items-center justify-center rounded-sm border border-primary",
                     isSelected
                       ? "bg-primary text-primary-foreground"
                       : "opacity-50 [&_svg]:invisible",
@@ -306,9 +308,9 @@ export function TableFacetedFilterContent({
                   <Check className="size-4" />
                 </div>
                 {option.icon && <option.icon className="mr-2 size-4" />}
-                <span className="truncate">{option.label}</span>
+                <span className="min-w-0 flex-1 whitespace-normal wrap-anywhere">{option.label}</span>
                 {option.count !== undefined && (
-                  <span className="ml-auto font-mono text-xs">
+                  <span className="ml-auto shrink-0 font-mono text-xs">
                     {option.count}
                   </span>
                 )}
