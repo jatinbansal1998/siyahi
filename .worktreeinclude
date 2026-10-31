@@ -1,0 +1,3 @@
+# Gitignored files that Claude Code and the Codex app copy into new worktrees
+# (.gitignore syntax; only ignored files that match are copied).
+.env
