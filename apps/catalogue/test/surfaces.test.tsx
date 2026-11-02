@@ -146,4 +146,45 @@ describe("surfaces", { timeout: 60_000 }, () => {
     }));
     expect(size).toEqual({ padding: "12px", inset: "12px", figure: "24px" });
   });
+
+  for (const colorScheme of ["light", "dark"] as const) {
+    it(`lets a ruled panel's sticky child follow the page in ${colorScheme} mode`, async () => {
+      await page.emulateMedia({ colorScheme });
+      await page.goto(page.url().replace(/#.*/, "#/foundations/surfaces"));
+      await pick("Ruled");
+      const grid = example().locator('[data-slot="panel-grid"]');
+      await grid.waitFor();
+      // Isolate the rendered grid from the catalogue's example frame. The tall
+      // neighbour models a list beside a detail card, as used by dash.
+      await grid.evaluate((el) => {
+        const fixture = document.createElement("div");
+        fixture.id = "sticky-panels";
+        fixture.style.cssText = "margin: 100px 32px 1000px; width: 900px";
+        const copy = el.cloneNode(true) as HTMLElement;
+        const list = copy.querySelector<HTMLElement>('[data-slot="panel"]:first-child')!;
+        list.style.minHeight = "1200px";
+        const detail = copy.querySelector<HTMLElement>('[data-slot="panel"]:nth-child(2) [data-slot="card"]')!;
+        detail.style.cssText = "position: sticky; top: 24px";
+        fixture.append(copy);
+        document.body.append(fixture);
+      });
+      try {
+        const fixture = page.locator("#sticky-panels");
+        const detail = fixture.locator('[data-slot="card"]', { hasText: "Holdings" });
+        const top = await fixture.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+        for (const offset of [100, 300]) {
+          await page.evaluate((y) => window.scrollTo(0, y), top + offset);
+          await expect.poll(() => detail.evaluate((el) => el.getBoundingClientRect().top)).toBeCloseTo(24, 0);
+        }
+        const clipping = await fixture.locator('[data-slot="panel-grid"]').evaluate((el) => {
+          el.scrollLeft = 10;
+          return { overflow: getComputedStyle(el).overflow, scrollLeft: el.scrollLeft };
+        });
+        expect(clipping).toEqual({ overflow: "clip", scrollLeft: 0 });
+      } finally {
+        await page.locator("#sticky-panels").evaluate((el) => el.remove());
+        await page.evaluate(() => window.scrollTo(0, 0));
+      }
+    });
+  }
 });

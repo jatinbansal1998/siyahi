@@ -26,7 +26,7 @@ export function PanelGrid({ columns = 2, children, className }: PanelGridProps) 
   const surface = useSurface();
   const ruled = surface === "ruled";
   return (
-    <div data-slot="panel-grid" className={cn("@container/panels", ruled && "overflow-hidden border-y", className)}>
+    <div data-slot="panel-grid" className={cn("@container/panels", ruled && "overflow-clip border-y", className)}>
       <div
         className={cn(
           "grid grid-cols-1",
