@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Browser, type Page } from "playwright";
 import { createServer, type ViteDevServer } from "vite";
@@ -12,30 +15,46 @@ export interface Catalogue {
 
 /** Serves the catalogue from source and opens one of its pages, `#/<route>`, at 1280 by 900. */
 export async function openCatalogue(route: string): Promise<Catalogue> {
-  const server: ViteDevServer = await createServer({
-    configFile: at("../vite.config.ts"),
-    root: at(".."),
-    logLevel: "error",
-    server: { port: 0 },
-    // The package from source, as the other tests use it, so no build is needed.
-    resolve: {
-      alias: [
-        { find: /^@siyahi\/ui$/, replacement: at("../../../packages/ui/src/index.ts") },
-        { find: /^@siyahi\/ui\/styles\.css$/, replacement: at("./from-source.css") },
-        { find: /^@siyahi\/ui\/report\.css/, replacement: at("../../../packages/ui/report.css") },
-        { find: /^@siyahi\/ui\/(.*)$/, replacement: at("../../../packages/ui/src/$1") },
-      ],
-    },
-  });
-  await server.listen();
-  const browser: Browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await page.goto(`${server.resolvedUrls?.local[0]}#/${route}`);
-  return {
-    page,
-    async close() {
-      await browser.close();
-      await server.close();
-    },
-  };
+  // Each suite runs its own optimizer; sharing a cache lets one replace another's live dependency files.
+  const cacheDir = await mkdtemp(join(tmpdir(), "siyahi-catalogue-"));
+  let server: ViteDevServer | undefined;
+  let browser: Browser | undefined;
+  async function close(): Promise<void> {
+    try {
+      await browser?.close();
+    } finally {
+      try {
+        await server?.close();
+      } finally {
+        await rm(cacheDir, { recursive: true, force: true });
+      }
+    }
+  }
+
+  try {
+    server = await createServer({
+      cacheDir,
+      configFile: at("../vite.config.ts"),
+      root: at(".."),
+      logLevel: "error",
+      server: { port: 0 },
+      // The package from source, as the other tests use it, so no build is needed.
+      resolve: {
+        alias: [
+          { find: /^@siyahi\/ui$/, replacement: at("../../../packages/ui/src/index.ts") },
+          { find: /^@siyahi\/ui\/styles\.css$/, replacement: at("./from-source.css") },
+          { find: /^@siyahi\/ui\/report\.css/, replacement: at("../../../packages/ui/report.css") },
+          { find: /^@siyahi\/ui\/(.*)$/, replacement: at("../../../packages/ui/src/$1") },
+        ],
+      },
+    });
+    await server.listen();
+    browser = await chromium.launch();
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.goto(`${server.resolvedUrls?.local[0]}#/${route}`);
+    return { page, close };
+  } catch (error) {
+    await close();
+    throw error;
+  }
 }
