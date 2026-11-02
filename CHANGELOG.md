@@ -4,8 +4,11 @@
 
 - Ruled `PanelGrid` clips its edge hairlines without trapping sticky children;
   a detail card beside a long list can stick while the page scrolls.
+- All series chart cards accept category `xTicks` typed to `xKey`: label selected
+  categories while keeping every row plotted and available in the tooltip.
 - `siyahi-shots` ignores intentionally clipped, aria-hidden form controls such as
   Base UI Select inputs, while still checking visible controls and descendants.
+
 - Table filter dropdowns grow to fit full option names, stay within the viewport,
   and wrap long labels while keeping checkboxes and counts visible.
 - Bar charts select the entire highlighted category area, including zero-height bars.

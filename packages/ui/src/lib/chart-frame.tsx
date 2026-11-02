@@ -99,9 +99,9 @@ const MONO_WIDTH = 7.2;
  * Room to keep right of the plot when every named tick is drawn: half the last label, which centres on the
  * domain's right end, and at least 24px.
  */
-function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly number[]): number {
+function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly V[]): number {
   const last = xTicks.at(-1);
-  return Math.max(24, Math.ceil((last === undefined ? 0 : xFormatter(last as V).length * MONO_WIDTH) / 2) + 4);
+  return Math.max(24, Math.ceil((last === undefined ? 0 : xFormatter(last).length * MONO_WIDTH) / 2) + 4);
 }
 
 /** Squeezes a line into its column with SVG's own textLength when it would run into the next one. */
@@ -229,7 +229,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     axisLine={false}
                     tickMargin={8}
                     tickFormatter={(value: T[K]) => xFormatter(value)}
-                    tick={xTickDetail ? fittedTick(data, xKey, xFormatter, xTickDetail, horizontal) : TICK}
+                    tick={xTickDetail || xTicks ? fittedTick(data, xKey, xFormatter, xTickDetail, horizontal) : TICK}
+                    ticks={xTicks as (number | string)[] | undefined}
                     interval={0}
                   />
                 </>
@@ -239,7 +240,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     dataKey={xKey as string}
                     type={xDomain ? "number" : "category"}
                     domain={xDomain}
-                    ticks={xTicks as number[] | undefined}
+                    ticks={xTicks as (number | string)[] | undefined}
                     height={(xTickDetail ? 40 : 30) + (xLabel ? 18 : 0)}
                     label={xLabel ? { value: xLabel, position: "insideBottom", className: AXIS_TITLE } : undefined}
                     tickLine={false}
