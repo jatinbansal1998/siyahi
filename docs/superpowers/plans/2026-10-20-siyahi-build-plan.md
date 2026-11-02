@@ -38,8 +38,9 @@ Status, 2026-10-20 09:30 IST: units 1, 2, 3, 4 and 5 are done and deployed (siya
 catalogue live, agent-skills #95 installed, market-flow #2, dash #82 deployed). npm publishing
 works since Jatin replaced the token at 01:25 UTC: `@siyahi/ui@0.1.0-next.3` and
 `@siyahi/tools@0.1.0-next.3` are on npmjs under the `next` tag (and, because it was the first
-publish, also `latest`; re-point `latest` when 1.0.0 ships). Every merge to main also uploads
-the tarballs to a GitHub release. dash and The Book still install from the v0.1.0-next.1
+publish, also `latest`; re-point `latest` when 1.0.0 ships). At that time, every merge to main also uploaded
+the tarballs to a GitHub release. Publication is now explicit; follow
+`.agents/skills/release/SKILL.md` for the current batch release flow. dash and The Book still install from the v0.1.0-next.1
 tarballs; they switch to `@siyahi/ui@next` when they bump to 0.1.1 (siyahi #3).
 
 Status, 2026-10-20 14:58 IST: `latest` now follows `next` on every publish until 1.0.0
