@@ -2,6 +2,8 @@
 
 ## 0.1.9
 
+- Ruled `PanelGrid` clips its edge hairlines without trapping sticky children;
+  a detail card beside a long list can stick while the page scrolls.
 - Table filter dropdowns grow to fit full option names, stay within the viewport,
   and wrap long labels while keeping checkboxes and counts visible.
 - Bar charts select the entire highlighted category area, including zero-height bars.
