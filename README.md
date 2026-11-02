@@ -61,7 +61,7 @@ own code imports icons. A Next.js app compiles the same stylesheet through
 
 ### Also on GitHub releases
 
-Every merge to `main` also attaches both tarballs to a GitHub release
+Each explicit release from `main` also attaches both tarballs to a GitHub release
 (`v<version>`, plus a rolling `next`). They are a fallback if npm is unreachable:
 `npm install --allow-remote=root https://github.com/jatinbansal1998/siyahi/releases/download/v<version>/siyahi-ui-<version>.tgz`.
 

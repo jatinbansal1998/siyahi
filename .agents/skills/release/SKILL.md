@@ -1,8 +1,8 @@
 ---
 name: release
 description: >
-  Release Siyahi: prepare the version bump in a PR, merge it, confirm the
-  automatic npm/GitHub publish of @siyahi/ui and @siyahi/tools, redeploy the
+  Release Siyahi: prepare the version bump in a PR, merge it, start and verify the
+  manual npm/GitHub publish of @siyahi/ui and @siyahi/tools, redeploy the
   catalogue at siyahi.jatinbansal.com by hand, and hand off to the consumers.
   Use when the user says "merged", "deploy", "release", "ship", "publish", or
   asks for a new Siyahi version.
@@ -14,25 +14,25 @@ description: >
 
 | Unit                                               | Where                                                                                                                    | How                                 |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
-| `@siyahi/ui`, `@siyahi/tools` (one shared version) | npmjs.org, dist-tags `next` and, before 1.0.0, `latest`                                                                  | `publish.yml`, automatic            |
-| Both tarballs                                      | GitHub release `v<version>` (pre-release) and the rolling `next` release (`siyahi-ui-next.tgz`, `siyahi-tools-next.tgz`) | `publish.yml`, automatic            |
+| `@siyahi/ui`, `@siyahi/tools` (one shared version) | npmjs.org, dist-tags `next` and, before 1.0.0, `latest`                                                                  | `publish.yml`, manual               |
+| Both tarballs                                      | GitHub release `v<version>` (pre-release) and the rolling `next` release (`siyahi-ui-next.tgz`, `siyahi-tools-next.tgz`) | `publish.yml`, manual               |
 | Catalogue (`apps/catalogue`)                       | Cloudflare Worker `siyahi-catalogue`, https://siyahi.jatinbansal.com                                                     | `pnpm deploy:catalogue`, **manual** |
 
 ## Trigger
 
-- **Automatic:** every push to `main` runs `.github/workflows/publish.yml`,
-  unless it changes only `docs/**`, root `*.md`, `.agents/**` or `.claude/**`;
-  those publish nothing, so don't wait for a Publish run after them. The
-  workflow versions both packages `<base>-next.<N>` (`.github/scripts/next-version.mjs`: N is one past the
-  highest `next.N` on npm or among `v*` tags), so **each merged PR is its own
-  release**: 0.1.7 shipped as `next.1`, `.2`, `.3` from three PRs. Consumers pin
-  the last one. The bumped version is never committed back; the repo stays at
-  the base.
-- **Manual:** the base version bump (in the PR), the catalogue deploy, and the
-  consumer bumps.
-- **1.0.0 / stable:** `publish.yml` says stable versions are "cut by hand", but
-  no procedure exists and none has been done. Don't invent one; ask. The PR
-  that cuts the first stable version also deletes the "Point latest at this
+- Merging or pushing to `main` runs CI but publishes nothing. Merge all PRs in
+  the intended batch before releasing; a merge alone is not a release request.
+- On an explicit release request, dispatch `.github/workflows/publish.yml` on
+  `main` once for the completed batch. The workflow rejects other branches and
+  runs the full checks before publishing both packages.
+- The workflow versions both packages `<base>-next.<N>` using
+  `.github/scripts/next-version.mjs`: N is one past the highest `next.N` on npm
+  or among `v*` tags. The version is not committed back; the repo keeps its base.
+- Skip publication when the batch contains only tests, workflow, docs or skills
+  and ships no package or catalogue behavior change. Do not create an empty
+  release just because a PR merged.
+- **1.0.0 / stable:** no procedure exists and none has been done. Don't invent
+  one; ask. The first stable release also deletes the "Point latest at this
   pre-release" step from `publish.yml`.
 
 ## In the PR
@@ -50,29 +50,33 @@ description: >
    `pnpm check`. The usual conflict is `CHANGELOG.md`: keep both entries under
    one heading.
 
-## Steps after approval
+## Release the merged batch
+
+The user's release request authorizes the dispatch. First confirm every intended
+PR is merged and CI is green on the current `main` commit. Merge PRs following
+the normal review rules; keep branches and worktrees until the user requests
+cleanup. Update the clean main checkout with `git pull --ff-only`.
 
 ```bash
+cd ~/code/siyahi
 R=jatinbansal1998/siyahi
-gh pr merge <n> --repo $R --squash --delete-branch --match-head-commit <head-sha>
-sha=$(gh pr view <n> --repo $R --json mergeCommit -q .mergeCommit.oid)
-gh run list --repo $R --workflow publish.yml --commit "$sha"   # repeat until it appears
-gh run watch <run-id> --repo $R --exit-status                   # ~2.5 min
-gh release list --repo $R --limit 3                             # the new v<VER> tag
-gh run view <run-id> --repo $R --log | grep "Published package"
+sha=$(git rev-parse HEAD)
+gh workflow run publish.yml --repo "$R" --ref main
+gh run list --repo "$R" --workflow publish.yml --event workflow_dispatch --commit "$sha" --json databaseId,headSha,status,conclusion,url
 ```
 
-- No Publish run for `$sha` (docs or skill-only merge): nothing was published.
-  Stop here.
+Identify the dispatch for this exact commit and request, not an older run or
+another batch. Record its run ID and URL. Use the host's completion events when
+available; do not dispatch again while the release is running. If `main` moved
+between the local pull and dispatch, inspect the run's actual `headSha` and
+confirm it contains the intended batch before reporting what shipped.
+
 - Run red: stop and report. Do not deploy the catalogue; `deploy:catalogue`
-  only builds, it does not run the tests.
-- `VER` is the new `v*` release tag without the `v`. If the grep prints no
-  `✅ Published package @siyahi/…@<VER>` lines, npm failed (see Gotchas).
-- If the merge touched neither `packages/` nor `apps/catalogue/` outside their
-  `test/` folders (for example a workflow, `.gitignore` or test-only change),
-  the release is content-identical: skip the catalogue deploy and the consumer
-  bumps. `publish.yml` still runs for tests, so report the new `VER` and say it
-  ships the same code as the one before.
+  builds but does not run tests.
+- After success, inspect that run's logs and GitHub release to obtain the exact
+  published version (`VER`). A GitHub release alone does not prove npm succeeded.
+- Check both npm packages and release assets below before deploying. Do not use
+  a version inferred from the base or an earlier release.
 
 Then the catalogue, from the main checkout, clean and on `main`:
 

@@ -87,4 +87,5 @@ for every page you changed in the pull request, light and dark, 1920 and 390.
 
 ## Releases
 
-Merging to `main` publishes a pre-release; see `.agents/skills/release/SKILL.md`.
+Merges to `main` run checks without publishing. Release a completed batch with
+`.agents/skills/release/SKILL.md`, which starts the manual Publish workflow.

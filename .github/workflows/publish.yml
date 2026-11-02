@@ -1,24 +1,9 @@
 name: Publish
 
-# Every merge to main ships both packages as a pre-release: tarballs on a
-# GitHub release (always), and npm under the `next` dist-tag, which `latest`
-# follows until 1.0.0. Stable versions are cut by hand.
-#
-# A push that changes only docs/, Markdown at the repo root or the agent skills
-# under .agents/ (.claude/skills links there) ships nothing new, so it
-# publishes nothing. CI still runs `check` on it. `*.md` matches the root
-# only: package READMEs and notices ship in the tarballs, and the root README,
-# LICENSE and notices are copied into packages/ by `pnpm generate`, so an edit
-# to those also changes a package file and publishes.
+# Release a checked batch of main explicitly through the release skill.
+# Keep this workflow name and path: npm trusted publishing authorizes publish.yml.
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-      - ".agents/**"
-      - ".claude/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,6 +15,7 @@ concurrency:
 jobs:
   publish:
     name: Publish next
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -80,7 +66,7 @@ jobs:
           mkdir -p release/next
           cp "release/siyahi-ui-$VERSION.tgz" release/next/siyahi-ui-next.tgz
           cp "release/siyahi-tools-$VERSION.tgz" release/next/siyahi-tools-next.tgz
-          next_notes="Rolling pre-release: always the newest build of main, now $VERSION ($GITHUB_SHA). The assets change on every merge; pin a versioned release in package.json."
+          next_notes="Rolling pre-release: the latest explicit release from main, now $VERSION ($GITHUB_SHA). The assets change on each release; pin a versioned release in package.json."
           if gh release view next >/dev/null 2>&1; then
             gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/next" -f sha="$GITHUB_SHA" -F force=true >/dev/null
             gh release edit next --notes "$next_notes"
