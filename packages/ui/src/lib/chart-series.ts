@@ -56,6 +56,8 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   /** The field the x axis reads: a month, an hour of day, a price bucket. One row per value; a repeated value is hidden behind the first. */
   xKey: K;
   series: ChartSeries<NoInfer<T>>;
+  /** Categories to label, or tick positions with xDomain. Every named tick is drawn; other rows keep their marks and tooltips. */
+  xTicks?: readonly T[K][];
   /** The x axis ticks, and the tooltip's heading unless xTooltipFormatter is set. Defaults to the value as text. */
   xFormatter?: (value: T[K]) => string;
   /** The tooltip's heading, when it should say more than a tick: "19:34:13 IST, 10 s average" against "19:34". */
@@ -91,8 +93,6 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
 export interface NumericXProps {
   /** The x axis runs over this range of the xKey field, which must hold numbers; without it the axis is one slot per row. */
   xDomain?: [number, number];
-  /** Where the x axis puts its ticks, in the xKey field's units; give xDomain with it, so the axis is numeric. */
-  xTicks?: readonly number[];
 }
 
 /**

@@ -126,6 +126,69 @@ const returnLines = (month: string, portfolio: string, index: string) => [
 ];
 
 describe("chart cards", { timeout: 60_000 }, () => {
+  it("category xTicks labels only April without dropping months or their tooltips on every series card", async () => {
+    for (const kind of ["bars", "line", "area"]) {
+      const chart = card(`Monthly orders, ${kind}`);
+      await chart.scrollIntoViewIfNeeded();
+      const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
+      await settled(ticks);
+      expect(await ticks.allTextContents()).toEqual([
+        "Apr 19",
+        "Apr 20",
+        "Apr 21",
+        "Apr 22",
+        "Apr 23",
+        "Apr 24",
+        "Apr 25",
+      ]);
+      const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+      if (!grid) throw new Error("not laid out");
+      // January has no tick, but remains the first of all 84 plotted months.
+      if (kind === "bars") expect(await chart.locator(".recharts-bar-rectangle").count()).toBe(84);
+      expect(await tooltipAt(chart, grid.x + grid.width / 168, grid.y + grid.height / 2, "2019-01")).toEqual([
+        "2019-01",
+        "Orders",
+        "20",
+      ]);
+    }
+  });
+
+  it("category xTicks follows the category axis on sideways bars", async () => {
+    const chart = card("Monthly orders, sideways");
+    await chart.scrollIntoViewIfNeeded();
+    const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    expect(await ticks.allTextContents()).toEqual(["Apr 19"]);
+    const bars = chart.locator(".recharts-bar-rectangle");
+    expect(await bars.count()).toBe(12);
+    const { x, y } = await center(bars.first());
+    expect(await tooltipAt(chart, x, y, "2019-01")).toEqual(["2019-01", "Orders", "20"]);
+  });
+
+  it("keeps sideways bars visible with a long selected category on mobile", async () => {
+    const viewport = page.viewportSize()!;
+    try {
+      await page.setViewportSize({ width: 390, height: 844 });
+      const chart = card("Orders by sector");
+      await chart.scrollIntoViewIfNeeded();
+      const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
+      await settled(ticks);
+      expect(await ticks.allTextContents()).toEqual(["Information Technology and Services"]);
+      const bars = chart.locator(".recharts-bar-rectangle");
+      expect(await bars.count()).toBe(3);
+      const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
+      expect(grid?.width).toBeGreaterThan(0);
+      const { x, y } = await center(bars.first());
+      expect(await tooltipAt(chart, x, y, "Information Technology and Services")).toEqual([
+        "Information Technology and Services",
+        "Orders",
+        "100",
+      ]);
+    } finally {
+      await page.setViewportSize(viewport);
+    }
+  });
+
   it("BarChartCard names the hovered category and its formatted values", async () => {
     await hoverEachBar("Orders by hour", [
       ["09:00", "Orders", "42"],
