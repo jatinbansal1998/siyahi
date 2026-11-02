@@ -90,6 +90,30 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.output).toMatch(/ok {3}1920-light .*clipped=0/);
   });
 
+  it("ignores aria-hidden form controls clipped for form submission", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>Select</h1>
+      <div style="margin-left: 32px; overflow: hidden">
+        <button>All accounts</button>
+        <input aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; clip-path: inset(50%)">
+        <select aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; clip: rect(0, 0, 0, 0)"><option>All</option></select>
+        <textarea aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; clip-path: inset(50%)"></textarea>
+      </div></main>`);
+    expect(run.status, run.output).toBe(0);
+    for (const { name } of MODES) expect(run.output).toMatch(new RegExp(name + " .*clipped=0"));
+  });
+
+  it("still checks visible aria-hidden controls and descendants of aria-hidden containers", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>Visible controls</h1>
+      <div style="width: 100px; overflow: hidden">
+        <input aria-hidden="true" style="width: 200px">
+        <div aria-hidden="true"><button style="width: 200px">Visible descendant</button></div>
+        <input style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; clip-path: inset(50%)">
+      </div></main>`);
+    expect(run.status, run.output).toBe(1);
+    for (const { name } of MODES) expect(run.output).toMatch(new RegExp(name + " .*clipped=3"));
+    expect(run.output).toContain('button "Visible descendant" by 100px is cut off');
+  });
+
   it("passes the same card with the toggle under the title", () => {
     const run = shoot(card("1fr"));
     expect(run.status, run.output).toBe(0);

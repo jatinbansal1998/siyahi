@@ -93,7 +93,12 @@ const PROBE = `((chrome) => {
   };
   const shown = (el) => {
     const r = el.getBoundingClientRect();
-    return r.width > 0 && r.height > 0 && !el.closest(chrome) && getComputedStyle(el).visibility !== "hidden";
+    const style = getComputedStyle(el);
+    // Base UI keeps clipped controls for form submission; aria-hidden alone
+    // does not mean a control (or its descendants) is visually hidden.
+    const hiddenControl = el.matches('input[aria-hidden="true"],select[aria-hidden="true"],textarea[aria-hidden="true"]') &&
+      (style.clipPath === "inset(50%)" || style.clip === "rect(0px, 0px, 0px, 0px)");
+    return r.width > 0 && r.height > 0 && !el.closest(chrome) && style.visibility !== "hidden" && !hiddenControl;
   };
   // Pixels of el cut off at the side by an ancestor that hides its overflow,
   // and how it hides it, up to the nearest one that scrolls, which shows the
