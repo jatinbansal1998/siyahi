@@ -214,8 +214,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
               onClick={onClick}
               // Selection reads the hovered category in this event; defer no pointer updates.
               throttledEvents={onClick ? [] : undefined}
-              // Every named tick is drawn, so one at the domain's right end needs room for its label.
-              margin={{ left: 0, right: xTicks ? endRoom(xFormatter, xTicks) : 8 }}
+              // Bottom-axis ticks need room at the right end; sideways labels already have the left axis.
+              margin={{ left: 0, right: !horizontal && xTicks ? endRoom(xFormatter, xTicks) : 8 }}
             >
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
               {horizontal ? (

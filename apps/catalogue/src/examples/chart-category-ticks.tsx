@@ -29,6 +29,20 @@ export default function ChartCategoryTicksExample() {
         horizontal
         height={300}
       />
+      <BarChartCard
+        title="Orders by sector"
+        description="Demo orders; one long category label on a narrow chart"
+        data={[
+          { sector: "Information Technology and Services", orders: 100 },
+          { sector: "Other", orders: 50 },
+          { sector: "Third", orders: 70 },
+        ]}
+        xKey="sector"
+        xTicks={["Information Technology and Services"]}
+        series={[{ key: "orders", label: "Orders", color: "var(--chart-1)" }]}
+        horizontal
+        height={220}
+      />
       <LineChartCard {...props} title="Monthly orders, line" />
       <AreaChartCard {...props} title="Monthly orders, area" />
     </div>
