@@ -2,11 +2,16 @@
 // Origin: https://shadcn-heatmap.pages.dev/r/weekday-heatmap.json
 // Licence: MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE
 // Copied: 2026-10-20, sha256 b7af6139e3764e1479880fb232988e758edb27ce4e4280d9e0349cbdf9b3d30c
+// Siyahi edit: explicit hours and weekdays crop the displayed domain without
+// renumbering source data; the surrounding card owns padding.
+// Siyahi edit: custom blocks outside that domain must not paint over the axis labels.
 import type { Locale, Day as WeekDay } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { createContext, Fragment, use, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
+// Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
+import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
 
 export type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -85,6 +90,8 @@ type WeekdayHeatmapContextType = {
   width: number;
   height: number;
   weekStart: WeekDay;
+  hours: readonly number[];
+  weekdays: readonly number[];
   colors?: ColorConfig;
 };
 
@@ -156,7 +163,7 @@ const TWELVE_HOUR_LABELS = Array.from({ length: 24 }, (_, i) => {
   return String(i - 12);
 });
 
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const HOURS = Array.from({ length: 24 }, (_, i) => i as WeekdayHour);
 
 const DEFAULT_WEEKDAY_LABELS = [
   "Sun",
@@ -197,6 +204,10 @@ const useWeekdayHeatmap = () => {
 export type WeekdayHeatmapProps = HTMLAttributes<HTMLDivElement> & {
   data: WeekdayHourlyActivity[];
   weekStart?: WeekDay;
+  /** Displayed hours, in order; defaults to the full day. */
+  hours?: readonly WeekdayHour[];
+  /** Displayed days, in order; defaults to the full week from weekStart. */
+  weekdays?: readonly WeekdayIndex[];
   use12Hour?: boolean;
   blockSize?: number;
   blockMargin?: number;
@@ -251,6 +262,8 @@ export type WeekdayHeatmapProps = HTMLAttributes<HTMLDivElement> & {
 export const WeekdayHeatmap = ({
   data,
   weekStart = 0,
+  hours = HOURS,
+  weekdays: displayedWeekdays,
   use12Hour = false,
   blockSize = 24,
   blockMargin = 4,
@@ -272,6 +285,7 @@ export const WeekdayHeatmap = ({
   ...props
 }: WeekdayHeatmapProps) => {
   const levels = Math.max(1, levelsProp);
+  const weekdays = useMemo(() => displayedWeekdays ?? Array.from({ length: 7 }, (_, i) => (weekStart + i) % 7), [displayedWeekdays, weekStart]);
 
   const dataWithLevels = useMemo((): WeekdayHourlyActivityWithLevel[] => {
     if (data.length === 0) return [];
@@ -334,7 +348,7 @@ export const WeekdayHeatmap = ({
 
     return {
       hours: use12Hour ? TWELVE_HOUR_LABELS : DEFAULT_HOUR_LABELS,
-      endHour: use12Hour ? "12" : "00",
+      endHour: hours.at(-1) === 23 ? (use12Hour ? "12" : "00") : (use12Hour ? TWELVE_HOUR_LABELS : DEFAULT_HOUR_LABELS)[(hours.at(-1) ?? -1) + 1],
       weekdays: weekdayLabels,
       cellLabel: "{{weekday}} {{hour}}: {{value}}",
       heatmapLabel: "Activity heatmap by weekday and hour",
@@ -342,7 +356,7 @@ export const WeekdayHeatmap = ({
       legendLevelLabel: "{{level}} contributions",
       ...labelsProp,
     };
-  }, [locale, use12Hour, labelsProp]);
+  }, [locale, use12Hour, labelsProp, hours]);
 
   const labelWidth = fontSize * 3.5 + LABEL_MARGIN;
 
@@ -356,11 +370,11 @@ export const WeekdayHeatmap = ({
   const hasExtraColumn = resolvedExtraColumn !== null;
   const hasExtraRow = resolvedExtraRow !== null;
   const width =
-    24 * (blockWidth + blockMargin) +
+    hours.length * (blockWidth + blockMargin) +
     (hasExtraColumn ? blockSize / 2 + (blockWidth + blockMargin) * 2 : 0) -
     blockMargin +
     labelWidth;
-  const rowCount = hasExtraRow ? 8 : 7;
+  const rowCount = weekdays.length + (hasExtraRow ? 1 : 0);
   const extraRowGap = hasExtraRow ? blockSize + blockMargin : 0;
   const height =
     rowCount * (blockSize + blockMargin) +
@@ -388,6 +402,8 @@ export const WeekdayHeatmap = ({
       width,
       height,
       weekStart,
+      hours,
+      weekdays,
       colors,
     }),
     [
@@ -409,6 +425,8 @@ export const WeekdayHeatmap = ({
       width,
       height,
       weekStart,
+      hours,
+      weekdays,
       colors,
     ],
   );
@@ -421,7 +439,7 @@ export const WeekdayHeatmap = ({
     <WeekdayHeatmapContext value={contextValue}>
       <div
         data-slot="weekday-heatmap"
-        className={cn("flex w-max max-w-full flex-col gap-2 p-4", className)}
+        className={cn("flex w-max max-w-full flex-col gap-2", className)}
         style={{ fontSize, ...style }}
         {...props}
       >
@@ -466,7 +484,8 @@ export const WeekdayHeatmapBlock = ({
     labelHeight,
     levels,
     isNormalized,
-    weekStart,
+    hours,
+    weekdays,
     labels,
     colors,
   } = useWeekdayHeatmap();
@@ -479,7 +498,9 @@ export const WeekdayHeatmapBlock = ({
   const isExtraRow = extra === "row";
   const isExtraColumn = extra === "column";
 
-  const rowIndex = isExtraRow ? 7 : (activity.weekday - weekStart + 7) % 7;
+  const rowIndex = isExtraRow ? weekdays.length : weekdays.findIndex(day => day === activity.weekday);
+  const hourIndex = isExtraColumn ? hours.length : hours.findIndex(hour => hour === activity.hour);
+  if (rowIndex < 0 || hourIndex < 0) return null;
   const extraRowGap = isExtraRow ? blockSize + blockMargin : 0;
   const yPosition =
     labelHeight + (blockSize + blockMargin) * rowIndex + extraRowGap;
@@ -487,10 +508,10 @@ export const WeekdayHeatmapBlock = ({
   const extraColumnGap = isExtraColumn ? blockWidth + blockMargin : 0;
   const xPosition = isExtraColumn
     ? labelWidth +
-      24 * (blockWidth + blockMargin) +
+      hours.length * (blockWidth + blockMargin) +
       blockSize / 2 +
       extraColumnGap
-    : labelWidth + (blockWidth + blockMargin) * activity.hour;
+    : labelWidth + (blockWidth + blockMargin) * hourIndex;
 
   const weekdayToken = isExtraRow
     ? "extra"
@@ -588,6 +609,7 @@ export const WeekdayHeatmapBody = ({
   renderExtraColumn,
   ...props
 }: WeekdayHeatmapBodyProps) => {
+  const navigation = useHeatmapNavigation();
   const {
     data,
     extraRow,
@@ -599,7 +621,8 @@ export const WeekdayHeatmapBody = ({
     labelWidth,
     labelHeight,
     fontSize,
-    weekStart,
+    hours,
+    weekdays,
   } = useWeekdayHeatmap();
 
   const hasExtraRow = extraRow !== null;
@@ -630,9 +653,8 @@ export const WeekdayHeatmapBody = ({
       activity: WeekdayHourlyActivityWithLevel;
       weekdayIndex: number;
     }[] = [];
-    for (let di = 0; di < 7; di++) {
-      const weekday = (weekStart + di) % 7;
-      for (let hour = 0; hour < 24; hour++) {
+    for (const [di, weekday] of weekdays.entries()) {
+      for (const hour of hours) {
         activities.push({
           activity: activityMap.get(`${weekday}-${hour}`) ?? {
             weekday,
@@ -645,12 +667,11 @@ export const WeekdayHeatmapBody = ({
       }
     }
     return activities;
-  }, [activityMap, weekStart]);
+  }, [activityMap, weekdays, hours]);
 
   const extraColumnActivities = useMemo(() => {
     if (!extraColumnMap) return [];
-    return Array.from({ length: 7 }, (_, di) => {
-      const weekday = (weekStart + di) % 7;
+    return weekdays.map((weekday, di) => {
       const entry = extraColumnMap.get(weekday);
       return entry
         ? {
@@ -671,17 +692,17 @@ export const WeekdayHeatmapBody = ({
         weekdayIndex: number;
       } => a !== null,
     );
-  }, [extraColumnMap, weekStart]);
+  }, [extraColumnMap, weekdays]);
 
   const extraRowActivities = useMemo(() => {
     if (!extraRow) return [];
-    return extraRow.values.map(({ hour, value, level }) => ({
+    return extraRow.values.filter(({ hour }) => hours.includes(hour)).map(({ hour, value, level }) => ({
       activity: { weekday: 0, hour, value, level },
-      weekdayIndex: 7,
+      weekdayIndex: weekdays.length,
     }));
-  }, [extraRow]);
+  }, [extraRow, hours, weekdays.length]);
 
-  const rowCount = hasExtraRow ? 8 : 7;
+  const rowCount = weekdays.length + (hasExtraRow ? 1 : 0);
   const extraRowGap = hasExtraRow ? blockSize + blockMargin : 0;
   const svgHeight =
     rowCount * (blockSize + blockMargin) +
@@ -691,22 +712,21 @@ export const WeekdayHeatmapBody = ({
   const extraColumnGap = hasExtraColumn ? blockWidth + blockMargin : 0;
   const svgWidth = hasExtraColumn
     ? labelWidth +
-      24 * (blockWidth + blockMargin) +
+      hours.length * (blockWidth + blockMargin) +
       blockSize / 2 +
       (blockWidth + blockMargin) +
       extraColumnGap
-    : labelWidth + 24 * (blockWidth + blockMargin) - blockMargin;
+    : labelWidth + hours.length * (blockWidth + blockMargin) - blockMargin;
 
-  const orderedWeekdayIndices = Array.from(
-    { length: 7 },
-    (_, i) => (weekStart + i) % 7,
-  );
+  const orderedWeekdayIndices = weekdays;
 
   return (
     <div
       data-slot="weekday-heatmap-body"
+      ref={navigation.ref}
       className={cn("max-w-full overflow-x-auto overflow-y-hidden", className)}
       {...props}
+      onKeyDown={(event) => { props.onKeyDown?.(event); if (!event.defaultPrevented) navigation.onKeyDown(event); }}
     >
       <svg
         role="img"
@@ -720,12 +740,12 @@ export const WeekdayHeatmapBody = ({
       >
         {!hideHourLabels && (
           <g className={cn("fill-current font-mono", labelClassName)}>
-            {HOURS.map((hour) => {
+            {hours.map((hour, index) => {
               const label = labels.hours?.[hour] ?? "";
               return (
                 <text
                   key={`hour-${hour}`}
-                  x={labelWidth + (blockWidth + blockMargin) * hour}
+                  x={labelWidth + (blockWidth + blockMargin) * index}
                   y={0}
                   textAnchor="middle"
                   dominantBaseline="hanging"
@@ -738,7 +758,7 @@ export const WeekdayHeatmapBody = ({
             {labels.endHour != null && (
               <text
                 key="hour-end"
-                x={labelWidth + (blockWidth + blockMargin) * 24}
+                x={labelWidth + (blockWidth + blockMargin) * hours.length}
                 y={0}
                 textAnchor="middle"
                 dominantBaseline="hanging"
@@ -752,7 +772,7 @@ export const WeekdayHeatmapBody = ({
                 key="extra-col-label"
                 x={
                   labelWidth +
-                  24 * (blockWidth + blockMargin) +
+                  hours.length * (blockWidth + blockMargin) +
                   blockSize / 2 +
                   (blockWidth + blockMargin) +
                   blockWidth / 2
@@ -795,7 +815,7 @@ export const WeekdayHeatmapBody = ({
                 x={labelWidth - 8}
                 y={
                   labelHeight +
-                  (blockSize + blockMargin) * 7 +
+                  (blockSize + blockMargin) * weekdays.length +
                   (blockSize + blockMargin) +
                   blockSize / 2
                 }
