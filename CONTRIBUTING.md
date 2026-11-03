@@ -82,7 +82,7 @@ Catalogue examples must work from their shipped folder without a checkout of
 this repository. Keep exact props in the TypeScript declarations rather than
 duplicating them in the skill. Test skill discovery with
 `npx skills add . --list` and install branch changes only in a temporary home.
-Use `.github/skill-cases.json` for independent behavioral reviews: answer from
+Use `tests/skills/siyahi/cases.json` for independent behavioral reviews: answer from
 the skill and its references, then compare against the expected decisions.
 
 ```sh
