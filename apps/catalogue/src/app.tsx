@@ -1,4 +1,5 @@
 import { Section } from "./example";
+import { Suspense } from "react";
 import type { Page } from "./page";
 import { blocks } from "./pages/blocks";
 import { components, inputs } from "./pages/components";
@@ -15,6 +16,8 @@ const PAGES: Page[] = [overview, foundations, components, inputs, layout, data, 
 export function App() {
   const route = useRoute();
   const page = PAGES.find((p) => p.id === route.page) ?? overview;
+  const selected = page.sections.find((section) => section.id === route.section);
+  const sections = selected ? [selected] : page.sections;
   const nav = PAGES.map((p) => ({
     title: p.title,
     url: `#/${p.id}`,
@@ -24,15 +27,22 @@ export function App() {
   }));
   return (
     <Shell nav={nav} title={page.title}>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">{page.title}</h1>
-        <p className="max-w-prose text-muted-foreground">{page.lead}</p>
-      </div>
-      {page.sections.map((s) => (
-        <Section key={s.id} id={s.id} title={s.title}>
-          {s.body}
-        </Section>
-      ))}
+      <Suspense fallback={<p role="status">Loading examples…</p>}>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight">{page.title}</h1>
+          <p className="max-w-prose text-muted-foreground">{page.lead}</p>
+        </div>
+        {selected && (
+          <a href={`#/${page.id}`} className="text-link">
+            All {page.title} examples
+          </a>
+        )}
+        {sections.map((s) => (
+          <Section key={s.id} id={s.id} title={s.title}>
+            {s.body}
+          </Section>
+        ))}
+      </Suspense>
     </Shell>
   );
 }

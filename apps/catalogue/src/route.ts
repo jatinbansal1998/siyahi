@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 export interface Route {
   page: string;
@@ -14,7 +14,7 @@ function parse(hash: string): Route {
 export function useRoute(): Route {
   const [route, setRoute] = useState(() => parse(location.hash));
   useEffect(() => {
-    const onChange = () => setRoute(parse(location.hash));
+    const onChange = () => startTransition(() => setRoute(parse(location.hash)));
     addEventListener("hashchange", onChange);
     return () => removeEventListener("hashchange", onChange);
   }, []);
