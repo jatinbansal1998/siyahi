@@ -2,9 +2,23 @@ import { useMemo } from "react";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
 
+const numbers = new Map<string, Intl.NumberFormat>();
+const clocks = new Map<string, Intl.DateTimeFormat>();
+const regions = new Map<string, string | undefined>();
+
+function numberFormat(locale: string, options: Intl.NumberFormatOptions): Intl.NumberFormat {
+  const key = JSON.stringify([locale, options]);
+  let formatter = numbers.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, options);
+    numbers.set(key, formatter);
+  }
+  return formatter;
+}
+
 /** An amount in the locale's currency, whole units by default: ₹1,53,110. Signed figures belong in `Delta`. */
 export function money(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 0): string {
-  return new Intl.NumberFormat(locale.numberLocale, {
+  return numberFormat(locale.numberLocale, {
     style: "currency",
     currency: locale.currency,
     minimumFractionDigits: fractionDigits,
@@ -19,8 +33,9 @@ export function money(value: number, locale: SiyahiLocale = defaultLocale, fract
  * `Delta`, which adds the arrow.
  */
 export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale): string {
-  if (new Intl.Locale(locale.numberLocale).region === "IN" && Math.abs(value) < 100_000) return money(value, locale);
-  return new Intl.NumberFormat(locale.numberLocale, {
+  if (!regions.has(locale.numberLocale)) regions.set(locale.numberLocale, new Intl.Locale(locale.numberLocale).region);
+  if (regions.get(locale.numberLocale) === "IN" && Math.abs(value) < 100_000) return money(value, locale);
+  return numberFormat(locale.numberLocale, {
     style: "currency",
     currency: locale.currency,
     notation: "compact",
@@ -30,12 +45,12 @@ export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale
 
 /** A whole count with the locale's grouping: 1,53,110 in en-IN. */
 export function count(value: number, locale: SiyahiLocale = defaultLocale): string {
-  return new Intl.NumberFormat(locale.numberLocale, { maximumFractionDigits: 0 }).format(value);
+  return numberFormat(locale.numberLocale, { maximumFractionDigits: 0 }).format(value);
 }
 
 /** A fraction as a percentage: 0.1234 is 12.3%. */
 export function pct(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 1): string {
-  return new Intl.NumberFormat(locale.numberLocale, {
+  return numberFormat(locale.numberLocale, {
     style: "percent",
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
@@ -54,14 +69,21 @@ export function time(
   { withDate = false }: TimeOptions = {},
 ): string {
   const date: Intl.DateTimeFormatOptions = withDate ? { day: "numeric", month: "short", year: "numeric" } : {};
-  return new Intl.DateTimeFormat(locale.numberLocale, {
+  const options: Intl.DateTimeFormatOptions = {
     ...date,
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
     timeZone: locale.timeZone,
     timeZoneName: "short",
-  }).format(new Date(value));
+  };
+  const key = JSON.stringify([locale.numberLocale, options]);
+  let formatter = clocks.get(key);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale.numberLocale, options);
+    clocks.set(key, formatter);
+  }
+  return formatter.format(new Date(value));
 }
 
 export interface Formatters {

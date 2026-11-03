@@ -1,9 +1,34 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { count, money, moneyCompact, pct, time } from "../src/lib/format";
 import type { SiyahiLocale } from "../src/lib/locale";
 
 const us: SiyahiLocale = { numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" };
 const nineUtc = "2026-10-20T09:00:00Z";
+
+it("reuses a currency formatter across values and equivalent locale objects", () => {
+  const locale: SiyahiLocale = { numberLocale: "en-GB", currency: "GBP", timeZone: "Europe/London" };
+  const constructor = vi.spyOn(Intl, "NumberFormat");
+  try {
+    expect(money(123.4, locale, 3)).toBe("£123.400");
+    expect(money(567.8, { ...locale }, 3)).toBe("£567.800");
+    expect(constructor).toHaveBeenCalledTimes(1);
+  } finally {
+    constructor.mockRestore();
+  }
+});
+
+it("reuses a clock formatter while keeping date and time-only formats separate", () => {
+  const locale: SiyahiLocale = { numberLocale: "en-GB", currency: "GBP", timeZone: "Europe/London" };
+  const constructor = vi.spyOn(Intl, "DateTimeFormat");
+  try {
+    expect(time(nineUtc, locale)).toBe("10:00 BST");
+    expect(time(nineUtc, { ...locale })).toBe("10:00 BST");
+    expect(time(nineUtc, locale, { withDate: true })).toBe("20 Oct 2026, 10:00 BST");
+    expect(constructor).toHaveBeenCalledTimes(2);
+  } finally {
+    constructor.mockRestore();
+  }
+});
 
 describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
   it("groups money in lakhs", () => {
