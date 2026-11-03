@@ -110,10 +110,12 @@ export const data: Page = {
       body: (
         <>
           <Lead>
-            niko-table on TanStack Table: faceted filters, sorting, a pinned first column. On a phone it scrolls inside
-            its card. DataTableSortHeader as a column's header sorts on one click, largest (or Z) first, taking its
-            title from meta.label; DataTableColumnActions with DataTableColumnSortOptions is the menu version. In the
-            toolbar, DataTableSearchFilter is the search across columns (label names it for screen readers) and
+            niko-table on TanStack Table: faceted filters, sorting, a pinned first column. Below 40rem of table space,
+            horizontal freezing is suspended so all columns can scroll inside the card. This follows the table's width,
+            including a narrow panel on a laptop; search and sorting survive the change. DataTableSortHeader as a
+            column's header sorts on one click, largest (or Z) first, taking its title from meta.label;
+            DataTableColumnActions with DataTableColumnSortOptions is the menu version. In the toolbar,
+            DataTableSearchFilter is the search across columns (label names it for screen readers) and
             DataTableRowCount, last, says how many rows the filters leave: "3 of 6", or "6 holdings" when they leave
             all. Pass total when the page narrowed the data before the table.
           </Lead>

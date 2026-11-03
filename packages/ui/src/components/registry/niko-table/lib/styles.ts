@@ -6,6 +6,8 @@
 // Siyahi table sits in a card, and in dark mode the page background drew a
 // darker stripe down the pinned column. This inline colour outranks the
 // cells' bg-* classes.
+// Siyahi edit: narrow containers suspend sticky styling without changing the
+// caller's pinning preference, including externally managed table instances.
 import { type Column, type RowData } from "@tanstack/react-table"
 import type { DataTableFeatures } from "./data-table-features"
 import type React from "react"
@@ -13,9 +15,10 @@ import type React from "react"
 export const getCommonPinningStyles = <TData extends RowData>(
   column: Column<DataTableFeatures, TData>,
   isHeader: boolean = false,
+  pinningEnabled: boolean = true,
 ): React.CSSProperties => {
   const isPinned = column.getIsPinned()
-  if (!isPinned) return {}
+  if (!isPinned || !pinningEnabled) return {}
 
   const isLeft = isPinned === "start"
   const columnSize = column.getSize()

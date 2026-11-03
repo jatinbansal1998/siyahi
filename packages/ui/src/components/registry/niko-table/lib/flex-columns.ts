@@ -2,6 +2,7 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 b373d138a5e99639d3ffd043d81d6d681ff2518c36eb19e7e904855033d37a87
+// Siyahi edit: a column whose freezing is suspended in narrow space may flex.
 import type { ColumnSizingState, RowData } from "@tanstack/react-table"
 import type { DataTableColumn, DataTableInstance } from "../types"
 
@@ -32,6 +33,7 @@ import type { DataTableColumn, DataTableInstance } from "../types"
  */
 export function resolveFlexColumnIds<TData extends RowData>(
   table: DataTableInstance<TData>,
+  pinningEnabled = true,
 ): ReadonlySet<string> {
   const ids = new Set<string>()
   // Flex only applies under the fixed layout that resizing turns on.
@@ -52,7 +54,7 @@ export function resolveFlexColumnIds<TData extends RowData>(
   for (const column of leafColumns) {
     if (
       column.columnDef.meta?.flex === true &&
-      !column.getIsPinned() &&
+      !(pinningEnabled && column.getIsPinned()) &&
       columnSizing[column.id] == null
     ) {
       ids.add(column.id)
@@ -65,7 +67,7 @@ export function resolveFlexColumnIds<TData extends RowData>(
   const auto = leafColumns.find(
     column =>
       column.getCanResize() &&
-      !column.getIsPinned() &&
+      !(pinningEnabled && column.getIsPinned()) &&
       column.columnDef.meta?.flex !== false &&
       columnSizing[column.id] == null,
   )

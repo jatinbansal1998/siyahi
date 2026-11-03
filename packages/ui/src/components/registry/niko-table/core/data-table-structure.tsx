@@ -25,6 +25,7 @@ import { DataTableRowContextMenu } from "../components/data-table-row-context-me
 import { useResolvedRowContextMenuRenderer } from "../components/data-table-row-context-menu-slot"
 import { resolveGroupedRowsSlot } from "../components/data-table-grouped-rows"
 import { GroupedBodyRow } from "./data-table-grouped-row"
+// Siyahi edit: header, leaf and group layouts suspend horizontal freezing in narrow containers.
 import { DataTableColumnResizeHandle } from "../lib/column-resize-handle"
 import { isGlobalFilterActive } from "../lib/filter-functions"
 import {
@@ -58,7 +59,7 @@ export const DataTableHeader = React.memo(function DataTableHeader({
   className,
   sticky = true,
 }: DataTableHeaderProps) {
-  const { table, headerMinWidths, setColumnResizePreview } = useDataTable()
+  const { table, headerMinWidths, setColumnResizePreview, isCompact } = useDataTable()
   const resizing = table?.options.enableColumnResizing ?? false
 
   const headerGroups = table?.getHeaderGroups() ?? []
@@ -69,7 +70,7 @@ export const DataTableHeader = React.memo(function DataTableHeader({
 
   // Flex fill is on by default: resolve which column soaks up the leftover
   // width (explicit `meta.flex`, else the first non-pinned data column).
-  const flexColumnIds = resolveFlexColumnIds(table)
+  const flexColumnIds = resolveFlexColumnIds(table, !isCompact)
   const columnSizing = table.state.columnSizing
 
   return (
@@ -95,7 +96,7 @@ export const DataTableHeader = React.memo(function DataTableHeader({
                 columnSizing,
                 headerMinWidths,
               }),
-              ...getCommonPinningStyles(header.column, true),
+              ...getCommonPinningStyles(header.column, true, !isCompact),
             }
 
             return (
@@ -104,7 +105,7 @@ export const DataTableHeader = React.memo(function DataTableHeader({
                 data-col-id={header.column.id}
                 style={headerStyle}
                 className={cn(
-                  header.column.getIsPinned() && "bg-background",
+                  !isCompact && header.column.getIsPinned() && "bg-background",
                   // Anchor the absolute resize handle to the cell's right edge.
                   resizing && "relative overflow-hidden",
                 )}
@@ -173,6 +174,7 @@ interface BodyRowProps {
   columnWidths: ReadonlyMap<string, number | string | undefined>
   /** Column layout signature — invalidates React.memo on visibility/order/pinning/resize change. */
   columnLayoutSignature: string
+  isCompact: boolean
   /**
    * Per-row memo key. Change this string to force React.memo to re-render a
    * specific row when row-level state changes outside of TanStack Table's
@@ -198,6 +200,7 @@ const BodyRow = React.memo(function BodyRow({
   row,
   displayIndex,
   expandColumnId,
+  isCompact,
   isClickable,
   isExpanded,
   isSelected,
@@ -236,7 +239,7 @@ const BodyRow = React.memo(function BodyRow({
           // Precomputed by the body: flex → undefined (fills), otherwise the
           // header-fit-floored width (or the declared size when resizing off).
           width: columnWidths.get(cell.column.id),
-          ...getCommonPinningStyles(cell.column, false),
+          ...getCommonPinningStyles(cell.column, false, !isCompact),
           ...(flashing ? { animation: FLASH_ANIMATION } : {}),
         }
 
@@ -254,7 +257,7 @@ const BodyRow = React.memo(function BodyRow({
               !cell.getIsGrouped() && "truncate",
               // The opaque colour is inline (getCommonPinningStyles); the
               // tint is a gradient layer over it, so nothing shows through.
-              cell.column.getIsPinned() &&
+              !isCompact && cell.column.getIsPinned() &&
                 "bg-linear-to-r group-hover:from-muted/50 group-hover:to-muted/50 group-data-[context-menu-open]:from-muted/50 group-data-[context-menu-open]:to-muted/50 group-data-[state=selected]:from-muted group-data-[state=selected]:to-muted",
             )}
           >
@@ -346,6 +349,7 @@ export function DataTableBody<TData extends RowData>({
     flashingCellKeys,
     registerRowScroller,
     headerMinWidths,
+    isCompact,
   } = useDataTable<TData>()
   const { rows } = table.getRowModel()
   const containerRef = React.useRef<HTMLTableSectionElement>(null)
@@ -421,7 +425,7 @@ export function DataTableBody<TData extends RowData>({
   // `columnSizing` is a dep — resizing a flex column pins it and shifts the
   // fill to the next column.
   const flexColumnIds = React.useMemo(
-    () => resolveFlexColumnIds(table),
+    () => resolveFlexColumnIds(table, !isCompact),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       table,
@@ -430,6 +434,7 @@ export function DataTableBody<TData extends RowData>({
       columnPinning,
       columnSizing,
       resizing,
+      isCompact,
     ],
   )
 
@@ -470,13 +475,13 @@ export function DataTableBody<TData extends RowData>({
       table
         .getVisibleLeafColumns()
         .map(c => {
-          const pinned = c.getIsPinned()
+          const pinned = !isCompact && c.getIsPinned()
           const base = pinned ? `${c.id}:${pinned}` : c.id
           return resizing ? `${base}:${columnWidths.get(c.id) ?? "flex"}` : base
         })
         .join(","),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [table, columns, columnWidths, resizing],
+    [table, columns, columnWidths, resizing, isCompact],
   )
 
   const isClickable = !!onRowClick
@@ -592,6 +597,7 @@ export function DataTableBody<TData extends RowData>({
                 row={row as DataTableRow<RowData>}
                 displayIndex={displayIndex}
                 expandColumnId={expandColumnId}
+                isCompact={isCompact}
                 isClickable={isClickable}
                 isExpanded={row.getIsExpanded()}
                 isSelected={row.getIsSelected()}

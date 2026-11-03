@@ -4,6 +4,7 @@
 // Copied: 2026-10-22, sha256 c672763c02894a579f6cc7cddbe5fc17149b1eef484f992b9a35441b4e3b1c42
 // Siyahi edit: a `label` prop names the field for screen readers, so two
 // tables on one page are told apart; upstream always says "Search table".
+// Siyahi edit: constrain the search field to its card on narrow screens.
 import * as React from "react"
 import { Input } from "@siyahi/ui/components/ui/input"
 import { Button } from "@siyahi/ui/components/ui/button"
@@ -141,7 +142,7 @@ export function TableSearchFilter<TData extends RowData>({
 
   return (
     <div
-      className={cn("relative flex flex-1 items-center", className)}
+      className={cn("relative flex min-w-0 max-w-full flex-1 items-center", className)}
       role="search"
     >
       <Search

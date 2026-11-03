@@ -69,7 +69,7 @@ export default function DataTableExample() {
         <CardTitle>Holdings</CardTitle>
         <CardDescription>
           Search every column, filter by sector, sort any column in one click; the symbol stays put when the table
-          scrolls
+          scrolls in wide panels. In narrow panels every column scrolls, leaving room for the values
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -87,7 +87,7 @@ export default function DataTableExample() {
             <DataTableFacetedFilter accessorKey="sector" title="Sector" />
             <DataTableRowCount unit="holdings" />
           </DataTableToolbarSection>
-          <DataTable>
+          <DataTable aria-label="Holdings">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

@@ -8,6 +8,8 @@
 // the z-indexes inside it (pinned cells 10 and 20, sticky header 30, resize
 // line 40) rank only against each other. A page's sticky header with any
 // positive z-index paints over the table instead of under it.
+// Siyahi edit: the scrolling region is named and keyboard focusable, so every
+// column remains reachable without a pointer.
 "use client"
 
 /**
@@ -62,7 +64,7 @@ function parseHeightFromClassName(className?: string) {
   }
 }
 
-export interface DataTableContainerProps {
+export interface DataTableContainerProps extends React.AriaAttributes {
   children: React.ReactNode
   /**
    * Additional CSS classes for the container.
@@ -168,6 +170,8 @@ export function DataTable({
   className,
   height,
   maxHeight,
+  "aria-label": label = "Data table",
+  "aria-labelledby": labelledBy,
 }: DataTableContainerProps) {
   // Parse height from className if not provided via props
   const parsed = React.useMemo(
@@ -186,6 +190,10 @@ export function DataTable({
     <div
       ref={registerScrollContainer}
       data-slot="table-container"
+      role="region"
+      aria-label={labelledBy ? undefined : label}
+      aria-labelledby={labelledBy}
+      tabIndex={0}
       className={cn(
         "relative isolate w-full overflow-auto rounded-lg border",
         // Custom scrollbar styling to match ScrollArea aesthetic

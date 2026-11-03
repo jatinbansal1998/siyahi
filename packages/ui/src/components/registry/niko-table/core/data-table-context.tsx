@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 ec7759ad942364a4ab9636029bfb4f3f7f2f1f7d09508947e544d064b291998a
+// Siyahi edit: observe the table's available space once; narrow tables suspend
+// horizontal freezing while retaining the requested pinning for wider layouts.
 "use client"
 
 /**
@@ -127,6 +129,8 @@ type DataTableContextProps<TData extends RowData> = DataTableContextState & {
    * `null` until the container mounts (or when no `<DataTable>` is used).
    */
   scrollContainer: HTMLElement | null
+  /** True below 40rem of table space; use for compact toolbar and record layouts. */
+  isCompact: boolean
   /** Internal: `<DataTable>` registers its scroll container element here. */
   registerScrollContainer: (el: HTMLElement | null) => void
   /**
@@ -355,6 +359,21 @@ export function DataTableProvider<TData extends RowData>({
     (el: HTMLElement | null) => setScrollContainer(el),
     [],
   )
+  const [isCompact, setIsCompact] = React.useState(false)
+  React.useLayoutEffect(() => {
+    if (!scrollContainer) return
+    const measure = () => {
+      const width = scrollContainer.clientWidth
+      if (width > 0) {
+        const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+        setIsCompact(width < 40 * rem)
+      }
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(scrollContainer)
+    return () => observer.disconnect()
+  }, [scrollContainer])
   const scrollRowIntoView = useCallback<ScrollRowIntoView>((index, opts) => {
     if (rowScrollerRef.current) {
       rowScrollerRef.current(index, opts)
@@ -595,6 +614,7 @@ export function DataTableProvider<TData extends RowData>({
         scrollRowIntoView,
         registerRowScroller,
         scrollContainer,
+        isCompact,
         registerScrollContainer,
         headerMinWidths,
         setColumnResizePreview: setManualResizePreview,
@@ -614,6 +634,7 @@ export function DataTableProvider<TData extends RowData>({
       scrollRowIntoView,
       registerRowScroller,
       scrollContainer,
+      isCompact,
       registerScrollContainer,
       headerMinWidths,
       setManualResizePreview,
