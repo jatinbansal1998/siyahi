@@ -120,11 +120,10 @@ or loading changes, `node packages/tools/cls.mjs https://siyahi.jatinbansal.com/
    dash PR.
 2. The Book (`~/code/transactions-analyser`): the same exact `<VER>` for both
    in `dashboard/package.json`, in its own PR.
-3. `~/code/agent-skills` needs no bump: `siyahi/SKILL.md` pins no version and
-   points at the installed package's README (agent-skills #108). Only if
-   `report.css` changed, refresh its copy with
-   `siyahi/scripts/refresh-report-css.sh <VER>` in an agent-skills PR, then
-   `./install.sh siyahi` after it merges.
+3. The public skill at `skills/siyahi/SKILL.md` pins no package version; its
+   instructions read the consumer's installed manifest, examples and
+   `report.css`. There is no stylesheet copy to refresh. Reinstall the skill
+   from `jatinbansal1998/siyahi` only when the skill itself changes.
 
 ## Gotchas
 

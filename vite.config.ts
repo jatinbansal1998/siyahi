@@ -10,6 +10,7 @@ const SHADCN_CORE = ["packages/ui/src/components/ui/**", "packages/ui/src/hooks/
 // own (`lint:registry`, config in .oxlintrc.registry.json).
 const REGISTRY = "packages/ui/src/components/registry/**";
 const GENERATED = [
+  "packages/ui/agents/**",
   "packages/ui/report.css",
   "packages/ui/styles/shadcn.css",
   "packages/ui/styles/fallback-fonts.css",
@@ -49,7 +50,7 @@ export default defineConfig({
     sortPackageJson: {},
   },
   lint: {
-    ignorePatterns: [...SHADCN_CORE, REGISTRY, "**/dist/**", "shots/**", "cls/**"],
+    ignorePatterns: [...SHADCN_CORE, REGISTRY, "packages/ui/agents/**", "**/dist/**", "shots/**", "cls/**"],
     plugins: ["eslint", "oxc", "react", "unicorn", "typescript", "import"],
     jsPlugins: ["@siyahi/tools/lint"],
     settings: {

@@ -1,0 +1,37 @@
+[
+  {
+    "skill": "siyahi",
+    "question": "My page needs a chart with a reference line Siyahi doesn't support. Can I build it from raw Recharts parts in the app?",
+    "answer": "No. Never compose raw Recharts parts in a page or build the missing piece in the app; add it to Siyahi (shadcn first), release it, and bump the app to that exact version."
+  },
+  {
+    "skill": "siyahi",
+    "question": "How do I add Siyahi styling to a static HTML report?",
+    "answer": "Paste the whole of node_modules/@siyahi/ui/report.css at the start of the report's <style> at write time; never <link> or trim it. One <h1>, Intl.NumberFormat('en-IN'), IST times with zone, colour only via variables, nothing loaded from the network."
+  },
+  {
+    "skill": "siyahi",
+    "question": "Which @siyahi/ui version should a new app pin?",
+    "answer": "The newest from 'npm view @siyahi/ui dist-tags.next', exact with no caret, the same version for @siyahi/ui and @siyahi/tools."
+  },
+  {
+    "skill": "siyahi",
+    "question": "How should I format numbers and set prose width in a Siyahi React page?",
+    "answer": "Numbers through the package formatters (useFormat()), never bare toLocaleString(); prose width max-w-prose, never 65ch or max-w-[65ch]. No gradients."
+  },
+  {
+    "skill": "siyahi",
+    "question": "Which files should I read to choose components without loading the full README or a local Siyahi checkout?",
+    "answer": "Read agents/manifest.json in the installed @siyahi/ui package. Search needs, match components to the examples index, read only selected files, and use recipes for compositions. Resolve every manifest path relative to that package. Read dist/index.d.ts for exact prop types."
+  },
+  {
+    "skill": "siyahi",
+    "question": "Can I change the dashboard recipe into an original asymmetric layout with my own interactions?",
+    "answer": "Yes. Recipes are editable compositions, not a mandatory page schema. Page hierarchy, arrangement, narrative and product-specific interactions stay in the app. Use Siyahi for controls, charts, tables, formatting and theme; add missing reusable UI behavior to Siyahi."
+  },
+  {
+    "skill": "siyahi",
+    "question": "How do I install the shareable Siyahi skill on a machine that cannot access any personal private repositories?",
+    "answer": "Point external users to the public jatinbansal1998/siyahi repository and its README For agents installation section. The canonical skill is skills/siyahi/SKILL.md there. No private repository, local Siyahi checkout or other skill is required."
+  }
+]

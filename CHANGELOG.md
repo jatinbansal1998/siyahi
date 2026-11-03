@@ -2,6 +2,9 @@
 
 ## 0.1.9
 
+- The public `siyahi` skill guides agents through the installed package's
+  generated component index and catalogue examples. The package ships those
+  examples and the report layout rules, so discovery needs no local checkout.
 - Ruled `PanelGrid` clips its edge hairlines without trapping sticky children;
   a detail card beside a long list can stick while the page scrolls.
 - All series chart cards accept category `xTicks` typed to `xKey`: label selected

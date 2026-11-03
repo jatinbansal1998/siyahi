@@ -8,6 +8,10 @@ Kept apart from the UI package so installing the UI does not pull in Playwright.
 An [oxlint](https://oxc.rs) JS plugin, `siyahi`. Every rule runs only in files
 that import `@siyahi/ui`.
 
+```sh
+npm install --save-dev @siyahi/tools@next oxlint
+```
+
 | Rule                          | Rejects                                                                                                             |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `siyahi/no-color-literal`     | hex, `rgb()`, `hsl()`, `oklch()` and other colour literals in strings                                               |
@@ -21,7 +25,14 @@ that import `@siyahi/ui`.
 {
   "jsPlugins": ["@siyahi/tools/lint"],
   "settings": { "shadcn": { "ui": "@siyahi/ui", "themeImports": ["^@siyahi/ui/"] } },
-  "rules": { "siyahi/no-color-literal": "error" }
+  "rules": {
+    "siyahi/no-color-literal": "error",
+    "siyahi/no-scheme-variant": "error",
+    "siyahi/no-numeric-font-size": "error",
+    "siyahi/no-chart-theme-map": "error",
+    "siyahi/no-raw-colors": "error",
+    "siyahi/no-arbitrary-values": "error"
+  }
 }
 ```
 
@@ -44,6 +55,12 @@ export default defineConfig({ plugins: [react(), tailwindcss(), preloadFonts()] 
 
 It runs in `vite build` only. The fonts stay self-hosted: the tags point at
 the files Vite emitted from `@siyahi/ui`'s fontsource imports.
+
+The theme's fallback fonts match Geist's metrics until it loads: Arial or its
+Linux equivalents for body text, Courier New for mono. If an app renders its
+own HTML, add preload tags for the build's hashed URLs of
+`geist-latin-wght-normal.woff2`, `geist-latin-ext-wght-normal.woff2` and
+`geist-mono-latin-wght-normal.woff2`.
 
 ## siyahi-cls
 
