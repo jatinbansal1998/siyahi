@@ -205,6 +205,30 @@
   }
 }
 
+/* Touch targets follow input capability, including touch laptops. */
+@media (pointer: coarse) {
+  :is(
+    [class~="group/button"],
+    [data-slot="toggle"],
+    [data-slot="toggle-group-item"],
+    [data-slot="select-trigger"],
+    [data-slot="tabs-trigger"],
+    [data-slot="input-group-button"]
+  ) {
+    min-height: --spacing(11);
+    min-width: --spacing(11);
+  }
+  :is([data-slot="input"], [data-slot="textarea"], [data-slot="input-group"], [data-slot="input-group-control"]) {
+    min-height: --spacing(11);
+  }
+  :is([data-slot="input"], [data-slot="textarea"], [data-slot="input-group-control"], [data-slot="command-input"]) {
+    font-size: 1rem;
+  }
+  [role="search"] > [data-slot="input"] {
+    padding-right: --spacing(14);
+  }
+}
+
 /*
  * On a narrow card a header action (a toggle, a button) drops under the title
  * and description, left-aligned. Stock CardHeader keeps the action in its own

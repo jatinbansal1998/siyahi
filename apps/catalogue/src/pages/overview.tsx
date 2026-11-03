@@ -14,7 +14,7 @@ const RULES = [
   "Notices are shadcn Alert, used as shipped: default for information, destructive for errors. Warnings are the default variant with an amber icon, coloured text-warning! (the ! outranks Alert's own icon colour).",
   "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
   "Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows the device, reduced motion honoured.",
-  "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables scroll inside their card with the first column pinned, sidebar becomes a drawer.",
+  "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables scroll inside their card without freezing columns, sidebar becomes a drawer.",
 ];
 
 const INSTALL = `npm install @siyahi/ui@next tailwindcss @tailwindcss/vite

@@ -19,7 +19,9 @@ import {
   type DataTableGroupedRowsProps,
 } from "../components/data-table-grouped-rows"
 import { isInteractiveClickTarget } from "../lib/row-click"
+// Siyahi edit: grouped cells use the same narrow-container pinning policy as records.
 import { getCommonPinningStyles } from "../lib/styles"
+import { useDataTable } from "./data-table-context"
 import type { DataTableRow } from "../types"
 
 /**
@@ -31,6 +33,7 @@ import type { DataTableRow } from "../types"
  * groups you don't want to special-case.
  */
 export function DataTableGroupedRowCells() {
+  const { isCompact } = useDataTable()
   const { row, groupLabel, count, isExpanded, toggle, columnWidths } =
     useDataTableGroupRow()
 
@@ -41,7 +44,7 @@ export function DataTableGroupedRowCells() {
       {row.getVisibleCells().map(cell => {
         const cellStyle = {
           width: columnWidths.get(cell.column.id),
-          ...getCommonPinningStyles(cell.column, false),
+          ...getCommonPinningStyles(cell.column, false, !isCompact),
         }
 
         // Placeholder cells stay empty — the `<td>` still renders so the group
