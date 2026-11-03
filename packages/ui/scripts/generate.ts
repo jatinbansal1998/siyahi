@@ -366,6 +366,11 @@ interface AgentExample {
   components: string[];
 }
 
+interface AgentNeed {
+  need: string;
+  guidance: string;
+}
+
 const exampleDir = "apps/catalogue/src/examples";
 const examples: AgentExample[] = readdirSync(path.join(repo, exampleDir))
   .filter((file) => file.endsWith(".tsx"))
@@ -380,16 +385,13 @@ const examples: AgentExample[] = readdirSync(path.join(repo, exampleDir))
   });
 
 function agentManifest(): string {
-  const table = fromRepo("README.md")().split("## Which component\n")[1]?.split("\n## ")[0];
-  const needs = (table ?? "")
-    .split("\n")
-    .filter((line) => line.startsWith("| ") && !/^\|\s*(?:Need\s*\||-)/.test(line))
-    .map((line) => {
-      const [, need, guidance] = line.split("|").map((cell) => cell.trim());
-      const components = [...(guidance ?? "").matchAll(/`([A-Z]\w*)`/g)].map((match) => match[1]);
-      return { need, guidance, components };
-    });
-  if (!needs.length) throw new Error("README.md: missing Which component table");
+  const choices = JSON.parse(read("agent-needs.json")) as AgentNeed[];
+  const needs = choices.map(({ need, guidance }) => ({
+    need,
+    guidance,
+    components: [...guidance.matchAll(/`([A-Z]\w*)`/g)].map((match) => match[1]),
+  }));
+  if (!needs.length) throw new Error("agent-needs.json: no component choices");
   return `${JSON.stringify(
     {
       generatedBy: "packages/ui/scripts/generate.ts",

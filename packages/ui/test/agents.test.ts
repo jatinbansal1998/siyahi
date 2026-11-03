@@ -13,12 +13,4 @@ describe("agent discovery", () => {
     expect(source).toContain("<BarList");
     for (const name of example.components) expect(name in ui, name).toBe(true);
   });
-
-  it("offers design choices rather than Markdown table headers", () => {
-    expect(manifest.needs.length).toBeGreaterThan(0);
-    for (const { need, guidance } of manifest.needs) {
-      expect(need).toMatch(/[a-z]/i);
-      expect(guidance).toMatch(/[a-z]/i);
-    }
-  });
 });

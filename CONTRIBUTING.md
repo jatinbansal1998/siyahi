@@ -76,7 +76,7 @@ runs the colour rules on them, so an add-on default must name a token.
 
 The public agent skill is owned here, at `skills/siyahi/SKILL.md`. Keep workflow
 there and component facts in the package. `pnpm generate` builds
-`agents/manifest.json` from the README's selection table and copies catalogue
+`agents/manifest.json` from `packages/ui/agent-needs.json` and copies catalogue
 examples into the package; edit those sources, never the generated files.
 Catalogue examples must work from their shipped folder without a checkout of
 this repository. Keep exact props in the TypeScript declarations rather than

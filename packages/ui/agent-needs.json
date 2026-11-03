@@ -1,0 +1,122 @@
+[
+  {
+    "need": "Values over time or another ordered axis (months, hours, price buckets)",
+    "guidance": "`BarChartCard`, `AreaChartCard` or `LineChartCard`"
+  },
+  {
+    "need": "Counts or amounts per period, one series or several",
+    "guidance": "`BarChartCard`; `stacked` when the series add up to a total"
+  },
+  {
+    "need": "A running level, such as a portfolio's value against money put in",
+    "guidance": "`AreaChartCard`"
+  },
+  {
+    "need": "Series compared point by point, such as a return against an index",
+    "guidance": "`LineChartCard`"
+  },
+  {
+    "need": "Samples in time with limits and events marked",
+    "guidance": "`LineChartCard` with `xDomain`, `xTicks` and `referenceLines`"
+  },
+  {
+    "need": "Long category names, such as sectors",
+    "guidance": "`BarChartCard` with `horizontal`"
+  },
+  {
+    "need": "A gain above zero and a loss below it",
+    "guidance": "a series with `color` and `negativeColor`"
+  },
+  {
+    "need": "Ranked counts or amounts by category (a name, a bar and a figure)",
+    "guidance": "`BarList`; give two lists one `max` to share a scale"
+  },
+  {
+    "need": "Where a budget sits, a split of a whole, or losses against gains",
+    "guidance": "`DistributionBar`"
+  },
+  {
+    "need": "Headline figures with their change",
+    "guidance": "`SectionCards`, with a `Delta` in each badge"
+  },
+  {
+    "need": "Many figures of equal weight, each with its change and recent run",
+    "guidance": "`MetricStrip`"
+  },
+  {
+    "need": "A run of values beside a figure, in a tile, a strip or a table cell",
+    "guidance": "`Sparkline`; in a tile, `SectionCards`' `trend`"
+  },
+  {
+    "need": "A table column that should read as a bar chart",
+    "guidance": "`DataBar` in the column's cell"
+  },
+  {
+    "need": "One instrument's price history",
+    "guidance": "`PriceChart`"
+  },
+  {
+    "need": "Holdings sized by weight and coloured by change",
+    "guidance": "`Treemap`"
+  },
+  {
+    "need": "Activity by day, by weekday and hour, or a status over time",
+    "guidance": "`CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`"
+  },
+  {
+    "need": "Rows to sort and filter",
+    "guidance": "`DataTable`, inside a `Card`"
+  },
+  {
+    "need": "A column that sorts on one click; a search and an \"n of m\" count",
+    "guidance": "`DataTableSortHeader`; `DataTableSearchFilter`, `DataTableRowCount`"
+  },
+  {
+    "need": "Stat tiles that pick a scope for the page",
+    "guidance": "`SectionCards` with `selected` and `onSelect`"
+  },
+  {
+    "need": "A share or a part of a whole, coloured as a gain or a loss",
+    "guidance": "`ToneProgress`"
+  },
+  {
+    "need": "The colour scale under a `Treemap`",
+    "guidance": "`TreemapLegend`, with the map's `range`"
+  },
+  {
+    "need": "One part of a long page: rule, eyebrow, heading, lead, action",
+    "guidance": "`PageSection`, with `PageSubheading` inside"
+  },
+  {
+    "need": "Label and value pairs, such as a record's fields",
+    "guidance": "`DataList` and `DataListItem`"
+  },
+  {
+    "need": "A command or file to copy, wrapped or scrolling",
+    "guidance": "`CodeBlock` with `CodeBlockCopyButton`"
+  },
+  {
+    "need": "A labelled copy action, such as \"Copy all\" for a section",
+    "guidance": "`CopyButton`"
+  },
+  {
+    "need": "Data blocks side by side: charts, tables, a strip of figures",
+    "guidance": "`PanelGrid`"
+  },
+  {
+    "need": "Boxes back, or no lines at all, for a page or a part of one",
+    "guidance": "`SiyahiProvider` with `surface=\"card\"` or `surface=\"open\"`"
+  },
+  {
+    "need": "A command, file or identifier inside prose",
+    "guidance": "`InlineCode`"
+  },
+  {
+    "need": "A signed figure (a gain, a loss, a change)",
+    "guidance": "`Delta`"
+  },
+  {
+    "need": "A time, with the viewer's own clock on hover",
+    "guidance": "`LocalTime`"
+  }
+]
