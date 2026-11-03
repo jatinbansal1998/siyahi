@@ -18,10 +18,11 @@ describe("touch controls", () => {
     const { page } = catalogue;
     await page.goto(`${new URL(page.url()).origin}/#/inputs/sheet`);
     const filters = page.getByRole("button", { name: "Filters", exact: true });
-    await filters.waitFor();
+    await filters.waitFor({ state: "visible" });
     expect((await filters.boundingBox())?.height).toBeGreaterThanOrEqual(44);
     await filters.click();
     const done = page.getByRole("dialog").getByRole("button", { name: "Close", exact: true });
+    await done.waitFor({ state: "visible" });
     expect((await done.boundingBox())?.height).toBeGreaterThanOrEqual(44);
     await done.click();
   });

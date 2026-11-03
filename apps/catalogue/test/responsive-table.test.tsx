@@ -41,17 +41,19 @@ describe("responsive table", () => {
     await section.getByRole("textbox", { name: "Filter holdings" }).fill("INFY");
     await expect.poll(() => section.locator("tbody tr").count()).toBe(1);
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await expect
-      .poll(() => instrument.evaluate((el) => getComputedStyle(el).position), { timeout: 1500 })
-      .toBe("sticky");
+    await page.evaluate(
+      () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+    );
+    expect(await instrument.evaluate((el) => getComputedStyle(el).position)).toBe("sticky");
     expect(await section.getByRole("textbox", { name: "Filter holdings" }).inputValue()).toBe("INFY");
     expect(await section.getByRole("button", { name: /Value.*sorted descending/ }).count()).toBe(1);
 
     await page.setViewportSize({ width: 1366, height: 900 });
     await scroll.evaluate((el) => (el.style.width = "20rem"));
-    await expect
-      .poll(() => instrument.evaluate((el) => getComputedStyle(el).position), { timeout: 1500 })
-      .not.toBe("sticky");
+    await page.evaluate(
+      () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+    );
+    expect(await instrument.evaluate((el) => getComputedStyle(el).position)).not.toBe("sticky");
     await scroll.focus();
     expect(await scroll.evaluate((el) => el === document.activeElement)).toBe(true);
   }, 30_000);

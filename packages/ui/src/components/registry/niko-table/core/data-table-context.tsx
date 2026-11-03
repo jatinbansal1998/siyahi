@@ -372,7 +372,11 @@ export function DataTableProvider<TData extends RowData>({
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(scrollContainer)
-    return () => observer.disconnect()
+    window.addEventListener("resize", measure)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("resize", measure)
+    }
   }, [scrollContainer])
   const scrollRowIntoView = useCallback<ScrollRowIntoView>((index, opts) => {
     if (rowScrollerRef.current) {
