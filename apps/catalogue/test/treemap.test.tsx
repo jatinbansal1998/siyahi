@@ -63,6 +63,27 @@ const ringed = () =>
     .map((t) => t.querySelector("tspan")?.textContent);
 
 describe("Treemap", () => {
+  it("offers one keyboard entry, arrow navigation and the same selection action as touch", async () => {
+    const items = [
+      { name: "INFY", weight: 300, change: 0.01 },
+      { name: "TCS", weight: 200, change: -0.01 },
+    ];
+    const onSelect = vi.fn<(item: TreemapItem | null) => void>();
+    await render({ height: 300, items, onSelect });
+    const [first, second] = tiles();
+    expect(first?.getAttribute("role")).toBe("button");
+    expect(first?.getAttribute("tabindex")).toBe("0");
+    expect(second?.getAttribute("tabindex")).toBe("-1");
+    await act(async () => first?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
+    expect(onSelect).toHaveBeenLastCalledWith(items[0]);
+    await act(async () => first?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })));
+    expect(second?.getAttribute("tabindex")).toBe("0");
+    await act(async () => second?.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true })));
+    expect(onSelect).toHaveBeenLastCalledWith(items[1]);
+    await act(async () => second?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    expect(onSelect).toHaveBeenLastCalledWith(null);
+  });
+
   it("draws each group's name above its own tiles", async () => {
     await render({
       height: 300,

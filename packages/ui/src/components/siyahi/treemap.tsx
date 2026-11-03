@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
 import { cn } from "cn";
 import { HEAT_STEPS, heat, heatFill, heatRange, layout } from "@siyahi/ui/lib/treemap";
@@ -36,6 +36,7 @@ export interface TreemapProps<T extends TreemapItem> {
 export function Treemap<T extends TreemapItem>({ items, height, range, onHover, selected, onSelect }: TreemapProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const selectedKey = selected ? (selected.key ?? selected.name) : null;
   const { pct } = useFormat();
   useLayoutEffect(() => {
@@ -54,7 +55,10 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [selectedKey]);
-  const { groups, tiles } = layout(items, width, height);
+  const { groups, tiles } = useMemo(() => layout(items, width, height), [items, width, height]);
+  const focusKey = tiles.some(({ item }) => (item.key ?? item.name) === focusedKey)
+    ? focusedKey
+    : (tiles[0]?.item.key ?? tiles[0]?.item.name);
   const change = (value: number | null) =>
     value === null ? "—" : `${value > 0 ? "▲ " : value < 0 ? "▼ " : ""}${pct(Math.abs(value))}`;
   // Each label sits in a nested <svg>, which clips it to its tile or group row.
@@ -63,7 +67,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
       <svg
         width={width}
         height={height}
-        role="img"
+        role={onSelect ? "group" : "img"}
         aria-label="Treemap of holdings by weight and change"
         className="text-xs"
         onPointerLeave={() => onHover?.(null)}
@@ -76,7 +80,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
             </text>
           </svg>
         ))}
-        {tiles.map(({ item, ...box }) => {
+        {tiles.map(({ item, ...box }, index) => {
           const key = item.key ?? item.name;
           return (
             <svg
@@ -84,6 +88,44 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
               {...box}
               data-slot="treemap-tile"
               data-selected={key === selectedKey || undefined}
+              role={onSelect ? "button" : undefined}
+              tabIndex={onSelect ? (key === focusKey ? 0 : -1) : undefined}
+              aria-label={`${item.name}${item.group ? `, ${item.group}` : ""}, ${change(item.change)}`}
+              aria-pressed={onSelect ? key === selectedKey : undefined}
+              onFocus={() => setFocusedKey(key)}
+              onKeyDown={(event) => {
+                if (!onSelect) return;
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onSelect(key === selectedKey ? null : item);
+                } else if (event.key === "Escape") {
+                  onSelect(null);
+                } else {
+                  let next: number;
+                  switch (event.key) {
+                    case "Home":
+                      next = 0;
+                      break;
+                    case "End":
+                      next = tiles.length - 1;
+                      break;
+                    case "ArrowRight":
+                    case "ArrowDown":
+                      next = (index + 1) % tiles.length;
+                      break;
+                    case "ArrowLeft":
+                    case "ArrowUp":
+                      next = (index + tiles.length - 1) % tiles.length;
+                      break;
+                    default:
+                      return;
+                  }
+                  event.preventDefault();
+                  const target = tiles[next]?.item;
+                  if (target) setFocusedKey(target.key ?? target.name);
+                  ref.current?.querySelectorAll<SVGSVGElement>('[data-slot="treemap-tile"]')[next]?.focus();
+                }
+              }}
               onPointerEnter={() => onHover?.(item)}
               onClick={() => onSelect?.(key === selectedKey ? null : item)}
             >
