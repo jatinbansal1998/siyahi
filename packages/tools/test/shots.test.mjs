@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -46,6 +46,7 @@ function shoot(body, style = GEIST_PAGE, flags = []) {
   const page = path.join(dir, "page.html");
   writeFileSync(page, `<!doctype html><style>${style}</style>${body}`);
   const out = path.join(dir, "shots");
+  mkdirSync(out);
   const run = spawnSync(process.execPath, [shots, pathToFileURL(page).href, "--out", out, ...flags], {
     encoding: "utf8",
   });
@@ -62,6 +63,22 @@ function shoot(body, style = GEIST_PAGE, flags = []) {
 }
 
 describe("siyahi-shots", { timeout: 120_000 }, () => {
+  it("fails a table whose frozen column occupies most of its scrolling window", () => {
+    const run = shoot(
+      `<main style="padding:16px"><h1>Frozen table</h1><div style="overflow:auto"><table style="width:1200px;table-layout:fixed"><tr><td style="position:sticky;left:0;box-sizing:border-box;width:300px;background:white">Instrument</td><td>Value</td><td>Change</td></tr></table></div></main>`,
+    );
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain("frozen columns occupy 300 of 358px");
+  });
+
+  it("captures caller-selected intermediate widths in both schemes", () => {
+    const run = shoot('<main style="padding:16px"><h1>Tablet</h1></main>', GEIST_PAGE, ["--widths", "768,1366"]);
+    expect(run.status, run.output).toBe(0);
+    expect(run.sizesOf("768-light")).toEqual([{ width: 768, height: 1080 }]);
+    expect(run.sizesOf("1366-dark")).toEqual([{ width: 1366, height: 1080 }]);
+    expect(run.sizesOf("390-light")).toEqual([]);
+  });
+
   it("writes a page taller than 16,000px as segments that cover all of it", () => {
     const run = shoot(`<main style="box-sizing: border-box; height: 25000px; padding: 16px"><h1>Tall</h1></main>`);
     expect(run.status, run.output).toBe(0);

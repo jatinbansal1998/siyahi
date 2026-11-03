@@ -75,6 +75,27 @@ Override the locale for a whole app or a nested section:
 <SiyahiProvider locale={{ numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" }}>
 ```
 
+## Responsive behavior
+
+Data tables suspend horizontal freezing below 40rem of their own available
+space, including narrow panels on a laptop. Pinning preferences, search, sort,
+selection and expansion stay intact. All columns remain reachable by scrolling;
+the scrolling region also accepts keyboard focus. For page-specific compact
+records, choose essential columns and keep every other field in accessible
+details or an explicit full-table view.
+
+The shipped `data-table-filters` recipe moves secondary filters into a `Sheet`
+using `useDataTable().isCompact`. Configure filtering explicitly when its
+controls render conditionally. Keep search and the active-filter count visible.
+Use container queries for layout and pointer capability for touch targets;
+a touch laptop needs the same reachable controls as a phone.
+
+Ranked lists wrap long labels in narrow panels. Horizontal charts reserve space
+for bars and wrap their category labels; exact axis ticks keep their normal
+text size and scroll when necessary. Heatmap examples expose values on selection
+and support one keyboard entry with arrow navigation. `WeekdayHeatmap` accepts
+`hours` and `weekdays` to show a relevant domain without changing data labels.
+
 ## Surfaces
 
 `SiyahiProvider` sets how data blocks sit on the page:

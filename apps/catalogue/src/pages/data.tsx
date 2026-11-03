@@ -121,6 +121,7 @@ export const data: Page = {
             all. Pass total when the page narrowed the data before the table.
           </Lead>
           <Example name="data-table" />
+          <Example name="data-table-filters" />
         </>
       ),
     },
@@ -201,6 +202,7 @@ export const data: Page = {
           </Lead>
           <Example name="bar-list" />
           <Example name="bar-list-sides" />
+          <Example name="bar-list-labels" />
         </>
       ),
     },

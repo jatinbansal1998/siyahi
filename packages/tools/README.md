@@ -87,7 +87,7 @@ counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx p
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report]
+npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390]
 ```
 
 Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
@@ -116,6 +116,12 @@ scrolls sideways inside its own box is exempt from the gutter, and so is
 anything inside `--chrome` (by default the shadcn sidebar, which sits flush to
 the edge by design). The font default, Geist, is Siyahi's; pass another family
 for other pages. Run `npx playwright install chromium` once.
+
+Pass `--widths 320,390,768,1366,1920` to include small phones, tablets and laptops;
+each width runs in light and dark. The check also rejects a scrolling table whose
+frozen columns occupy more than half its available width. These captures
+complement interaction checks for scrolling, state retention, keyboard navigation
+and touch readouts.
 
 ## siyahi-contrast
 

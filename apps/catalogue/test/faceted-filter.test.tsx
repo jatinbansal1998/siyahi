@@ -16,9 +16,10 @@ afterAll(async () => {
 
 describe("faceted filter labels", { timeout: 60_000 }, () => {
   it("shows full labels and counts within the viewport, and still searches and selects", async () => {
+    const example = page.locator('#data-table [data-slot="example"]').first();
     for (const width of [1280, 390, 280]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.locator('[data-slot="popover-trigger"]').filter({ hasText: "Sector" }).click();
+      await example.locator('[data-slot="popover-trigger"]').filter({ hasText: "Sector" }).click();
       const popup = page.locator('[data-slot="popover-content"]');
       const option = popup.getByRole("option", { name: /Fast Moving Consumer Goods/ });
       await option.waitFor();
@@ -48,8 +49,8 @@ describe("faceted filter labels", { timeout: 60_000 }, () => {
       await popup.getByRole("combobox").fill("Consumer Goods");
       expect(await popup.getByRole("option").count()).toBe(1);
       await option.click();
-      expect(await page.locator("#data-table tbody tr").count()).toBe(1);
-      expect(await page.locator("#data-table tbody tr").textContent()).toContain("ITC");
+      expect(await example.locator("tbody tr").count()).toBe(1);
+      expect(await example.locator("tbody tr").textContent()).toContain("ITC");
       await page.reload();
     }
   });
