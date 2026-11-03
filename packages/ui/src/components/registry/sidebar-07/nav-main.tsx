@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "@siyahi/ui/components/ui/sidebar"
 import { ChevronRightIcon } from "lucide-react"
+import { useState } from "react"
 
 // Siyahi edit: the group label is a prop instead of the sample "Platform".
 // Siyahi edit: every item takes an icon. The sidebar collapses to a strip
@@ -46,6 +47,9 @@ export function NavMain({
   // Siyahi edit: on a phone the sidebar is a drawer, so following a link
   // closes it; upstream left it open over the page it had just opened.
   const { isMobile, setOpenMobile } = useSidebar()
+  // Siyahi edit: active routes change after mount; keep Base UI controlled
+  // while preserving groups the reader explicitly opened or closed.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const closeDrawer = () => {
     if (isMobile) setOpenMobile(false)
   }
@@ -77,7 +81,8 @@ export function NavMain({
         ) : (
           <Collapsible
             key={item.title}
-            defaultOpen={item.isActive}
+            open={expanded[item.title] ?? !!item.isActive}
+            onOpenChange={open => setExpanded(previous => ({ ...previous, [item.title]: open }))}
             className="group/collapsible"
             render={<SidebarMenuItem />}
           >

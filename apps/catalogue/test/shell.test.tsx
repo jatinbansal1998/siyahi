@@ -34,12 +34,13 @@ describe("catalogue shell", { timeout: 60_000 }, () => {
   it("fits an example's frame to its example, not to the code beside it", async () => {
     await page.evaluate(() => (location.hash = "#/data/ranked-list"));
     await page.locator('#ranked-list [data-slot="card"]').first().waitFor();
+    await page.locator("#ranked-list").getByRole("button", { name: "Show source", exact: true }).first().click();
     const frame = page
       .locator("#ranked-list > div")
       .filter({ has: page.locator('[data-slot="card"]') })
       .first();
     const sizes = await frame.evaluate((el) => {
-      const pane = el.firstElementChild as HTMLElement;
+      const pane = el.querySelector('[data-slot="example-preview"]') as HTMLElement;
       const card = pane.querySelector('[data-slot="card"]') as HTMLElement;
       const { paddingTop, paddingBottom, borderTopWidth, borderBottomWidth } = getComputedStyle(pane);
       const chrome = [paddingTop, paddingBottom, borderTopWidth, borderBottomWidth].map(parseFloat);

@@ -46,7 +46,30 @@ afterEach(async () => {
   window.happyDOM.setViewport({ width: 1024, height: 768 });
 });
 
+const groupedNav = (isActive: boolean) => [
+  {
+    title: "Data",
+    url: "#/data",
+    icon: <ChartAreaIcon />,
+    isActive,
+    items: [{ title: "Tables", url: "#/data/data-table" }],
+  },
+];
+
 describe("AppSidebar with flat items", () => {
+  it("updates active navigation groups without changing an uncontrolled default", async () => {
+    await render(shell(groupedNav(false)));
+    const error = vi.spyOn(console, "error");
+    try {
+      await act(async () => roots.at(-1)?.render(shell(groupedNav(true))));
+      const trigger = document.querySelector('[data-slot="collapsible-trigger"]');
+      expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+      expect(error.mock.calls.some(([message]) => String(message).includes("default open state"))).toBe(false);
+    } finally {
+      error.mockRestore();
+    }
+  });
+
   it("renders an item without sub-items as a link to its view", async () => {
     await render(<AppSidebarExample />);
     expect(document.querySelector('a[href="#/data"]')?.getAttribute("data-slot")).toBe("sidebar-menu-button");

@@ -16,7 +16,7 @@ afterAll(async () => {
   await catalogue?.close();
 });
 
-const example = (): Locator => page.locator("#surfaces > div:last-child > div:first-child");
+const example = (): Locator => page.locator('#surfaces [data-slot="example-preview"]');
 
 interface Box {
   fill: string;
