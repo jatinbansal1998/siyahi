@@ -96,9 +96,10 @@ export const data: Page = {
         <>
           <Lead>
             xTicks names the categories to label on BarChartCard, LineChartCard and AreaChartCard, using values from
-            xKey. Every named tick is drawn; other categories keep their marks and tooltips without an axis label. Here
-            only April is labelled across seven years of demo monthly orders. xTooltipFormatter keeps the tooltip's full
-            month even when xFormatter shortens the axis label. No xDomain is needed.
+            xKey. Every named tick is drawn at its normal text size; when all labels need more space the plot scrolls
+            inside its card. Other categories keep their marks and tooltips without an axis label. Here only April is
+            labelled across seven years of demo monthly orders. xTooltipFormatter keeps the tooltip's full month even
+            when xFormatter shortens the axis label. No xDomain is needed.
           </Lead>
           <Example name="chart-category-ticks" />
         </>

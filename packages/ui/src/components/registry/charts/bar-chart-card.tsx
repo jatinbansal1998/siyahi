@@ -23,6 +23,7 @@
 // after its series, so no bar path carries name="undefined".
 // Siyahi edit: the value axis reaches zero when no value is above it, so a
 // series of losses runs down from zero unstacked too.
+// Siyahi edit: wrapped sideways labels can grow rows without making the bars oversized.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
@@ -84,6 +85,7 @@ export function BarChartCard<T extends object, K extends keyof T>({
             dataKey={key}
             name={label}
             fill={seriesFill(item, props.data)}
+            maxBarSize={props.horizontal ? 24 : undefined}
             stackId={stacked ? "stack" : undefined}
             radius={
               !stacked

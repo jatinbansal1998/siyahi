@@ -13,6 +13,9 @@ import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider"
+// Siyahi edit: reuse the locale's compact formatter across rows and renders.
+// Siyahi edit: narrow lists wrap full labels above their bars, preserving
+// readable names and exact figures rather than clipping them inside a fill.
 import { pct } from "@siyahi/ui/lib/format"
 
 export interface BarListItem {
@@ -52,10 +55,11 @@ function BarList({
   ...props
 }: BarListProps) {
   const locale = useLocale()
-  const format =
-    valueFormatter ??
-    ((value: number) =>
-      new Intl.NumberFormat(locale.numberLocale, { notation: "compact", maximumFractionDigits: 1 }).format(value))
+  const defaultFormat = React.useMemo(
+    () => new Intl.NumberFormat(locale.numberLocale, { notation: "compact", maximumFractionDigits: 1 }).format,
+    [locale.numberLocale],
+  )
+  const format = valueFormatter ?? defaultFormat
   const items = React.useMemo(() => {
     if (sortOrder === "none") return data
     const sorted = [...data].sort((a, b) => a.value - b.value)
@@ -67,7 +71,7 @@ function BarList({
   return (
     <div
       data-slot="bar-list"
-      className={cn("flex flex-col gap-1.5", className)}
+      className={cn("@container/bar-list flex flex-col gap-1.5", className)}
       {...props}
     >
       {items.map((item) => {
@@ -80,12 +84,12 @@ function BarList({
           <div
             key={item.key ?? item.name}
             data-slot="bar-list-row"
-            className="flex items-center gap-3 text-sm"
+            className="flex items-center gap-3 text-sm @max-sm/bar-list:items-start"
           >
-            <div className="relative flex h-8 min-w-0 flex-1 items-center">
+            <div className="relative flex h-8 min-w-0 flex-1 items-center @max-sm/bar-list:h-auto @max-sm/bar-list:min-h-8 @max-sm/bar-list:items-start @max-sm/bar-list:pb-3">
               <div
                 aria-hidden="true"
-                className="absolute inset-y-0 left-0 rounded-md transition-[width] duration-300"
+                className="absolute inset-y-0 left-0 rounded-md transition-[width] duration-300 @max-sm/bar-list:inset-y-auto @max-sm/bar-list:bottom-0 @max-sm/bar-list:h-1.5"
                 style={{
                   width: `${width}%`,
                   backgroundColor: `color-mix(in oklab, ${color} 20%, transparent)`,
@@ -106,7 +110,7 @@ function BarList({
                     {item.icon}
                   </span>
                 ) : null}
-                <span className="truncate">{item.name}</span>
+                <span className="truncate @max-sm/bar-list:whitespace-normal">{item.name}</span>
               </Label>
               {item.detail ? (
                 <span

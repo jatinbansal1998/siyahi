@@ -1,6 +1,17 @@
-import type { ComponentProps, ReactNode } from "react";
+import { useMemo, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
-import { AreaChart, BarChart, CartesianGrid, LineChart, ReferenceLine, XAxis, YAxis, type YAxisProps } from "recharts";
+import {
+  AreaChart,
+  BarChart,
+  CartesianGrid,
+  LineChart,
+  ReferenceLine,
+  Text,
+  XAxis,
+  YAxis,
+  useChartWidth,
+  type YAxisProps,
+} from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import {
   Card,
@@ -85,9 +96,6 @@ export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number
 interface TickProps {
   x?: number | string;
   y?: number | string;
-  /** The axis's length; with visibleTicksCount it gives each column's width. */
-  width?: number | string;
-  visibleTicksCount?: number;
   payload?: { value?: unknown };
 }
 
@@ -104,12 +112,8 @@ function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly V[]): num
   return Math.max(24, Math.ceil((last === undefined ? 0 : xFormatter(last).length * MONO_WIDTH) / 2) + 4);
 }
 
-/** Squeezes a line into its column with SVG's own textLength when it would run into the next one. */
-const fitTo = (text: string, room: number, charWidth: number) =>
-  room > 0 && text.length * charWidth > room ? { textLength: room, lengthAdjust: "spacingAndGlyphs" as const } : {};
-
 /**
- * An x tick fitted to its column, drawn whenever a page names its ticks or gives each a second line: Recharts'
+ * An x tick with a second line or explicit position: Recharts'
  * own ticks would rather drop a label than let it run into the next. With a detail, the second line comes from the
  * tick's row; under a column the lines hang below the axis, and beside a horizontal bar they straddle its middle.
  * A two-line tick is set in Geist, not Mono: a name with a figure under it reads as a label, as in BarList, and
@@ -121,15 +125,50 @@ function fittedTick<T extends object, K extends keyof T>(
   xFormatter: (value: T[K]) => string,
   detailOf: ((row: T) => string) | undefined,
   beside: boolean,
+  labelWidth?: number,
 ) {
-  const charWidth = detailOf ? GEIST_WIDTH : MONO_WIDTH;
-  return ({ x, y, width, visibleTicksCount, payload }: TickProps) => {
+  const rows = new Map<T[K], T>();
+  for (const row of data) if (!rows.has(row[xKey])) rows.set(row[xKey], row);
+  return ({ x, y, payload }: TickProps) => {
     const value = payload?.value as T[K];
-    const row = data.find((r) => r[xKey] === value);
+    const row = rows.get(value);
     const name = xFormatter(value);
     const detail = row && detailOf ? detailOf(row) : null;
-    // Under a column each line gets its column's width, less a gap; beside a bar the axis is as wide as it needs.
-    const room = beside || !visibleTicksCount ? 0 : Number(width) / visibleTicksCount - 6;
+    if (beside) {
+      return (
+        <g className="fill-muted-foreground">
+          <Text
+            x={x}
+            y={Number(y) - (detail ? 4 : 0)}
+            width={labelWidth}
+            maxLines={2}
+            textAnchor="end"
+            verticalAnchor={detail ? "end" : "middle"}
+            lineHeight={14}
+            style={{ fontSize: "var(--text-xs)" }}
+            aria-label={name}
+            className="recharts-cartesian-axis-tick-value fill-muted-foreground"
+          >
+            {name}
+          </Text>
+          {detail !== null && (
+            <Text
+              x={x}
+              y={Number(y) + 4}
+              width={labelWidth}
+              textAnchor="end"
+              verticalAnchor="start"
+              lineHeight={14}
+              style={{ fontSize: "var(--text-xs)", fontVariantNumeric: "tabular-nums" }}
+              aria-label={detail}
+              className="fill-muted-foreground tabular-nums"
+            >
+              {detail}
+            </Text>
+          )}
+        </g>
+      );
+    }
     return (
       // Recharts measures text with this class to size an axis set to width="auto".
       <text
@@ -138,17 +177,43 @@ function fittedTick<T extends object, K extends keyof T>(
         textAnchor={beside ? "end" : "middle"}
         className={cn("recharts-cartesian-axis-tick-value fill-muted-foreground", !detailOf && "font-mono")}
       >
-        <tspan x={x} dy={beside ? -4 : 12} {...fitTo(name, room, charWidth)}>
+        <tspan x={x} dy={12}>
           {name}
         </tspan>
         {detail !== null && (
-          <tspan x={x} dy={15} className="tabular-nums" {...fitTo(detail, room, charWidth)}>
+          <tspan x={x} dy={15} className="tabular-nums">
             {detail}
           </tspan>
         )}
       </text>
     );
   };
+}
+
+function HorizontalAxis<T extends object, K extends keyof T>({
+  data,
+  xKey,
+  xFormatter,
+  xTickDetail,
+  xTicks,
+}: Pick<SeriesChartProps<T, K>, "data" | "xKey" | "xTickDetail" | "xTicks"> & {
+  xFormatter: (value: T[K]) => string;
+}) {
+  const width = Math.min(240, Math.floor((useChartWidth() ?? 320) * 0.45));
+  return (
+    <YAxis
+      dataKey={xKey as string}
+      type="category"
+      width={width}
+      tickLine={false}
+      axisLine={false}
+      tickMargin={8}
+      tickFormatter={xFormatter}
+      interval={0}
+      ticks={xTicks as (number | string)[] | undefined}
+      tick={fittedTick(data, xKey, xFormatter, xTickDetail, true, width - 16)}
+    />
+  );
 }
 
 /**
@@ -186,9 +251,29 @@ export function ChartFrame<T extends object, K extends keyof T>({
   xTicks,
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
-  const formatValue = valueFormatter ?? new Intl.NumberFormat(numberLocale).format;
+  const formatValue = useMemo(
+    () => valueFormatter ?? new Intl.NumberFormat(numberLocale).format,
+    [valueFormatter, numberLocale],
+  );
   const config: ChartConfig = Object.fromEntries(series.map(({ key, label, color }) => [key, { label, color }]));
   const crossesZero = data.some((row) => series.some(({ key }) => Number(row[key as keyof T]) < 0));
+  // Narrow panels need extra row space for complete quantitative details.
+  const detailedRows = horizontal && xTickDetail !== undefined;
+  const rowCount = (xTicks ?? data).length;
+  const plotClass = detailedRows ? "min-h-(--wrapped-chart-height) @min-[24rem]/chart:min-h-0" : undefined;
+  let minWidth: number | undefined;
+  if (!horizontal && (xTicks || xTickDetail)) {
+    const labelledValues = xTicks ?? data.map((row) => row[xKey]);
+    let tickWidth = 0;
+    for (const value of labelledValues) tickWidth = Math.max(tickWidth, xFormatter(value).length * MONO_WIDTH);
+    if (xTickDetail) for (const row of data) tickWidth = Math.max(tickWidth, xTickDetail(row).length * GEIST_WIDTH);
+    minWidth = Math.ceil((tickWidth + 12) * labelledValues.length + 64);
+  }
+  const plotStyle = {
+    height: detailedRows ? Math.max(height, rowCount * 72 + 48) : height,
+    minWidth,
+    ...(detailedRows ? { "--wrapped-chart-height": `${rowCount * 104 + 48}px` } : {}),
+  };
   return (
     <Card>
       <CardHeader>
@@ -196,16 +281,25 @@ export function ChartFrame<T extends object, K extends keyof T>({
         {description && <CardDescription>{description}</CardDescription>}
         {action && <CardAction>{action}</CardAction>}
       </CardHeader>
-      <CardContent>
+      <CardContent
+        className="@container/chart overflow-x-auto"
+        role={minWidth ? "region" : undefined}
+        aria-label={minWidth ? "Chart, scroll horizontally for all labelled values" : undefined}
+        tabIndex={minWidth ? 0 : undefined}
+      >
         {placeholder ? (
-          <div data-slot="chart-placeholder" className="flex items-center justify-center" style={{ height }}>
+          <div
+            data-slot="chart-placeholder"
+            className={cn("flex items-center justify-center", plotClass)}
+            style={plotStyle}
+          >
             {placeholder}
           </div>
         ) : (
           <ChartContainer
             config={config}
-            className={cn("aspect-auto w-full", onClick && "cursor-pointer")}
-            style={{ height }}
+            className={cn("aspect-auto w-full", plotClass, onClick && "cursor-pointer")}
+            style={plotStyle}
           >
             <Chart
               data={data}
@@ -221,17 +315,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
               {horizontal ? (
                 <>
                   <XAxis type="number" hide domain={yDomain} ticks={yTicks as number[] | undefined} />
-                  <YAxis
-                    dataKey={xKey as string}
-                    type="category"
-                    width="auto"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value: T[K]) => xFormatter(value)}
-                    tick={xTickDetail || xTicks ? fittedTick(data, xKey, xFormatter, xTickDetail, horizontal) : TICK}
-                    ticks={xTicks as (number | string)[] | undefined}
-                    interval={0}
+                  <HorizontalAxis
+                    data={data}
+                    xKey={xKey}
+                    xFormatter={xFormatter}
+                    xTickDetail={xTickDetail}
+                    xTicks={xTicks}
                   />
                 </>
               ) : (

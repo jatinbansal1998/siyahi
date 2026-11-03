@@ -73,7 +73,7 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   yDomain?: [number, number];
   /** Where the value axis puts its ticks, such as [0, 25, 50, 75, 100]. */
   yTicks?: readonly number[];
-  /** Height of the plot and legend, in pixels. */
+  /** Height of the plot and legend, in pixels. Sideways bars grow when wrapped tick details need more room. */
   height: number;
   /** A second line under each x tick, so a row's figure reads without a hover: "FY24" then "▲₹1.2L". */
   xTickDetail?: (row: T) => string;
