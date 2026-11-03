@@ -11,6 +11,26 @@ keeps pages on the theme, and a catalogue site that is the documentation.
 
 **Catalogue:** https://siyahi.jatinbansal.com
 
+## For agents
+
+Install the public Siyahi skill with the [skills CLI](https://github.com/vercel-labs/skills):
+
+```sh
+npx skills add jatinbansal1998/siyahi --skill siyahi --agent claude-code --agent codex
+```
+
+The canonical skill lives in [skills/siyahi/SKILL.md](https://github.com/jatinbansal1998/siyahi/blob/main/skills/siyahi/SKILL.md).
+It guides selection and verification; agents retain control over page structure,
+content and interactions. No other skill is required.
+
+Each npm package includes `agents/manifest.json`, generated from the **Which
+component** table below, and `agents/examples/*.tsx`, copied from the catalogue.
+The manifest indexes examples by their imports and points to compositions for a
+dashboard, table, detail section and sidebar. Read only the examples needed for
+the task. They are starting points, not fixed page templates. Inspect the
+installed package's `dist/index.d.ts` for exact prop types; do not guess APIs from
+documentation for another version. Installation and theme details remain here.
+
 ## Install
 
 Siyahi is pre-1.0; releases go out under the `next` tag. It needs React 19 and

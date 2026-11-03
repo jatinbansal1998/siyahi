@@ -19,6 +19,7 @@
     "directory": "packages/ui"
   },
   "files": [
+    "agents",
     "dist",
     "styles",
     "report.css",
@@ -32,6 +33,7 @@
     "**/*.css"
   ],
   "exports": {
+    "./agents/*": "./agents/*",
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"

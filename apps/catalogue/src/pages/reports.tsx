@@ -3,14 +3,7 @@ import reportCss from "@siyahi/ui/report.css?raw";
 import { Code } from "../code";
 import { Lead } from "../example";
 import type { Page } from "../page";
-
-const RULES = [
-  "Never paint html or body beyond the base styles report.css sets.",
-  "Fluid width. No outer card and no banner title.",
-  "A panel with its own background gets 16px padding and var(--radius).",
-  "Charts get fixed pixel heights.",
-  "Never use 100vh.",
-];
+import reportRules from "../report-rules.json";
 
 const SAMPLE = `<!doctype html>
 <html lang="en">
@@ -58,7 +51,7 @@ export const reports: Page = {
       title: "The five report rules",
       body: (
         <ol className="flex max-w-prose list-decimal flex-col gap-2 pl-5">
-          {RULES.map((rule) => (
+          {reportRules.map((rule) => (
             <li key={rule}>{rule}</li>
           ))}
         </ol>

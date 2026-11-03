@@ -74,6 +74,17 @@ runs the colour rules on them, so an add-on default must name a token.
 
 ## Before a pull request
 
+The public agent skill is owned here, at `skills/siyahi/SKILL.md`. Keep workflow
+there and component facts in the package. `pnpm generate` builds
+`agents/manifest.json` from the README's selection table and copies catalogue
+examples into the package; edit those sources, never the generated files.
+Catalogue examples must work from their shipped folder without a checkout of
+this repository. Keep exact props in the TypeScript declarations rather than
+duplicating them in the skill. Test skill discovery with
+`npx skills add . --list` and install branch changes only in a temporary home.
+Use `.github/skill-cases.json` for independent behavioral reviews: answer from
+the skill and its references, then compare against the expected decisions.
+
 ```sh
 pnpm check
 pnpm --filter @siyahi/catalogue build && pnpm --filter @siyahi/catalogue preview

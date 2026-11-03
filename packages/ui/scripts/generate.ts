@@ -12,7 +12,7 @@
 //                         packages/tools, so every tarball carries them
 //                         (MIT needs the notices to travel with the code)
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { readTheme, type Variables } from "@siyahi/tools/theme";
@@ -361,12 +361,67 @@ function barrel(): string {
 
 const fromRepo = (file: string) => () => readFileSync(path.join(repo, file), "utf8");
 
+interface AgentExample {
+  file: string;
+  components: string[];
+}
+
+const exampleDir = "apps/catalogue/src/examples";
+const examples: AgentExample[] = readdirSync(path.join(repo, exampleDir))
+  .filter((file) => file.endsWith(".tsx"))
+  .toSorted()
+  .map((file) => {
+    const source = fromRepo(`${exampleDir}/${file}`)();
+    const components = [...source.matchAll(/import\s*\{([^}]+)\}\s*from\s*"@siyahi\/ui"/g)]
+      .flatMap((match) => (match[1] ?? "").split(","))
+      .map((name) => name.trim())
+      .filter((name) => name && !name.startsWith("type "));
+    return { file: `agents/examples/${file}`, components };
+  });
+
+function agentManifest(): string {
+  const table = fromRepo("README.md")().split("## Which component\n")[1]?.split("\n## ")[0];
+  const needs = (table ?? "")
+    .split("\n")
+    .filter((line) => line.startsWith("| ") && !/^\|\s*(?:Need\s*\||-)/.test(line))
+    .map((line) => {
+      const [, need, guidance] = line.split("|").map((cell) => cell.trim());
+      const components = [...(guidance ?? "").matchAll(/`([A-Z]\w*)`/g)].map((match) => match[1]);
+      return { need, guidance, components };
+    });
+  if (!needs.length) throw new Error("README.md: missing Which component table");
+  return `${JSON.stringify(
+    {
+      generatedBy: "packages/ui/scripts/generate.ts",
+      import: "@siyahi/ui",
+      props: "dist/index.d.ts",
+      setup: "README.md#install",
+      layout: "README.md#surfaces",
+      report: "report.css",
+      reportRules: "agents/report-rules.json",
+      recipes: {
+        dashboard: "agents/examples/surfaces.tsx",
+        table: "agents/examples/data-table.tsx",
+        detail: "agents/examples/page-section.tsx",
+        shell: "agents/examples/app-sidebar.tsx",
+      },
+      needs,
+      examples,
+    },
+    null,
+    2,
+  )}\n`;
+}
+
 const outputs: Record<string, () => string> = {
   "styles/shadcn.css": shadcnCss,
   "styles/fallback-fonts.css": fallbackFontsCss,
   "report.css": reportCss,
   "registry.lock.json": registryLock,
   "src/index.ts": barrel,
+  "agents/manifest.json": agentManifest,
+  "agents/report-rules.json": fromRepo("apps/catalogue/src/report-rules.json"),
+  ...Object.fromEntries(examples.map(({ file }) => [file, fromRepo(`${exampleDir}/${path.basename(file)}`)])),
   "README.md": fromRepo("README.md"),
   LICENSE: fromRepo("LICENSE"),
   "THIRD_PARTY_NOTICES.md": fromRepo("THIRD_PARTY_NOTICES.md"),
@@ -376,6 +431,15 @@ const outputs: Record<string, () => string> = {
 
 const check = process.argv.includes("--check");
 const changed: string[] = [];
+const generatedExamples = path.join(root, "agents/examples");
+// An example deleted from the catalogue must disappear from the package too.
+const previousExamples = existsSync(generatedExamples) ? readdirSync(generatedExamples) : [];
+for (const file of previousExamples) {
+  const relative = `agents/examples/${file}`;
+  if (relative in outputs) continue;
+  changed.push(relative);
+  if (!check) rmSync(path.join(root, relative));
+}
 for (const [file, render] of Object.entries(outputs)) {
   const next = render();
   let current: string | null = null;
@@ -386,7 +450,10 @@ for (const [file, render] of Object.entries(outputs)) {
   }
   if (current === next) continue;
   changed.push(file);
-  if (!check) writeFileSync(path.join(root, file), next);
+  if (!check) {
+    mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    writeFileSync(path.join(root, file), next);
+  }
 }
 if (check && changed.length > 0) {
   console.error(`Stale generated files in packages/ui: ${changed.join(", ")}. Run \`pnpm generate\` and commit.`);

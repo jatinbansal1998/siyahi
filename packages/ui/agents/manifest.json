@@ -1,0 +1,854 @@
+{
+  "generatedBy": "packages/ui/scripts/generate.ts",
+  "import": "@siyahi/ui",
+  "props": "dist/index.d.ts",
+  "setup": "README.md#install",
+  "layout": "README.md#surfaces",
+  "report": "report.css",
+  "reportRules": "agents/report-rules.json",
+  "recipes": {
+    "dashboard": "agents/examples/surfaces.tsx",
+    "table": "agents/examples/data-table.tsx",
+    "detail": "agents/examples/page-section.tsx",
+    "shell": "agents/examples/app-sidebar.tsx"
+  },
+  "needs": [
+    {
+      "need": "Values over time or another ordered axis (months, hours, price buckets)",
+      "guidance": "`BarChartCard`, `AreaChartCard` or `LineChartCard`",
+      "components": [
+        "BarChartCard",
+        "AreaChartCard",
+        "LineChartCard"
+      ]
+    },
+    {
+      "need": "Counts or amounts per period, one series or several",
+      "guidance": "`BarChartCard`; `stacked` when the series add up to a total",
+      "components": [
+        "BarChartCard"
+      ]
+    },
+    {
+      "need": "A running level, such as a portfolio's value against money put in",
+      "guidance": "`AreaChartCard`",
+      "components": [
+        "AreaChartCard"
+      ]
+    },
+    {
+      "need": "Series compared point by point, such as a return against an index",
+      "guidance": "`LineChartCard`",
+      "components": [
+        "LineChartCard"
+      ]
+    },
+    {
+      "need": "Samples in time with limits and events marked",
+      "guidance": "`LineChartCard` with `xDomain`, `xTicks` and `referenceLines`",
+      "components": [
+        "LineChartCard"
+      ]
+    },
+    {
+      "need": "Long category names, such as sectors",
+      "guidance": "`BarChartCard` with `horizontal`",
+      "components": [
+        "BarChartCard"
+      ]
+    },
+    {
+      "need": "A gain above zero and a loss below it",
+      "guidance": "a series with `color` and `negativeColor`",
+      "components": []
+    },
+    {
+      "need": "Ranked counts or amounts by category (a name, a bar and a figure)",
+      "guidance": "`BarList`; give two lists one `max` to share a scale",
+      "components": [
+        "BarList"
+      ]
+    },
+    {
+      "need": "Where a budget sits, a split of a whole, or losses against gains",
+      "guidance": "`DistributionBar`",
+      "components": [
+        "DistributionBar"
+      ]
+    },
+    {
+      "need": "Headline figures with their change",
+      "guidance": "`SectionCards`, with a `Delta` in each badge",
+      "components": [
+        "SectionCards",
+        "Delta"
+      ]
+    },
+    {
+      "need": "Many figures of equal weight, each with its change and recent run",
+      "guidance": "`MetricStrip`",
+      "components": [
+        "MetricStrip"
+      ]
+    },
+    {
+      "need": "A run of values beside a figure, in a tile, a strip or a table cell",
+      "guidance": "`Sparkline`; in a tile, `SectionCards`' `trend`",
+      "components": [
+        "Sparkline",
+        "SectionCards"
+      ]
+    },
+    {
+      "need": "A table column that should read as a bar chart",
+      "guidance": "`DataBar` in the column's cell",
+      "components": [
+        "DataBar"
+      ]
+    },
+    {
+      "need": "One instrument's price history",
+      "guidance": "`PriceChart`",
+      "components": [
+        "PriceChart"
+      ]
+    },
+    {
+      "need": "Holdings sized by weight and coloured by change",
+      "guidance": "`Treemap`",
+      "components": [
+        "Treemap"
+      ]
+    },
+    {
+      "need": "Activity by day, by weekday and hour, or a status over time",
+      "guidance": "`CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`",
+      "components": [
+        "CalendarHeatmap",
+        "WeekdayHeatmap",
+        "StatusHeatmap"
+      ]
+    },
+    {
+      "need": "Rows to sort and filter",
+      "guidance": "`DataTable`, inside a `Card`",
+      "components": [
+        "DataTable",
+        "Card"
+      ]
+    },
+    {
+      "need": "A column that sorts on one click; a search and an \"n of m\" count",
+      "guidance": "`DataTableSortHeader`; `DataTableSearchFilter`, `DataTableRowCount`",
+      "components": [
+        "DataTableSortHeader",
+        "DataTableSearchFilter",
+        "DataTableRowCount"
+      ]
+    },
+    {
+      "need": "Stat tiles that pick a scope for the page",
+      "guidance": "`SectionCards` with `selected` and `onSelect`",
+      "components": [
+        "SectionCards"
+      ]
+    },
+    {
+      "need": "A share or a part of a whole, coloured as a gain or a loss",
+      "guidance": "`ToneProgress`",
+      "components": [
+        "ToneProgress"
+      ]
+    },
+    {
+      "need": "The colour scale under a `Treemap`",
+      "guidance": "`TreemapLegend`, with the map's `range`",
+      "components": [
+        "TreemapLegend"
+      ]
+    },
+    {
+      "need": "One part of a long page: rule, eyebrow, heading, lead, action",
+      "guidance": "`PageSection`, with `PageSubheading` inside",
+      "components": [
+        "PageSection",
+        "PageSubheading"
+      ]
+    },
+    {
+      "need": "Label and value pairs, such as a record's fields",
+      "guidance": "`DataList` and `DataListItem`",
+      "components": [
+        "DataList",
+        "DataListItem"
+      ]
+    },
+    {
+      "need": "A command or file to copy, wrapped or scrolling",
+      "guidance": "`CodeBlock` with `CodeBlockCopyButton`",
+      "components": [
+        "CodeBlock",
+        "CodeBlockCopyButton"
+      ]
+    },
+    {
+      "need": "A labelled copy action, such as \"Copy all\" for a section",
+      "guidance": "`CopyButton`",
+      "components": [
+        "CopyButton"
+      ]
+    },
+    {
+      "need": "Data blocks side by side: charts, tables, a strip of figures",
+      "guidance": "`PanelGrid`",
+      "components": [
+        "PanelGrid"
+      ]
+    },
+    {
+      "need": "Boxes back, or no lines at all, for a page or a part of one",
+      "guidance": "`SiyahiProvider` with `surface=\"card\"` or `surface=\"open\"`",
+      "components": [
+        "SiyahiProvider"
+      ]
+    },
+    {
+      "need": "A command, file or identifier inside prose",
+      "guidance": "`InlineCode`",
+      "components": [
+        "InlineCode"
+      ]
+    },
+    {
+      "need": "A signed figure (a gain, a loss, a change)",
+      "guidance": "`Delta`",
+      "components": [
+        "Delta"
+      ]
+    },
+    {
+      "need": "A time, with the viewer's own clock on hover",
+      "guidance": "`LocalTime`",
+      "components": [
+        "LocalTime"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "file": "agents/examples/accordion.tsx",
+      "components": [
+        "Accordion",
+        "AccordionContent",
+        "AccordionItem",
+        "AccordionTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/alert.tsx",
+      "components": [
+        "Alert",
+        "AlertDescription",
+        "AlertTitle"
+      ]
+    },
+    {
+      "file": "agents/examples/app-sidebar.tsx",
+      "components": [
+        "AppSidebar",
+        "SidebarProvider"
+      ]
+    },
+    {
+      "file": "agents/examples/avatar.tsx",
+      "components": [
+        "Avatar",
+        "AvatarFallback"
+      ]
+    },
+    {
+      "file": "agents/examples/badge.tsx",
+      "components": [
+        "Badge",
+        "Delta"
+      ]
+    },
+    {
+      "file": "agents/examples/bar-list-sides.tsx",
+      "components": [
+        "BarList",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/bar-list.tsx",
+      "components": [
+        "BarList",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Delta",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/breadcrumb.tsx",
+      "components": [
+        "Breadcrumb",
+        "BreadcrumbItem",
+        "BreadcrumbLink",
+        "BreadcrumbList",
+        "BreadcrumbPage",
+        "BreadcrumbSeparator"
+      ]
+    },
+    {
+      "file": "agents/examples/button.tsx",
+      "components": [
+        "Button"
+      ]
+    },
+    {
+      "file": "agents/examples/calendar.tsx",
+      "components": [
+        "Calendar"
+      ]
+    },
+    {
+      "file": "agents/examples/card.tsx",
+      "components": [
+        "Button",
+        "Card",
+        "CardAction",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-area.tsx",
+      "components": [
+        "AreaChartCard",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-bar-flows.tsx",
+      "components": [
+        "BarChartCard",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-bar-hourly.tsx",
+      "components": [
+        "BarChartCard"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-bar-losses.tsx",
+      "components": [
+        "BarChartCard",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-bar-sectors.tsx",
+      "components": [
+        "BarChartCard",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-bar-years.tsx",
+      "components": [
+        "BarChartCard",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-bar.tsx",
+      "components": [
+        "BarChartCard",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-category-ticks.tsx",
+      "components": [
+        "AreaChartCard",
+        "BarChartCard",
+        "LineChartCard"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-line-events.tsx",
+      "components": [
+        "LineChartCard"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-line-timeline.tsx",
+      "components": [
+        "LineChartCard"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-line.tsx",
+      "components": [
+        "LineChartCard",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/code-block.tsx",
+      "components": [
+        "CodeBlock",
+        "CodeBlockActions",
+        "CodeBlockContent",
+        "CodeBlockCopyButton",
+        "CodeBlockHeader",
+        "CodeBlockTitle"
+      ]
+    },
+    {
+      "file": "agents/examples/collapsible.tsx",
+      "components": [
+        "Button",
+        "Collapsible",
+        "CollapsibleContent",
+        "CollapsibleTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/command.tsx",
+      "components": [
+        "Command",
+        "CommandEmpty",
+        "CommandGroup",
+        "CommandInput",
+        "CommandItem",
+        "CommandList"
+      ]
+    },
+    {
+      "file": "agents/examples/context-menu.tsx",
+      "components": [
+        "ContextMenu",
+        "ContextMenuContent",
+        "ContextMenuItem",
+        "ContextMenuTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/copy-button.tsx",
+      "components": [
+        "CopyButton"
+      ]
+    },
+    {
+      "file": "agents/examples/data-bar.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataBar",
+        "DataTable",
+        "DataTableBody",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableSortHeader",
+        "Sparkline",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/data-table.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataTable",
+        "DataTableBody",
+        "DataTableFacetedFilter",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableRowCount",
+        "DataTableSearchFilter",
+        "DataTableSortHeader",
+        "DataTableToolbarSection",
+        "Delta",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/delta.tsx",
+      "components": [
+        "Delta"
+      ]
+    },
+    {
+      "file": "agents/examples/dialog.tsx",
+      "components": [
+        "Button",
+        "Dialog",
+        "DialogClose",
+        "DialogContent",
+        "DialogDescription",
+        "DialogFooter",
+        "DialogHeader",
+        "DialogTitle",
+        "DialogTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/distribution-bar-budget.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DistributionBar"
+      ]
+    },
+    {
+      "file": "agents/examples/distribution-bar-tug.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle",
+        "Delta",
+        "DistributionBar"
+      ]
+    },
+    {
+      "file": "agents/examples/dropdown-menu.tsx",
+      "components": [
+        "Button",
+        "DropdownMenu",
+        "DropdownMenuContent",
+        "DropdownMenuGroup",
+        "DropdownMenuItem",
+        "DropdownMenuLabel",
+        "DropdownMenuSeparator",
+        "DropdownMenuTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/formatters.tsx",
+      "components": [
+        "SiyahiProvider",
+        "Table",
+        "TableBody",
+        "TableCell",
+        "TableHead",
+        "TableHeader",
+        "TableRow",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/heatmap-calendar.tsx",
+      "components": [
+        "CalendarHeatmap",
+        "CalendarHeatmapBlock",
+        "CalendarHeatmapBody",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle"
+      ]
+    },
+    {
+      "file": "agents/examples/heatmap-status.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "StatusHeatmap",
+        "StatusHeatmapBlock",
+        "StatusHeatmapBody"
+      ]
+    },
+    {
+      "file": "agents/examples/heatmap-weekday.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "WeekdayHeatmap",
+        "WeekdayHeatmapBlock",
+        "WeekdayHeatmapBody"
+      ]
+    },
+    {
+      "file": "agents/examples/input.tsx",
+      "components": [
+        "Input",
+        "InputGroup",
+        "InputGroupAddon",
+        "InputGroupInput",
+        "Textarea"
+      ]
+    },
+    {
+      "file": "agents/examples/local-time.tsx",
+      "components": [
+        "LocalTime"
+      ]
+    },
+    {
+      "file": "agents/examples/metric-strip.tsx",
+      "components": [
+        "MetricStrip",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/page-section.tsx",
+      "components": [
+        "Button",
+        "Card",
+        "CardContent",
+        "CardHeader",
+        "CardTitle",
+        "DataList",
+        "DataListItem",
+        "InlineCode",
+        "PageSection",
+        "PageSubheading"
+      ]
+    },
+    {
+      "file": "agents/examples/popover.tsx",
+      "components": [
+        "Button",
+        "Popover",
+        "PopoverContent",
+        "PopoverDescription",
+        "PopoverHeader",
+        "PopoverTitle",
+        "PopoverTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/price-chart.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle",
+        "PriceChart"
+      ]
+    },
+    {
+      "file": "agents/examples/progress-tone.tsx",
+      "components": [
+        "ToneProgress",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/progress.tsx",
+      "components": [
+        "Progress",
+        "ProgressLabel",
+        "ProgressValue"
+      ]
+    },
+    {
+      "file": "agents/examples/scroll-area.tsx",
+      "components": [
+        "ScrollArea",
+        "Separator"
+      ]
+    },
+    {
+      "file": "agents/examples/section-cards-select.tsx",
+      "components": [
+        "Delta",
+        "SectionCards",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/section-cards-trend.tsx",
+      "components": [
+        "Delta",
+        "SectionCards",
+        "Sparkline",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/section-cards.tsx",
+      "components": [
+        "Delta",
+        "SectionCards",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/select.tsx",
+      "components": [
+        "Select",
+        "SelectContent",
+        "SelectGroup",
+        "SelectItem",
+        "SelectTrigger",
+        "SelectValue"
+      ]
+    },
+    {
+      "file": "agents/examples/separator.tsx",
+      "components": [
+        "Separator"
+      ]
+    },
+    {
+      "file": "agents/examples/sheet.tsx",
+      "components": [
+        "Button",
+        "Sheet",
+        "SheetContent",
+        "SheetDescription",
+        "SheetHeader",
+        "SheetTitle",
+        "SheetTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/skeleton.tsx",
+      "components": [
+        "Skeleton"
+      ]
+    },
+    {
+      "file": "agents/examples/slider.tsx",
+      "components": [
+        "Slider"
+      ]
+    },
+    {
+      "file": "agents/examples/surfaces.tsx",
+      "components": [
+        "BarChartCard",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "MetricStrip",
+        "PanelGrid",
+        "SiyahiProvider",
+        "Table",
+        "TableBody",
+        "TableCell",
+        "TableHead",
+        "TableHeader",
+        "TableRow",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/table.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardHeader",
+        "CardTitle",
+        "Table",
+        "TableBody",
+        "TableCell",
+        "TableHead",
+        "TableHeader",
+        "TableRow",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/tabs.tsx",
+      "components": [
+        "Tabs",
+        "TabsContent",
+        "TabsList",
+        "TabsTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/toggle-group.tsx",
+      "components": [
+        "ToggleGroup",
+        "ToggleGroupItem"
+      ]
+    },
+    {
+      "file": "agents/examples/toggle.tsx",
+      "components": [
+        "Toggle"
+      ]
+    },
+    {
+      "file": "agents/examples/tooltip.tsx",
+      "components": [
+        "Button",
+        "Tooltip",
+        "TooltipContent",
+        "TooltipTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/treemap.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Tooltip",
+        "TooltipContent",
+        "TooltipTrigger",
+        "Treemap",
+        "TreemapLegend",
+        "useFormat"
+      ]
+    }
+  ]
+}
