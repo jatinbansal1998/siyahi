@@ -173,17 +173,52 @@ describe("chart cards", { timeout: 60_000 }, () => {
       await chart.scrollIntoViewIfNeeded();
       const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
       await settled(ticks);
-      expect(await ticks.allTextContents()).toEqual(["Information Technology and Services"]);
+      expect(await ticks.first().getAttribute("aria-label")).toBe("Information Technology and Services");
       const bars = chart.locator(".recharts-bar-rectangle");
       expect(await bars.count()).toBe(3);
       const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
-      expect(grid?.width).toBeGreaterThan(0);
+      const surface = await chart.locator("svg.recharts-surface").boundingBox();
+      expect(grid?.width).toBeGreaterThan((surface?.width ?? 0) * 0.4);
       const { x, y } = await center(bars.first());
       expect(await tooltipAt(chart, x, y, "Information Technology and Services")).toEqual([
         "Information Technology and Services",
         "Orders",
         "100",
       ]);
+    } finally {
+      await page.setViewportSize(viewport);
+    }
+  });
+
+  it("keeps wrapped category names and their details apart on phones", async () => {
+    const viewport = page.viewportSize()!;
+    try {
+      for (const width of [320, 390]) {
+        await page.setViewportSize({ width, height: 844 });
+        const chart = card("Sectors against the index");
+        await chart.scrollIntoViewIfNeeded();
+        const labels = chart.locator(".recharts-yAxis-tick-labels text");
+        await settled(labels);
+        const details = await labels.evaluateAll((elements) =>
+          elements
+            .filter((_, index) => index % 2 === 1)
+            .map((element) => ({
+              visible: [...element.querySelectorAll("tspan")].map((line) => line.textContent).join(" "),
+              complete: element.getAttribute("aria-label"),
+            })),
+        );
+        for (const detail of details) expect(detail.visible).toBe(detail.complete);
+        const boxes = await labels.evaluateAll((elements) =>
+          elements.map((element) => element.getBoundingClientRect().toJSON()),
+        );
+        expect(boxes.length).toBe(12);
+        for (let index = 1; index < boxes.length; index++) {
+          expect(boxes[index]!.top).toBeGreaterThan(boxes[index - 1]!.bottom);
+        }
+        const surface = await chart.locator("svg.recharts-surface").boundingBox();
+        expect(boxes[0]!.top).toBeGreaterThanOrEqual(surface!.y);
+        expect(boxes.at(-1)!.bottom).toBeLessThanOrEqual(surface!.y + surface!.height);
+      }
     } finally {
       await page.setViewportSize(viewport);
     }
@@ -458,9 +493,9 @@ describe("chart cards", { timeout: 60_000 }, () => {
   it("horizontal bars put the categories down the left, each name beside its own bars", async () => {
     const chart = card("Sectors against the index");
     await chart.scrollIntoViewIfNeeded();
-    const names = chart.locator(".recharts-yAxis-tick-labels text tspan:first-child");
+    const names = chart.locator(".recharts-yAxis-tick-labels text.recharts-cartesian-axis-tick-value");
     await settled(names);
-    expect(await names.allTextContents()).toEqual([
+    expect(await names.evaluateAll((els) => els.map((el) => el.getAttribute("aria-label")))).toEqual([
       "Financial Services",
       "Information Technology",
       "Oil, Gas & Consumable Fuels",
@@ -482,7 +517,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(lefts.size).toBe(1);
   });
 
-  it("two-line ticks take the muted tick colour and fit their columns on a narrow phone", async () => {
+  it("two-line ticks remain readable and do not overlap in a narrow scrolling chart", async () => {
     const chart = card("Realized by financial year");
     const fill = (selector: string) =>
       chart
@@ -501,7 +536,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     });
     expect(await fill(".recharts-xAxis-tick-labels text")).toBe(muted);
     expect(await fill(".recharts-yAxis-tick-labels text")).toBe(muted);
-    // 320px, the narrowest phones: five years with figures under them would run into each other unsqueezed.
+    // Exact ticks retain their natural glyph width; the chart scrolls when they need more space.
     await page.setViewportSize({ width: 320, height: 900 });
     try {
       await chart.scrollIntoViewIfNeeded();

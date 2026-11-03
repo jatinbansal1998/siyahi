@@ -5,7 +5,7 @@ const largestLosses = [
   { name: "ITC", value: 18400, detail: <Delta value={-0.062} /> },
   { name: "HDFCBANK", value: 12900, detail: <Delta value={-0.047} /> },
   { name: "WIPRO", value: 7600, detail: <Delta value={-0.072} /> },
-  { name: "ASIANPAINT", value: 4100, detail: <Delta value={-0.06} /> },
+  { name: "Asian Paints (India)", value: 4100, detail: <Delta value={-0.06} /> },
 ];
 
 export default function BarListExample() {
