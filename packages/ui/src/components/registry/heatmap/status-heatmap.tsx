@@ -2,11 +2,14 @@
 // Origin: https://shadcn-heatmap.pages.dev/r/status-heatmap.json
 // Licence: MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE
 // Copied: 2026-10-20, sha256 9ab8be330eaa760a6e177722e799fc3a10288567eec47885eb65a6fdba666b06
+// Siyahi edit: the surrounding card owns padding; the heatmap body owns scrolling.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { createContext, Fragment, use, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
+// Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
+import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
 
 // Status values. 0 is reserved for no-data. Defaults: 1=critical, 2=degraded, 3=healthy.
 // Extend by passing `colors` / `labels.statuses` keyed by the numeric value.
@@ -290,7 +293,7 @@ export const StatusHeatmap = ({
     <StatusHeatmapContext value={contextValue}>
       <div
         data-slot="status-heatmap"
-        className={cn("flex w-max max-w-full flex-col gap-2 p-4", className)}
+        className={cn("flex w-max max-w-full flex-col gap-2", className)}
         style={{ fontSize, ...style }}
         {...props}
       >
@@ -410,6 +413,7 @@ export const StatusHeatmapBody = ({
   children,
   ...props
 }: StatusHeatmapBodyProps) => {
+  const navigation = useHeatmapNavigation();
   const {
     data,
     dates,
@@ -449,8 +453,10 @@ export const StatusHeatmapBody = ({
   return (
     <div
       data-slot="status-heatmap-body"
+      ref={navigation.ref}
       className={cn("max-w-full overflow-x-auto overflow-y-hidden", className)}
       {...props}
+      onKeyDown={(event) => { props.onKeyDown?.(event); if (!event.defaultPrevented) navigation.onKeyDown(event); }}
     >
       <svg
         role="img"

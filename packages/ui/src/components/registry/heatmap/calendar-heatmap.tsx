@@ -2,6 +2,7 @@
 // Origin: https://shadcn-heatmap.pages.dev/r/calendar-heatmap.json
 // Licence: MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE
 // Copied: 2026-10-20, sha256 93e31382cd9323695a69611c1323b1d31b84cf7157a0557d686d706fefdb371e
+// Siyahi edit: the surrounding card owns padding; the heatmap body owns scrolling.
 import type { Locale, Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
@@ -18,6 +19,8 @@ import {
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { createContext, Fragment, use, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
+// Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
+import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
 
 export type Activity = {
   date: string;
@@ -595,7 +598,7 @@ export const CalendarHeatmap = ({
     <CalendarHeatmapContext value={contextValue}>
       <div
         data-slot="calendar-heatmap"
-        className={cn("flex w-max max-w-full flex-col gap-2 p-4", className)}
+        className={cn("flex w-max max-w-full flex-col gap-2", className)}
         style={{ fontSize, ...style }}
         {...props}
       >
@@ -734,6 +737,7 @@ export const CalendarHeatmapBody = ({
   renderYearFooter,
   ...props
 }: CalendarHeatmapBodyProps) => {
+  const navigation = useHeatmapNavigation();
   const {
     yearRows,
     blockSize,
@@ -783,11 +787,13 @@ export const CalendarHeatmapBody = ({
   return (
     <div
       data-slot="calendar-heatmap-body"
+      ref={navigation.ref}
       className={cn(
         "flex max-w-full flex-col gap-6 overflow-x-auto overflow-y-hidden py-4",
         className,
       )}
       {...props}
+      onKeyDown={(event) => { props.onKeyDown?.(event); if (!event.defaultPrevented) navigation.onKeyDown(event); }}
     >
       {rowData.map(({ yearRow, height, monthLabels, yearTotalCount }) => (
         <div key={`year-row-${yearRow.year}`}>

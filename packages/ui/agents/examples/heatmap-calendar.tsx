@@ -1,7 +1,9 @@
+import { useState } from "react";
 import {
   CalendarHeatmap,
   CalendarHeatmapBlock,
   CalendarHeatmapBody,
+  useFormat,
   Card,
   CardContent,
   CardDescription,
@@ -18,20 +20,30 @@ const data = Array.from({ length: 365 }, (_, i) => {
 });
 
 export default function HeatmapCalendarExample() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const { count } = useFormat();
   return (
     <Card>
       <CardHeader>
         <CardTitle>Trades per day</CardTitle>
         <CardDescription>Counts use a single-hue fade of --chart-1</CardDescription>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
+      <CardContent>
         <CalendarHeatmap data={data}>
           <CalendarHeatmapBody>
             {({ activity, dayIndex, weekIndex }) => (
-              <CalendarHeatmapBlock activity={activity} dayIndex={dayIndex} weekIndex={weekIndex} />
+              <CalendarHeatmapBlock
+                activity={activity}
+                dayIndex={dayIndex}
+                weekIndex={weekIndex}
+                onCellClick={(cell) => setSelected(`${cell.date}: ${count(cell.value)} trades`)}
+              />
             )}
           </CalendarHeatmapBody>
         </CalendarHeatmap>
+        <p aria-live="polite" className="mt-3 text-sm">
+          {selected ?? "Select a day for its trade count. Use arrow keys to move between days."}
+        </p>
       </CardContent>
     </Card>
   );
