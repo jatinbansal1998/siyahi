@@ -404,6 +404,8 @@ function agentManifest(): string {
       recipes: {
         dashboard: "agents/examples/surfaces.tsx",
         table: "agents/examples/data-table.tsx",
+        filters: "agents/examples/data-table-filters.tsx",
+        rankedLabels: "agents/examples/bar-list-labels.tsx",
         detail: "agents/examples/page-section.tsx",
         shell: "agents/examples/app-sidebar.tsx",
       },

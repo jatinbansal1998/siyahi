@@ -37,15 +37,7 @@ import { parseArgs } from "node:util";
 import { chromium, errors } from "playwright";
 
 /** @typedef {{ name: string, width: number, height: number, dark: boolean }} Mode */
-/** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, clipped: string[], font: string, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
-
-/** @type {Mode[]} */
-const MODES = [
-  { name: "1920-light", width: 1920, height: 1080, dark: false },
-  { name: "1920-dark", width: 1920, height: 1080, dark: true },
-  { name: "390-light", width: 390, height: 844, dark: false },
-  { name: "390-dark", width: 390, height: 844, dark: true },
-];
+/** @typedef {{ gutterLeft: number | null, gutterRight: number | null, overflow: number, overflowWithScrollbar: number, clipped: string[], frozen: string[], font: string, fontLoaded: boolean, docHeight: number, h1: string | null }} Probe */
 // How long --wait-for may take to appear before the mode fails.
 const WAIT_FOR_TIMEOUT = 15_000;
 // Tallest PNG written. Headless Chromium renders taller pages, but many image
@@ -61,15 +53,30 @@ const { values, positionals } = parseArgs({
     chrome: { type: "string", default: '[data-slot="sidebar"]' },
     "wait-for": { type: "string", default: "h1" },
     report: { type: "boolean", default: false },
+    widths: { type: "string", default: "1920,390" },
   },
 });
 if (positionals.length === 0) {
   console.error(
-    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report]",
+    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390]",
   );
   process.exit(2);
 }
 const outDir = path.resolve(values.out);
+const widths = values.widths.split(",").map(Number);
+if (widths.some((width) => !Number.isInteger(width) || width < 240 || width > 3840)) {
+  console.error("--widths must be comma-separated pixel widths between 240 and 3840");
+  process.exit(2);
+}
+/** @type {Mode[]} */
+const MODES = [...new Set(widths)].flatMap((width) =>
+  [false, true].map((dark) => ({
+    name: `${width}-${dark ? "dark" : "light"}`,
+    width,
+    height: width < 768 ? 844 : 1080,
+    dark,
+  })),
+);
 const minGutter = Number(values.gutter);
 const waitFor = values["wait-for"];
 mkdirSync(outDir, { recursive: true });
@@ -134,6 +141,18 @@ const PROBE = `((chrome) => {
   const overflowWithScrollbar = de.scrollWidth - de.clientWidth;
   de.style.overflowY = prev;
   const font = getComputedStyle(document.body).fontFamily;
+  const frozen = [];
+  for (const table of document.querySelectorAll("table")) {
+    let container = table.parentElement;
+    while (container && !["auto", "scroll"].includes(getComputedStyle(container).overflowX)) container = container.parentElement;
+    if (!container || container.scrollWidth <= container.clientWidth) continue;
+    const cells = [...(table.querySelector("tbody tr")?.children ?? [])];
+    const pinned = cells.filter((cell) => getComputedStyle(cell).position === "sticky");
+    const occupied = pinned.reduce((sum, cell) => sum + cell.getBoundingClientRect().width, 0);
+    if (pinned.length < cells.length && occupied > container.clientWidth / 2) {
+      frozen.push("frozen columns occupy " + Math.round(occupied) + " of " + container.clientWidth + "px; unpin them in narrow space");
+    }
+  }
   const first = font.split(",")[0].trim().replace(/^["']|["']$/g, "");
   const h1 = document.querySelector("h1");
   return {
@@ -142,6 +161,7 @@ const PROBE = `((chrome) => {
     overflow,
     overflowWithScrollbar,
     clipped,
+    frozen,
     font: first,
     fontLoaded: document.fonts.check('16px "' + first + '"') && [...document.fonts].some((f) => f.family.replace(/["']/g, "") === first && f.status === "loaded"),
     docHeight: de.scrollHeight,
@@ -224,6 +244,7 @@ function problemsOf(p, ready) {
   if (p.overflowWithScrollbar > 0)
     problems.push(`scrolls sideways by ${p.overflowWithScrollbar}px once a scrollbar takes its width`);
   for (const what of p.clipped.slice(0, 5)) problems.push(what);
+  problems.push(...p.frozen);
   if (p.clipped.length > 5) problems.push(`and ${p.clipped.length - 5} more cut off`);
   if (!p.font.startsWith(values.font)) problems.push(`body font is ${p.font}, not ${values.font}`);
   else if (!p.fontLoaded && !values.report) problems.push(`${p.font} is named but never loaded`);

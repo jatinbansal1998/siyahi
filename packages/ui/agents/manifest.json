@@ -9,6 +9,8 @@
   "recipes": {
     "dashboard": "agents/examples/surfaces.tsx",
     "table": "agents/examples/data-table.tsx",
+    "filters": "agents/examples/data-table-filters.tsx",
+    "rankedLabels": "agents/examples/bar-list-labels.tsx",
     "detail": "agents/examples/page-section.tsx",
     "shell": "agents/examples/app-sidebar.tsx"
   },
@@ -232,6 +234,38 @@
       "components": [
         "LocalTime"
       ]
+    },
+    {
+      "need": "Tables inside narrow panels or on phones",
+      "guidance": "`DataTable` suspends horizontal freezing below 40rem of table space; retain every field through scrolling, or compose essential columns and accessible record details in the page",
+      "components": [
+        "DataTable"
+      ]
+    },
+    {
+      "need": "Table filters that crowd a phone toolbar",
+      "guidance": "Compose `Sheet` with `DataTableFacetedFilter`; useDataTable().isCompact follows the table container. Set DataTableRoot config.enableFilters explicitly when controls are conditional",
+      "components": [
+        "Sheet",
+        "DataTableFacetedFilter"
+      ]
+    },
+    {
+      "need": "Long ranked labels in a narrow panel",
+      "guidance": "`BarList` wraps full names above their bars in narrow space; multi-series comparisons remain on `BarChartCard`",
+      "components": [
+        "BarList",
+        "BarChartCard"
+      ]
+    },
+    {
+      "need": "Heatmap cells on touch screens or with a keyboard",
+      "guidance": "`CalendarHeatmap`, `WeekdayHeatmap` and `StatusHeatmap` use onCellClick with a visible readout; arrows navigate one tab entry. WeekdayHeatmap hours and weekdays choose the displayed domain",
+      "components": [
+        "CalendarHeatmap",
+        "WeekdayHeatmap",
+        "StatusHeatmap"
+      ]
     }
   ],
   "examples": [
@@ -271,6 +305,18 @@
       "components": [
         "Badge",
         "Delta"
+      ]
+    },
+    {
+      "file": "agents/examples/bar-list-labels.tsx",
+      "components": [
+        "BarList",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "useFormat"
       ]
     },
     {
@@ -480,6 +526,35 @@
         "DataTableSortHeader",
         "Sparkline",
         "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/data-table-filters.tsx",
+      "components": [
+        "Button",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataTable",
+        "DataTableBody",
+        "DataTableFacetedFilter",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableRowCount",
+        "DataTableSearchFilter",
+        "DataTableSortHeader",
+        "DataTableToolbarSection",
+        "Sheet",
+        "SheetClose",
+        "SheetContent",
+        "SheetDescription",
+        "SheetFooter",
+        "SheetHeader",
+        "SheetTitle",
+        "SheetTrigger",
+        "useDataTable"
       ]
     },
     {

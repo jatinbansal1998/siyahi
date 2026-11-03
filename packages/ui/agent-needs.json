@@ -118,5 +118,21 @@
   {
     "need": "A time, with the viewer's own clock on hover",
     "guidance": "`LocalTime`"
+  },
+  {
+    "need": "Tables inside narrow panels or on phones",
+    "guidance": "`DataTable` suspends horizontal freezing below 40rem of table space; retain every field through scrolling, or compose essential columns and accessible record details in the page"
+  },
+  {
+    "need": "Table filters that crowd a phone toolbar",
+    "guidance": "Compose `Sheet` with `DataTableFacetedFilter`; useDataTable().isCompact follows the table container. Set DataTableRoot config.enableFilters explicitly when controls are conditional"
+  },
+  {
+    "need": "Long ranked labels in a narrow panel",
+    "guidance": "`BarList` wraps full names above their bars in narrow space; multi-series comparisons remain on `BarChartCard`"
+  },
+  {
+    "need": "Heatmap cells on touch screens or with a keyboard",
+    "guidance": "`CalendarHeatmap`, `WeekdayHeatmap` and `StatusHeatmap` use onCellClick with a visible readout; arrows navigate one tab entry. WeekdayHeatmap hours and weekdays choose the displayed domain"
   }
 ]
