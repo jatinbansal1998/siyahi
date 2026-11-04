@@ -2,6 +2,8 @@
 
 ## 0.1.9
 
+- The compact table-filter example keeps search on its own full-width row on
+  phones, leaving room to type beside the secondary filter controls.
 - The public `siyahi` skill guides agents through the installed package's
   generated component index and catalogue examples. The package ships those
   examples and the report layout rules, so discovery needs no local checkout.

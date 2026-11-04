@@ -8,6 +8,21 @@ beforeAll(async () => {
 afterAll(async () => catalogue?.close());
 
 describe("touch controls", () => {
+  it("keeps the compact example search readable on a narrow phone", async () => {
+    const { page } = catalogue;
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.goto(`${new URL(page.url()).origin}/#/data/data-table`);
+    const search = page.getByRole("textbox", { name: "Search compact example" });
+    await search.waitFor({ state: "visible" });
+    await expect.poll(() => search.evaluate((el) => el.getBoundingClientRect().width)).toBeGreaterThanOrEqual(200);
+    await search.fill("INFY");
+    const table = page.getByRole("region", { name: "Holdings with compact filters" });
+    await expect.poll(() => table.locator("tbody tr").count()).toBe(1);
+    expect(await table.textContent()).toContain("INFY");
+    await search.fill("");
+    await page.setViewportSize({ width: 390, height: 844 });
+  });
+
   it("gives touch controls a finger-sized target without relying on screen width", async () => {
     const sort = catalogue.page.locator('#data-table th[data-col-id="value"] button');
     await sort.waitFor();
