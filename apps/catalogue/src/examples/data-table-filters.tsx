@@ -87,7 +87,7 @@ export default function DataTableFiltersExample() {
             <DataTableSearchFilter
               label="Search compact example"
               placeholder="Search holdings…"
-              className="w-full sm:w-64"
+              className="w-full flex-none sm:w-64"
             />
             <Filters />
             <DataTableRowCount unit="holdings" />
