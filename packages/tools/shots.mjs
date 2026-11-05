@@ -107,6 +107,15 @@ const PROBE = `((chrome) => {
       (style.clipPath === "inset(50%)" || style.clip === "rect(0px, 0px, 0px, 0px)");
     return r.width > 0 && r.height > 0 && !el.closest(chrome) && style.visibility !== "hidden" && !hiddenControl;
   };
+  // Tailwind's sr-only (and a closed dialog's title kept for screen readers) clips to nothing, so it has no place
+  // in the gutter; the cut-off check still sees it, as a clipped visible control must not slip through.
+  const screenReaderOnly = (el) => {
+    for (let node = el; node; node = node.parentElement) {
+      const style = getComputedStyle(node);
+      if (style.clip === "rect(0px, 0px, 0px, 0px)" || style.clipPath === "inset(50%)") return true;
+    }
+    return false;
+  };
   // Pixels of el cut off at the side by an ancestor that hides its overflow,
   // and how it hides it, up to the nearest one that scrolls, which shows the
   // rest on scroll.
@@ -124,7 +133,7 @@ const PROBE = `((chrome) => {
   };
   const visible = [...document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,[data-slot="card"]')].filter((el) => {
     const r = el.getBoundingClientRect();
-    return shown(el) && r.right > 0 && r.left < de.clientWidth && !scrollsSideways(el);
+    return shown(el) && !screenReaderOnly(el) && r.right > 0 && r.left < de.clientWidth && !scrollsSideways(el);
   });
   // Badges, card titles and descriptions are spans and divs, which the tag list misses.
   const clipped = [...document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,a,button,input,select,textarea,label,[data-slot="badge"],[data-slot="card-title"],[data-slot="card-description"]')]

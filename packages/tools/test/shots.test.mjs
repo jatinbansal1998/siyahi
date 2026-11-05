@@ -119,6 +119,15 @@ describe("siyahi-shots", { timeout: 120_000 }, () => {
     for (const { name } of MODES) expect(run.output).toMatch(new RegExp(name + " .*clipped=0"));
   });
 
+  it("leaves screen-reader-only text out of the gutter, as a closed dialog's title", () => {
+    const run = shoot(`<main style="padding: 16px"><h1>Page</h1>
+      <div style="position: absolute; left: 0; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0)">
+        <h2>Search the catalogue</h2><p>Find a page by name</p>
+      </div></main>`);
+    expect(run.status, run.output).toBe(0);
+    for (const { name } of MODES) expect(run.output).toMatch(new RegExp(name + " .*gutter=16/"));
+  });
+
   it("still checks visible aria-hidden controls and descendants of aria-hidden containers", () => {
     const run = shoot(`<main style="padding: 16px"><h1>Visible controls</h1>
       <div style="width: 100px; overflow: hidden">
