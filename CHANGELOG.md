@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- `AppSidebar` reaches the bottom of the screen on a phone in landscape. Core
+  sized the fixed sidebar with `h-svh`, the height with the browser's bars
+  shown, so it stopped short once Safari hid them; it now passes `h-auto` and
+  lets `inset-y-0` size it. Shipped in `0.1.9-next.20`.
 - The compact table-filter example keeps search on its own full-width row on
   phones, leaving room to type beside the secondary filter controls.
 - The public `siyahi` skill guides agents through the installed package's
