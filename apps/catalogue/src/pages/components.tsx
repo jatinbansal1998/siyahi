@@ -21,7 +21,7 @@ const display: Entry[] = [
   [
     "button",
     "Button",
-    'Primary is the indigo accent, one per view, for the action the reader came to take. Secondary actions are outline buttons with an icon. variant="link" is shadcn\'s underlined --primary text; a link in prose is <a className="text-link">.',
+    'Primary is black on white and white on black, one per view, for the action the reader came to take. Secondary actions are outline buttons with an icon. variant="link" is shadcn\'s underlined --primary text; a link in prose is <a className="text-link">.',
   ],
   [
     "badge",

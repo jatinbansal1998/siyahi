@@ -93,8 +93,8 @@ export const foundations: Page = {
       body: (
         <>
           <Lead>
-            shadcn's neutral greys in both schemes with one accent, ink indigo, on primary buttons, the selected item,
-            focus rings, links and the first chart series. The scheme follows the device.
+            shadcn's neutral greys in both schemes. Ink indigo is placed, not spread: links, focus rings, the selected
+            sidebar item and the first chart series. The scheme follows the device.
           </Lead>
           <div className={grid}>
             {SURFACES.map((s) => (

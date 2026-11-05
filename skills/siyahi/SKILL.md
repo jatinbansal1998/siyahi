@@ -48,9 +48,9 @@ layouts and product-specific logic belong in the consuming app.
   `className` for layout; keep colours and typography on the theme.
 - Charts use the chart cards and their supported props, not page-local
   Recharts axes, grids or tooltips. Match charts to the manifest's `needs`.
-- Use semantic colour tokens; categories remain neutral. No gradients. The
-  accent (`primary`, `accent`, `ring`, `link`) marks what the reader acts with;
-  place it, do not spread it.
+- Use semantic colour tokens; categories remain neutral. No gradients. Ink
+  indigo lives in `link`, `ring`, the sidebar's selected item and `chart-1`;
+  place it, do not spread it. Buttons, badges and toggles stay monochrome.
   Numbers use `useFormat()`, changes use `Delta`; do not replace the formatters
   with bare `toLocaleString()`. Prose uses `max-w-prose`.
 - The installed README owns surfaces, chart colours, locale and dark mode.

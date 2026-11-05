@@ -17,7 +17,7 @@ export interface PageTocProps {
 
 /**
  * A long page's sections as one sticky strip of links. It stays at the top while the reader scrolls, marks the
- * section in view in the accent, and scrolls sideways on a phone with the current link kept in sight.
+ * section in view in the link colour, and scrolls sideways on a phone with the current link kept in sight.
  */
 export function PageToc({ items, label = "On this page", className }: PageTocProps) {
   const active = useActiveSection(items);
@@ -47,7 +47,7 @@ export function PageToc({ items, label = "On this page", className }: PageTocPro
               event.preventDefault();
               document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="shrink-0 rounded-md px-2.5 py-1 text-sm whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground aria-[current=location]:bg-accent aria-[current=location]:text-accent-foreground"
+            className="shrink-0 rounded-md px-2.5 py-1 text-sm whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground aria-[current=location]:bg-muted aria-[current=location]:font-medium aria-[current=location]:text-link"
           >
             {item.title}
           </a>
