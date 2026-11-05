@@ -24,7 +24,7 @@ export interface SectionProps {
 /** A titled part of a page; its id is the `#/<page>/<id>` anchor. */
 export function Section({ id, title, children }: SectionProps) {
   return (
-    <section id={id} className="flex scroll-mt-20 flex-col gap-4">
+    <section id={id} className="flex scroll-mt-28 flex-col gap-4">
       <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
       {children}
     </section>

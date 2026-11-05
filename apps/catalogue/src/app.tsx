@@ -1,4 +1,5 @@
 import { Section } from "./example";
+import { PageToc } from "@siyahi/ui";
 import { Suspense } from "react";
 import type { Page } from "./page";
 import { blocks } from "./pages/blocks";
@@ -38,13 +39,7 @@ export function App() {
           </a>
         ) : (
           page.sections.length > 2 && (
-            <nav aria-label="On this page" className="flex max-w-prose flex-wrap gap-x-4 gap-y-1 text-sm">
-              {page.sections.map((s) => (
-                <a key={s.id} href={`#/${page.id}/${s.id}`} className="text-link">
-                  {s.title}
-                </a>
-              ))}
-            </nav>
+            <PageToc items={page.sections.map(({ id, title }) => ({ id, title }))} className="top-14" />
           )
         )}
         {sections.map((s) => (

@@ -92,7 +92,10 @@ export const foundations: Page = {
       title: "Colours",
       body: (
         <>
-          <Lead>shadcn's stock neutral theme in both schemes. The scheme follows the device.</Lead>
+          <Lead>
+            shadcn's neutral greys in both schemes with one accent, ink indigo, on primary buttons, the selected item,
+            focus rings, links and the first chart series. The scheme follows the device.
+          </Lead>
           <div className={grid}>
             {SURFACES.map((s) => (
               <Swatch key={s.name} {...s} />

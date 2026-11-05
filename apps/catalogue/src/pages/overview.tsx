@@ -10,7 +10,7 @@ const RULES = [
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws the dashed horizontal grid, the tooltip and the legend below; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
   "Tables are the registry data table, inside a Card.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
-  "Four meaning colours: positive, negative, warning, link. Nothing else is coloured.",
+  "One accent, ink indigo, marks what the reader acts with: primary buttons, the selected item, focus, links and the first chart series. Three meaning colours, positive, negative and warning, carry gains, losses and caution. Everything else is neutral grey.",
   "Notices are shadcn Alert, used as shipped: default for information, destructive for errors. Warnings are the default variant with an amber icon, coloured text-warning! (the ! outranks Alert's own icon colour).",
   "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
   "Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows the device, reduced motion honoured.",
