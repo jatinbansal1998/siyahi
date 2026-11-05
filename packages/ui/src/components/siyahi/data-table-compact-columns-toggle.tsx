@@ -10,7 +10,7 @@ export function DataTableCompactColumnsToggle() {
   const { collapsed, setCollapsed } = compactColumns;
   return (
     <Button variant="outline" size="sm" aria-pressed={!collapsed} onClick={() => setCollapsed(!collapsed)}>
-      {collapsed ? "All columns" : "Key columns"}
+      {collapsed ? `All columns (+${compactColumns.hidden.size})` : "Key columns"}
     </Button>
   );
 }
