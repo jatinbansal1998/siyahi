@@ -9,10 +9,10 @@ const data = [
   { month: "Oct", value: 4512300, invested: 4025000 },
 ];
 
-// Drawn in this order, so value sits over the money put in.
+// The first series fills; the money put in draws as a line over it.
 const series: ChartSeries<(typeof data)[number]> = [
-  { key: "invested", label: "Invested", color: "var(--chart-2)" },
   { key: "value", label: "Value", color: "var(--chart-1)" },
+  { key: "invested", label: "Invested", color: "var(--chart-2)" },
 ];
 
 export default function ChartAreaExample() {

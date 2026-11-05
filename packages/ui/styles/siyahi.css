@@ -222,6 +222,19 @@
   border-color: var(--foreground);
 }
 
+/*
+ * A number column (meta.variant "number") right-aligns its head and cells, so
+ * figures line up by their units down the column, as a ledger reads.
+ */
+:is([data-slot="table-head"], [data-slot="table-cell"])[data-numeric] {
+  text-align: right;
+}
+[data-slot="table-head"][data-numeric] > *,
+[data-slot="table-cell"][data-numeric] > :is(div, span)[class*="flex"] {
+  justify-content: flex-end;
+  margin-inline-start: auto;
+}
+
 /* Touch targets follow input capability, including touch laptops. */
 @media (pointer: coarse) {
   :is(

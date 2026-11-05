@@ -53,8 +53,9 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   /** One Bar, Area or Line per series. */
   children: ReactNode;
   /**
-   * Bars run sideways: the categories go down the left, where long names fit, and the value axis is hidden, as
-   * in shadcn's chart-bar-horizontal. x and y keep their meaning: x is the category, y the value.
+   * Bars run sideways: the categories go down the left, where long names fit, as in shadcn's
+   * chart-bar-horizontal. The value axis runs along the bottom when yTickFormatter is given, and is hidden
+   * otherwise. x and y keep their meaning: x is the category, y the value.
    */
   horizontal?: boolean;
   /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
@@ -314,7 +315,18 @@ export function ChartFrame<T extends object, K extends keyof T>({
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
               {horizontal ? (
                 <>
-                  <XAxis type="number" hide domain={yDomain} ticks={yTicks as number[] | undefined} />
+                  {/* The value axis shows along the bottom once a page gives it a tick format to read by. */}
+                  <XAxis
+                    type="number"
+                    hide={!yTickFormatter}
+                    domain={yDomain}
+                    ticks={yTicks as number[] | undefined}
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={yTickFormatter}
+                    tick={TICK}
+                  />
                   <HorizontalAxis
                     data={data}
                     xKey={xKey}

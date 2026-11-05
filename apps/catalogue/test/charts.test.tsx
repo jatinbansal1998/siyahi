@@ -116,7 +116,8 @@ const quarterLines = (quarter: string, ...values: string[]) => [
   quarter,
   ...["Equity", "Debt", "Gold", "Cash", "REITs"].flatMap((label, i) => [label, values[i] ?? ""]),
 ];
-const valueLines = (month: string, invested: string, value: string) => [month, "Invested", invested, "Value", value];
+// The tooltip lists the series in their order: value first, then the money put in.
+const valueLines = (month: string, invested: string, value: string) => [month, "Value", value, "Invested", invested];
 const returnLines = (month: string, portfolio: string, index: string) => [
   month,
   "Portfolio",

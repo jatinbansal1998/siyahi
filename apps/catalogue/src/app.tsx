@@ -43,7 +43,8 @@ export function App() {
           </a>
         ) : (
           page.sections.length > 2 && (
-            <PageToc items={page.sections.map(({ id, title }) => ({ id, title }))} className="top-14" />
+            // On wider screens the sidebar already lists these sections; the strip serves the phone, where it is a drawer.
+            <PageToc items={page.sections.map(({ id, title }) => ({ id, title }))} className="top-14 md:hidden" />
           )
         )}
         {sections.map((s) => (

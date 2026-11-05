@@ -7,6 +7,8 @@
 // Siyahi edit: the card, axes, dashed grid, tooltip and legend come from
 // lib/chart-frame, shared with BarChartCard and LineChartCard. The axes keep
 // Recharts' default ids, which a page can no longer change (dash#88).
+// Siyahi edit: overlapping (unstacked) areas fill only the first series; the
+// others draw as lines, so fills never mix where they cross.
 // Siyahi edit: areas overlap by default, each drawn over the one before;
 // `stacked` stacks them as the block does. Curves are monotone, not natural,
 // so a curve never overshoots past a data point.
@@ -41,13 +43,14 @@ export function AreaChartCard<T extends object, K extends keyof T>({
 }: AreaChartCardProps<T, K>) {
   return (
     <ChartFrame chart={AreaChart} {...props}>
-      {props.series.map(({ key, color }) => (
+      {/* Overlapping fills mix into mud where they cross, so only the first series fills; the rest are lines over it. */}
+      {props.series.map(({ key, color }, index) => (
         <Area
           key={key}
           dataKey={key}
           type={curve}
           fill={color}
-          fillOpacity={stacked ? 0.4 : 0.2}
+          fillOpacity={stacked ? 0.4 : index === 0 ? 0.2 : 0}
           stroke={color}
           stackId={stacked ? "stack" : undefined}
         />

@@ -1,5 +1,5 @@
 import { cn } from "cn";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 
 export interface PageTocItem {
   /** The `id` of the PageSection it jumps to. */
@@ -20,7 +20,8 @@ export interface PageTocProps {
  * section in view in the link colour, and scrolls sideways on a phone with the current link kept in sight.
  */
 export function PageToc({ items, label = "On this page", className }: PageTocProps) {
-  const active = useActiveSection(items);
+  const nav = useRef<HTMLElement>(null);
+  const active = useActiveSection(items, nav);
   const strip = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const link = strip.current?.querySelector<HTMLElement>(`a[href="#${CSS.escape(active ?? "")}"]`);
@@ -32,6 +33,7 @@ export function PageToc({ items, label = "On this page", className }: PageTocPro
   }, [active]);
   return (
     <nav
+      ref={nav}
       aria-label={label}
       data-slot="page-toc"
       className={cn("sticky top-0 z-10 -mx-4 border-b bg-background px-4 sm:mx-0 sm:px-0", className)}
@@ -57,23 +59,30 @@ export function PageToc({ items, label = "On this page", className }: PageTocPro
   );
 }
 
-// The section whose heading last crossed the top fifth of the screen; the first one until any has.
-function useActiveSection(items: PageTocItem[]): string | undefined {
+// The last section the reader has scrolled to: the one they are in. A fixed band of the viewport would lag behind
+// the sticky strip and mark the section above it.
+function useActiveSection(items: PageTocItem[], strip: RefObject<HTMLElement | null>): string | undefined {
   const [active, setActive] = useState(items[0]?.id);
-  // Callers pass a fresh array each render; observe again only when the sections change.
+  // Callers pass a fresh array each render; listen again only when the sections change.
   const ids = items.map((item) => item.id).join(" ");
   useEffect(() => {
     const sections = ids.split(" ").flatMap((id) => document.getElementById(id) ?? []);
     if (sections.length === 0) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting);
-        if (visible.length > 0) setActive(visible[0]!.target.id);
-      },
-      { rootMargin: "0px 0px -80% 0px" },
-    );
-    for (const section of sections) observer.observe(section);
-    return () => observer.disconnect();
-  }, [ids]);
+    const update = () => {
+      const stripBottom = strip.current?.getBoundingClientRect().bottom ?? 0;
+      // The reading line: a third of the way down the window, never above the strip or a jump's stopping point.
+      const line = (section: HTMLElement) =>
+        Math.max(stripBottom, Number.parseFloat(getComputedStyle(section).scrollMarginTop) || 0, innerHeight * 0.3);
+      const reached = sections.filter((section) => section.getBoundingClientRect().top <= line(section) + 1);
+      setActive((reached.at(-1) ?? sections[0])!.id);
+    };
+    update();
+    addEventListener("scroll", update, { passive: true, capture: true });
+    addEventListener("resize", update);
+    return () => {
+      removeEventListener("scroll", update, { capture: true });
+      removeEventListener("resize", update);
+    };
+  }, [ids, strip]);
   return active;
 }
