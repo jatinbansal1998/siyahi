@@ -310,7 +310,11 @@ export function ChartFrame<T extends object, K extends keyof T>({
               // Selection reads the hovered category in this event; defer no pointer updates.
               throttledEvents={onClick ? [] : undefined}
               // Bottom-axis ticks need room at the right end; sideways labels already have the left axis.
-              margin={{ left: 0, right: !horizontal && xTicks ? endRoom(xFormatter, xTicks) : 8 }}
+              // A sideways chart's value axis ends in a centred tick label, which needs room past the plot.
+              margin={{
+                left: 0,
+                right: !horizontal && xTicks ? endRoom(xFormatter, xTicks) : horizontal && yTickFormatter ? 28 : 8,
+              }}
             >
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
               {horizontal ? (

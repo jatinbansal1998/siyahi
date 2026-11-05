@@ -462,16 +462,18 @@ describe("chart cards", { timeout: 60_000 }, () => {
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
-    const opacities = async () => {
+    // A faded bar mixes toward the card, opaque, so it stays readable on a dark card.
+    const faded = async () => {
       await settled(bars);
-      return bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity")));
+      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("fill") ?? "").startsWith("color-mix")));
     };
-    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
+    const none = [false, false, false, false, false];
+    expect(await faded()).toEqual(none);
     await bars.nth(2).click();
-    expect(await opacities()).toEqual(["0.35", "0.35", "1", "0.35", "0.35"]);
+    expect(await faded()).toEqual([true, true, false, true, true]);
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await bars.nth(2).click();
-    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
+    expect(await faded()).toEqual(none);
   });
 
   it("selects the full highlighted category outside the bar", async () => {
@@ -487,8 +489,8 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await page.mouse.click(x, grid.y + 2);
     await expect
-      .poll(() => bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity"))))
-      .toEqual(["1", "1", "1", "1", "1"]);
+      .poll(() => bars.evaluateAll((els) => els.some((el) => (el.getAttribute("fill") ?? "").startsWith("color-mix"))))
+      .toBe(false);
   });
 
   it("horizontal bars put the categories down the left, each name beside its own bars", async () => {

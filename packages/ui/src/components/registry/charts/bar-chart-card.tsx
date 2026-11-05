@@ -18,6 +18,8 @@
 // as shadcn's chart-bar-horizontal does, for long names such as sectors.
 // Siyahi edit: a stack runs negative values down from zero and positive ones
 // up, so money out sits below the line rather than hanging from money in.
+// Siyahi edit: an unselected bar mixes 55% toward the card rather than fading
+// to 35% opacity, so it stays readable on a dark card.
 // Siyahi edit: a series whose bars are all below zero takes its negativeColor
 // as the Bar's fill, so its legend chip matches the bars; each Bar is named
 // after its series, so no bar path carries name="undefined".
@@ -50,6 +52,11 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
 const DOWN_FROM_ZERO: YAxisProps["domain"] = ["auto", 0]
 
 /** Values over an ordered axis as bars: one series, or several grouped or stacked. */
+// An unselected bar mixes toward the card instead of turning see-through: at
+// low opacity a mid-lightness colour all but vanishes on a dark card.
+const dimUnselected = (color: string, isSelected: boolean) =>
+  isSelected ? color : `color-mix(in oklab, ${color} 55%, var(--card))`
+
 export function BarChartCard<T extends object, K extends keyof T>({
   stacked = false,
   selected = null,
@@ -101,14 +108,12 @@ export function BarChartCard<T extends object, K extends keyof T>({
               props.data.map((row, i) => (
                 <Cell
                   key={i}
-                  fill={
+                  fill={dimUnselected(
                     negativeColor && Number(row[key as keyof T]) < 0
                       ? negativeColor
-                      : color
-                  }
-                  fillOpacity={
-                    selected === null || row[props.xKey] === selected ? 1 : 0.35
-                  }
+                      : color,
+                    selected === null || row[props.xKey] === selected,
+                  )}
                 />
               ))}
           </Bar>
