@@ -32,10 +32,20 @@ export function App() {
           <h1 className="text-3xl font-semibold tracking-tight">{page.title}</h1>
           <p className="max-w-prose text-muted-foreground">{page.lead}</p>
         </div>
-        {selected && (
+        {selected ? (
           <a href={`#/${page.id}`} className="text-link">
             All {page.title} examples
           </a>
+        ) : (
+          page.sections.length > 2 && (
+            <nav aria-label="On this page" className="flex max-w-prose flex-wrap gap-x-4 gap-y-1 text-sm">
+              {page.sections.map((s) => (
+                <a key={s.id} href={`#/${page.id}/${s.id}`} className="text-link">
+                  {s.title}
+                </a>
+              ))}
+            </nav>
+          )
         )}
         {sections.map((s) => (
           <Section key={s.id} id={s.id} title={s.title}>

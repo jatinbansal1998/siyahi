@@ -281,3 +281,53 @@
     gap: calc(var(--spacing) * 4);
   }
 }
+
+/*
+ * A table that scrolls sideways fades at the edge with more columns behind it,
+ * so a phone reader sees there is more without a visible scrollbar. The fade
+ * follows the scroll position; a table that fits has no timeline and no fade.
+ */
+@property --table-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --table-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes table-edge-fade {
+  0% {
+    --table-fade-start: 0px;
+    --table-fade-end: 2rem;
+  }
+  8%,
+  92% {
+    --table-fade-start: 2rem;
+    --table-fade-end: 2rem;
+  }
+  100% {
+    --table-fade-start: 2rem;
+    --table-fade-end: 0px;
+  }
+}
+@layer base {
+  [data-slot="table-container"] {
+    mask-image: linear-gradient(
+      to right,
+      rgb(0 0 0 / 0.2),
+      #000 var(--table-fade-start),
+      #000 calc(100% - var(--table-fade-end)),
+      rgb(0 0 0 / 0.2)
+    );
+    animation: table-edge-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+  /* Scroll position, not motion: the reduced-motion reset above must not collapse it. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot="table-container"] {
+      animation-duration: auto !important;
+    }
+  }
+}

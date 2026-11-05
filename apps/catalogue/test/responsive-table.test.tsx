@@ -58,6 +58,22 @@ describe("responsive table", () => {
     expect(await scroll.evaluate((el) => el === document.activeElement)).toBe(true);
   }, 30_000);
 
+  it("fades the edge a narrow table can still scroll toward, and not a table that fits", async () => {
+    const { page } = catalogue;
+    await page.setViewportSize({ width: 390, height: 844 });
+    const fade = (name: string) =>
+      page
+        .locator('#data-table [data-slot="card"]', { hasText: name })
+        .first()
+        .locator('[data-slot="table-container"]')
+        .evaluate((el) => [
+          getComputedStyle(el).getPropertyValue("--table-fade-start"),
+          getComputedStyle(el).getPropertyValue("--table-fade-end"),
+        ]);
+    await expect.poll(() => fade("Search every column")).toEqual(["0px", "32px"]);
+    expect(await fade("Holdings on a phone")).toEqual(["0px", "0px"]);
+  });
+
   it("shows only the key columns on a phone until the reader asks for all of them", async () => {
     const { page } = catalogue;
     const card = page.locator('#data-table [data-slot="card"]', { hasText: "Holdings on a phone" });
