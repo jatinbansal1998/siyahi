@@ -24,7 +24,7 @@ describe("touch controls", () => {
   });
 
   it("gives touch controls a finger-sized target without relying on screen width", async () => {
-    const sort = catalogue.page.locator('#data-table th[data-col-id="value"] button');
+    const sort = catalogue.page.locator('#data-table th[data-col-id="value"] button').first();
     await sort.waitFor();
     expect((await sort.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   });

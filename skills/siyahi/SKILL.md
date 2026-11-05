@@ -62,6 +62,9 @@ layouts and product-specific logic belong in the consuming app.
 - Include relevant loading, empty and error states. Use the package parts
   available in the installed version and do not invent an unsupported `status`
   prop. Explain units and unfamiliar labels in the page.
+- A table wider than a phone marks the columns that answer its question with
+  `meta.compact` and puts `DataTableCompactColumnsToggle` in its toolbar, so a
+  phone shows those first instead of scrolling the answer out of view.
 
 When reusable UI behaviour is missing, add it to Siyahi rather than recreating
 it in each app. Read the source repository's CONTRIBUTING.md: shadcn first,

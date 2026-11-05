@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 844e0dc6da405c5478dc429d17fb57582ac84ecf6cacf624078b98f3e21368f8
+// Siyahi edit: the root holds whether the table is compact; a compact table
+// shows only its `meta.compact` columns until the reader asks for all of them.
 import {
   useTable,
   type ColumnDef,
@@ -37,8 +39,10 @@ import { globalFilter as globalFilterFn } from "../lib/filter-functions"
 import {
   type DataTableColumnDef,
   type DataTableColumns,
+  type DataTableInstance,
   type GlobalFilter,
 } from "../types"
+import { collapsedVisibility } from "@siyahi/ui/lib/compact-columns"
 import { DataTableProvider } from "./data-table-context"
 
 /**
@@ -557,8 +561,29 @@ function DataTableRootInternal<TData extends RowData>({
 
   // Extract controlled-state slices for the tableOptions dep array.
   const controlledSorting = restState?.sorting ?? sorting
-  const controlledColumnVisibility =
+  const [isCompact, setIsCompact] = React.useState(false)
+  const [showAllColumns, setShowAllColumns] = React.useState(false)
+  const requestedColumnVisibility =
     restState?.columnVisibility ?? columnVisibility
+  const collapsedColumnVisibility = React.useMemo(
+    () => collapsedVisibility(columns, requestedColumnVisibility),
+    [columns, requestedColumnVisibility],
+  )
+  const collapsed =
+    isCompact && !showAllColumns && collapsedColumnVisibility !== null
+  const controlledColumnVisibility = collapsed
+    ? collapsedColumnVisibility
+    : requestedColumnVisibility
+  const compactColumns = React.useMemo(
+    () =>
+      isCompact && collapsedColumnVisibility !== null
+        ? {
+            collapsed: !showAllColumns,
+            setCollapsed: (value: boolean) => setShowAllColumns(!value),
+          }
+        : null,
+    [isCompact, collapsedColumnVisibility, showAllColumns],
+  )
   const controlledRowSelection = restState?.rowSelection ?? rowSelection
   const controlledColumnFilters = restState?.columnFilters ?? columnFilters
   const controlledGlobalFilter =
@@ -807,6 +832,39 @@ function DataTableRootInternal<TData extends RowData>({
       table={table}
       columns={processedColumns as DataTableColumnDef<TData>[]}
       isLoading={isLoading}
+      isCompact={isCompact}
+      onCompactChange={setIsCompact}
+      compactColumns={compactColumns}
+    >
+      <TooltipProvider {...tooltipProviderDelay}>
+        <div className={cn("w-full min-w-0 space-y-4", className)}>
+          {children}
+        </div>
+      </TooltipProvider>
+    </DataTableProvider>
+  )
+}
+
+// A caller-owned table keeps its own column visibility; it is measured for
+// compact layouts but never collapsed to its `meta.compact` columns.
+function ExternalTableRoot<TData extends RowData>({
+  table,
+  columns,
+  children,
+  className,
+  isLoading,
+}: Pick<TableRootProps<TData>, "columns" | "children" | "className" | "isLoading"> & {
+  table: DataTableInstance<TData>
+}) {
+  const [isCompact, setIsCompact] = React.useState(false)
+  return (
+    <DataTableProvider
+      table={table}
+      columns={columns as DataTableColumnDef<TData>[]}
+      isLoading={isLoading}
+      isCompact={isCompact}
+      onCompactChange={setIsCompact}
+      compactColumns={null}
     >
       <TooltipProvider {...tooltipProviderDelay}>
         <div className={cn("w-full min-w-0 space-y-4", className)}>
@@ -827,20 +885,16 @@ export function DataTableRoot<TData extends RowData>({
   isLoading,
   ...rest
 }: TableRootProps<TData>) {
-  // If a table instance is provided, use it directly (no hooks needed)
   if (externalTable) {
     return (
-      <DataTableProvider
+      <ExternalTableRoot
         table={externalTable}
-        columns={columns as DataTableColumnDef<TData>[]}
+        columns={columns}
+        className={className}
         isLoading={isLoading}
       >
-        <TooltipProvider {...tooltipProviderDelay}>
-          <div className={cn("w-full min-w-0 space-y-4", className)}>
-            {children}
-          </div>
-        </TooltipProvider>
-      </DataTableProvider>
+        {children}
+      </ExternalTableRoot>
     )
   }
 

@@ -2,8 +2,9 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 ec7759ad942364a4ab9636029bfb4f3f7f2f1f7d09508947e544d064b291998a
-// Siyahi edit: observe the table's available space once; narrow tables suspend
-// horizontal freezing while retaining the requested pinning for wider layouts.
+// Siyahi edit: narrow tables suspend horizontal freezing
+// while retaining the requested pinning for wider layouts, and expose the
+// compact-columns toggle.
 "use client"
 
 /**
@@ -17,6 +18,7 @@
  * users (and future LLMs reading this code) benefit:
  * https://github.com/Semkoo/niko-table-registry
  */
+import { useCompactWidth } from "@siyahi/ui/lib/compact-columns"
 import React, {
   createContext,
   useCallback,
@@ -131,6 +133,11 @@ type DataTableContextProps<TData extends RowData> = DataTableContextState & {
   scrollContainer: HTMLElement | null
   /** True below 40rem of table space; use for compact toolbar and record layouts. */
   isCompact: boolean
+  /**
+   * Set while the table is compact and some column sets `meta.compact`:
+   * `collapsed` means only those columns show. Null otherwise.
+   */
+  compactColumns: CompactColumns | null
   /** Internal: `<DataTable>` registers its scroll container element here. */
   registerScrollContainer: (el: HTMLElement | null) => void
   /**
@@ -270,11 +277,19 @@ function deriveInitialState(isLoading?: boolean): DataTableContextState {
   }
 }
 
+export interface CompactColumns {
+  collapsed: boolean
+  setCollapsed: (collapsed: boolean) => void
+}
+
 interface DataTableProviderProps<TData extends RowData> {
   children: React.ReactNode
   table: DataTableInstance<TData>
   columns?: DataTableColumnDef<TData>[]
   isLoading?: boolean
+  isCompact: boolean
+  onCompactChange: (isCompact: boolean) => void
+  compactColumns: CompactColumns | null
 }
 
 /**
@@ -329,6 +344,9 @@ export function DataTableProvider<TData extends RowData>({
   table,
   columns,
   isLoading: externalIsLoading,
+  isCompact,
+  onCompactChange,
+  compactColumns,
 }: DataTableProviderProps<TData>) {
   const [state, dispatch] = useReducer(
     dataTableReducer,
@@ -359,25 +377,7 @@ export function DataTableProvider<TData extends RowData>({
     (el: HTMLElement | null) => setScrollContainer(el),
     [],
   )
-  const [isCompact, setIsCompact] = React.useState(false)
-  React.useLayoutEffect(() => {
-    if (!scrollContainer) return
-    const measure = () => {
-      const width = scrollContainer.clientWidth
-      if (width > 0) {
-        const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
-        setIsCompact(width < 40 * rem)
-      }
-    }
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(scrollContainer)
-    window.addEventListener("resize", measure)
-    return () => {
-      observer.disconnect()
-      window.removeEventListener("resize", measure)
-    }
-  }, [scrollContainer])
+  useCompactWidth(scrollContainer, onCompactChange)
   const scrollRowIntoView = useCallback<ScrollRowIntoView>((index, opts) => {
     if (rowScrollerRef.current) {
       rowScrollerRef.current(index, opts)
@@ -619,6 +619,7 @@ export function DataTableProvider<TData extends RowData>({
         registerRowScroller,
         scrollContainer,
         isCompact,
+        compactColumns,
         registerScrollContainer,
         headerMinWidths,
         setColumnResizePreview: setManualResizePreview,
@@ -639,6 +640,7 @@ export function DataTableProvider<TData extends RowData>({
       registerRowScroller,
       scrollContainer,
       isCompact,
+      compactColumns,
       registerScrollContainer,
       headerMinWidths,
       setManualResizePreview,

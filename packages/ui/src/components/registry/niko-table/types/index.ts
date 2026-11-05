@@ -2,6 +2,7 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 17856adbce037e757ea5989bbd742a0d9fb8881dc83357339c66ba37b9b695a0
+// Siyahi edit: `meta.compact` marks the columns a compact table keeps.
 import * as React from "react"
 import {
   type Cell,
@@ -52,6 +53,15 @@ declare module "@tanstack/react-table" {
      * `TableMeta.disableFlexFill`.
      */
     flex?: boolean
+    /**
+     * Keep this column when the table is compact (narrower than 40rem, as on a
+     * phone). Once any column sets it, a compact table shows only those columns
+     * until the reader presses `<DataTableCompactColumnsToggle />`. Mark the
+     * few a reader needs to answer the table's question: the name and its
+     * result. Read `useDataTable().compactColumns?.collapsed` in a cell to fold
+     * a hidden figure under a kept one.
+     */
+    compact?: boolean
 
     // Filtering
     variant?: FilterVariant

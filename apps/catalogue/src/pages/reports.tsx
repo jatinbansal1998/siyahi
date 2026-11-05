@@ -42,7 +42,7 @@ export const reports: Page = {
             no network requests. Copy it from @siyahi/ui/report.css into the report's style tag at write time, so each
             report is a dated, self-contained snapshot.
           </Lead>
-          <Code>{reportCss}</Code>
+          <Code className="max-h-96">{reportCss}</Code>
         </>
       ),
     },

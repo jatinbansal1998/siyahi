@@ -122,6 +122,13 @@ export const data: Page = {
           </Lead>
           <Example name="data-table" />
           <Example name="data-table-filters" />
+          <Lead>
+            On a phone, scrolling sideways hides the figure a reader came for. Mark the few columns that answer the
+            table's question with meta.compact, and below 40rem only those show; DataTableCompactColumnsToggle in the
+            toolbar switches to all columns and back. A cell can read useDataTable().compactColumns to fold a hidden
+            figure under a kept one.
+          </Lead>
+          <Example name="data-table-compact" />
         </>
       ),
     },
