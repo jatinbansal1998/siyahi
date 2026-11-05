@@ -2,8 +2,8 @@
 // Origin: https://niko-table.com/r/data-table.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 844e0dc6da405c5478dc429d17fb57582ac84ecf6cacf624078b98f3e21368f8
-// Siyahi edit: the root holds whether the table is compact; a compact table
-// shows only its `meta.compact` columns until the reader asks for all of them.
+// Siyahi edit: the root holds the table's width; columns that do not fit hide,
+// rightmost first and never a `meta.compact` one, until the reader asks for all.
 import {
   useTable,
   type ColumnDef,
@@ -42,7 +42,7 @@ import {
   type DataTableInstance,
   type GlobalFilter,
 } from "../types"
-import { collapsedVisibility } from "@siyahi/ui/lib/compact-columns"
+import { fitColumns, isCompactWidth } from "@siyahi/ui/lib/compact-columns"
 import { DataTableProvider } from "./data-table-context"
 
 /**
@@ -561,28 +561,34 @@ function DataTableRootInternal<TData extends RowData>({
 
   // Extract controlled-state slices for the tableOptions dep array.
   const controlledSorting = restState?.sorting ?? sorting
-  const [isCompact, setIsCompact] = React.useState(false)
+  const [tableWidth, setTableWidth] = React.useState(0)
+  const isCompact = isCompactWidth(tableWidth)
   const [showAllColumns, setShowAllColumns] = React.useState(false)
   const requestedColumnVisibility =
     restState?.columnVisibility ?? columnVisibility
-  const collapsedColumnVisibility = React.useMemo(
-    () => collapsedVisibility(columns, requestedColumnVisibility),
-    [columns, requestedColumnVisibility],
+  const requestedColumnOrder = restState?.columnOrder ?? columnOrder
+  const fitted = React.useMemo(
+    () =>
+      fitColumns(
+        columns,
+        requestedColumnOrder,
+        requestedColumnVisibility,
+        tableWidth,
+      ),
+    [columns, requestedColumnOrder, requestedColumnVisibility, tableWidth],
   )
-  const collapsed =
-    isCompact && !showAllColumns && collapsedColumnVisibility !== null
-  const controlledColumnVisibility = collapsed
-    ? collapsedColumnVisibility
-    : requestedColumnVisibility
+  const controlledColumnVisibility =
+    fitted && !showAllColumns ? fitted.visibility : requestedColumnVisibility
   const compactColumns = React.useMemo(
     () =>
-      isCompact && collapsedColumnVisibility !== null
+      fitted && fitted.hidden.size > 0
         ? {
             collapsed: !showAllColumns,
+            hidden: showAllColumns ? NOTHING_HIDDEN : fitted.hidden,
             setCollapsed: (value: boolean) => setShowAllColumns(!value),
           }
         : null,
-    [isCompact, collapsedColumnVisibility, showAllColumns],
+    [fitted, showAllColumns],
   )
   const controlledRowSelection = restState?.rowSelection ?? rowSelection
   const controlledColumnFilters = restState?.columnFilters ?? columnFilters
@@ -833,7 +839,7 @@ function DataTableRootInternal<TData extends RowData>({
       columns={processedColumns as DataTableColumnDef<TData>[]}
       isLoading={isLoading}
       isCompact={isCompact}
-      onCompactChange={setIsCompact}
+      onWidthChange={setTableWidth}
       compactColumns={compactColumns}
     >
       <TooltipProvider {...tooltipProviderDelay}>
@@ -856,14 +862,15 @@ function ExternalTableRoot<TData extends RowData>({
 }: Pick<TableRootProps<TData>, "columns" | "children" | "className" | "isLoading"> & {
   table: DataTableInstance<TData>
 }) {
-  const [isCompact, setIsCompact] = React.useState(false)
+  const [tableWidth, setTableWidth] = React.useState(0)
+  const isCompact = isCompactWidth(tableWidth)
   return (
     <DataTableProvider
       table={table}
       columns={columns as DataTableColumnDef<TData>[]}
       isLoading={isLoading}
       isCompact={isCompact}
-      onCompactChange={setIsCompact}
+      onWidthChange={setTableWidth}
       compactColumns={null}
     >
       <TooltipProvider {...tooltipProviderDelay}>
@@ -874,6 +881,8 @@ function ExternalTableRoot<TData extends RowData>({
     </DataTableProvider>
   )
 }
+
+const NOTHING_HIDDEN: ReadonlySet<string> = new Set()
 
 // Main wrapper component
 export function DataTableRoot<TData extends RowData>({

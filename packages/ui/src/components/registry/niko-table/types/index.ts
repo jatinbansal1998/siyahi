@@ -54,12 +54,12 @@ declare module "@tanstack/react-table" {
      */
     flex?: boolean
     /**
-     * Keep this column when the table is compact (narrower than 40rem, as on a
-     * phone). Once any column sets it, a compact table shows only those columns
-     * until the reader presses `<DataTableCompactColumnsToggle />`. Mark the
-     * few a reader needs to answer the table's question: the name and its
-     * result. Read `useDataTable().compactColumns?.collapsed` in a cell to fold
-     * a hidden figure under a kept one.
+     * Never hide this column to fit. Once any column sets it, a table whose
+     * columns do not fit its width hides the others, rightmost first, until
+     * they do, and `<DataTableCompactColumnsToggle />` shows them all again.
+     * Mark the few a reader needs to answer the table's question: the name and
+     * its result. Read `useDataTable().compactColumns?.hidden` in a cell to
+     * fold a hidden figure under a kept one.
      */
     compact?: boolean
 

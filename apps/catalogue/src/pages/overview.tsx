@@ -5,7 +5,7 @@ import { Lead } from "../example";
 import type { Page } from "../page";
 
 const RULES = [
-  "A panel holds data, prose sits on the page. On the default ruled surface a data block has no box; blocks side by side go in a PanelGrid, which parts them with hairlines. One level of panel.",
+  "A panel holds data, prose sits on the page. By default a data block is a card raised off the faintly tinted canvas; a ruled surface takes the box off and parts blocks with hairlines in a PanelGrid. One level of panel.",
   "A stat tile is SectionCards from shadcn's dashboard block: muted label, outline badge, value, bold line, muted line. Many figures of equal weight go in one MetricStrip instead.",
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws the dashed horizontal grid, the tooltip and the legend below; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
   "Tables are the registry data table, inside a Card.",
@@ -14,7 +14,7 @@ const RULES = [
   "Notices are shadcn Alert, used as shipped: default for information, destructive for errors. Warnings are the default variant with an amber icon, coloured text-warning! (the ! outranks Alert's own icon colour).",
   "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
   "Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows the device, reduced motion honoured.",
-  "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables show their meta.compact columns with an All columns toggle (the rest scroll inside the card, the edge fading where more columns wait), sidebar becomes a drawer.",
+  "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables hide columns that do not fit, never their meta.compact ones, behind an All columns toggle, sidebar becomes a drawer.",
 ];
 
 // Where a developer goes for a task, before the setup details.

@@ -84,7 +84,7 @@ describe("surfaces", { timeout: 60_000 }, () => {
     await pick("Ruled");
   });
 
-  it("is ruled outside any provider too", async () => {
+  it("is a card outside any provider", async () => {
     const corner = await example()
       .locator('[data-slot="card"]', { hasText: "Holdings" })
       .evaluate((card) => {
@@ -93,7 +93,7 @@ describe("surfaces", { timeout: 60_000 }, () => {
         copy.remove();
         return result;
       });
-    expect(corner).toBe("0px");
+    expect(corner).not.toBe("0px");
   });
 
   it("keeps a picked SectionCards tile's ring on a ruled page", async () => {

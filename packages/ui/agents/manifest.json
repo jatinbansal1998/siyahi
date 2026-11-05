@@ -801,6 +801,7 @@
       "components": [
         "Delta",
         "SectionCards",
+        "SiyahiProvider",
         "useFormat"
       ]
     },

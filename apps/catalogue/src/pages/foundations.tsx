@@ -25,11 +25,11 @@ const MEANING = [
   { name: "link", swatch: "bg-link", text: "text-link", sample: "Open the statement" },
 ];
 const CHART = [
-  { name: "chart-1", swatch: "bg-chart-1", hue: "blue" },
-  { name: "chart-2", swatch: "bg-chart-2", hue: "emerald" },
-  { name: "chart-3", swatch: "bg-chart-3", hue: "amber" },
-  { name: "chart-4", swatch: "bg-chart-4", hue: "violet" },
-  { name: "chart-5", swatch: "bg-chart-5", hue: "rose" },
+  { name: "chart-1", swatch: "bg-chart-1", hue: "indigo" },
+  { name: "chart-2", swatch: "bg-chart-2", hue: "amber" },
+  { name: "chart-3", swatch: "bg-chart-3", hue: "plum" },
+  { name: "chart-4", swatch: "bg-chart-4", hue: "sky" },
+  { name: "chart-5", swatch: "bg-chart-5", hue: "teal" },
 ];
 const TYPE = [
   { name: "text-xs", className: "text-xs", note: "12px: ticks, captions" },
@@ -130,25 +130,17 @@ export const foundations: Page = {
       body: (
         <>
           <Lead>
-            Five hues in the same order in both schemes. Each slot reaches 3:1 against the card and against the slots
-            next to it, which only lightness can give, so emerald and violet are the deep members. Slots two apart share
-            a lightness and are told apart by hue, so series take slots in order. Every value is inside sRGB.
+            Five hues in the same order in both schemes, with no green or red, so no series reads as a gain or a loss.
+            Each slot reaches 3:1 against the card and against the slots next to it, which only lightness can give, so
+            indigo, plum and teal are the deep members in light and the pale ones in dark. Slots two apart share a
+            lightness and are told apart by hue, so series take slots in order. Every value is inside sRGB.
           </Lead>
           <div className={grid}>
             {CHART.map((c) => (
               <Swatch key={c.name} name={c.name} swatch={c.swatch} note={c.hue} />
             ))}
           </div>
-          <Card>
-            <CardContent className="flex h-24 flex-row items-end gap-2">
-              {CHART.map((c, i) => (
-                <div
-                  key={c.name}
-                  className={`flex-1 rounded-t-sm ${c.swatch} ${["h-1/2", "h-3/4", "h-full", "h-2/3", "h-5/6"][i]}`}
-                />
-              ))}
-            </CardContent>
-          </Card>
+          <Example name="chart-bar" />
         </>
       ),
     },
@@ -243,12 +235,12 @@ export const foundations: Page = {
       body: (
         <>
           <Lead>
-            How a data block sits on the page, set by SiyahiProvider's surface. Ruled, the default, takes the box off
-            every card and draws a hairline between the blocks of a PanelGrid, with a rule above and below it: one
-            surface, parted by lines, as on a trading screen. Open drops the lines too, and the card's padding, so a
-            block's content sits level with the page's text, for pages read top to bottom. Card gives shadcn's own card
-            back, a filled box with a 1px ring. A nested provider sets the surface for one part of a page. A picked
-            SectionCards tile keeps its ring on every surface.
+            How a data block sits on the page, set by SiyahiProvider's surface. Card, the default, is shadcn's own card,
+            a white box with a 1px ring on the faintly tinted canvas, so data reads as raised off the page. Ruled takes
+            the box off every card and draws a hairline between the blocks of a PanelGrid: one surface, parted by lines,
+            as on a trading screen. Open drops the lines too, and the card's padding, so a block's content sits level
+            with the page's text, for pages read top to bottom. A nested provider sets the surface for one part of a
+            page. A picked SectionCards tile keeps its ring on every surface.
           </Lead>
           <Example name="surfaces" />
         </>

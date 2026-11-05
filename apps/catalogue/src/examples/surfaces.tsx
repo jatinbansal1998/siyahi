@@ -89,7 +89,7 @@ function Dashboard() {
 }
 
 export default function SurfacesExample() {
-  const [surface, setSurface] = useState<Surface>("ruled");
+  const [surface, setSurface] = useState<Surface>("card");
   return (
     <div className="flex flex-col gap-4">
       <ToggleGroup

@@ -18,7 +18,7 @@
  * users (and future LLMs reading this code) benefit:
  * https://github.com/Semkoo/niko-table-registry
  */
-import { useCompactWidth } from "@siyahi/ui/lib/compact-columns"
+import { useTableWidth } from "@siyahi/ui/lib/compact-columns"
 import React, {
   createContext,
   useCallback,
@@ -134,8 +134,8 @@ type DataTableContextProps<TData extends RowData> = DataTableContextState & {
   /** True below 40rem of table space; use for compact toolbar and record layouts. */
   isCompact: boolean
   /**
-   * Set while the table is compact and some column sets `meta.compact`:
-   * `collapsed` means only those columns show. Null otherwise.
+   * Set while some columns do not fit and the table has `meta.compact`
+   * columns: they hide, rightmost first, until the reader asks for all.
    */
   compactColumns: CompactColumns | null
   /** Internal: `<DataTable>` registers its scroll container element here. */
@@ -278,7 +278,10 @@ function deriveInitialState(isLoading?: boolean): DataTableContextState {
 }
 
 export interface CompactColumns {
+  /** True while columns are hidden to fit; false once the reader shows them all. */
   collapsed: boolean
+  /** The columns hidden to fit right now, for a cell to fold one under a kept figure. */
+  hidden: ReadonlySet<string>
   setCollapsed: (collapsed: boolean) => void
 }
 
@@ -288,7 +291,7 @@ interface DataTableProviderProps<TData extends RowData> {
   columns?: DataTableColumnDef<TData>[]
   isLoading?: boolean
   isCompact: boolean
-  onCompactChange: (isCompact: boolean) => void
+  onWidthChange: (width: number) => void
   compactColumns: CompactColumns | null
 }
 
@@ -345,7 +348,7 @@ export function DataTableProvider<TData extends RowData>({
   columns,
   isLoading: externalIsLoading,
   isCompact,
-  onCompactChange,
+  onWidthChange,
   compactColumns,
 }: DataTableProviderProps<TData>) {
   const [state, dispatch] = useReducer(
@@ -377,7 +380,7 @@ export function DataTableProvider<TData extends RowData>({
     (el: HTMLElement | null) => setScrollContainer(el),
     [],
   )
-  useCompactWidth(scrollContainer, onCompactChange)
+  useTableWidth(scrollContainer, onWidthChange)
   const scrollRowIntoView = useCallback<ScrollRowIntoView>((index, opts) => {
     if (rowScrollerRef.current) {
       rowScrollerRef.current(index, opts)

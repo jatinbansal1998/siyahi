@@ -84,7 +84,7 @@
 :root {
   color-scheme: light dark;
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -111,18 +111,19 @@
   --warning-foreground: oklch(0.985 0 0);
   --link: oklch(0.51 0.2 275);
   /*
-   * Indigo, emerald, amber, violet, rose. Each slot reaches 3:1 against the card
-   * and against the slots next to it, which only lightness can give, so
-   * emerald and violet are the deep members in both schemes. Slots two apart
+   * Indigo, amber, plum, sky, teal: no green or red, so no series reads as a
+   * gain or a loss. Each slot reaches 3:1 against the card and against the
+   * slots next to it, which only lightness can give, so indigo, plum and teal
+   * are the deep members in light and the pale ones in dark. Slots two apart
    * share a lightness and are told apart by hue; series take slots in order.
    * Every chart value is inside sRGB, so the browser paints what the contrast
    * check scored.
    */
-  --chart-1: oklch(0.66 0.15 275);
-  --chart-2: oklch(0.35 0.07 163.2);
-  --chart-3: oklch(0.66 0.15 60);
-  --chart-4: oklch(0.36 0.17 293);
-  --chart-5: oklch(0.65 0.21 16.4);
+  --chart-1: oklch(0.4 0.17 275);
+  --chart-2: oklch(0.66 0.13 70);
+  --chart-3: oklch(0.38 0.13 335);
+  --chart-4: oklch(0.66 0.11 235);
+  --chart-5: oklch(0.36 0.06 205);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -139,15 +140,14 @@
      * cards' grey gone on a ruled page the canvas is what text sits on.
      * Claude Code (#181818, about #e8e8e8 text) and T3 Code (#0a0a0a, about
      * #bebebe) both narrow that gap; this sits between them, at 14.9:1.
-     * The card matches the canvas, so the contrast check scores the colour
-     * a ruled chart is drawn on, and the sidebar is a shade darker, as in
-     * the light scheme.
+     * Cards sit one step above the canvas, so data reads as raised, as the
+     * white card does on the light canvas; the sidebar is a shade darker.
      */
-    --background: oklch(0.18 0 0);
+    --background: oklch(0.16 0 0);
     --foreground: oklch(0.922 0 0);
-    --card: oklch(0.18 0 0);
+    --card: oklch(0.205 0 0);
     --card-foreground: oklch(0.922 0 0);
-    --popover: oklch(0.18 0 0);
+    --popover: oklch(0.205 0 0);
     --popover-foreground: oklch(0.922 0 0);
     --primary: oklch(0.922 0 0);
     --primary-foreground: oklch(0.205 0 0);
@@ -170,10 +170,10 @@
     --warning-foreground: oklch(0.145 0 0);
     --link: oklch(0.75 0.13 275);
     --chart-1: oklch(0.84 0.07 275);
-    --chart-2: oklch(0.52 0.11 163.2);
-    --chart-3: oklch(0.86 0.13 80);
-    --chart-4: oklch(0.55 0.25 293);
-    --chart-5: oklch(0.84 0.085 12);
+    --chart-2: oklch(0.52 0.1 70);
+    --chart-3: oklch(0.86 0.07 335);
+    --chart-4: oklch(0.52 0.1 235);
+    --chart-5: oklch(0.86 0.06 205);
     --sidebar: oklch(0.145 0 0);
     --sidebar-foreground: oklch(0.922 0 0);
     --sidebar-primary: oklch(0.922 0 0);
@@ -254,17 +254,16 @@
 }
 
 /*
- * Surfaces, from SiyahiProvider's surface prop. Ruled, the default, and open
- * take the box off every core Card: no fill, no corner, no ring, and no
- * tinted footer band; PanelGrid draws the hairlines between ruled blocks.
- * Open also drops the card's padding, so a block's content sits level with
- * the page's text. A card provider gives shadcn's own card back. Each scope
- * starts at the root, so a Card outside any provider is ruled too, and stops
- * at a provider that says otherwise. Unlayered, like the rule above, to
+ * Surfaces, from SiyahiProvider's surface prop. Card, the default, is
+ * shadcn's own card on the tinted canvas. Ruled and open take the box off
+ * every core Card: no fill, no corner, no ring, and no tinted footer band;
+ * PanelGrid draws the hairlines between ruled blocks. Open also drops the
+ * card's padding, so a block's content sits level with the page's text. Each
+ * scope stops at a provider that says otherwise. Unlayered, like the rule above, to
  * outrank the core components' utility classes; a picked SectionCards tile
  * keeps its ring, which is important.
  */
-@scope (:root, [data-surface="ruled"], [data-surface="open"]) to ([data-surface="card"]) {
+@scope ([data-surface="ruled"], [data-surface="open"]) to ([data-surface="card"]) {
   [data-slot="card"] {
     background: none;
     border-radius: 0;
