@@ -208,6 +208,20 @@
   }
 }
 
+/*
+ * A selected outline toggle fills with the foreground, black on white and white
+ * on black, so the reader sees at once which view is on; stock shadcn marks it
+ * with a faint grey. Unlayered, to outrank the stock aria-pressed:bg-muted.
+ */
+:is([data-slot="toggle"], [data-slot="toggle-group-item"])[data-variant="outline"]:is(
+    [aria-pressed="true"],
+    [data-pressed]
+  ) {
+  background-color: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
 /* Touch targets follow input capability, including touch laptops. */
 @media (pointer: coarse) {
   :is(
@@ -285,7 +299,8 @@
 }
 
 /*
- * A table that scrolls sideways fades at the edge with more columns behind it,
+ * A table, or a page's section strip, that scrolls sideways fades at the edge
+ * with more behind it,
  * so a phone reader sees there is more without a visible scrollbar. The fade
  * follows the scroll position; a table that fits has no timeline and no fade.
  */
@@ -315,7 +330,7 @@
   }
 }
 @layer base {
-  [data-slot="table-container"] {
+  :is([data-slot="table-container"], [data-slot="page-toc"] > div) {
     mask-image: linear-gradient(
       to right,
       rgb(0 0 0 / 0.2),
@@ -328,7 +343,7 @@
   }
   /* Scroll position, not motion: the reduced-motion reset above must not collapse it. */
   @media (prefers-reduced-motion: reduce) {
-    [data-slot="table-container"] {
+    :is([data-slot="table-container"], [data-slot="page-toc"] > div) {
       animation-duration: auto !important;
     }
   }

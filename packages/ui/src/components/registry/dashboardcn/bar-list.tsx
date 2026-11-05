@@ -4,6 +4,7 @@
 // Copied: 2026-10-20, sha256 bc19cf1f5e486fa11273e7d7ed620eb7b82ba360f72e5a15e6bf488f992d16ce
 // Siyahi edit: numbers follow the SiyahiProvider locale instead of
 // dashboardcn's en-US lib/format, which is not copied.
+// Siyahi edit: the bar fill is 32% of its colour, not 20%, so it reads against a white card.
 // Siyahi edit: max sets the value a full-width bar stands for, so two lists
 // (the biggest gains beside the biggest losses) can share one scale.
 // Siyahi edit: an item's optional detail (a secondary figure such as a Delta)
@@ -92,7 +93,7 @@ function BarList({
                 className="absolute inset-y-0 left-0 rounded-md transition-[width] duration-300 @max-sm/bar-list:inset-y-auto @max-sm/bar-list:bottom-0 @max-sm/bar-list:h-1.5"
                 style={{
                   width: `${width}%`,
-                  backgroundColor: `color-mix(in oklab, ${color} 20%, transparent)`,
+                  backgroundColor: `color-mix(in oklab, ${color} 32%, transparent)`,
                 }}
               />
               <Label
