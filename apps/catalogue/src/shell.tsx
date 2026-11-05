@@ -1,5 +1,6 @@
 import {
   AppSidebar,
+  defaultSidebarOpen,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
@@ -40,7 +41,7 @@ export interface ShellProps {
 /** The sidebar-07 block as an app shell: sidebar, a sticky header with the page's place, then the page. */
 export function Shell({ nav, title, children }: ShellProps) {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultSidebarOpen()}>
       <AppSidebar header={<Brand />} navMain={nav} navLabel="Catalogue" />
       {/* min-w-0: as a flex item the inset would otherwise grow to its widest content, so the page scrolls
           sideways and the sticky header slides under the fixed sidebar. */}
