@@ -14,7 +14,18 @@ const RULES = [
   "Notices are shadcn Alert, used as shipped: default for information, destructive for errors. Warnings are the default variant with an amber icon, coloured text-warning! (the ! outranks Alert's own icon colour).",
   "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
   "Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows the device, reduced motion honoured.",
-  "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables scroll inside their card without freezing columns, sidebar becomes a drawer.",
+  "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables show their meta.compact columns with an All columns toggle (the rest scroll inside the card, the edge fading where more columns wait), sidebar becomes a drawer.",
+];
+
+// Where a developer goes for a task, before the setup details.
+const START: [href: string, title: string, use: string][] = [
+  ["#/foundations", "Foundations", "Colours, type, spacing and surfaces: the tokens every page names."],
+  ["#/components", "Components", "Buttons, badges, cards, tabs and the other shadcn parts, as shipped."],
+  ["#/inputs", "Inputs and overlays", "Forms, menus, dialogs and sheets."],
+  ["#/layout", "Page layout", "Sections, headings, facts and code in a long page."],
+  ["#/data", "Data", "Charts, tables, stat tiles and heat maps for numbers."],
+  ["#/blocks", "Blocks", "Whole compositions to start a dashboard from."],
+  ["#/reports", "Reports", "A self-contained HTML report without React."],
 ];
 
 const INSTALL = `npm install @siyahi/ui@next tailwindcss @tailwindcss/vite
@@ -62,6 +73,22 @@ export const overview: Page = {
   icon: <HouseIcon />,
   lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a finance theme, a few compositions, locale-aware formatters, a lint and this catalogue.",
   sections: [
+    {
+      id: "start",
+      title: "Start here",
+      body: (
+        <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
+          {START.map(([href, title, use]) => (
+            <li key={href} className="flex flex-col">
+              <a href={href} className="font-medium text-link">
+                {title}
+              </a>
+              <span className="text-sm text-muted-foreground">{use}</span>
+            </li>
+          ))}
+        </ul>
+      ),
+    },
     {
       id: "install",
       title: "Install",
