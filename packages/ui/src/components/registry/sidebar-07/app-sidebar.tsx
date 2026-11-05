@@ -19,6 +19,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@siyahi/ui/components/ui/sidebar"
+import { cn } from "@siyahi/ui/lib/utils"
 
 export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   navMain: React.ComponentProps<typeof NavMain>["items"]
@@ -32,9 +33,16 @@ export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 // Siyahi edit: collapsible="none" renders the sidebar in place (as the
 // catalogue's example does) and drops the rail, which has nothing to toggle.
-export function AppSidebar({ navMain, navLabel, header, teams, projects, user, collapsible = "icon", ...props }: AppSidebarProps) {
+// Siyahi edit: core pins the fixed sidebar to h-svh, the viewport with the
+// browser's bars shown, so on a phone in landscape it stopped short of the
+// bottom once Safari hid its bars. h-auto lets its inset-y-0 size it.
+export function AppSidebar({ navMain, navLabel, header, teams, projects, user, collapsible = "icon", className, ...props }: AppSidebarProps) {
   return (
-    <Sidebar collapsible={collapsible} {...props}>
+    <Sidebar
+      collapsible={collapsible}
+      className={cn(collapsible !== "none" && "h-auto", className)}
+      {...props}
+    >
       {(header || teams) && (
         <SidebarHeader>{header ?? (teams && <TeamSwitcher teams={teams} />)}</SidebarHeader>
       )}
