@@ -143,11 +143,11 @@
      * Cards sit one step above the canvas, so data reads as raised, as the
      * white card does on the light canvas; the sidebar is a shade darker.
      */
-    --background: oklch(0.16 0 0);
+    --background: oklch(0.14 0 0);
     --foreground: oklch(0.922 0 0);
-    --card: oklch(0.205 0 0);
+    --card: oklch(0.215 0 0);
     --card-foreground: oklch(0.922 0 0);
-    --popover: oklch(0.205 0 0);
+    --popover: oklch(0.215 0 0);
     --popover-foreground: oklch(0.922 0 0);
     --primary: oklch(0.922 0 0);
     --primary-foreground: oklch(0.205 0 0);
@@ -233,6 +233,20 @@
 [data-slot="table-cell"][data-numeric] > :is(div, span)[class*="flex"] {
   justify-content: flex-end;
   margin-inline-start: auto;
+}
+
+/*
+ * A card on the card surface lifts off the tinted canvas with a faint shadow
+ * under its 1px ring (Tailwind composes --tw-shadow with the ring), and a data
+ * table inside it drops its own border, so there is one frame, not two.
+ */
+@scope (:root, [data-surface="card"]) to ([data-surface="ruled"], [data-surface="open"]) {
+  [data-slot="card"] {
+    --tw-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.06), 0 1px 3px 0 oklch(0 0 0 / 0.04);
+  }
+  [data-slot="card"] [data-slot="table-container"] {
+    border-color: transparent;
+  }
 }
 
 /* Touch targets follow input capability, including touch laptops. */

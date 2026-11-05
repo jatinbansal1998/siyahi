@@ -736,6 +736,10 @@
       ]
     },
     {
+      "file": "agents/examples/overview-dashboard.tsx",
+      "components": []
+    },
+    {
       "file": "agents/examples/page-section.tsx",
       "components": [
         "Button",

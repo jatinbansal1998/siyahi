@@ -10,6 +10,7 @@ import { layout } from "./pages/layout";
 import { overview } from "./pages/overview";
 import { reports } from "./pages/reports";
 import { useRoute } from "./route";
+import { CatalogueSearch } from "./search";
 import { Shell } from "./shell";
 
 const PAGES: Page[] = [overview, foundations, components, inputs, layout, data, blocks, reports];
@@ -31,7 +32,7 @@ export function App() {
     })),
   }));
   return (
-    <Shell nav={nav} title={page.title}>
+    <Shell nav={nav} title={page.title} actions={<CatalogueSearch pages={PAGES} />}>
       {/* The title and lead show at once; only the examples wait for their code. */}
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">{page.title}</h1>

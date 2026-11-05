@@ -1,7 +1,7 @@
 import { HouseIcon } from "lucide-react";
 import { InlineCode } from "@siyahi/ui";
 import { Code } from "../code";
-import { Lead } from "../example";
+import { Example, Lead } from "../example";
 import type { Page } from "../page";
 
 const RULES = [
@@ -73,6 +73,16 @@ export const overview: Page = {
   icon: <HouseIcon />,
   lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a finance theme, a few compositions, locale-aware formatters, a lint and this catalogue.",
   sections: [
+    {
+      id: "at-a-glance",
+      title: "At a glance",
+      body: (
+        <>
+          <Lead>A page built from the package: a metric strip, a chart card and a data table, all live.</Lead>
+          <Example name="overview-dashboard" />
+        </>
+      ),
+    },
     {
       id: "start",
       title: "Start here",

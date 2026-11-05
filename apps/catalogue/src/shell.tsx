@@ -35,11 +35,13 @@ function Brand() {
 export interface ShellProps {
   nav: AppSidebarProps["navMain"];
   title: string;
+  /** Sits at the header's end, such as the catalogue search. */
+  actions: ReactNode;
   children: ReactNode;
 }
 
 /** The sidebar-07 block as an app shell: sidebar, a sticky header with the page's place, then the page. */
-export function Shell({ nav, title, children }: ShellProps) {
+export function Shell({ nav, title, actions, children }: ShellProps) {
   return (
     <SidebarProvider defaultOpen={defaultSidebarOpen()}>
       <AppSidebar header={<Brand />} navMain={nav} navLabel="Catalogue" />
@@ -56,6 +58,7 @@ export function Shell({ nav, title, children }: ShellProps) {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+          {actions}
         </header>
         <main className="flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8">{children}</main>
       </SidebarInset>
