@@ -17,6 +17,7 @@ const GENERATED = [
   "packages/ui/registry.lock.json",
   "packages/ui/src/index.ts",
   "packages/ui/README.md",
+  "packages/ui/DESIGN.md",
   "packages/*/LICENSE",
   "packages/*/THIRD_PARTY_NOTICES.md",
 ];

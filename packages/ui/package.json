@@ -25,6 +25,7 @@
     "report.css",
     "registry.lock.json",
     "README.md",
+    "DESIGN.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"
   ],
