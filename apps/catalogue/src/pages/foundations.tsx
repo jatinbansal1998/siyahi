@@ -18,8 +18,8 @@ const SURFACES = [
   { name: "destructive", swatch: "bg-destructive" },
 ];
 const MEANING = [
-  { name: "positive", swatch: "bg-positive", text: "text-positive", sample: "▲ 2.3% gain" },
-  { name: "negative", swatch: "bg-negative", text: "text-negative", sample: "▼ 1.1% loss" },
+  { name: "positive", swatch: "bg-positive", text: "text-positive", sample: "+2.3% gain" },
+  { name: "negative", swatch: "bg-negative", text: "text-negative", sample: "−1.1% loss" },
   { name: "warning", swatch: "bg-warning", text: "text-warning", sample: "Two payments unmatched" },
   { name: "link", swatch: "bg-link", text: "text-link", sample: "Open the report" },
 ];

@@ -30,7 +30,7 @@ export interface LineChartCardProps<T extends object, K extends keyof T>
   curve?: ChartCurve
 }
 
-/** Values over an ordered axis as lines: one series, or several to compare, such as a portfolio against its index. */
+/** Values over an ordered axis as lines: one series, or several to compare, such as sales against a target. */
 export function LineChartCard<T extends object, K extends keyof T>({
   curve = "monotone",
   ...props

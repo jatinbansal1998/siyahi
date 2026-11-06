@@ -12,7 +12,7 @@ export interface ToneProgressProps extends ComponentProps<typeof Progress> {
   tone: keyof typeof TONE;
 }
 
-/** shadcn's Progress with its bar in a meaning colour, such as each position's share of the booked P&L. */
+/** shadcn's Progress with its bar in a meaning colour, such as each channel's share of profit or loss. */
 export function ToneProgress({ tone, className, ...props }: ToneProgressProps) {
   return <Progress data-tone={tone} className={cn(TONE[tone], className)} {...props} />;
 }

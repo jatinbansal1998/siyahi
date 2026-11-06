@@ -154,7 +154,7 @@ function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly V[]): num
  * own ticks would rather drop a label than let it run into the next. With a detail, the second line comes from the
  * tick's row; under a column the lines hang below the axis, and beside a horizontal bar they straddle its middle.
  * A two-line tick is set in Geist, not Mono: a name with a figure under it reads as a label, as in BarList, and
- * sector names in Mono would take most of a phone's width.
+ * category names in Mono would take most of a phone's width.
  */
 function fittedTick<T extends object, K extends keyof T>(
   data: readonly T[],

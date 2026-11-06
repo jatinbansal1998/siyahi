@@ -110,7 +110,7 @@ describe("SectionCards as a picker", () => {
 
   it("lets a long headline wrap instead of clipping it to one line", async () => {
     root = createRoot(document.body.appendChild(document.createElement("div")));
-    const headline = "▲₹1,48,600 this year across 212 positions at two brokers";
+    const headline = "+₹1,48,600 this year across 212 orders from two warehouses";
     await act(async () => root?.render(<SectionCards items={[{ label: "All", value: 212, headline }]} />));
     const line = [...document.querySelectorAll('[data-slot="card-footer"] div')].find(
       (d) => d.textContent === headline,

@@ -463,11 +463,11 @@ describe("chart cards", { timeout: 60_000 }, () => {
       els.map((el) => [...el.querySelectorAll("tspan")].map((t) => t.textContent)),
     );
     expect(lines).toEqual([
-      ["FY22", "▲₹1.4L"],
-      ["FY23", "▲₹1.9L"],
-      ["FY24", "▼₹1.6L"],
-      ["FY25", "▲₹1.3L"],
-      ["FY26", "▼₹1.2L"],
+      ["FY22", "+₹1.4L"],
+      ["FY23", "+₹1.9L"],
+      ["FY24", "−₹1.6L"],
+      ["FY25", "+₹1.3L"],
+      ["FY26", "−₹1.2L"],
     ]);
     // The second line sits under the first.
     const [name, detail] = await ticks

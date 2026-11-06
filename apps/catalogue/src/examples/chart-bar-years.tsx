@@ -19,7 +19,7 @@ export default function ChartBarYearsExample() {
   const { money, moneyCompact } = useFormat();
   // The page owns the pick, so it can narrow the rest of the page to that year.
   const [year, setYear] = useState<string | null>(null);
-  const signed = (v: number) => `${v < 0 ? "▼" : "▲"}${moneyCompact(Math.abs(v))}`;
+  const signed = (v: number) => `${v < 0 ? "\u2212" : "+"}${moneyCompact(Math.abs(v))}`;
   return (
     <BarChartCard
       title="Profit by financial year"

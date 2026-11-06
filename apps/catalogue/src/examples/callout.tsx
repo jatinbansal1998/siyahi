@@ -15,10 +15,10 @@ export default function CalloutExample() {
       </Callout>
       <div className="grid gap-3 sm:grid-cols-2">
         <Callout tone="positive" icon={<TrendingUpIcon />} title="Best test">
-          Annual plan shown first: <strong>▲₹10,616</strong> a week.
+          Annual plan shown first: <strong className="whitespace-nowrap">+₹10,616</strong> a week.
         </Callout>
         <Callout tone="negative" icon={<TrendingDownIcon />} title="Worst test">
-          Free delivery only above ₹999: <strong>▼₹70,679</strong> a week.
+          Free delivery only above ₹999: <strong className="whitespace-nowrap">−₹70,679</strong> a week.
         </Callout>
       </div>
       <Quote source="The hosting provider's incident report, 21 Oct 2026">

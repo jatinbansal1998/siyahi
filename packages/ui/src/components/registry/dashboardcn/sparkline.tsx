@@ -7,7 +7,7 @@
 // Siyahi edit: no dot-grid fill. Its mask paints with a raw #fff, which the
 // theme's colour rules reject, and the plain gradient reads the same small.
 // Siyahi edit: a hidden value axis fitted to the data. Recharts' default axis
-// starts at zero, so a portfolio's run from ₹38L to ₹45L drew as a flat line.
+// starts at zero, so a run from ₹38L to ₹45L drew as a flat line.
 // With the lowest point now on the edge, 2px of room below keeps its stroke whole.
 // Siyahi edit: the run is drawn in muted grey and only its last step, with a
 // dot on the latest value, takes the colour, so the eye lands on now and the

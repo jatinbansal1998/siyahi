@@ -39,7 +39,7 @@ export default function TreemapExample() {
   const [selected, setSelected] = useState<City | null>(null);
   const { money, pct } = useFormat();
   const figures = (c: City) =>
-    `${money(c.weight)} · ${c.change === null ? "new this year" : `${c.change < 0 ? "▼" : "▲"} ${pct(Math.abs(c.change))}`}`;
+    `${money(c.weight)} · ${c.change === null ? "new this year" : `${c.change < 0 ? "\u2212" : "+"}${pct(Math.abs(c.change))}`}`;
   return (
     <Card>
       <CardHeader>

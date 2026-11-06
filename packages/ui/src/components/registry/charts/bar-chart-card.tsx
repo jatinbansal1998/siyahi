@@ -15,7 +15,7 @@
 // the other bars fade, as shadcn's chart-bar-active marks its bar.
 // Siyahi edit: the entire tooltip category selects, including empty space around a bar.
 // Siyahi edit: horizontal lays the bars sideways, categories down the left,
-// as shadcn's chart-bar-horizontal does, for long names such as sectors.
+// as shadcn's chart-bar-horizontal does, for long names such as product categories.
 // Siyahi edit: a signed series (negativeColor) fills its bars with a tint of
 // the meaning colour inside a full-strength 1.5px edge.
 // Siyahi edit: a stack runs negative values down from zero and positive ones
@@ -43,7 +43,7 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K> {
   /** Stack the series in one bar per point instead of side by side. */
   stacked?: boolean
-  /** Bars run sideways, categories down the left: for long names, such as sectors. */
+  /** Bars run sideways, categories down the left: for long names, such as product categories. */
   horizontal?: boolean
   /** The picked category's x value: its bars stay solid and the rest fade. */
   selected?: T[K] | null
