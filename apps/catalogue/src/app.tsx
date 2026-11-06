@@ -51,10 +51,14 @@ export function App() {
   return (
     <Shell nav={nav} trail={trail} actions={<CatalogueSearch pages={PAGES} />}>
       {/* The title and lead show at once; only the examples wait for their code. */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-        <p className="max-w-prose text-muted-foreground">{lead}</p>
-      </div>
+      {!family && page.hero ? (
+        page.hero
+      ) : (
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+          <p className="max-w-prose text-muted-foreground">{lead}</p>
+        </div>
+      )}
       <Suspense fallback={<p role="status">Loading examples…</p>}>
         {family ? <FamilyView page={page} family={family} /> : <PageBody page={page} />}
       </Suspense>

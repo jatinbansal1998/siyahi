@@ -66,18 +66,6 @@ describe("catalogue families", { timeout: 60_000 }, () => {
     );
   });
 
-  it("frames a small control to its size and a chart to the page's width", async () => {
-    await go("#/components/button", "Button");
-    const button = await page.locator('[data-slot="example"]').first().boundingBox();
-    await go("#/data/bar-chart", "Bar chart");
-    const chart = await page.locator('[data-slot="example"]').first().boundingBox();
-    // The sidebar inset is a <main> too; the page's own is the one inside it.
-    const main = await page.locator("main main").boundingBox();
-    // max-w-2xl, 42rem: wide enough for a row of buttons, far short of the page.
-    expect(button!.width).toBeLessThanOrEqual(672);
-    expect(chart!.width).toBeGreaterThan(main!.width - 2 * 32 - 1);
-  });
-
   it("finds every family by its title, and a family by an export it ships", async () => {
     // The sidebar opens the current page's group, so visit each page to read all of its families.
     const families: string[] = [];

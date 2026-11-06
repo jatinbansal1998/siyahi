@@ -42,7 +42,6 @@ const display: Entry[] = [
     ],
     rules: ['A link in prose is <a className="text-link">, not variant="link".'],
     caption: "Primary Save, outline Export with its icon, the other variants and an icon-only button.",
-    compact: true,
   },
   {
     id: "badge",
@@ -60,7 +59,6 @@ const display: Entry[] = [
       "A signed figure goes in an outline badge too, as a Delta.",
     ],
     caption: "Each variant, with a broker and signed figures in outline badges.",
-    compact: true,
   },
   {
     id: "card",
@@ -114,7 +112,6 @@ const display: Entry[] = [
       "Inside a code block, use CodeBlockCopyButton, which is icon-only.",
     ],
     caption: "Copy all of a setup page's commands at once.",
-    compact: true,
   },
   {
     id: "alert",
@@ -133,7 +130,6 @@ const display: Entry[] = [
     lead: "Views switch with tabs.",
     imports: ["Tabs", "TabsList", "TabsTrigger", "TabsContent"],
     caption: "Holdings, Realized and Cash flow as three views.",
-    compact: true,
   },
   {
     id: "progress",
@@ -141,7 +137,6 @@ const display: Entry[] = [
     lead: "A long import or upload.",
     imports: ["Progress", "ProgressLabel", "ProgressValue"],
     caption: "Statements imported, part way through, with its label and value.",
-    compact: true,
   },
   {
     id: "progress-tone",
@@ -157,7 +152,6 @@ const display: Entry[] = [
     ],
     rules: ["Write the figure beside the bar; the colour is never the only cue."],
     caption: "Each position's share of the booked P&L, gains and losses, with the figure beside each bar.",
-    compact: true,
   },
   {
     id: "skeleton",
@@ -165,7 +159,6 @@ const display: Entry[] = [
     lead: "The shape of content that is still loading.",
     imports: ["Skeleton"],
     caption: "A label, a figure and a line of text still loading.",
-    compact: true,
   },
   {
     id: "separator",
@@ -173,7 +166,6 @@ const display: Entry[] = [
     lead: "A thin rule between items.",
     imports: ["Separator"],
     caption: "Asset classes parted by rules.",
-    compact: true,
   },
   {
     id: "breadcrumb",
@@ -188,7 +180,6 @@ const display: Entry[] = [
       "BreadcrumbSeparator",
     ],
     caption: "Portfolio, Equity, then INFY as the current page.",
-    compact: true,
   },
   {
     id: "scroll-area",
@@ -196,7 +187,6 @@ const display: Entry[] = [
     lead: "A fixed-height box that scrolls on its own.",
     imports: ["ScrollArea"],
     caption: "A list of months taller than its box.",
-    compact: true,
   },
   {
     id: "avatar",
@@ -204,7 +194,6 @@ const display: Entry[] = [
     lead: "A person or an account, by initials.",
     imports: ["Avatar", "AvatarFallback"],
     caption: "Two accounts by their initials.",
-    compact: true,
   },
   {
     id: "collapsible",
@@ -212,7 +201,6 @@ const display: Entry[] = [
     lead: "Detail that stays out of the way until asked for.",
     imports: ["Collapsible", "CollapsibleTrigger", "CollapsibleContent"],
     caption: "How lots are matched, shown on request.",
-    compact: true,
   },
   {
     id: "accordion",
@@ -246,7 +234,6 @@ const controls: Entry[] = [
     lead: "Range and mode toggles, top right of a chart's card.",
     imports: ["ToggleGroup", "ToggleGroupItem"],
     caption: "A range toggle with 1Y pressed.",
-    compact: true,
   },
   {
     id: "toggle",
@@ -254,7 +241,6 @@ const controls: Entry[] = [
     lead: "A single on or off control.",
     imports: ["Toggle"],
     caption: "Hide amounts, an outline toggle with its icon.",
-    compact: true,
   },
   {
     id: "select",
@@ -262,7 +248,6 @@ const controls: Entry[] = [
     lead: "Pick one option from a short list.",
     imports: ["Select", "SelectTrigger", "SelectValue", "SelectContent", "SelectGroup", "SelectItem"],
     caption: "Pick one account from a short list.",
-    compact: true,
   },
   {
     id: "input",
@@ -270,7 +255,6 @@ const controls: Entry[] = [
     lead: "Text entry, with an icon in an input group when the field needs one.",
     imports: ["Input", "InputGroup", "InputGroupAddon", "InputGroupInput", "Textarea"],
     caption: "A plain input, a search input with its icon, and a textarea.",
-    compact: true,
   },
   {
     id: "slider",
@@ -278,7 +262,6 @@ const controls: Entry[] = [
     lead: "A value or a range on a track.",
     imports: ["Slider"],
     caption: "An allocation band as a range in steps of 5.",
-    compact: true,
   },
   {
     id: "calendar",
@@ -286,7 +269,6 @@ const controls: Entry[] = [
     lead: "Date picking, on react-day-picker.",
     imports: ["Calendar"],
     caption: "October 2026 with the 20th picked.",
-    compact: true,
   },
   {
     id: "tooltip",
@@ -295,7 +277,6 @@ const controls: Entry[] = [
     imports: ["Tooltip", "TooltipTrigger", "TooltipContent"],
     rules: ["SiyahiProvider already includes the tooltip provider."],
     caption: "XIRR explained on hovering an info button.",
-    compact: true,
   },
   {
     id: "popover",
@@ -303,7 +284,6 @@ const controls: Entry[] = [
     lead: "A short explanation or a small form, anchored to its trigger.",
     imports: ["Popover", "PopoverTrigger", "PopoverContent", "PopoverHeader", "PopoverTitle", "PopoverDescription"],
     caption: "How a price is set, opened from a button.",
-    compact: true,
   },
   {
     id: "dialog",
@@ -320,7 +300,6 @@ const controls: Entry[] = [
       "DialogClose",
     ],
     caption: "A sell's fills over the page, closed from its footer.",
-    compact: true,
   },
   {
     id: "sheet",
@@ -328,7 +307,6 @@ const controls: Entry[] = [
     lead: "A side panel, such as filters on a phone.",
     imports: ["Sheet", "SheetTrigger", "SheetContent", "SheetHeader", "SheetTitle", "SheetDescription"],
     caption: "Ledger filters in a side panel.",
-    compact: true,
   },
   {
     id: "dropdown-menu",
@@ -344,7 +322,6 @@ const controls: Entry[] = [
       "DropdownMenuSeparator",
     ],
     caption: "A holding's actions in a menu, a destructive one among them.",
-    compact: true,
   },
   {
     id: "context-menu",
@@ -352,7 +329,6 @@ const controls: Entry[] = [
     lead: "The same actions on right-click or long-press.",
     imports: ["ContextMenu", "ContextMenuTrigger", "ContextMenuContent", "ContextMenuItem"],
     caption: "Copy symbol and Open chart on right-click.",
-    compact: true,
   },
   {
     id: "command",

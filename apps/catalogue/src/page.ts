@@ -12,8 +12,6 @@ export interface PropRow {
 export interface ExampleSpec {
   name: string;
   caption: string;
-  /** A small control, such as a button or a badge, shown in a frame sized to it instead of one the page's width. */
-  compact?: boolean;
 }
 
 /** One component family, or one part of a reference page: its `#/<page>/<id>` route shows it alone. */
@@ -38,6 +36,8 @@ export interface Page {
   /** The page's icon in the sidebar, all that shows when it collapses. */
   icon: ReactNode;
   lead: ReactNode;
+  /** Drawn in place of the title and lead: the front page's own introduction. */
+  hero?: ReactNode;
   /**
    * "index" lists the families as cards, each opening on its own route; "stack" draws them all in one page, for
    * reference pages whose parts are short.

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, type ComponentType, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import {
   Button,
   Card,
@@ -40,7 +40,7 @@ const code = Object.fromEntries(
 );
 
 /** Renders `examples/<name>.tsx` live, under its caption, with its own source a click away. */
-function Example({ name, caption, compact = false }: ExampleSpec) {
+function Example({ name, caption }: ExampleSpec) {
   const [open, setOpen] = useState(false);
   const path = `./examples/${name}.tsx`;
   const Component = examples[path];
@@ -51,8 +51,8 @@ function Example({ name, caption, compact = false }: ExampleSpec) {
       open={open}
       onOpenChange={setOpen}
       data-slot="example"
-      // A small control in a page-wide frame sits in a field of empty fill; the frame widens once the source opens beside it.
-      className={`flex min-w-0 flex-col overflow-hidden rounded-xl border bg-card ${compact && !open ? "lg:max-w-2xl" : ""}`}
+      // Every frame takes the page's width, as the import line and props table do, so the page has one right edge.
+      className="flex min-w-0 flex-col overflow-hidden rounded-xl border bg-card"
     >
       <div className="flex items-center justify-between gap-2 border-b px-3 py-1.5">
         <div className="flex min-w-0 flex-col">
@@ -95,6 +95,16 @@ function importLine(names: string[]): string {
     : `import {\n${names.map((n) => `  ${n},`).join("\n")}\n} from "@siyahi/ui";`;
 }
 
+/** A prop's type, breaking only between the members of a union, never inside `"icon-sm"`. */
+function TypeText({ type }: { type: string }) {
+  return type.split(" | ").map((member, index) => (
+    <Fragment key={member}>
+      {index > 0 && " | "}
+      <span className="whitespace-nowrap">{member}</span>
+    </Fragment>
+  ));
+}
+
 function PropsTable({ rows }: { rows: PropRow[] }) {
   return (
     <Card className="py-0">
@@ -111,14 +121,17 @@ function PropsTable({ rows }: { rows: PropRow[] }) {
             <TableRow key={row.name}>
               <TableCell className="pl-4 align-top whitespace-normal">
                 <div className="font-mono font-medium">{row.name}</div>
-                <div className="font-mono text-xs break-words text-muted-foreground">{row.type}</div>
+                <div className="font-mono text-xs text-muted-foreground">
+                  <TypeText type={row.type} />
+                </div>
                 {/* Three columns do not fit a phone: the default and purpose follow the type in the one cell. */}
                 <div className="mt-1 font-mono text-xs text-muted-foreground sm:hidden">
                   Default: {row.default ?? "required"}
                 </div>
                 <div className="mt-1 pr-4 sm:hidden">{row.purpose}</div>
               </TableCell>
-              <TableCell className="hidden align-top font-mono text-xs whitespace-normal text-muted-foreground sm:table-cell">
+              {/* 2px lower, so the smaller default sits on the prop name's baseline. */}
+              <TableCell className="hidden pt-2.5 align-top font-mono text-xs whitespace-normal text-muted-foreground sm:table-cell">
                 {row.default ?? "required"}
               </TableCell>
               <TableCell className="hidden min-w-48 pr-4 align-top whitespace-normal sm:table-cell">
@@ -139,12 +152,16 @@ function PropsTable({ rows }: { rows: PropRow[] }) {
  */
 function FamilyBody({ family, level }: { family: Family; level: 2 | 3 }) {
   const Heading = level === 2 ? "h2" : "h3";
-  const heading = level === 2 ? "text-xl font-semibold tracking-tight" : "text-base font-semibold";
-  const { imports, props, rules, body, examples: specs } = family;
+  // More room above a heading than below it, so each heading reads with the content it introduces.
+  const heading = `mt-6 -mb-1 ${level === 2 ? "text-xl font-semibold tracking-tight" : "text-base font-semibold"}`;
+  const { imports, props, rules, body, examples: specs = [] } = family;
+  const [first, ...more] = specs;
   return (
     <>
+      {/* The component itself first: the reference below is for a reader who already wants it. */}
+      {first && <Example {...first} />}
       {imports && (
-        <CodeBlock size="sm" className="max-w-3xl">
+        <CodeBlock size="sm">
           <CodeBlockHeader>
             <CodeBlockTitle>Import</CodeBlockTitle>
             <CodeBlockActions>
@@ -171,10 +188,10 @@ function FamilyBody({ family, level }: { family: Family; level: 2 | 3 }) {
         </>
       )}
       {body}
-      {specs && (
+      {more.length > 0 && (
         <>
-          {(props || rules) && <Heading className={heading}>Examples</Heading>}
-          {specs.map((spec) => (
+          {(props || rules) && <Heading className={heading}>More examples</Heading>}
+          {more.map((spec) => (
             <Example key={spec.name} {...spec} />
           ))}
         </>
@@ -195,7 +212,7 @@ export function Section({ family }: { family: Family }) {
 }
 
 function Neighbour({ page, family, direction }: { page: Page; family?: Family; direction: "previous" | "next" }) {
-  if (!family) return <span />;
+  if (!family) return null;
   const next = direction === "next";
   return (
     <a
@@ -218,11 +235,61 @@ export function FamilyView({ page, family }: { page: Page; family: Family }) {
   return (
     <section id={family.id} className="flex flex-col gap-4">
       <FamilyBody family={family} level={2} />
-      <nav aria-label={`More in ${page.title}`} className="mt-4 grid grid-cols-2 gap-4">
+      <nav aria-label={`More in ${page.title}`} className="mt-4 grid auto-cols-fr grid-flow-col gap-4">
         <Neighbour page={page} family={page.families[at - 1]} direction="previous" />
         <Neighbour page={page} family={page.families[at + 1]} direction="next" />
       </nav>
     </section>
+  );
+}
+
+/** True once the element has come within a screen of the viewport, and stays true. */
+function useNear<E extends Element>() {
+  const ref = useRef<E>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || near) return;
+    const observer = new IntersectionObserver(([entry]) => entry?.isIntersecting && setNear(true), {
+      rootMargin: "100% 0px",
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [near]);
+  return [ref, near] as const;
+}
+
+/**
+ * A family's first example, live, in a band at the top of its card, so the index shows each component
+ * rather than describing it. It mounts near the viewport, so a long index does not load every chart at once. It is a
+ * picture of the example: inert, and hidden from assistive technology, since the card's link names the family.
+ */
+function Preview({ name }: { name: string }) {
+  const [band, near] = useNear<HTMLDivElement>();
+  const Component = examples[`./examples/${name}.tsx`];
+  return (
+    <div
+      ref={band}
+      data-slot="family-preview"
+      aria-hidden
+      className="relative h-56 shrink-0 overflow-hidden border-b bg-muted/40 mask-b-from-75%"
+    >
+      {near && Component && (
+        // At its own size: charts measure their axes in layout pixels, so a scaled-down copy cut off its ticks. The
+        // examples are responsive, so each lays out as it would in a panel this wide. The example's own card header
+        // repeats what the family card says below, so the band shows the chart or table itself.
+        // Safe centring: a small control sits in the middle of the band, and a tall chart starts at its top and is cut
+        // at the foot, where the band fades out.
+        <div
+          inert
+          className="pointer-events-none absolute inset-4 flex flex-col justify-center-safe [&_[data-slot=card-header]]:hidden"
+        >
+          <Suspense>
+            <Component />
+          </Suspense>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -232,13 +299,15 @@ export function FamilyIndex({ page }: { page: Page }) {
     <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {page.families.map((family) => {
         const count = family.examples?.length ?? 0;
+        const first = family.examples?.[0];
         return (
           <li key={family.id} className="flex">
             <a
               href={`#/${page.id}/${family.id}`}
               className="group/family flex w-full rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <Card className="w-full transition-colors group-hover/family:bg-muted">
+              <Card className={`w-full transition-colors group-hover/family:ring-foreground/25 ${first ? "pt-0" : ""}`}>
+                {first && <Preview name={first.name} />}
                 <CardHeader>
                   <CardTitle>{family.title}</CardTitle>
                   <CardDescription>{family.lead}</CardDescription>

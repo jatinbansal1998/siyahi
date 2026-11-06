@@ -607,9 +607,7 @@ export const data: Page = {
         { name: "value", type: "number", purpose: "The signed change; for pct a fraction, 0.025 is 2.5%." },
         { name: "format", type: '"pct" | "money"', default: '"pct"', purpose: "How the figure is written." },
       ],
-      examples: [
-        { name: "delta", caption: "Gains, a loss and no change, as a percentage and as money.", compact: true },
-      ],
+      examples: [{ name: "delta", caption: "Gains, a loss and no change, as a percentage and as money." }],
     },
     {
       id: "local-time",
@@ -625,7 +623,7 @@ export const data: Page = {
           purpose: "Puts the date, in the same zone and the provider's locale, before the time, for daily snapshots.",
         },
       ],
-      examples: [{ name: "local-time", caption: "A time alone and with its date.", compact: true }],
+      examples: [{ name: "local-time", caption: "A time alone and with its date." }],
     },
     {
       id: "formatters",

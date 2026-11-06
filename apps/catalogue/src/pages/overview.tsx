@@ -1,5 +1,5 @@
-import { HouseIcon } from "lucide-react";
-import { InlineCode } from "@siyahi/ui";
+import { ArrowRightIcon, HouseIcon } from "lucide-react";
+import { Button, InlineCode } from "@siyahi/ui";
 import { Code } from "../code";
 import type { Page } from "../page";
 
@@ -65,11 +65,50 @@ const LINT = `npm install --save-dev @siyahi/tools@next oxlint
 const SCHEME = `/* After the @siyahi/ui import: tokens and dark: utilities then follow a .dark class on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));`;
 
+// The catalogue's ink drop, the same path as its icon.
+const DROP =
+  "M8 .5C8 .5 2.5 6.3 2.5 10a5.5 5.5 0 0 0 11 0C13.5 6.3 8 .5 8 .5ZM4.75 10A3.25 3.25 0 0 0 8 13.25v-1.5A1.75 1.75 0 0 1 6.25 10Z";
+
+/** The front page's introduction: the name large, what it is in one line, and the two places a reader goes next. */
+function Hero() {
+  return (
+    <header className="relative isolate flex flex-col gap-4 overflow-hidden rounded-2xl border bg-card px-6 py-8 sm:px-10 sm:py-10">
+      {/* The ink drop as a watermark in the accent: the page's one large mark of identity, faint enough to read over. */}
+      <svg
+        aria-hidden
+        viewBox="0 0 16 16"
+        className="absolute -top-8 -right-10 -z-10 size-80 text-chart-1 opacity-10 sm:-top-12 sm:right-4"
+      >
+        <path fill="currentColor" fillRule="evenodd" d={DROP} />
+      </svg>
+      <p className="font-mono text-xs text-link">@siyahi/ui</p>
+      <h1 className="text-5xl font-semibold tracking-tighter sm:text-6xl">Siyahi</h1>
+      <p className="max-w-xl text-lg text-pretty">
+        Ink for numbers. A design system for pages people read figures from: portfolios, ledgers, research.
+      </p>
+      <p className="max-w-xl text-pretty text-muted-foreground">
+        Stock shadcn/ui on Base UI and Tailwind v4, with a finance theme, charts and tables that fit a phone,
+        Indian-aware formatters, a lint, and this catalogue. Siyahi is Hindi for ink.
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <Button render={<a href="#/data" />}>
+          Browse the data components
+          <ArrowRightIcon />
+        </Button>
+        <Button variant="outline" render={<a href="#/overview/install" />}>
+          Install
+        </Button>
+      </div>
+    </header>
+  );
+}
+
 export const overview: Page = {
   id: "overview",
   title: "Siyahi",
   icon: <HouseIcon />,
   lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a finance theme, a few compositions, locale-aware formatters, a lint and this catalogue.",
+  hero: <Hero />,
   // Overview is the front page: a live dashboard and the setup, read top to bottom.
   layout: "stack",
   families: [
@@ -77,7 +116,12 @@ export const overview: Page = {
       id: "at-a-glance",
       title: "At a glance",
       lead: "A page built from the package: a metric strip, a chart card and a data table, all live.",
-      examples: [{ name: "overview-dashboard", caption: "A metric strip, a chart card and a data table on one page." }],
+      examples: [
+        {
+          name: "overview-dashboard",
+          caption: "Every figure here is drawn by the package; open the source to copy it.",
+        },
+      ],
     },
     {
       id: "start",
