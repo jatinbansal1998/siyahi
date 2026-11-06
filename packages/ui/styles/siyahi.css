@@ -83,7 +83,8 @@
 
 :root {
   color-scheme: light dark;
-  --radius: 0.625rem;
+  /* shadcn's "small": crisper than its 0.625rem default, still not square. Cards 10px, buttons 7px. */
+  --radius: 0.45rem;
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
