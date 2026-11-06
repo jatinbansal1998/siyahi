@@ -2,6 +2,9 @@
 
 ## 0.1.9
 
+- `Delta` writes its figure in the text colour with a `+` or `−` sign, and only a
+  small trend icon is green or red (was a coloured ▲/▼ and coloured figure).
+  Treemap labels and its legend use the sign too.
 - Contrast fixes from a measured light and dark review (WCAG 1.4.3 text 4.5:1,
   1.4.11 marks 3:1):
   - Focus is visible wherever the ring was the only sign of it: toggles, a

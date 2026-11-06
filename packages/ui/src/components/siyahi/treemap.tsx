@@ -58,7 +58,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
     ? focusedKey
     : (tiles[0]?.item.key ?? tiles[0]?.item.name);
   const change = (value: number | null) =>
-    value === null ? "—" : `${value > 0 ? "▲ " : value < 0 ? "▼ " : ""}${pct(Math.abs(value))}`;
+    value === null ? "—" : `${value > 0 ? "+" : value < 0 ? "\u2212" : ""}${pct(Math.abs(value))}`;
   // Each label sits in a nested <svg>, which clips it to its tile or group row.
   return (
     <div ref={ref} data-slot="treemap" style={{ height }}>
@@ -223,9 +223,9 @@ export function TreemapLegend({ range, className }: TreemapLegendProps) {
         {steps.map((n) => swatch("positive", n))}
       </div>
       <div className="flex justify-between gap-2 tabular-nums">
-        <span>▼ over {over}</span>
+        <span>down over {over}</span>
         <span>{pct(step, digits)} a step</span>
-        <span>▲ over {over}</span>
+        <span>up over {over}</span>
       </div>
       <p className="sr-only">
         Tile colours run in {HEAT_STEPS} steps of {pct(step, digits)} each way, deepest over {over}; a muted tile is no

@@ -29,8 +29,8 @@ describe("BarList", () => {
     const detail = link?.nextElementSibling;
     expect(link?.textContent).toBe("TATAMOTORS");
     expect(detail?.getAttribute("data-slot")).toBe("bar-list-detail");
-    expect(detail?.textContent).toBe("▲up59.8%");
-    expect(detail?.querySelector('[data-slot="delta"]')?.classList.contains("text-positive")).toBe(true);
+    expect(detail?.textContent).toBe("+59.8%");
+    expect(detail?.querySelector('[data-slot="delta"] svg')?.classList.contains("text-positive")).toBe(true);
   });
 
   it("draws its bars against max when given one, so two lists can share a scale", async () => {

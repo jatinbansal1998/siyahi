@@ -728,7 +728,7 @@ export const data: Page = {
     {
       id: "delta",
       title: "Delta",
-      lead: "A signed figure: ▲ in --positive, ▼ in --negative, so colour is never the only cue.",
+      lead: "A signed figure in the text colour with its + or −, and a trend icon in --positive or --negative: the sign and the icon's shape carry the direction, so colour is never the only cue.",
       imports: ["Delta"],
       props: [
         { name: "value", type: "number", purpose: "The signed change; for pct a fraction, 0.025 is 2.5%." },

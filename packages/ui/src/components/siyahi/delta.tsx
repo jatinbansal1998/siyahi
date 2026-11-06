@@ -1,4 +1,5 @@
 import { cn } from "cn";
+import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import { useFormat } from "@siyahi/ui/lib/format";
 
 export interface DeltaProps {
@@ -8,24 +9,34 @@ export interface DeltaProps {
   className?: string;
 }
 
-/** A signed figure: ▲ in --positive, ▼ in --negative, so colour is never the only cue. */
+const MINUS = "−";
+
+/**
+ * A signed change: the figure in the surrounding text colour with its sign, and a trend icon in --positive or
+ * --negative. The sign and the icon's shape carry the direction, so colour is never the only cue, and a column of
+ * changes reads as figures rather than a wall of red and green.
+ */
 export function Delta({ value, format = "pct", className }: DeltaProps) {
   const f = useFormat();
   const size = format === "money" ? f.money(Math.abs(value)) : f.pct(Math.abs(value));
-  const direction = value > 0 ? "up" : value < 0 ? "down" : null;
+  const direction = value > 0 ? "up" : value < 0 ? "down" : "none";
+  const Icon = direction === "up" ? TrendingUpIcon : direction === "down" ? TrendingDownIcon : MinusIcon;
   return (
     <span
       data-slot="delta"
-      className={cn(
-        "inline-flex items-center gap-1 tabular-nums",
-        direction === "up" && "text-positive",
-        direction === "down" && "text-negative",
-        direction === null && "text-muted-foreground",
-        className,
-      )}
+      data-direction={direction}
+      className={cn("inline-flex items-center gap-1 whitespace-nowrap", className)}
     >
-      {direction && <span aria-hidden="true">{direction === "up" ? "▲" : "▼"}</span>}
-      {direction && <span className="sr-only">{direction}</span>}
+      <Icon
+        aria-hidden="true"
+        className={cn(
+          "size-3.5 shrink-0",
+          direction === "up" && "text-positive",
+          direction === "down" && "text-negative",
+          direction === "none" && "text-muted-foreground",
+        )}
+      />
+      {direction === "up" ? "+" : direction === "down" ? MINUS : ""}
       {size}
     </span>
   );
