@@ -100,14 +100,38 @@ and support one keyboard entry with arrow navigation. `WeekdayHeatmap` accepts
 
 `SiyahiProvider` sets how data blocks sit on the page:
 
-- `surface="ruled"` (default, even outside a provider): unboxed blocks;
-  `PanelGrid` draws hairlines between them.
+- `surface="card"` (default, even outside a provider): each block is a card
+  lifted off a faintly tinted canvas.
+- `surface="ruled"`: unboxed blocks; `PanelGrid` draws hairlines between them.
 - `surface="open"`: no boxes or rules; card padding is removed.
-- `surface="card"`: shadcn's filled Nova cards with a ring.
 
 Nest a provider to change one section. Stack `PageSection` blocks with
 `flex flex-col gap-6`; use `PanelGrid` for blocks side by side. Categories use
 neutral outline badges, leaving colour for meaning and chart series.
+
+## Colour
+
+Colour is placed, not spread. A page is neutral greys plus colour that carries
+a meaning:
+
+- **Ink indigo** is the accent: links, focus rings, the selected sidebar item,
+  the first chart series and an `accent` `Callout`. Buttons, badges and toggles
+  stay monochrome.
+- **Green and red** mean a gain and a loss, always with ▲ or ▼ (`Delta`).
+  **Amber** means caution. None of them decorates.
+- **Emphasis tints the whole surface.** A caution is `WarningAlert`; a point set
+  apart is `Callout` (`neutral`, `accent`, `warning`, `positive`,
+  `negative`); a quotation is `Quote`. Each takes a faint wash of its colour
+  inside a 1px border of the same colour all round. Large marks follow the same
+  rule: gain and loss bars are a tint inside a full-colour edge, not solid
+  slabs.
+- **Never a stripe down one side.** Do not mark a notice, card, row or quote
+  with a left (or any single-side) coloured border; tint the box or add an
+  icon. 1px neutral dividers between columns are separators, not accents, and
+  are fine.
+- Categories (a broker, a sector, an asset class) stay neutral: outline badges,
+  never a hue each. Ordered buckets (largest 5, next 5, rest) use steps of one
+  colour, not separate hues.
 
 ## Dark mode
 

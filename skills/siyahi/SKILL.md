@@ -56,7 +56,8 @@ layouts and product-specific logic belong in the consuming app.
 - Never mark a notice, card, row or quote with one coloured edge (a left or
   side border stripe). A warning is `WarningAlert`, tinted across the whole
   card; anything else that needs emphasis is tinted whole or carries an icon.
-- The installed README owns surfaces, chart colours, locale and dark mode.
+- The installed README owns surfaces, colour (its Colour section is the
+  rule for placing colour), chart colours, locale and dark mode.
   Include `<meta name="color-scheme" content="light dark">` in app HTML.
   Follow the package's reduced-motion behaviour; JavaScript-started motion
   checks `matchMedia("(prefers-reduced-motion: reduce)")` too.
