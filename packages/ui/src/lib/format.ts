@@ -33,7 +33,7 @@ const NUMBER = new Set<Intl.NumberFormatPartTypes>(["integer", "group", "decimal
  * A short amount: ₹2.4L and ₹40Cr in en-IN, $2.4M in en-US. Indian readers
  * count in thousands up to a lakh, so in an Indian-region locale amounts under
  * one lakh print in full (₹99,999), never as ₹99.9K. Signed figures belong in
- * `Delta`, which adds the arrow.
+ * `Delta`, which adds the sign and a trend icon.
  *
  * Give `scale`, the largest amount on the same axis, and every tick takes that
  * amount's unit, to two decimals so close ticks stay apart: ₹1.5L, ₹0.75L,

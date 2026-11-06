@@ -13,7 +13,9 @@ a meaning:
 - **Ink indigo** is the accent: links, focus rings, the selected sidebar item,
   the first chart series and an `accent` `Callout`. Buttons, badges and toggles
   stay monochrome.
-- **Green and red** mean a gain and a loss, always with ▲ or ▼ (`Delta`).
+- **Green and red** mean a gain and a loss. A signed figure is `Delta`: the figure in the text colour with its
+  `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
+  colour a run of figures green and red.
   **Amber** means caution. None of them decorates.
 - **Emphasis tints the whole surface.** A caution is `WarningAlert`; a point set
   apart is `Callout` (`neutral`, `accent`, `warning`, `positive`,
