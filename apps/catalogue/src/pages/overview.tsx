@@ -1,7 +1,6 @@
 import { HouseIcon } from "lucide-react";
 import { InlineCode } from "@siyahi/ui";
 import { Code } from "../code";
-import { Example, Lead } from "../example";
 import type { Page } from "../page";
 
 const RULES = [
@@ -17,7 +16,6 @@ const RULES = [
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables hide columns that do not fit, never their meta.compact ones, behind an All columns toggle, sidebar becomes a drawer.",
 ];
 
-// Where a developer goes for a task, before the setup details.
 const START: [href: string, title: string, use: string][] = [
   ["#/foundations", "Foundations", "Colours, type, spacing and surfaces: the tokens every page names."],
   ["#/components", "Components", "Buttons, badges, cards, tabs and the other shadcn parts, as shipped."],
@@ -72,20 +70,19 @@ export const overview: Page = {
   title: "Siyahi",
   icon: <HouseIcon />,
   lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a finance theme, a few compositions, locale-aware formatters, a lint and this catalogue.",
-  sections: [
+  // Overview is the front page: a live dashboard and the setup, read top to bottom.
+  layout: "stack",
+  families: [
     {
       id: "at-a-glance",
       title: "At a glance",
-      body: (
-        <>
-          <Lead>A page built from the package: a metric strip, a chart card and a data table, all live.</Lead>
-          <Example name="overview-dashboard" />
-        </>
-      ),
+      lead: "A page built from the package: a metric strip, a chart card and a data table, all live.",
+      examples: [{ name: "overview-dashboard", caption: "A metric strip, a chart card and a data table on one page." }],
     },
     {
       id: "start",
       title: "Start here",
+      lead: "Where a developer goes for a task, before the setup details.",
       body: (
         <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
           {START.map(([href, title, use]) => (
@@ -102,13 +99,9 @@ export const overview: Page = {
     {
       id: "install",
       title: "Install",
+      lead: "Pre-1.0 releases are published under the next tag. The app needs React 19 and Tailwind v4 with the Tailwind Vite plugin: the stylesheet is Tailwind source, so without the plugin every component is unstyled. A Next.js app uses @tailwindcss/postcss instead.",
       body: (
         <>
-          <Lead>
-            Pre-1.0 releases are published under the next tag. The app needs React 19 and Tailwind v4 with the Tailwind
-            Vite plugin: the stylesheet is Tailwind source, so without the plugin every component is unstyled. A Next.js
-            app uses @tailwindcss/postcss instead.
-          </Lead>
           <Code>{INSTALL}</Code>
           <p className="max-w-prose">
             Everything comes from one import path, <InlineCode>@siyahi/ui</InlineCode>, including the chart cards. Add
@@ -125,49 +118,25 @@ export const overview: Page = {
     {
       id: "locale",
       title: "Locale",
-      body: (
-        <>
-          <Lead>
-            Numbers, money and times default to en-IN, INR and Asia/Kolkata: 1,53,110, ₹2.4L, 14:30 IST. In an
-            Indian-region locale moneyCompact prints amounts under one lakh in full (₹99,999), never as K. Pass another
-            locale to the provider to change every formatter and component under it. Signed figures go through Delta,
-            which adds the arrow; the formatters print only a minus sign.
-          </Lead>
-          <Code>{LOCALE}</Code>
-        </>
-      ),
+      lead: "Numbers, money and times default to en-IN, INR and Asia/Kolkata: 1,53,110, ₹2.4L, 14:30 IST. In an Indian-region locale moneyCompact prints amounts under one lakh in full (₹99,999), never as K. Pass another locale to the provider to change every formatter and component under it. Signed figures go through Delta, which adds the arrow; the formatters print only a minus sign.",
+      body: <Code>{LOCALE}</Code>,
     },
     {
       id: "lint",
       title: "Lint",
-      body: (
-        <>
-          <Lead>
-            @siyahi/tools ships an oxlint plugin. Its rules run only in files that import @siyahi/ui, so older pages are
-            left alone. They reject colour literals, Tailwind palette colours, arbitrary values, dark: and light:
-            variants, numeric font sizes and per-scheme chart theme maps.
-          </Lead>
-          <Code>{LINT}</Code>
-        </>
-      ),
+      lead: "@siyahi/tools ships an oxlint plugin. Its rules run only in files that import @siyahi/ui, so older pages are left alone. They reject colour literals, Tailwind palette colours, arbitrary values, dark: and light: variants, numeric font sizes and per-scheme chart theme maps.",
+      body: <Code>{LINT}</Code>,
     },
     {
       id: "dark-mode",
       title: "Dark mode",
-      body: (
-        <>
-          <Lead>
-            The scheme follows the device through prefers-color-scheme. There is no toggle and no class to set. The
-            theme's dark values sit under the same dark variant as the dark: utilities, so an app that wants its own
-            toggle swaps that one line and sets the class on html itself.
-          </Lead>
-          <Code>{SCHEME}</Code>
-        </>
-      ),
+      lead: "The scheme follows the device through prefers-color-scheme. There is no toggle and no class to set. The theme's dark values sit under the same dark variant as the dark: utilities, so an app that wants its own toggle swaps that one line and sets the class on html itself.",
+      body: <Code>{SCHEME}</Code>,
     },
     {
       id: "rules",
       title: "The ten rules",
+      lead: "What every Siyahi page keeps.",
       body: (
         <ol className="flex max-w-prose list-decimal flex-col gap-2 pl-5">
           {RULES.map((rule) => (

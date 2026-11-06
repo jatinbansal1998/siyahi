@@ -24,7 +24,8 @@ describe("responsive table", () => {
 
   it("scrolls the instrument away in narrow containers and restores freezing without losing search or sort", async () => {
     const { page } = catalogue;
-    const section = page.locator('#data-table [data-slot="card"]').first();
+    // The family's Props table is a card too; the table under test is the first example's.
+    const section = page.locator('#data-table [data-slot="example"] [data-slot="card"]').first();
     const scroll = section.locator('[data-slot="table-container"]');
     const instrument = section.locator('tbody td[data-col-id="symbol"]').first();
     await page.setViewportSize({ width: 390, height: 844 });

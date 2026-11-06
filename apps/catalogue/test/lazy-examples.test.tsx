@@ -32,7 +32,8 @@ it("loads example source only when requested and keeps it copyable", async () =>
   await section.locator("pre").waitFor();
   expect((await section.locator("pre").innerText()).includes('from "@siyahi/ui"')).toBe(true);
   expect(fetched.some((url) => url.includes("button.tsx"))).toBe(true);
-  await page.getByRole("link", { name: "All Components examples", exact: true }).click();
-  await page.locator("main > section").nth(1).waitFor();
-  expect(await page.locator("main > section").count()).toBeGreaterThan(1);
+  // Back up to the category, which lists the families and loads none of their examples.
+  await page.getByRole("navigation", { name: "breadcrumb" }).getByRole("link", { name: "Components" }).click();
+  await page.getByRole("heading", { level: 1, name: "Components" }).waitFor();
+  expect(await page.locator('[data-slot="example"]').count()).toBe(0);
 }, 30_000);

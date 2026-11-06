@@ -9,13 +9,24 @@ let catalogue: Catalogue;
 let page: Page;
 
 beforeAll(async () => {
-  catalogue = await openCatalogue("data");
+  catalogue = await openCatalogue("data/bar-chart");
   page = catalogue.page;
 }, 60_000);
 
 afterAll(async () => {
   await catalogue?.close();
 });
+
+/** Opens a Data family's own route: the Data page itself only links to the families. */
+async function show(family: string): Promise<void> {
+  const hash = `#/data/${family}`;
+  if ((await page.evaluate(() => location.hash)) !== hash) {
+    await page.evaluate((next) => {
+      location.hash = next;
+    }, hash);
+  }
+  await page.locator(`#${family} [data-slot="example-preview"]`).first().waitFor();
+}
 
 const card = (title: string): Locator =>
   page.locator('[data-slot="card"]', { has: page.getByText(title, { exact: true }) });
@@ -128,6 +139,7 @@ const returnLines = (month: string, portfolio: string, index: string) => [
 
 describe("chart cards", { timeout: 60_000 }, () => {
   it("category xTicks labels only April without dropping months or their tooltips on every series card", async () => {
+    await show("category-ticks");
     for (const kind of ["bars", "line", "area"]) {
       const chart = card(`Monthly orders, ${kind}`);
       await chart.scrollIntoViewIfNeeded();
@@ -155,6 +167,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("category xTicks follows the category axis on sideways bars", async () => {
+    await show("category-ticks");
     const chart = card("Monthly orders, sideways");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -167,6 +180,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("keeps sideways bars visible with a long selected category on mobile", async () => {
+    await show("category-ticks");
     const viewport = page.viewportSize()!;
     try {
       await page.setViewportSize({ width: 390, height: 844 });
@@ -192,6 +206,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("keeps wrapped category names and their details apart on phones", async () => {
+    await show("bar-chart");
     const viewport = page.viewportSize()!;
     try {
       for (const width of [320, 390]) {
@@ -226,6 +241,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("BarChartCard names the hovered category and its formatted values", async () => {
+    await show("bar-chart");
     await hoverEachBar("Orders by hour", [
       ["09:00", "Orders", "42"],
       ["10:00", "Orders", "31"],
@@ -244,6 +260,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("AreaChartCard names the hovered month and its formatted values", async () => {
+    await show("area-chart");
     await hoverEachPoint("Portfolio value", [
       valueLines("May", "₹36,00,000", "₹38,20,000"),
       valueLines("Jun", "₹36,85,000", "₹39,50,000"),
@@ -255,6 +272,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("LineChartCard names the hovered month and its formatted values", async () => {
+    await show("line-chart");
     await hoverEachPoint("Return against the index", [
       returnLines("May", "1.2%", "0.8%"),
       returnLines("Jun", "2.1%", "1.5%"),
@@ -266,6 +284,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("the quarterly bar example starts grouped and stacks on Stacked", async () => {
+    await show("bar-chart");
     // A fresh page, so the default is what this reads and not a layout an earlier test chose.
     await page.reload();
     const chart = card("Money invested by quarter");
@@ -276,6 +295,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("the quarterly bar example's stacked tooltip lists every series at the hovered quarter", async () => {
+    await show("bar-chart");
     const chart = card("Money invested by quarter");
     await chart.scrollIntoViewIfNeeded();
     await chart.getByRole("button", { name: "Stacked" }).click();
@@ -289,6 +309,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a numeric x axis puts each tick at its value, not in a slot per row", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -304,6 +325,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("reference lines mark limits dashed and events solid, each with its label and emphasis", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const lines = chart.locator(".recharts-reference-line");
@@ -341,6 +363,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("the tooltip heading can say more than the x tick", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     await settled(chart.locator(".recharts-line-curve"));
@@ -356,12 +379,14 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a series of losses runs down from zero, unstacked, with the negative colour in its legend", async () => {
+    await show("bar-chart");
     const chart = card("F&O realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
     await settled(bars);
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
-    expect(await ticks.allTextContents()).toEqual(["-₹1L", "-₹75,000", "-₹50,000", "-₹25,000", "₹0"]);
+    // Every tick in the unit of the largest, so the axis does not switch from lakh to thousands half way down.
+    expect(await ticks.allTextContents()).toEqual(["-₹1L", "-₹0.75L", "-₹0.5L", "-₹0.25L", "₹0"]);
     // Zero ends the value axis, so every bar hangs from the plot's top edge (the grid's box adds half a stroke).
     const plot = await chart.locator(".recharts-cartesian-grid").boundingBox();
     if (!plot) throw new Error("not laid out");
@@ -373,6 +398,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a fixed y domain and ticks hold the value axis at 0 to 100%", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -386,6 +412,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a linear curve joins samples with straight segments", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const path = chart.locator("path.recharts-line-curve");
@@ -395,6 +422,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("axis titles sit under the x ticks and beside the y ticks, read bottom to top", async () => {
+    await show("bar-chart");
     const chart = card("Orders by hour");
     await chart.scrollIntoViewIfNeeded();
     // Recharts draws an axis title as text with the class it is given, in a layer of its own.
@@ -418,6 +446,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a two-line x tick prints each row's figure under its name", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-xAxis-tick-labels text");
@@ -441,6 +470,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a bar below zero takes the series' negative colour, in the plot and the tooltip", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
@@ -459,6 +489,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a click picks a year, fading the others, and a second click clears it", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
@@ -477,6 +508,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("selects the full highlighted category outside the bar", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
@@ -494,6 +526,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("horizontal bars put the categories down the left, each name beside its own bars", async () => {
+    await show("bar-chart");
     const chart = card("Sectors against the index");
     await chart.scrollIntoViewIfNeeded();
     const names = chart.locator(".recharts-yAxis-tick-labels text.recharts-cartesian-axis-tick-value");
@@ -521,6 +554,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("two-line ticks remain readable and do not overlap in a narrow scrolling chart", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     const fill = (selector: string) =>
       chart
@@ -557,6 +591,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("stacked bars put negative values below zero, not hanging from the positive stack", async () => {
+    await show("bar-chart");
     const chart = card("Cash in and out by month");
     await chart.scrollIntoViewIfNeeded();
     const layers = chart.locator(".recharts-bar");
@@ -577,6 +612,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("sideways, a value level runs down the plot at its value on the fixed axis", async () => {
+    await show("bar-chart");
     const chart = card("Sectors against the index");
     await chart.scrollIntoViewIfNeeded();
     const line = chart.locator(".recharts-reference-line line");
@@ -599,6 +635,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a value formatter is called with the value alone, so its own second parameter keeps its default", async () => {
+    await show("line-chart");
     const chart = card("Return against the index");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -608,6 +645,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("draws every explicit x tick inside the chart, the ones at both ends of the domain included", async () => {
+    await show("limits-and-events");
     const chart = card("Memory in use, GiB");
     const all = ["15:00", "15:10", "15:20", "15:30", "15:40", "15:50", "16:00", "16:10"];
     const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -630,6 +668,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("names each mark after its series, and no mark on the page carries a name of undefined", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
