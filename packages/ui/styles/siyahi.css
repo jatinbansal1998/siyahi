@@ -161,8 +161,8 @@
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.6 0.14 275);
-    /* Tailwind green-400, red-400, amber-400, blue-400. */
-    --positive: oklch(0.792 0.209 151.711);
+    /* Green toned down from Tailwind green-400 to the lightness and calm of red-400 beside it, so gains do not shout; amber-400. */
+    --positive: oklch(0.74 0.16 151.711);
     --positive-foreground: oklch(0.145 0 0);
     --negative: oklch(0.704 0.191 22.216);
     --negative-foreground: oklch(0.145 0 0);
@@ -209,14 +209,12 @@
 }
 
 /*
- * A selected outline toggle fills with the foreground, black on white and white
- * on black, so the reader sees at once which view is on; stock shadcn marks it
- * with a faint grey. Unlayered, to outrank the stock aria-pressed:bg-muted.
+ * Every selected toggle, a view switch or a filter chip alike, fills with the
+ * foreground, black on white and white on black, so the reader sees at once
+ * what is on; stock shadcn marks it with a faint grey. Unlayered, to outrank
+ * the stock aria-pressed:bg-muted.
  */
-:is([data-slot="toggle"], [data-slot="toggle-group-item"])[data-variant="outline"]:is(
-    [aria-pressed="true"],
-    [data-pressed]
-  ) {
+:is([data-slot="toggle"], [data-slot="toggle-group-item"]):is([aria-pressed="true"], [data-pressed]) {
   background-color: var(--foreground);
   color: var(--background);
   border-color: var(--foreground);

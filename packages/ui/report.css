@@ -66,7 +66,7 @@
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.6 0.14 275);
-    --positive: oklch(0.792 0.209 151.711);
+    --positive: oklch(0.74 0.16 151.711);
     --positive-foreground: oklch(0.145 0 0);
     --negative: oklch(0.704 0.191 22.216);
     --negative-foreground: oklch(0.145 0 0);

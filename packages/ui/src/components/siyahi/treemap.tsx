@@ -76,7 +76,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
           <svg key={group} {...box} data-slot="treemap-group" onPointerEnter={() => onHover?.(null)}>
             <rect width="100%" height="100%" fill="none" pointerEvents="all" />
             <text x={2} y={12} className="fill-muted-foreground font-medium">
-              {group}
+              {fit(group, box.width - 4)}
             </text>
           </svg>
         ))}
@@ -144,7 +144,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
               )}
               {box.width > 56 && box.height > 36 && (
                 <text x={8} y={18} className="fill-foreground">
-                  <tspan className="font-medium">{item.name}</tspan>
+                  <tspan className="font-medium">{fit(item.name, box.width - 16)}</tspan>
                   <tspan x={8} dy={16}>
                     {change(item.change)}
                   </tspan>
@@ -159,6 +159,14 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
 }
 
 // Painted with an SVG fill, as the tiles are, so a swatch and a tile of one step are the same colour.
+// Geist at text-xs averages about 6.6px a character; a label longer than its box ends in an ellipsis instead
+// of being cut mid-letter by the box's clip.
+const CHAR_PX = 6.6;
+function fit(text: string, width: number): string {
+  const room = Math.floor(width / CHAR_PX);
+  return text.length <= room ? text : `${text.slice(0, Math.max(room - 1, 1)).trimEnd()}…`;
+}
+
 function Swatch({ label, fill }: { label: string; fill: string }) {
   return (
     <svg data-slot="treemap-legend-swatch" className="h-3 flex-1">

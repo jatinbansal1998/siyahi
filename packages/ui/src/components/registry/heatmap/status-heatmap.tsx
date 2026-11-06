@@ -59,13 +59,14 @@ export type StatusColorConfig = Record<number, string> & {
   healthy?: string;
 };
 
-// Siyahi edit: the defaults name the theme's meaning colours instead of fixed
-// Tailwind values, so they follow the scheme and pass the contrast check.
+// Siyahi edit: the defaults name the theme's colours instead of fixed Tailwind
+// values. Green and red mean gain and loss, so health is not green: a healthy
+// day is a quiet grey, degraded is the warning colour, critical the error one.
 const DEFAULT_COLORS: Record<number, string> = {
   0: "var(--color-secondary)",
-  1: "var(--negative)", // critical
+  1: "var(--destructive)", // critical
   2: "var(--warning)", // degraded
-  3: "var(--positive)", // healthy
+  3: "color-mix(in oklab, var(--muted-foreground) 40%, transparent)", // healthy
 };
 
 const SEMANTIC_KEYS: Record<

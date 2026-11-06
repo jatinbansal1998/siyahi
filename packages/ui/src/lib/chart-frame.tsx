@@ -311,7 +311,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
               throttledEvents={onClick ? [] : undefined}
               // Bottom-axis ticks need room at the right end; sideways labels already have the left axis.
               // A sideways chart's value axis ends in a centred tick label, which needs room past the plot.
+              // Room above the plot for half the top tick label, so that label centres on its gridline.
               margin={{
+                top: 12,
                 left: 0,
                 right: !horizontal && xTicks ? endRoom(xFormatter, xTicks) : horizontal && yTickFormatter ? 28 : 8,
               }}
