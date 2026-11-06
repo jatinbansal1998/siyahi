@@ -19,13 +19,14 @@ export default function RangePositionExample() {
   const f = useFormat();
   const price = (value: number) => f.money(value, 2);
   return (
-    <Card>
+    // Side by side once the card, not the screen, has room: in a narrow panel on a wide screen they stack.
+    <Card className="@container/range">
       <CardHeader>
         <CardTitle>HDFCBANK sits {f.pct((close - low) / (high - low), 0)} of the way up its 52-week range</CardTitle>
         <CardDescription>The last close against the year's lowest and highest close</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-8 md:flex-row md:items-end">
-        <DataList className="md:w-56 md:shrink-0">
+      <CardContent className="flex flex-col gap-8 @xl/range:flex-row @xl/range:items-end">
+        <DataList className="@xl/range:w-56 @xl/range:shrink-0">
           <DataListItem label="52-week low, 7 months ago">
             <span className="tabular-nums">{price(low)}</span>
           </DataListItem>
@@ -44,7 +45,7 @@ export default function RangePositionExample() {
           highLabel="52-week high"
           caption="of the way up the 52-week range"
           valueFormatter={price}
-          className="md:flex-1"
+          className="@xl/range:flex-1"
         />
       </CardContent>
     </Card>

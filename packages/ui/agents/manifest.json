@@ -379,6 +379,13 @@
       ]
     },
     {
+      "file": "agents/examples/button-states.tsx",
+      "components": [
+        "Button",
+        "Toggle"
+      ]
+    },
+    {
       "file": "agents/examples/button.tsx",
       "components": [
         "Button"
@@ -756,6 +763,12 @@
         "WeekdayHeatmapBlock",
         "WeekdayHeatmapBody",
         "WeekdayHeatmapLegend"
+      ]
+    },
+    {
+      "file": "agents/examples/input-states.tsx",
+      "components": [
+        "Input"
       ]
     },
     {

@@ -276,7 +276,8 @@ function useNear<E extends Element>() {
 
 /**
  * A family's first example, live, in a band at the top of its card, so the index shows each component
- * rather than describing it. It mounts once in view, so a long index does not draw every chart at once. It is a
+ * rather than describing it. It mounts once in view, so a long index does not draw every chart at once, and a click away is not held up by charts
+ * the reader never saw. It is a
  * picture of the example: inert, and hidden from assistive technology, since the card's link names the family.
  */
 function Preview({ name }: { name: string }) {

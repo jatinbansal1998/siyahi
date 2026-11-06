@@ -41,7 +41,10 @@ describe("touch controls", () => {
     // The sheet scales in; measure the button at rest, not partway through the opening animation.
     await page
       .getByRole("dialog")
-      .evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((animation) => animation.finished)));
+      // A cancelled animation rejects its finished promise; it has ended all the same.
+      .evaluate((el) =>
+        Promise.all(el.getAnimations({ subtree: true }).map((animation) => animation.finished.catch(() => undefined))),
+      );
     expect(await done.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
     await done.click();
   });

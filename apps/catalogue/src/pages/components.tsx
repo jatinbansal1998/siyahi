@@ -1,17 +1,18 @@
 import { LayersIcon, SlidersHorizontalIcon } from "lucide-react";
-import type { Family, Page, PropRow } from "../page";
+import type { ExampleSpec, Family, Page, PropRow } from "../page";
 
 interface Entry extends Omit<Family, "examples"> {
-  /** What its one example, `examples/<id>.tsx`, shows. */
+  /** What its main example, `examples/<id>.tsx`, shows. */
   caption: string;
-  compact?: boolean;
+  /** Examples after the main one, such as its states. */
+  more?: ExampleSpec[];
 }
 
-// Most parts have one example named after the part itself.
+// Most parts lead with one example named after the part itself.
 function familiesOf(entries: Entry[]): Family[] {
-  return entries.map(({ caption, compact, ...family }) => ({
+  return entries.map(({ caption, more = [], ...family }) => ({
     ...family,
-    examples: [{ name: family.id, caption, compact }],
+    examples: [{ name: family.id, caption }, ...more],
   }));
 }
 
@@ -42,6 +43,7 @@ const display: Entry[] = [
     ],
     rules: ['A link in prose is <a className="text-link">, not variant="link".'],
     caption: "Primary Save, outline Export with its icon, the other variants and an icon-only button.",
+    more: [{ name: "button-states", caption: "Disabled, busy with a spinner, and pressed, as a toggle shows it." }],
   },
   {
     id: "badge",
@@ -255,6 +257,7 @@ const controls: Entry[] = [
     lead: "Text entry, with an icon in an input group when the field needs one.",
     imports: ["Input", "InputGroup", "InputGroupAddon", "InputGroupInput", "Textarea"],
     caption: "A plain input, a search input with its icon, and a textarea.",
+    more: [{ name: "input-states", caption: "Labelled, with a hint, invalid with its error, and disabled." }],
   },
   {
     id: "slider",
