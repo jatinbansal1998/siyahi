@@ -57,16 +57,18 @@ export default function TreemapExample() {
               onSelect={setSelected}
             />
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="flex-col items-start gap-0 tabular-nums">
-            {hovered && (
-              <>
-                <span className="font-medium">
-                  {hovered.name} · {hovered.broker}
-                </span>
-                <span>{hovered.group}</span>
-                <span>{figures(hovered)}</span>
-              </>
-            )}
+          <TooltipContent side="bottom">
+            <div className="flex flex-col items-start">
+              {hovered && (
+                <>
+                  <span className="font-medium">
+                    {hovered.name} · {hovered.broker}
+                  </span>
+                  <span>{hovered.group}</span>
+                  <span>{figures(hovered)}</span>
+                </>
+              )}
+            </div>
           </TooltipContent>
         </Tooltip>
         <TreemapLegend range={0.6} className="mt-3 ml-auto" />

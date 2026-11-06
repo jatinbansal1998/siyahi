@@ -33,28 +33,30 @@ export default function DistributionBarTugExample() {
         <CardTitle>The tug-of-war</CardTitle>
         <CardDescription>Each closed position, losses left of break-even and gains right</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
-        <DistributionBar
-          min={-reach}
-          max={reach}
-          showLegend={false}
-          markers={[{ at: 0 }]}
-          highlighted={focus?.name ?? null}
-          onHover={setFocus}
-          segments={positions.map(({ name, value }) => ({
-            name,
-            value,
-            color: value > 0 ? "var(--positive)" : "var(--negative)",
-          }))}
-        />
-        <div className="grid grid-cols-3 text-xs text-muted-foreground tabular-nums">
-          <span>
-            losers <Delta value={lost} format="money" />
-          </span>
-          <span className="text-center">break-even</span>
-          <span className="text-right">
-            winners <Delta value={won} format="money" />
-          </span>
+      <CardContent>
+        <div className="flex flex-col gap-2">
+          <DistributionBar
+            min={-reach}
+            max={reach}
+            showLegend={false}
+            markers={[{ at: 0 }]}
+            highlighted={focus?.name ?? null}
+            onHover={setFocus}
+            segments={positions.map(({ name, value }) => ({
+              name,
+              value,
+              color: value > 0 ? "var(--positive)" : "var(--negative)",
+            }))}
+          />
+          <div className="grid grid-cols-3 text-xs text-muted-foreground tabular-nums">
+            <span>
+              losers <Delta value={lost} format="money" />
+            </span>
+            <span className="text-center">break-even</span>
+            <span className="text-right">
+              winners <Delta value={won} format="money" />
+            </span>
+          </div>
         </div>
       </CardContent>
       <CardFooter className="min-h-12" aria-live="polite">

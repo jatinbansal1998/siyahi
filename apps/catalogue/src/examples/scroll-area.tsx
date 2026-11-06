@@ -6,15 +6,17 @@ const months = Array.from({ length: 24 }, (_, i) =>
 
 export default function ScrollAreaExample() {
   return (
-    <ScrollArea className="h-48 w-56 rounded-lg border">
-      <div className="p-4">
-        {months.map((month) => (
-          <div key={month}>
-            <div className="text-sm">{month}</div>
-            <Separator className="my-2" />
-          </div>
-        ))}
-      </div>
-    </ScrollArea>
+    <div className="h-48 w-56 overflow-hidden rounded-lg border">
+      <ScrollArea className="h-full">
+        <div className="p-4">
+          {months.map((month) => (
+            <div key={month}>
+              <div className="text-sm">{month}</div>
+              <Separator className="my-2" />
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
   );
 }

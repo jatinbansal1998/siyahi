@@ -28,7 +28,9 @@ export default function CardExample() {
       <CardContent>
         <p className="text-3xl font-semibold">{money(4512300)}</p>
       </CardContent>
-      <CardFooter className="text-muted-foreground">Updated after the market close</CardFooter>
+      <CardFooter>
+        <p className="text-muted-foreground">Updated after the market close</p>
+      </CardFooter>
     </Card>
   );
 }

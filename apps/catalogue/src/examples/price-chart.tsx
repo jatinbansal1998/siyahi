@@ -16,8 +16,8 @@ export default function PriceChartExample() {
       <CardContent>
         <PriceChart data={data} height={256} />
       </CardContent>
-      <CardFooter className="text-xs text-muted-foreground">
-        <span>
+      <CardFooter>
+        <span className="text-xs text-muted-foreground">
           Chart by{" "}
           <a
             className="text-link underline-offset-4 hover:underline"

@@ -148,21 +148,23 @@ export const foundations: Page = {
       lead: "Signed scales mix --positive or --negative toward the card colour in five steps; unsigned scales use steps of --chart-1.",
       body: (
         <Card>
-          <CardContent className="flex flex-col gap-2">
-            {["--negative", "--positive", "--chart-1"].map((token) => (
-              <div key={token} className="flex items-center gap-2">
-                <span className="w-24 font-mono text-xs">{token}</span>
-                {HEAT_STEPS.map((step) => (
-                  <div
-                    key={step}
-                    className="flex h-8 flex-1 items-center justify-center rounded-sm text-xs"
-                    style={{ backgroundColor: `color-mix(in oklab, var(${token}) ${step}%, var(--card))` }}
-                  >
-                    {step}%
-                  </div>
-                ))}
-              </div>
-            ))}
+          <CardContent>
+            <div className="flex flex-col gap-2">
+              {["--negative", "--positive", "--chart-1"].map((token) => (
+                <div key={token} className="flex items-center gap-2">
+                  <span className="w-24 font-mono text-xs">{token}</span>
+                  {HEAT_STEPS.map((step) => (
+                    <div
+                      key={step}
+                      className="flex h-8 flex-1 items-center justify-center rounded-sm text-xs"
+                      style={{ backgroundColor: `color-mix(in oklab, var(${token}) ${step}%, var(--card))` }}
+                    >
+                      {step}%
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       ),

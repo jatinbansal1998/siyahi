@@ -59,11 +59,13 @@ export default function TargetRowsExample() {
         <CardTitle>Debt is 5.6 points under its target</CardTitle>
         <CardDescription>Each sleeve's share of the portfolio against the plan, on one 0–50% scale</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-2">
-        <p className="text-sm text-muted-foreground">
-          Bar: today's weight. Tall tick: the target. Shading: within 5 points of it, darker within 2.
-        </p>
-        <TargetRows rows={rows} domain={[0, 0.5]} valueFormatter={(value) => f.pct(value)} />
+      <CardContent>
+        <div className="grid gap-2">
+          <p className="text-sm text-muted-foreground">
+            Bar: today's weight. Tall tick: the target. Shading: within 5 points of it, darker within 2.
+          </p>
+          <TargetRows rows={rows} domain={[0, 0.5]} valueFormatter={(value) => f.pct(value)} />
+        </div>
       </CardContent>
     </Card>
   );
