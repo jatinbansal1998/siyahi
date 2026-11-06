@@ -57,10 +57,10 @@ const display: Entry[] = [
       ),
     ],
     rules: [
-      "Categories stay neutral: a broker, a sector or an asset class is an outline badge, never a colour.",
+      "Categories stay neutral: a team, a region or a product line is an outline badge, never a colour.",
       "A signed figure goes in an outline badge too, as a Delta.",
     ],
-    caption: "Each variant, with a broker and signed figures in outline badges.",
+    caption: "Each variant, with a team and signed figures in outline badges.",
   },
   {
     id: "card",
@@ -71,7 +71,7 @@ const display: Entry[] = [
       { name: "size", type: '"default" | "sm"', default: '"default"', purpose: "Padding: 16px, or 12px for sm." },
     ],
     rules: ["One level only: no card inside a card."],
-    caption: "A portfolio value with its description, an action and a footer.",
+    caption: "A quarter's revenue with its description, an action and a footer.",
   },
   {
     id: "code-block",
@@ -132,19 +132,19 @@ const display: Entry[] = [
     title: "Tabs",
     lead: "Views switch with tabs.",
     imports: ["Tabs", "TabsList", "TabsTrigger", "TabsContent"],
-    caption: "Holdings, Realized and Cash flow as three views.",
+    caption: "Orders, Returns and Payouts as three views.",
   },
   {
     id: "progress",
     title: "Progress",
     lead: "A long import or upload.",
     imports: ["Progress", "ProgressLabel", "ProgressValue"],
-    caption: "Statements imported, part way through, with its label and value.",
+    caption: "Orders imported, part way through, with its label and value.",
   },
   {
     id: "progress-tone",
     title: "ToneProgress",
-    lead: "Progress with its bar in a meaning colour, such as each position's share of the booked P&L.",
+    lead: "Progress with its bar in a meaning colour, such as each channel's share of a quarter's profit and loss.",
     imports: ["ToneProgress"],
     props: [
       {
@@ -154,7 +154,8 @@ const display: Entry[] = [
       },
     ],
     rules: ["Write the figure beside the bar; the colour is never the only cue."],
-    caption: "Each position's share of the booked P&L, gains and losses, with the figure beside each bar.",
+    caption:
+      "Each channel's share of the quarter's profit and loss, gains and losses, with the figure beside each bar.",
   },
   {
     id: "skeleton",
@@ -168,7 +169,7 @@ const display: Entry[] = [
     title: "Separator",
     lead: "A thin rule between items.",
     imports: ["Separator"],
-    caption: "Asset classes parted by rules.",
+    caption: "Three views parted by rules.",
   },
   {
     id: "breadcrumb",
@@ -182,7 +183,7 @@ const display: Entry[] = [
       "BreadcrumbPage",
       "BreadcrumbSeparator",
     ],
-    caption: "Portfolio, Equity, then INFY as the current page.",
+    caption: "Projects, Website, then Checkout redesign as the current page.",
   },
   {
     id: "scroll-area",
@@ -203,7 +204,7 @@ const display: Entry[] = [
     title: "Collapsible",
     lead: "Detail that stays out of the way until asked for.",
     imports: ["Collapsible", "CollapsibleTrigger", "CollapsibleContent"],
-    caption: "How lots are matched, shown on request.",
+    caption: "How refunds are counted, shown on request.",
   },
   {
     id: "accordion",
@@ -250,7 +251,7 @@ const controls: Entry[] = [
     title: "Select",
     lead: "Pick one option from a short list.",
     imports: ["Select", "SelectTrigger", "SelectValue", "SelectContent", "SelectGroup", "SelectItem"],
-    caption: "Pick one account from a short list.",
+    caption: "Pick one store from a short list.",
   },
   {
     id: "input",
@@ -265,7 +266,7 @@ const controls: Entry[] = [
     title: "Slider",
     lead: "A value or a range on a track.",
     imports: ["Slider"],
-    caption: "An allocation band as a range in steps of 5.",
+    caption: "A price range in steps of 5.",
   },
   {
     id: "calendar",
@@ -280,14 +281,14 @@ const controls: Entry[] = [
     lead: "A short label on hover or focus.",
     imports: ["Tooltip", "TooltipTrigger", "TooltipContent"],
     rules: ["SiyahiProvider already includes the tooltip provider."],
-    caption: "XIRR explained on hovering an info button.",
+    caption: "Churn explained on hovering an info button.",
   },
   {
     id: "popover",
     title: "Popover",
     lead: "A short explanation or a small form, anchored to its trigger.",
     imports: ["Popover", "PopoverTrigger", "PopoverContent", "PopoverHeader", "PopoverTitle", "PopoverDescription"],
-    caption: "How a price is set, opened from a button.",
+    caption: "How revenue is counted, opened from a button.",
   },
   {
     id: "dialog",
@@ -303,14 +304,14 @@ const controls: Entry[] = [
       "DialogFooter",
       "DialogClose",
     ],
-    caption: "A sell's fills over the page, closed from its footer.",
+    caption: "An order's parcels over the page, closed from its footer.",
   },
   {
     id: "sheet",
     title: "Sheet",
     lead: "A side panel, such as filters on a phone.",
     imports: ["Sheet", "SheetTrigger", "SheetContent", "SheetHeader", "SheetTitle", "SheetDescription"],
-    caption: "Ledger filters in a side panel.",
+    caption: "Order filters in a side panel.",
   },
   {
     id: "dropdown-menu",
@@ -325,14 +326,14 @@ const controls: Entry[] = [
       "DropdownMenuLabel",
       "DropdownMenuSeparator",
     ],
-    caption: "A holding's actions in a menu, a destructive one among them.",
+    caption: "An order's actions in a menu, a destructive one among them.",
   },
   {
     id: "context-menu",
     title: "Context menu",
     lead: "The same actions on right-click or long-press.",
     imports: ["ContextMenu", "ContextMenuTrigger", "ContextMenuContent", "ContextMenuItem"],
-    caption: "Copy symbol and Open chart on right-click.",
+    caption: "Copy order number and Open order on right-click.",
   },
   {
     id: "command",

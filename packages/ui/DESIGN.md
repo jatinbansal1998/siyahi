@@ -37,6 +37,6 @@ a meaning:
 - **Destructive is not loss.** `--destructive` (delete, an invalid field) is a
   deeper red than `--negative` (a loss figure), so its label reads on its own
   tint; never use one for the other.
-- Categories (a broker, a sector, an asset class) stay neutral: outline badges,
+- Categories (a team, a region, a product line) stay neutral: outline badges,
   never a hue each. Ordered buckets (largest 5, next 5, rest) use steps of one
   colour, not separate hues.

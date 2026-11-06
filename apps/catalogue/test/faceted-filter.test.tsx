@@ -19,16 +19,16 @@ describe("faceted filter labels", { timeout: 60_000 }, () => {
     const example = page.locator('#data-table [data-slot="example"]').first();
     for (const width of [1280, 390, 280]) {
       await page.setViewportSize({ width, height: 900 });
-      await example.locator('[data-slot="popover-trigger"]').filter({ hasText: "Sector" }).click();
+      await example.locator('[data-slot="popover-trigger"]').filter({ hasText: "Category" }).click();
       const popup = page.locator('[data-slot="popover-content"]');
-      const option = popup.getByRole("option", { name: /Fast Moving Consumer Goods/ });
+      const option = popup.getByRole("option", { name: /Kitchen, Dining & Tableware/ });
       await option.waitFor();
       await page.evaluate(() => document.fonts.ready);
       const layout = await option.evaluate((item) => {
         const label = [...item.querySelectorAll("span")].find(
-          (span) => span.textContent === "Fast Moving Consumer Goods",
+          (span) => span.textContent === "Kitchen, Dining & Tableware",
         );
-        if (!label) throw new Error("missing sector label");
+        if (!label) throw new Error("missing category label");
         const popupElement = item.closest('[data-slot="popover-content"]');
         if (!popupElement) throw new Error("missing filter popup");
         const box = popupElement.getBoundingClientRect();
@@ -46,11 +46,11 @@ describe("faceted filter labels", { timeout: 60_000 }, () => {
       expect(layout.right).toBeLessThanOrEqual(width);
       expect(layout.count).toBe("1");
       expect(layout.countFits).toBe(true);
-      await popup.getByRole("combobox").fill("Consumer Goods");
+      await popup.getByRole("combobox").fill("Dining");
       expect(await popup.getByRole("option").count()).toBe(1);
       await option.click();
       expect(await example.locator("tbody tr").count()).toBe(1);
-      expect(await example.locator("tbody tr").textContent()).toContain("ITC");
+      expect(await example.locator("tbody tr").textContent()).toContain("Dinner set");
       await page.reload();
     }
   });

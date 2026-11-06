@@ -2,15 +2,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@siyahi/ui";
 
 export default function TabsExample() {
   return (
-    <Tabs defaultValue="holdings">
+    <Tabs defaultValue="orders">
       <TabsList>
-        <TabsTrigger value="holdings">Holdings</TabsTrigger>
-        <TabsTrigger value="realized">Realized</TabsTrigger>
-        <TabsTrigger value="cash">Cash flow</TabsTrigger>
+        <TabsTrigger value="orders">Orders</TabsTrigger>
+        <TabsTrigger value="returns">Returns</TabsTrigger>
+        <TabsTrigger value="payouts">Payouts</TabsTrigger>
       </TabsList>
-      <TabsContent value="holdings">What you own today, valued at the last close.</TabsContent>
-      <TabsContent value="realized">Gains and losses booked by selling.</TabsContent>
-      <TabsContent value="cash">Money in and out of every account.</TabsContent>
+      <TabsContent value="orders">Every order placed, newest first.</TabsContent>
+      <TabsContent value="returns">Items sent back and the refunds paid for them.</TabsContent>
+      <TabsContent value="payouts">Money paid out to sellers each week.</TabsContent>
     </Tabs>
   );
 }

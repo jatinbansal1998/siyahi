@@ -1,6 +1,6 @@
 import { BarChartCard, useFormat, type ChartSeries } from "@siyahi/ui";
 
-// Money into and out of the account each month; out is negative. Made-up figures.
+// Money into and out of a shop's bank account each month; out is negative. Made-up figures.
 const data = [
   { month: "Jul", in: 84000, out: -52000 },
   { month: "Aug", in: 61000, out: -73000 },

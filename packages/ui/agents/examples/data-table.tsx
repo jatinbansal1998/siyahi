@@ -18,21 +18,22 @@ import {
   type DataTableColumnDef,
 } from "@siyahi/ui";
 
-interface Holding {
-  symbol: string;
-  sector: string;
-  quantity: number;
-  value: number;
+interface Product {
+  product: string;
+  category: string;
+  /** Units sold and revenue this month; change is the revenue against last week. Made-up figures. */
+  units: number;
+  revenue: number;
   change: number;
 }
 
-const holdings: Holding[] = [
-  { symbol: "INFY", sector: "IT", quantity: 120, value: 224400, change: 0.018 },
-  { symbol: "HDFCBANK", sector: "Banks", quantity: 150, value: 262500, change: -0.006 },
-  { symbol: "TCS", sector: "IT", quantity: 40, value: 166000, change: 0.004 },
-  { symbol: "ITC", sector: "Fast Moving Consumer Goods", quantity: 600, value: 276000, change: -0.012 },
-  { symbol: "ICICIBANK", sector: "Banks", quantity: 200, value: 258000, change: 0.022 },
-  { symbol: "NIFTYBEES", sector: "ETF", quantity: 900, value: 255600, change: 0.009 },
+const products: Product[] = [
+  { product: "Standing desk", category: "Furniture", units: 120, revenue: 224400, change: 0.018 },
+  { product: "Office chair", category: "Seating", units: 150, revenue: 262500, change: -0.006 },
+  { product: "Bookshelf", category: "Furniture", units: 40, revenue: 166000, change: 0.004 },
+  { product: "Dinner set", category: "Kitchen, Dining & Tableware", units: 600, revenue: 276000, change: -0.012 },
+  { product: "Kids chair", category: "Seating", units: 200, revenue: 258000, change: 0.022 },
+  { product: "Desk lamp", category: "Lighting", units: 900, revenue: 255600, change: 0.009 },
 ];
 
 // One click sorts largest (or Z) first; the title comes from meta.label.
@@ -42,22 +43,22 @@ function Money({ amount }: { amount: number }) {
   return useFormat().money(amount);
 }
 
-const columns: DataTableColumnDef<Holding>[] = [
-  { accessorKey: "symbol", header, size: 140, meta: { label: "Symbol" } },
-  { accessorKey: "sector", header, size: 120, meta: { label: "Sector" } },
-  { accessorKey: "quantity", header, size: 100, meta: { label: "Qty", variant: "number" } },
+const columns: DataTableColumnDef<Product>[] = [
+  { accessorKey: "product", header, size: 140, meta: { label: "Product" } },
+  { accessorKey: "category", header, size: 120, meta: { label: "Category" } },
+  { accessorKey: "units", header, size: 100, meta: { label: "Units", variant: "number" } },
   {
-    accessorKey: "value",
+    accessorKey: "revenue",
     header,
     size: 140,
-    meta: { label: "Value", variant: "number" },
-    cell: ({ row }) => <Money amount={row.original.value} />,
+    meta: { label: "Revenue", variant: "number" },
+    cell: ({ row }) => <Money amount={row.original.revenue} />,
   },
   {
     accessorKey: "change",
     header,
     size: 110,
-    meta: { label: "Day", variant: "number" },
+    meta: { label: "Week", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
   },
 ];
@@ -66,28 +67,28 @@ export default function DataTableExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Holdings</CardTitle>
+        <CardTitle>Products</CardTitle>
         <CardDescription>
-          Search every column, filter by sector, sort any column in one click; the symbol stays put when the table
-          scrolls in wide panels. In narrow panels every column scrolls, leaving room for the values
+          Search every column, filter by category, sort any column in one click; the product stays put when the table
+          scrolls in wide panels. In narrow panels every column scrolls, leaving room for the figures
         </CardDescription>
       </CardHeader>
       <CardContent>
         <DataTableRoot
-          data={holdings}
+          data={products}
           columns={columns}
-          initialState={{ columnPinning: { start: ["symbol"], end: [] } }}
+          initialState={{ columnPinning: { start: ["product"], end: [] } }}
         >
           <DataTableToolbarSection>
             <DataTableSearchFilter
-              placeholder="Search holdings…"
-              label="Filter holdings"
+              placeholder="Search products…"
+              label="Filter products"
               className="flex-none sm:w-64"
             />
-            <DataTableFacetedFilter accessorKey="sector" title="Sector" />
-            <DataTableRowCount unit="holdings" />
+            <DataTableFacetedFilter accessorKey="category" title="Category" />
+            <DataTableRowCount unit="products" />
           </DataTableToolbarSection>
-          <DataTable aria-label="Holdings">
+          <DataTable aria-label="Products">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

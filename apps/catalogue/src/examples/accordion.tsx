@@ -1,13 +1,13 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@siyahi/ui";
 
 const questions = [
+  ["refresh", "When are the figures refreshed?", "Every night at midnight IST, and every minute for today's orders."],
   [
-    "prices",
-    "When are prices updated?",
-    "At the exchange close each trading day, and every minute while markets are open.",
+    "refunds",
+    "How are refunds counted?",
+    "A refund comes off the month the order was placed in, not the month it was paid.",
   ],
-  ["lots", "How are lots matched?", "Sells are matched to the oldest buy first, as the tax rules require."],
-  ["brokers", "Can I add a second broker?", "Yes. Each broker is its own account, and the totals add them up."],
+  ["stores", "Can I add a second store?", "Yes. Each store is its own workspace, and the totals add them up."],
 ] as const;
 
 function Questions() {
@@ -24,13 +24,13 @@ export default function AccordionExample() {
     <div className="grid gap-6 md:grid-cols-2">
       <div className="flex flex-col gap-2">
         <p className="text-sm text-muted-foreground">One open at a time</p>
-        <Accordion aria-label="One open at a time" defaultValue={["prices"]}>
+        <Accordion aria-label="One open at a time" defaultValue={["refresh"]}>
           <Questions />
         </Accordion>
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-sm text-muted-foreground">Several open</p>
-        <Accordion aria-label="Several open" multiple defaultValue={["prices", "lots"]}>
+        <Accordion aria-label="Several open" multiple defaultValue={["refresh", "refunds"]}>
           <Questions />
         </Accordion>
       </div>

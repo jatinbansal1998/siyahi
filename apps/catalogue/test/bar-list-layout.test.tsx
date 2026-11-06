@@ -12,7 +12,7 @@ describe("narrow ranked labels", () => {
     const card = catalogue.page.locator('[data-slot="card"]').filter({ hasText: "Needs attention" });
     const row = card.locator('[data-slot="bar-list-row"]').last();
     await row.scrollIntoViewIfNeeded();
-    const label = row.getByText("Asian Paints (India)", { exact: true });
+    const label = row.getByText("Coastal Foods (India)", { exact: true });
     const shape = await label.evaluate((el) => ({
       height: el.getBoundingClientRect().height,
       lineHeight: Number.parseFloat(getComputedStyle(el).lineHeight),

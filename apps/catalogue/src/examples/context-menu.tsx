@@ -9,8 +9,8 @@ export default function ContextMenuExample() {
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem>Copy symbol</ContextMenuItem>
-        <ContextMenuItem>Open chart</ContextMenuItem>
+        <ContextMenuItem>Copy order number</ContextMenuItem>
+        <ContextMenuItem>Open order</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

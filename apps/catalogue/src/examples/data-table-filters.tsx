@@ -26,30 +26,30 @@ import {
   type DataTableColumnDef,
 } from "@siyahi/ui";
 
-interface Holding {
-  symbol: string;
-  sector: string;
-  broker: string;
+interface Order {
+  order: string;
+  status: string;
+  warehouse: string;
 }
-const data: Holding[] = [
-  { symbol: "INFY", sector: "Information technology", broker: "Kite" },
-  { symbol: "HDFCBANK", sector: "Banks", broker: "Dhan" },
-  { symbol: "TCS", sector: "Information technology", broker: "Dhan" },
+const data: Order[] = [
+  { order: "ORD-1042", status: "Out for delivery", warehouse: "Bhiwandi" },
+  { order: "ORD-1043", status: "Packed", warehouse: "Hosur" },
+  { order: "ORD-1044", status: "Out for delivery", warehouse: "Hosur" },
 ];
 const header = () => <DataTableSortHeader />;
-const columns: DataTableColumnDef<Holding>[] = [
-  { accessorKey: "symbol", header, size: 140, meta: { label: "Instrument" } },
-  { accessorKey: "sector", header, meta: { label: "Sector" } },
-  { accessorKey: "broker", header, meta: { label: "Broker" } },
+const columns: DataTableColumnDef<Order>[] = [
+  { accessorKey: "order", header, size: 140, meta: { label: "Order" } },
+  { accessorKey: "status", header, meta: { label: "Status" } },
+  { accessorKey: "warehouse", header, meta: { label: "Warehouse" } },
 ];
 
 function Filters() {
-  const { table, isCompact } = useDataTable<Holding>();
+  const { table, isCompact } = useDataTable<Order>();
   const active = table.state.columnFilters.length;
   const controls = (
     <div className="flex flex-wrap gap-2">
-      <DataTableFacetedFilter accessorKey="sector" title="Sector" />
-      <DataTableFacetedFilter accessorKey="broker" title="Broker" />
+      <DataTableFacetedFilter accessorKey="status" title="Status" />
+      <DataTableFacetedFilter accessorKey="warehouse" title="Warehouse" />
     </div>
   );
   if (!isCompact) return controls;
@@ -58,7 +58,7 @@ function Filters() {
       <SheetTrigger render={<Button variant="outline" size="sm" />}>Filters{active ? ` (${active})` : ""}</SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Holding filters</SheetTitle>
+          <SheetTitle>Order filters</SheetTitle>
           <SheetDescription>Selections stay applied when this panel closes.</SheetDescription>
         </SheetHeader>
         <div className="overflow-y-auto px-4">{controls}</div>
@@ -77,7 +77,7 @@ export default function DataTableFiltersExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Holdings with compact filters</CardTitle>
+        <CardTitle>Orders with compact filters</CardTitle>
         <CardDescription>Search stays visible; secondary filters move into a panel in narrow space.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -86,13 +86,13 @@ export default function DataTableFiltersExample() {
           <DataTableToolbarSection>
             <DataTableSearchFilter
               label="Search compact example"
-              placeholder="Search holdings…"
+              placeholder="Search orders…"
               className="w-full flex-none sm:w-64"
             />
             <Filters />
-            <DataTableRowCount unit="holdings" />
+            <DataTableRowCount unit="orders" />
           </DataTableToolbarSection>
-          <DataTable aria-label="Holdings with compact filters">
+          <DataTable aria-label="Orders with compact filters">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

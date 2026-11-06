@@ -6,13 +6,13 @@ import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 export interface TreemapItem {
   name: string;
-  /** Tile area, such as the holding's value. Zero, negative and non-finite weights draw no tile. */
+  /** Tile area, such as a city's sales. Zero, negative and non-finite weights draw no tile. */
   weight: number;
   /** Signed change as a fraction; sets the heat. `null` when unknown: a muted tile marked "—". */
   change: number | null;
-  /** Unique key when names repeat, such as one symbol held at two brokers. Defaults to `name`. */
+  /** Unique key when names repeat, such as one city sold to online and in stores. Defaults to `name`. */
   key?: string;
-  /** Tiles of one group, such as a sector, sit together under the group's name, even a group of one. */
+  /** Tiles of one group, such as a region, sit together under the group's name, even a group of one. */
   group?: string;
 }
 
@@ -36,7 +36,7 @@ export interface TreemapProps<T extends TreemapItem> {
   onSelect?: (item: T | null) => void;
 }
 
-/** Holdings heat map: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
+/** Heat map of parts of a whole: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
 export function Treemap<T extends TreemapItem>({ items, height, range, onHover, selected, onSelect }: TreemapProps<T>) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
@@ -66,7 +66,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
         width={width}
         height={height}
         role={onSelect ? "group" : "img"}
-        aria-label="Treemap of holdings by weight and change"
+        aria-label="Treemap by weight and change"
         className="text-xs"
         onPointerLeave={(event) => event.pointerType === "mouse" && onHover?.(null)}
       >

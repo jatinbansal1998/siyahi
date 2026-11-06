@@ -16,8 +16,8 @@ export default function CardExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Portfolio value</CardTitle>
-        <CardDescription>Across all accounts</CardDescription>
+        <CardTitle>Revenue this quarter</CardTitle>
+        <CardDescription>Across all stores</CardDescription>
         <CardAction>
           <Button variant="outline" size="sm">
             <DownloadIcon />
@@ -29,7 +29,7 @@ export default function CardExample() {
         <p className="text-3xl font-semibold">{money(4512300)}</p>
       </CardContent>
       <CardFooter>
-        <p className="text-muted-foreground">Updated after the market close</p>
+        <p className="text-muted-foreground">Updated every night at midnight</p>
       </CardFooter>
     </Card>
   );

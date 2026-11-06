@@ -39,6 +39,11 @@
   a component's spacing, colour, shape or type; pages may only place it. Add
   `"siyahi/no-restyle": "error"` to an app's oxlint rules. The catalogue's
   examples now style plain wrappers instead of the components.
+- The catalogue reads as a design system for any data-heavy app: its examples,
+  captions and rules use sales, traffic, uptime, budgets, orders and support
+  tickets instead of one stock portfolio. `DESIGN.md` names a team, a region or
+  a product line as its neutral categories. The example `chart-bar-sectors` is
+  now `chart-bar-teams`.
 - Design review batch (#57), from ten rounds of independent design reviews:
   - Tables fit their width: columns marked `meta.compact` stay and the rest
     hide from the right behind `DataTableCompactColumnsToggle` ("All columns

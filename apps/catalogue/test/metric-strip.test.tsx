@@ -26,7 +26,7 @@ const stroke = (label: string): Promise<string | null> =>
 
 describe("MetricStrip sparklines", { timeout: 60_000 }, () => {
   it("fits the line to its values, from the box's bottom to its top", async () => {
-    const sparkline = tile("Invested").locator('[data-slot="sparkline"]');
+    const sparkline = tile("Target").locator('[data-slot="sparkline"]');
     await sparkline.scrollIntoViewIfNeeded();
     const line = sparkline.locator(".recharts-line:not(.sparkline-now) .recharts-line-curve");
     const box = await sparkline.boundingBox();
@@ -40,11 +40,9 @@ describe("MetricStrip sparklines", { timeout: 60_000 }, () => {
 
   it("draws the run muted and colours its last step by the sign of the change", async () => {
     expect(
-      await tile("Portfolio value")
-        .locator(".recharts-line:not(.sparkline-now) .recharts-line-curve")
-        .getAttribute("stroke"),
+      await tile("Revenue").locator(".recharts-line:not(.sparkline-now) .recharts-line-curve").getAttribute("stroke"),
     ).toBe("var(--muted-foreground)");
-    expect(await stroke("Portfolio value")).toBe("var(--positive)");
-    expect(await stroke("XIRR")).toBe("var(--negative)");
+    expect(await stroke("Revenue")).toBe("var(--positive)");
+    expect(await stroke("Gross margin")).toBe("var(--negative)");
   });
 });

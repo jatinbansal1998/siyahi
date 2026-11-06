@@ -18,10 +18,10 @@ const SURFACES = [
   { name: "destructive", swatch: "bg-destructive" },
 ];
 const MEANING = [
-  { name: "positive", swatch: "bg-positive", text: "text-positive", sample: "▲ 2.3% gain" },
-  { name: "negative", swatch: "bg-negative", text: "text-negative", sample: "▼ 1.1% loss" },
-  { name: "warning", swatch: "bg-warning", text: "text-warning", sample: "Two trades unmatched" },
-  { name: "link", swatch: "bg-link", text: "text-link", sample: "Open the statement" },
+  { name: "positive", swatch: "bg-positive", text: "text-positive", sample: "+2.3% gain" },
+  { name: "negative", swatch: "bg-negative", text: "text-negative", sample: "−1.1% loss" },
+  { name: "warning", swatch: "bg-warning", text: "text-warning", sample: "Two payments unmatched" },
+  { name: "link", swatch: "bg-link", text: "text-link", sample: "Open the report" },
 ];
 const CHART = [
   { name: "chart-1", swatch: "bg-chart-1", hue: "indigo" },
@@ -179,13 +179,13 @@ export const foundations: Page = {
           {TYPE.map((t) => (
             <div key={t.name} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               <span className="w-24 font-mono text-xs text-muted-foreground">{t.name}</span>
-              <span className={t.className}>₹1,53,110 portfolio</span>
+              <span className={t.className}>₹1,53,110 revenue</span>
               <span className="text-xs text-muted-foreground">{t.note}</span>
             </div>
           ))}
           <div className="flex flex-wrap items-baseline gap-x-4">
             <span className="w-24 font-mono text-xs text-muted-foreground">font-mono</span>
-            <span className="font-mono">INE009A01021 · NSE:INFY</span>
+            <span className="font-mono">ORD-1042 · commit a3f9c2e</span>
           </div>
         </div>
       ),
@@ -234,7 +234,7 @@ export const foundations: Page = {
       ],
       rules: [
         "card, the default, is shadcn's own card: a white box with a 1px ring on the faintly tinted canvas, so data reads as raised off the page.",
-        "ruled takes the box off every card and draws a hairline between the blocks of a PanelGrid: one surface, parted by lines, as on a trading screen.",
+        "ruled takes the box off every card and draws a hairline between the blocks of a PanelGrid: one surface, parted by lines, as on an operations screen.",
         "open drops the lines too, and the card's padding, so a block's content sits level with the page's text, for pages read top to bottom.",
         "A picked SectionCards tile keeps its ring on every surface.",
       ],

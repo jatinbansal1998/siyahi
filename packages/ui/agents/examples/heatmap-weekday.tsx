@@ -12,7 +12,7 @@ import {
   WeekdayHeatmapLegend,
 } from "@siyahi/ui";
 
-// Orders placed by weekday and hour of the trading session.
+// Support tickets opened by weekday and office hour; the overnight queue lands at 9.
 const data = [1, 2, 3, 4, 5].flatMap((weekday) =>
   [9, 10, 11, 12, 13, 14, 15].map((hour) => ({
     weekday,
@@ -33,8 +33,8 @@ export default function HeatmapWeekdayExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>When orders are placed</CardTitle>
-        <CardDescription>Weekday by hour in India Standard Time, market hours only</CardDescription>
+        <CardTitle>When support tickets arrive</CardTitle>
+        <CardDescription>Weekday by hour in India Standard Time, office hours only</CardDescription>
       </CardHeader>
       {/* Seven hours by five days is a small grid: capped, it keeps square cells, and the legend and the answer
           sit beside it instead of a wide empty card. */}
@@ -53,15 +53,15 @@ export default function HeatmapWeekdayExample() {
             <div className="flex flex-col items-start gap-3 text-sm">
               <WeekdayHeatmapLegend
                 className="ml-0"
-                labels={{ less: "0 orders", more: `${count(busiest.value)} orders an hour` }}
+                labels={{ less: "0 tickets", more: `${count(busiest.value)} tickets an hour` }}
               />
               <p>
-                Busiest: {DAYS[busiest.weekday]} at {hourLabel(busiest.hour)}, {count(busiest.value)} orders
+                Busiest: {DAYS[busiest.weekday]} at {hourLabel(busiest.hour)}, {count(busiest.value)} tickets
               </p>
               <p aria-live="polite" className="text-muted-foreground">
                 {picked
-                  ? `${DAYS[picked.weekday]}, ${hourLabel(picked.hour)} IST: ${count(picked.value)} orders`
-                  : "Select a cell for its order count. Use arrow keys to move between cells."}
+                  ? `${DAYS[picked.weekday]}, ${hourLabel(picked.hour)} IST: ${count(picked.value)} tickets`
+                  : "Select a cell for its ticket count. Use arrow keys to move between cells."}
               </p>
             </div>
           </div>

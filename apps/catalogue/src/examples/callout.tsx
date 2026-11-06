@@ -5,28 +5,28 @@ export default function CalloutExample() {
   return (
     <div className="grid max-w-2xl gap-3">
       <Callout tone="accent" icon={<LightbulbIcon />} title="The takeaway">
-        Two of eleven gold rules made a profit in the final test; <strong>none</strong> held up in both metals.
+        Two of eleven pricing tests raised revenue; <strong>none</strong> held up in both regions.
       </Callout>
-      <Callout icon={<InfoIcon />} title="How the test was run">
-        One mini lot per trade, after charges and a harsher assumed execution cost.
+      <Callout icon={<InfoIcon />} title="How the tests were run">
+        Four weeks each on a random tenth of new visitors, with refunds and payment fees taken off.
       </Callout>
       <Callout tone="warning" icon={<TriangleAlertIcon />} title="Do not use the combined result">
-        Its test used later information, so its profit claims are withdrawn.
+        It counted orders placed before the test began, so its revenue claims are withdrawn.
       </Callout>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Callout tone="positive" icon={<TrendingUpIcon />} title="Best rule">
-          A failed range break reverses: <strong>▲₹10,616</strong>.
+        <Callout tone="positive" icon={<TrendingUpIcon />} title="Best test">
+          Annual plan shown first: <strong className="whitespace-nowrap">+₹10,616</strong> a week.
         </Callout>
-        <Callout tone="negative" icon={<TrendingDownIcon />} title="Worst rule">
-          Break the first-hour range: <strong>▼₹70,679</strong>.
+        <Callout tone="negative" icon={<TrendingDownIcon />} title="Worst test">
+          Free delivery only above ₹999: <strong className="whitespace-nowrap">−₹70,679</strong> a week.
         </Callout>
       </div>
-      <Quote source="eMudhra's incident notice, 21 Oct 2026">
-        The affected intermediate keys were generated with insufficient entropy and have been revoked.
+      <Quote source="The hosting provider's incident report, 21 Oct 2026">
+        Requests to the Mumbai region failed for 42 minutes after a configuration change, which has been rolled back.
       </Quote>
       <WarningAlert>
-        <AlertTitle>Ledger history is incomplete</AlertTitle>
-        <AlertDescription>Dhan's cash ledger starts in April 2024; earlier flows are missing.</AlertDescription>
+        <AlertTitle>Order history is incomplete</AlertTitle>
+        <AlertDescription>The old shop's export starts in April 2024; earlier orders are missing.</AlertDescription>
       </WarningAlert>
     </div>
   );

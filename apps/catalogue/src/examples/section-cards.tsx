@@ -4,38 +4,38 @@ export default function SectionCardsExample() {
   const { money, moneyCompact } = useFormat();
   const items: SectionCard[] = [
     {
-      label: "Portfolio value",
+      label: "Revenue",
       value: money(4512300),
       badge: <Delta value={0.031} />,
       headline: "Up for the third month",
-      detail: "Valued at the last close",
+      detail: "Paid orders, less refunds",
     },
     {
-      label: "Invested",
+      label: "Target",
       value: money(4025000),
-      headline: "SIPs on the 5th and 20th",
-      detail: "Across 4 accounts",
+      headline: "Set at the start of the quarter",
+      detail: "Across 4 stores",
     },
     {
-      label: "Unrealised gain",
+      label: "Ahead of target",
       value: moneyCompact(487300),
       badge: <Delta value={0.121} />,
-      headline: "XIRR 14.2%",
-      detail: "Since the first buy",
+      headline: "Gross margin 14.2%",
+      detail: "Since April",
     },
     {
-      label: "Realised this year",
+      label: "Cash flow this year",
       value: moneyCompact(-61200),
       badge: <Delta value={-61200} format="money" />,
-      headline: "Two loss-making exits",
+      headline: "Two large inventory buys",
       detail: "Before tax",
     },
     {
-      label: "Dividends this year",
+      label: "Gift cards this year",
       value: moneyCompact(38400),
       badge: <Delta value={0.18} />,
-      headline: "From 11 holdings",
-      detail: "Credited to the bank",
+      headline: "Sold in 11 stores",
+      detail: "Paid at purchase",
     },
   ];
   return (

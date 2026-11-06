@@ -6,17 +6,17 @@ export default function AlertExample() {
     <div className="flex flex-col gap-3">
       <Alert>
         <InfoIcon />
-        <AlertTitle>Prices are delayed</AlertTitle>
-        <AlertDescription>Quotes refresh every fifteen minutes during market hours.</AlertDescription>
+        <AlertTitle>Figures are delayed</AlertTitle>
+        <AlertDescription>Sales figures refresh every fifteen minutes during opening hours.</AlertDescription>
       </Alert>
       <WarningAlert>
-        <AlertTitle>Two trades are unmatched</AlertTitle>
-        <AlertDescription>The contract notes list trades the ledger does not have yet.</AlertDescription>
+        <AlertTitle>Two payments are unmatched</AlertTitle>
+        <AlertDescription>The bank statement lists payments no order accounts for yet.</AlertDescription>
       </WarningAlert>
       <Alert variant="destructive">
         <CircleAlertIcon />
         <AlertTitle>Import failed</AlertTitle>
-        <AlertDescription>The statement could not be read. Download it again and retry.</AlertDescription>
+        <AlertDescription>The CSV could not be read. Export it again and retry.</AlertDescription>
       </Alert>
     </div>
   );

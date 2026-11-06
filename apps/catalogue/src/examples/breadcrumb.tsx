@@ -12,15 +12,15 @@ export default function BreadcrumbExample() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="#/components">Portfolio</BreadcrumbLink>
+          <BreadcrumbLink href="#/components">Projects</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="#/components">Equity</BreadcrumbLink>
+          <BreadcrumbLink href="#/components">Website</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage>INFY</BreadcrumbPage>
+          <BreadcrumbPage>Checkout redesign</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>

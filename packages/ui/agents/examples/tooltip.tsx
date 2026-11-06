@@ -4,10 +4,10 @@ import { InfoIcon } from "lucide-react";
 export default function TooltipExample() {
   return (
     <Tooltip>
-      <TooltipTrigger render={<Button variant="outline" size="icon" aria-label="About XIRR" />}>
+      <TooltipTrigger render={<Button variant="outline" size="icon" aria-label="About churn" />}>
         <InfoIcon />
       </TooltipTrigger>
-      <TooltipContent>XIRR weighs every cash flow by its date.</TooltipContent>
+      <TooltipContent>Churn counts customers who did not renew this month.</TooltipContent>
     </Tooltip>
   );
 }

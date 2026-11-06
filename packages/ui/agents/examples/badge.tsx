@@ -3,9 +3,9 @@ import { Badge, Delta } from "@siyahi/ui";
 export default function BadgeExample() {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Badge>Equity</Badge>
-      <Badge variant="secondary">Mutual fund</Badge>
-      <Badge variant="outline">Zerodha</Badge>
+      <Badge>Active</Badge>
+      <Badge variant="secondary">Draft</Badge>
+      <Badge variant="outline">Engineering</Badge>
       <Badge variant="destructive">Failed</Badge>
       <Badge variant="outline">
         <Delta value={0.042} />

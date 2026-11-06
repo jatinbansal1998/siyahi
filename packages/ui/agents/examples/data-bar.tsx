@@ -15,36 +15,27 @@ import {
   type DataTableColumnDef,
 } from "@siyahi/ui";
 
-interface Holding {
-  symbol: string;
-  value: number;
-  gain: number;
-  /** Closing prices over the last ten sessions, oldest first. */
-  closes: number[];
+interface Store {
+  store: string;
+  /** This month's sales, and their change on last month, in rupees; made-up figures. */
+  sales: number;
+  change: number;
+  /** Orders on each of the last ten days, oldest first. */
+  daily: number[];
 }
 
-const holdings: Holding[] = [
-  { symbol: "ITC", value: 276000, gain: -18400, closes: [478, 474, 470, 471, 466, 463, 465, 461, 459, 460] },
-  {
-    symbol: "HDFCBANK",
-    value: 262500,
-    gain: 21300,
-    closes: [1712, 1718, 1726, 1720, 1731, 1744, 1739, 1748, 1752, 1750],
-  },
-  {
-    symbol: "ICICIBANK",
-    value: 258000,
-    gain: 44100,
-    closes: [1250, 1262, 1258, 1271, 1266, 1280, 1284, 1279, 1288, 1290],
-  },
-  { symbol: "NIFTYBEES", value: 255600, gain: 12800, closes: [281, 282, 280, 283, 284, 283, 285, 284, 286, 284] },
-  { symbol: "INFY", value: 224400, gain: 30900, closes: [1820, 1834, 1829, 1841, 1852, 1848, 1860, 1855, 1866, 1870] },
-  { symbol: "TCS", value: 166000, gain: -2600, closes: [4180, 4172, 4165, 4170, 4158, 4150, 4161, 4155, 4148, 4150] },
+const stores: Store[] = [
+  { store: "Delhi", sales: 276000, change: -18400, daily: [478, 474, 470, 471, 466, 463, 465, 461, 459, 460] },
+  { store: "Bengaluru", sales: 262500, change: 21300, daily: [312, 318, 326, 320, 331, 344, 339, 348, 352, 350] },
+  { store: "Chennai", sales: 258000, change: 44100, daily: [250, 262, 258, 271, 266, 280, 284, 279, 288, 290] },
+  { store: "Kolkata", sales: 255600, change: 12800, daily: [281, 282, 280, 283, 284, 283, 285, 284, 286, 284] },
+  { store: "Mumbai", sales: 224400, change: 30900, daily: [220, 234, 229, 241, 252, 248, 260, 255, 266, 270] },
+  { store: "Pune", sales: 166000, change: -2600, daily: [180, 172, 165, 170, 158, 150, 161, 155, 148, 150] },
 ];
 
 // Each bar is a share of its column's largest figure, so the rows draw to one scale.
-const largestValue = Math.max(...holdings.map((h) => h.value));
-const largestGain = Math.max(...holdings.map((h) => Math.abs(h.gain)));
+const largestSales = Math.max(...stores.map((s) => s.sales));
+const largestChange = Math.max(...stores.map((s) => Math.abs(s.change)));
 
 function Money({ amount }: { amount: number }) {
   return useFormat().money(amount);
@@ -52,41 +43,41 @@ function Money({ amount }: { amount: number }) {
 
 const header = () => <DataTableSortHeader />;
 
-const columns: DataTableColumnDef<Holding>[] = [
-  { accessorKey: "symbol", header, size: 120, meta: { label: "Symbol" } },
+const columns: DataTableColumnDef<Store>[] = [
+  { accessorKey: "store", header, size: 120, meta: { label: "Store" } },
   {
-    accessorKey: "value",
+    accessorKey: "sales",
     header,
     size: 170,
-    meta: { label: "Value", variant: "number" },
+    meta: { label: "Sales", variant: "number" },
     cell: ({ row }) => (
-      <DataBar value={row.original.value} max={largestValue}>
-        <Money amount={row.original.value} />
+      <DataBar value={row.original.sales} max={largestSales}>
+        <Money amount={row.original.sales} />
       </DataBar>
     ),
   },
   {
-    accessorKey: "gain",
+    accessorKey: "change",
     header,
     size: 170,
-    meta: { label: "Gain", variant: "number" },
+    meta: { label: "vs last month", variant: "number" },
     cell: ({ row }) => (
-      <DataBar value={row.original.gain} max={largestGain} tone="sign">
-        <Money amount={row.original.gain} />
+      <DataBar value={row.original.change} max={largestChange} tone="sign">
+        <Money amount={row.original.change} />
       </DataBar>
     ),
   },
   {
-    id: "closes",
+    id: "daily",
     header: "10 days",
     size: 110,
     enableSorting: false,
     cell: ({ row }) => {
-      const { closes } = row.original;
-      const rising = (closes.at(-1) ?? 0) >= (closes[0] ?? 0);
+      const { daily } = row.original;
+      const rising = (daily.at(-1) ?? 0) >= (daily[0] ?? 0);
       return (
         <Sparkline
-          data={closes}
+          data={daily}
           variant="line"
           color={rising ? "var(--positive)" : "var(--negative)"}
           animate={false}
@@ -101,15 +92,11 @@ export default function DataBarExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Holdings</CardTitle>
+        <CardTitle>Stores</CardTitle>
         <CardDescription>Bars give each figure's size against the column's largest</CardDescription>
       </CardHeader>
       <CardContent>
-        <DataTableRoot
-          data={holdings}
-          columns={columns}
-          initialState={{ columnPinning: { start: ["symbol"], end: [] } }}
-        >
+        <DataTableRoot data={stores} columns={columns} initialState={{ columnPinning: { start: ["store"], end: [] } }}>
           <DataTable>
             <DataTableHeader />
             <DataTableBody />

@@ -1,25 +1,26 @@
 import { Delta, SectionCards, SiyahiProvider, useFormat, type SectionCard } from "@siyahi/ui";
 import { useState } from "react";
 
-const classes = [
-  { label: "All", net: 110200, positions: 181 },
-  { label: "Equity", net: 171400, positions: 164 },
-  { label: "Gold bonds", net: 0, positions: 0 },
-  { label: "F&O", net: -61200, positions: 17 },
+// Each sales channel's profit this quarter and its orders; made-up figures.
+const channels = [
+  { label: "All", net: 110200, orders: 181 },
+  { label: "Online", net: 171400, orders: 164 },
+  { label: "Wholesale", net: 0, orders: 0 },
+  { label: "Marketplace", net: -61200, orders: 17 },
 ];
 
 export default function SectionCardsSelectExample() {
   const [scope, setScope] = useState("All");
   const { count } = useFormat();
-  const items: SectionCard[] = classes.map((c) => ({
+  const items: SectionCard[] = channels.map((c) => ({
     label: c.label,
     value: <Delta value={c.net} format="money" />,
-    detail: `${count(c.positions)} positions`,
-    // Nothing to show for a class with no positions, so it cannot be picked.
-    disabled: c.positions === 0,
+    detail: `${count(c.orders)} orders`,
+    // Nothing to show for a channel with no orders, so it cannot be picked.
+    disabled: c.orders === 0,
   }));
   return (
-    // On a ruled surface the tiles part with hairlines, as on a trading screen, instead of sitting as cards.
+    // On a ruled surface the tiles part with hairlines, as on a dense operations screen, instead of sitting as cards.
     <SiyahiProvider surface="ruled">
       <div className="flex flex-col gap-3">
         <SectionCards items={items} selected={scope} onSelect={setScope} />

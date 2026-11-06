@@ -2,26 +2,26 @@ import { useState } from "react";
 import { LineChartCard, ToggleGroup, ToggleGroupItem, useFormat, type ChartSeries } from "@siyahi/ui";
 
 const cumulative = [
-  { month: "May", portfolio: 0.012, index: 0.008 },
-  { month: "Jun", portfolio: 0.021, index: 0.015 },
-  { month: "Jul", portfolio: 0.034, index: 0.029 },
-  { month: "Aug", portfolio: -0.006, index: 0.004 },
-  { month: "Sep", portfolio: 0.041, index: 0.031 },
-  { month: "Oct", portfolio: 0.052, index: 0.036 },
+  { month: "May", store: 0.012, category: 0.008 },
+  { month: "Jun", store: 0.021, category: 0.015 },
+  { month: "Jul", store: 0.034, category: 0.029 },
+  { month: "Aug", store: -0.006, category: 0.004 },
+  { month: "Sep", store: 0.041, category: 0.031 },
+  { month: "Oct", store: 0.052, category: 0.036 },
 ];
 
 const monthly = [
-  { month: "May", portfolio: 0.012, index: 0.008 },
-  { month: "Jun", portfolio: 0.009, index: 0.007 },
-  { month: "Jul", portfolio: 0.013, index: 0.014 },
-  { month: "Aug", portfolio: -0.039, index: -0.024 },
-  { month: "Sep", portfolio: 0.047, index: 0.027 },
-  { month: "Oct", portfolio: 0.011, index: 0.005 },
+  { month: "May", store: 0.012, category: 0.008 },
+  { month: "Jun", store: 0.009, category: 0.007 },
+  { month: "Jul", store: 0.013, category: 0.014 },
+  { month: "Aug", store: -0.039, category: -0.024 },
+  { month: "Sep", store: 0.047, category: 0.027 },
+  { month: "Oct", store: 0.011, category: 0.005 },
 ];
 
 const series: ChartSeries<(typeof cumulative)[number]> = [
-  { key: "portfolio", label: "Portfolio", color: "var(--chart-1)" },
-  { key: "index", label: "Nifty 50", color: "var(--chart-2)" },
+  { key: "store", label: "Our store", color: "var(--chart-1)" },
+  { key: "category", label: "Category average", color: "var(--chart-2)" },
 ];
 
 export default function ChartLineExample() {
@@ -29,7 +29,7 @@ export default function ChartLineExample() {
   const [mode, setMode] = useState("cumulative");
   return (
     <LineChartCard
-      title="Return against the index"
+      title="Sales growth against the category"
       description={mode === "cumulative" ? "Cumulative, from the start of May" : "Each month on its own"}
       action={
         <ToggleGroup
@@ -42,8 +42,8 @@ export default function ChartLineExample() {
           size="sm"
           aria-label="Mode"
         >
-          <ToggleGroupItem value="cumulative">Cumulative return</ToggleGroupItem>
-          <ToggleGroupItem value="monthly">Monthly return</ToggleGroupItem>
+          <ToggleGroupItem value="cumulative">Cumulative growth</ToggleGroupItem>
+          <ToggleGroupItem value="monthly">Monthly growth</ToggleGroupItem>
         </ToggleGroup>
       }
       data={mode === "cumulative" ? cumulative : monthly}

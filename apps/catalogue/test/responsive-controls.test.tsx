@@ -15,16 +15,16 @@ describe("touch controls", () => {
     const search = page.getByRole("textbox", { name: "Search compact example" });
     await search.waitFor({ state: "visible" });
     await expect.poll(() => search.evaluate((el) => el.getBoundingClientRect().width)).toBeGreaterThanOrEqual(200);
-    await search.fill("INFY");
-    const table = page.getByRole("region", { name: "Holdings with compact filters" });
+    await search.fill("ORD-1042");
+    const table = page.getByRole("region", { name: "Orders with compact filters" });
     await expect.poll(() => table.locator("tbody tr").count()).toBe(1);
-    expect(await table.textContent()).toContain("INFY");
+    expect(await table.textContent()).toContain("ORD-1042");
     await search.fill("");
     await page.setViewportSize({ width: 390, height: 844 });
   });
 
   it("gives touch controls a finger-sized target without relying on screen width", async () => {
-    const sort = catalogue.page.locator('#data-table th[data-col-id="value"] button').first();
+    const sort = catalogue.page.locator('#data-table th[data-col-id="revenue"] button').first();
     await sort.waitFor();
     expect((await sort.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   });

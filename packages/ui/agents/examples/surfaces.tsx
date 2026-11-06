@@ -32,19 +32,19 @@ const orders = [
   { hour: 15, orders: 38 },
 ];
 
-const holdings = [
-  { symbol: "ITC", value: 276000 },
-  { symbol: "INFY", value: 224400 },
-  { symbol: "TCS", value: 166000 },
+const products = [
+  { product: "Dinner set", revenue: 276000 },
+  { product: "Standing desk", revenue: 224400 },
+  { product: "Bookshelf", revenue: 166000 },
 ];
 
 function Dashboard() {
   const { money, moneyCompact, pct } = useFormat();
   const kpis: MetricStripItem[] = [
-    { label: "Portfolio value", value: money(4512300), change: 0.031 },
-    { label: "Invested", value: moneyCompact(4025000), change: 85000, changeFormat: "money" },
-    { label: "XIRR", value: pct(0.142), change: -0.004 },
-    { label: "Realised", value: moneyCompact(-61200), change: -61200, changeFormat: "money" },
+    { label: "Revenue", value: money(4512300), change: 0.031 },
+    { label: "Target", value: moneyCompact(4025000), change: 85000, changeFormat: "money" },
+    { label: "Gross margin", value: pct(0.142), change: -0.004 },
+    { label: "Cash flow", value: moneyCompact(-61200), change: -61200, changeFormat: "money" },
   ];
   return (
     <div className="flex flex-col gap-6">
@@ -61,24 +61,22 @@ function Dashboard() {
         />
         <Card>
           <CardHeader>
-            <CardTitle>Holdings</CardTitle>
-            <CardDescription>Largest three</CardDescription>
+            <CardTitle>Top products</CardTitle>
+            <CardDescription>Largest three by revenue</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Value</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Revenue</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {holdings.map((row) => (
-                  <TableRow key={row.symbol}>
-                    <TableCell>
-                      <span className="font-mono">{row.symbol}</span>
-                    </TableCell>
-                    <TableCell>{money(row.value)}</TableCell>
+                {products.map((row) => (
+                  <TableRow key={row.product}>
+                    <TableCell>{row.product}</TableCell>
+                    <TableCell>{money(row.revenue)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -1,6 +1,6 @@
 [
   {
-    "need": "Values over time or another ordered axis (months, hours, price buckets)",
+    "need": "Values over time or another ordered axis (months, hours, size buckets)",
     "guidance": "`BarChartCard`, `AreaChartCard` or `LineChartCard`"
   },
   {
@@ -8,11 +8,11 @@
     "guidance": "`BarChartCard`; `stacked` when the series add up to a total"
   },
   {
-    "need": "A running level, such as a portfolio's value against money put in",
+    "need": "A running level, such as revenue against its target",
     "guidance": "`AreaChartCard`"
   },
   {
-    "need": "Series compared point by point, such as a return against an index",
+    "need": "Series compared point by point, such as growth against a benchmark",
     "guidance": "`LineChartCard`"
   },
   {
@@ -20,7 +20,7 @@
     "guidance": "`LineChartCard` with `xDomain`, `xTicks` and `referenceLines`"
   },
   {
-    "need": "Long category names, such as sectors",
+    "need": "Long category names, such as teams or product categories",
     "guidance": "`BarChartCard` with `horizontal`"
   },
   {
@@ -56,19 +56,19 @@
     "guidance": "`ChangeBar` in the column's cell, `diverging` when it holds both signs; `DataTableFootnote` after `DataTableBody`"
   },
   {
-    "need": "Figures against their targets, such as allocation against plan",
+    "need": "Figures against their targets, such as spend against budget",
     "guidance": "`TargetRows`, with neutral `bands` and a `status` per row"
   },
   {
-    "need": "Where a value sits in its range, such as a price in its 52-week range",
+    "need": "Where a value sits in its range, such as today's response time in its 30-day range",
     "guidance": "`RangePosition`; `variant=\"compact\"` in a table cell"
   },
   {
-    "need": "One instrument's price history",
+    "need": "A long daily series, such as a price or an order value",
     "guidance": "`PriceChart`"
   },
   {
-    "need": "Holdings sized by weight and coloured by change",
+    "need": "Items sized by weight and coloured by change, such as sales by city",
     "guidance": "`Treemap`"
   },
   {

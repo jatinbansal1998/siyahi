@@ -6,7 +6,7 @@
 // one card, with its metrics as `items`, as SectionCards takes them.
 // Siyahi edit: the page formats each value, so a figure follows the
 // SiyahiProvider locale; dashboardcn's MetricValue and en-US lib/format are
-// not copied. A change is a Delta, ▲ or ▼ in a meaning colour, instead of
+// not copied. A change is a Delta (a signed figure with a coloured trend icon), instead of
 // DeltaBadge, and its sign colours the sparkline in --positive or --negative
 // instead of Tailwind's emerald and red.
 // Siyahi edit: the period switcher is the page's `action`, a ToggleGroup as

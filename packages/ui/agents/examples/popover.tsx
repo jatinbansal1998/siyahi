@@ -11,11 +11,11 @@ import {
 export default function PopoverExample() {
   return (
     <Popover>
-      <PopoverTrigger render={<Button variant="outline" className="w-fit" />}>How is this priced?</PopoverTrigger>
+      <PopoverTrigger render={<Button variant="outline" className="w-fit" />}>How is this counted?</PopoverTrigger>
       <PopoverContent align="start">
         <PopoverHeader>
-          <PopoverTitle>Last close</PopoverTitle>
-          <PopoverDescription>Holdings are valued at the exchange's last closing price.</PopoverDescription>
+          <PopoverTitle>Paid orders</PopoverTitle>
+          <PopoverDescription>Revenue counts paid orders, less refunds, on the day each was placed.</PopoverDescription>
         </PopoverHeader>
       </PopoverContent>
     </Popover>
