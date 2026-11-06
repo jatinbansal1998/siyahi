@@ -124,7 +124,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 160\/160 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 176\/176 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

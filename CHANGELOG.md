@@ -2,6 +2,12 @@
 
 ## 0.1.9
 
+- `StatusAlert` replaces `WarningAlert` (rename `<WarningAlert>` to
+  `<StatusAlert tone="warning">`): every notice tints the whole card in its
+  tone, so an error reads like a warning, only red, with title and description
+  in the text colours. `StatusBadge` marks a state (Paid, Pending, Failed) with
+  its tone's wash and a coloured dot. Both share Callout's tones (`lib/tone.ts`);
+  the contrast check covers each tone's icon and dot on its wash.
 - `Delta` writes its figure in the text colour with a `+` or `−` sign, and only a
   small trend icon is green or red (was a coloured ▲/▼ and coloured figure).
   Treemap labels and its legend use the sign too.

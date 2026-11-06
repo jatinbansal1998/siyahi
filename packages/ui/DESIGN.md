@@ -17,7 +17,8 @@ a meaning:
   `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
   colour a run of figures green and red.
   **Amber** means caution. None of them decorates.
-- **Emphasis tints the whole surface.** A caution is `WarningAlert`; a point set
+- **Emphasis tints the whole surface.** A notice is `StatusAlert` in its tone (an
+  error reads like a warning, only red); a state is `StatusBadge`; a point set
   apart is `Callout` (`neutral`, `accent`, `warning`, `positive`,
   `negative`); a quotation is `Quote`. Each takes a faint wash of its colour
   inside a 1px border of the same colour all round. Large marks follow the same

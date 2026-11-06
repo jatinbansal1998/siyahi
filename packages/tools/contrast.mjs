@@ -69,7 +69,8 @@ const PAIRS = [
   // Muted text on the fills it sits on: avatar initials and highlighted code
   // lines (muted), a neutral Callout, CardFooter and the command field
   // (muted/50), a Quote's source (muted/60), the accent, warning, positive and
-  // negative Callouts and WarningAlert, a removed code line (destructive/10).
+  // negative Callouts, StatusAlerts and StatusBadges, a removed code line
+  // (destructive/10).
   ...["muted", "muted/50", "muted/60", "chart-1/8", "warning/10", "positive/8", "negative/8", "destructive/10"].map(
     (bg) => ({ fg: "muted-foreground", bg, min: TEXT }),
   ),
@@ -87,6 +88,13 @@ const PAIRS = [
   ...["", "muted", "muted/50"].map((bg) => ({ fg: "input", bg, min: MARK })),
   { fg: "input", bg: "input/30", min: MARK, scheme: "dark" },
   ...["ring", "destructive"].map((fg) => ({ fg, bg: "", min: MARK })),
+  // A tone's icon or StatusBadge dot against the tone's own wash (lib/tone.ts).
+  ...[
+    ["link", "chart-1/8"],
+    ["warning", "warning/10"],
+    ["positive", "positive/8"],
+    ["negative", "negative/8"],
+  ].map(([fg = "", bg = ""]) => ({ fg, bg, min: MARK })),
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A dimmed bar keeps its full colour

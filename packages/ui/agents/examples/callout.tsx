@@ -1,4 +1,4 @@
-import { Callout, Quote, WarningAlert, AlertDescription, AlertTitle } from "@siyahi/ui";
+import { AlertDescription, AlertTitle, Callout, Quote, StatusAlert } from "@siyahi/ui";
 import { LightbulbIcon, InfoIcon, TriangleAlertIcon, TrendingUpIcon, TrendingDownIcon } from "lucide-react";
 
 export default function CalloutExample() {
@@ -24,10 +24,10 @@ export default function CalloutExample() {
       <Quote source="The hosting provider's incident report, 21 Oct 2026">
         Requests to the Mumbai region failed for 42 minutes after a configuration change, which has been rolled back.
       </Quote>
-      <WarningAlert>
+      <StatusAlert tone="warning">
         <AlertTitle>Order history is incomplete</AlertTitle>
         <AlertDescription>The old shop's export starts in April 2024; earlier orders are missing.</AlertDescription>
-      </WarningAlert>
+      </StatusAlert>
     </div>
   );
 }

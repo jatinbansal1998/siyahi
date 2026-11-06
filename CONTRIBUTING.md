@@ -63,7 +63,7 @@ block inside it, and every token the checks read must be set there too.
 the card alike, with a translucent fill (`bg-muted/50`, `bg-destructive/20`)
 blended over the surface under it as the browser paints it: 4.5:1 for text on
 the page, on its own fill, and on every tint the components put it on (muted
-text on Callout, WarningAlert and Quote washes and code-line fills, destructive
+text on Callout, StatusAlert, StatusBadge and Quote washes and code-line fills, destructive
 text on its tint at rest and on hover, the command placeholder, treemap labels
 on every heat step); 3:1 for a field's edge (`--input`) against the page and its
 own fill, the focus ring, a selected tab against its list, and chart and

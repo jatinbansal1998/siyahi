@@ -53,7 +53,7 @@ export const layout: Page = {
       id: "callout",
       title: "Callouts and quotes",
       lead: "Callout sets a point apart from the prose, tinted whole in its tone; Quote sets a quotation on a muted panel.",
-      imports: ["Callout", "Quote", "WarningAlert"],
+      imports: ["Callout", "Quote", "StatusAlert"],
       props: [
         {
           name: "Callout tone",
@@ -78,10 +78,10 @@ export const layout: Page = {
       ],
       rules: [
         "Never mark a notice, card, row or quote with one coloured edge (a side stripe): tint the whole box, as these do.",
-        "A notice that interrupts is Alert, or WarningAlert for a caution; a Callout is content the reader reads in order.",
+        "A notice that interrupts is a StatusAlert; a Callout is content the reader reads in order.",
         "One accent Callout per section at most; warning only for a real caution.",
       ],
-      examples: [{ name: "callout", caption: "Every tone, a quotation with its source, and a WarningAlert." }],
+      examples: [{ name: "callout", caption: "Every tone, a quotation with its source, and a warning StatusAlert." }],
     },
     {
       id: "page-section",

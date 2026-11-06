@@ -56,7 +56,7 @@ layouts and product-specific logic belong in the consuming app.
 - Follow the installed `DESIGN.md` (`node_modules/@siyahi/ui/DESIGN.md`)
   before designing or changing UI: its rules on colour and emphasis are
   binding. In short, colour carries meaning and emphasis tints the whole box
-  (`WarningAlert`, `Callout`, `Quote`), never a stripe down one side.
+  (`StatusAlert`, `StatusBadge`, `Callout`, `Quote`), never a stripe down one side.
 - The installed README owns surfaces, chart colours, locale and dark mode.
   Include `<meta name="color-scheme" content="light dark">` in app HTML.
   Follow the package's reduced-motion behaviour; JavaScript-started motion
