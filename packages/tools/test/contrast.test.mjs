@@ -63,9 +63,10 @@ describe("contrast check", () => {
     expect(named(broken)).not.toContain("light --muted-foreground on --card");
   });
 
-  it("fails a treemap label on its deepest heat step", () => {
-    const broken = setVar(themeCss, "dark", "positive", "oklch(0.74 0.16 151.711)");
-    expect(named(broken)).toEqual(["dark --foreground on --positive 60% in --card"]);
+  it("fails a dark treemap label on a bright heat step, which takes the colour's own foreground", () => {
+    // A green this deep still carries its dark text at 100%, not mixed 78% into the dark card.
+    const broken = setVar(themeCss, "dark", "positive", "oklch(0.62 0.16 151.711)");
+    expect(named(broken)).toEqual(["dark --positive-foreground on --positive 78% in --card"]);
   });
 
   it("fails a field edge under 3:1, translucent or not", () => {
@@ -87,7 +88,10 @@ describe("contrast check", () => {
 
   it("fails a foreground that does not stand out on its fill", () => {
     const broken = setVar(themeCss, "dark", "positive-foreground", "oklch(0.9 0 0)");
-    expect(named(broken)).toEqual(["dark --positive-foreground on --positive"]);
+    expect(named(broken)).toEqual([
+      "dark --positive-foreground on --positive",
+      "dark --positive-foreground on --positive 78% in --card",
+    ]);
   });
 
   it("fails a dark block that leaves a checked token to the light value", () => {
@@ -124,7 +128,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 176\/176 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 174\/174 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

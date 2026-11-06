@@ -34,13 +34,18 @@ const SURFACES = ["background", "card"];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
 
 /**
- * The light label on each treemap heat step, both sides.
- * @param {Scheme} scheme @param {number[]} shares
+ * The label on each treemap heat step, both sides: the foreground, or with `own` the side's own foreground.
+ * @param {Scheme} scheme @param {number[]} shares @param {boolean} [own]
  * @returns {Pair[]}
  */
-const heatLabels = (scheme, shares) =>
+const heatLabels = (scheme, shares, own = false) =>
   ["positive", "negative"].flatMap((side) =>
-    shares.map((share) => ({ fg: "foreground", bg: `${side}@${share}`, min: TEXT, scheme })),
+    shares.map((share) => ({
+      fg: own ? `${side}-foreground` : "foreground",
+      bg: `${side}@${share}`,
+      min: TEXT,
+      scheme,
+    })),
   );
 
 /** @type {Pair[]} */
@@ -101,10 +106,13 @@ const PAIRS = [
   // as its outline, so these are the outlines too.
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "", min: MARK })),
   ...CHARTS.slice(0, -1).map((fg, i) => ({ fg, bg: CHARTS[i + 1] ?? "", min: MARK })),
-  // Treemap labels on every heat step (lib/treemap.ts heatFill): 12% to 60% of
-  // the meaning colour in the card in light, 25% to 60% in dark.
-  ...heatLabels("light", [12, 24, 36, 48, 60]),
-  ...heatLabels("dark", [25, 33.75, 42.5, 51.25, 60]),
+  // Treemap labels on every heat step (lib/treemap.ts heatFill and heatText):
+  // 14% to 70% of the meaning colour in the card in light under the
+  // foreground; in dark 22% to 46% under the foreground, then 78% under the
+  // colour's own foreground (the full colour is its own pair above).
+  ...heatLabels("light", [14, 28, 42, 56, 70]),
+  ...heatLabels("dark", [22, 34, 46]),
+  ...heatLabels("dark", [78], true),
 ];
 
 /**

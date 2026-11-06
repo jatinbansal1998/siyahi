@@ -38,6 +38,13 @@ async function render<T extends TreemapItem>(props: TreemapProps<T>): Promise<vo
 const tiles = () => [...document.querySelectorAll<SVGSVGElement>('[data-slot="treemap-tile"]')];
 const tile = (name: string) => tiles().find((t) => t.querySelector("tspan")?.textContent === name);
 const fill = (name: string) => tile(name)?.querySelector("rect")?.style.fill;
+const textFill = (name: string) => tile(name)?.querySelector("text")?.style.fill;
+// Found by its aria-label, which keeps the whole name when the tile shows it cut short.
+const lines = (name: string) => {
+  const found = tiles().find((t) => t.getAttribute("aria-label")?.startsWith(`${name},`));
+  expect(found).toBeDefined();
+  return [...(found?.querySelectorAll("tspan") ?? [])];
+};
 const box = (el: Element | undefined) => ({
   x: Number(el?.getAttribute("x")),
   y: Number(el?.getAttribute("y")),
@@ -136,9 +143,50 @@ describe("Treemap", () => {
     expect(slim?.querySelector("text")).toBeNull();
   });
 
-  it("starts dark mode's heat at a quarter tint, so the first step does not read as the card", async () => {
+  it("starts dark mode's heat above a faint tint, so the first step does not read as the card", async () => {
     await render({ height: 300, items: [{ name: "INFY", weight: 100, change: 0.001 }] });
-    expect(fill("INFY")).toMatch(/^light-dark\(.*var\(--positive\) 12%.*, .*var\(--positive\) 25%.*\)$/);
+    expect(fill("INFY")).toMatch(/^light-dark\(.*var\(--positive\) 14%.*, .*var\(--positive\) 22%.*\)$/);
+  });
+
+  it("writes the two brightest dark steps in the colour's own foreground, so their text stays readable", async () => {
+    await render({
+      height: 300,
+      items: [
+        { name: "MILD", weight: 100, change: 0.02 },
+        { name: "BIG", weight: 100, change: 0.04 },
+        { name: "DROP", weight: 100, change: -0.05 },
+      ],
+    });
+    expect(textFill("MILD")).toBe("var(--foreground)");
+    expect(textFill("BIG")).toBe("light-dark(var(--foreground), var(--positive-foreground))");
+    expect(textFill("DROP")).toBe("light-dark(var(--foreground), var(--negative-foreground))");
+  });
+
+  it("never cuts a name its tile was sized to hold", async () => {
+    const items = Array.from({ length: 12 }, (_, i) => ({ name: `ZOMATO${i}`, weight: 100 + i * 37, change: 0.01 }));
+    await render({ height: 300, items });
+    for (const t of tiles()) {
+      const width = Number(t.getAttribute("width"));
+      const name = t.querySelector("tspan")?.textContent ?? "";
+      // At the smallest text, 11px, a 7-letter name in capitals needs about 54px plus the tile's padding.
+      if (width - 16 >= 7 * 11 * 0.7) expect(name).not.toContain("…");
+    }
+  });
+
+  it("grows a large tile's name and leaves off a figure the tile cannot hold whole", async () => {
+    await render({
+      height: 300,
+      items: [
+        { name: "BIG", weight: 880, change: 0.01, detail: "+$55,668" },
+        // About 66px wide: room for "\u221238.0%" under its name, not for the money.
+        { name: "LT", weight: 120, change: -0.38, detail: "\u2212$1,243,210" },
+      ],
+    });
+    const [name, change, detail] = lines("BIG");
+    expect(Number(name?.getAttribute("font-size"))).toBeGreaterThan(Number(change?.getAttribute("font-size")));
+    expect(Number(name?.getAttribute("font-size"))).toBeGreaterThan(12);
+    expect(detail?.textContent).toBe("+$55,668");
+    expect(lines("LT").map((l) => l.textContent)).toEqual(["LT", "\u221238.0%"]);
   });
 
   it("keys tiles by key, so one name at two brokers draws two tiles", async () => {
@@ -166,14 +214,14 @@ describe("Treemap", () => {
       { name: "PAST", weight: 100, change: -0.9 },
     ];
     await render({ height: 300, items, range: 0.6 });
-    expect(fill("HALF")).toContain("var(--positive) 36%");
-    expect(fill("PAST")).toContain("var(--negative) 60%");
+    expect(fill("HALF")).toContain("var(--positive) 42%");
+    expect(fill("PAST")).toContain("var(--negative) 70%");
   });
 
   it("falls back to ±5% when range is not a positive number", async () => {
     for (const range of [0, -0.05, Number.NaN, Number.POSITIVE_INFINITY]) {
       await render({ height: 300, items: [{ name: "INFY", weight: 100, change: 0.03 }], range });
-      expect(fill("INFY")).toContain("var(--positive) 36%");
+      expect(fill("INFY")).toContain("var(--positive) 42%");
       await act(async () => root?.unmount());
     }
   });

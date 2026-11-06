@@ -468,7 +468,8 @@ export const data: Page = {
         {
           name: "items",
           type: "TreemapItem[]",
-          purpose: "{ name, weight, change, key?, group? } per tile; change is a fraction, or null when unknown.",
+          purpose:
+            "{ name, weight, change, key?, group?, detail? } per tile; change is a fraction, or null when unknown; detail is a third line, such as the gain in money.",
         },
         { name: "height", type: "number", purpose: "Fixed height in pixels." },
         {
@@ -498,9 +499,10 @@ export const data: Page = {
         },
       ],
       rules: [
-        "Heat is five steps of --positive and --negative mixed toward the card colour, the deepest at ±range.",
+        "Heat is five steps of --positive and --negative mixed toward the card colour, the deepest at ±range. In dark the two deepest steps are bright, and their text takes the colour's own foreground.",
+        "A tile's name grows with the tile and its figures sit centred under it. A figure that does not fit whole is left off, never cut short.",
         'A change of null is a muted tile marked "—".',
-        "Items with a group sit together under its name, which draws even for a group of one.",
+        "Items with a group sit together in a muted frame under its name, which draws even for a group of one.",
         "Give items a key when names repeat, such as one city selling through two channels.",
         "A phone has no hover, so a tap selects a tile. The selection is the page's state, so a filter that drops the item drops its ring too.",
         "TreemapLegend draws five steps of loss, no change and five of gain, each swatch naming its span on hover.",

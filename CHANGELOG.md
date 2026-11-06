@@ -2,6 +2,16 @@
 
 ## 0.1.9
 
+- Treemap reads at a glance:
+  - A tile's name grows with the tile, up to 28px, centred with its change
+    under it; `TreemapItem.detail` adds a third line, such as the change in
+    money. A figure that does not fit whole is left off, never cut to "$43,…".
+  - Heat steps are further apart: 14% to 70% of the colour in light, and in
+    dark 22%, 34%, 46%, then 78% and the full colour, whose text switches to
+    `--positive-foreground` or `--negative-foreground` (`heatText`).
+    `siyahi-contrast` checks the label on each of these steps.
+  - Each group sits in a muted frame under its name, 6px from the next group,
+    so a region reads as one block.
 - `Delta` sits on the text's baseline again: its icon had lifted the line and
   made table rows taller. A button rendered as a popover or menu trigger keeps
   the faint button edge in dark mode instead of the field edge.

@@ -1,7 +1,7 @@
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
 import { cn } from "cn";
-import { HEAT_STEPS, heat, heatFill, heatRange, layout } from "@siyahi/ui/lib/treemap";
+import { HEAT_STEPS, heat, heatFill, heatRange, heatText, layout } from "@siyahi/ui/lib/treemap";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 export interface TreemapItem {
@@ -12,8 +12,10 @@ export interface TreemapItem {
   change: number | null;
   /** Unique key when names repeat, such as one city sold to online and in stores. Defaults to `name`. */
   key?: string;
-  /** Tiles of one group, such as a region, sit together under the group's name, even a group of one. */
+  /** Tiles of one group, such as a region, sit together in a frame under the group's name, even a group of one. */
   group?: string;
+  /** A third line on a tile with room for it, such as the change in money. */
+  detail?: string | undefined;
 }
 
 export interface TreemapProps<T extends TreemapItem> {
@@ -77,11 +79,11 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
             data-slot="treemap-group"
             onPointerEnter={(event) => event.pointerType === "mouse" && onHover?.(null)}
           >
-            <rect width="100%" height="100%" fill="none" pointerEvents="all" />
+            <rect width="100%" height="100%" rx={6} className="fill-muted" />
             <title>{group}</title>
             {/* A name cut to "Co…" reads as a different word; a group too narrow for its name drops it to the tooltip. */}
-            {textWidth(group) <= box.width - 4 && (
-              <text x={2} y={12} className="fill-muted-foreground font-medium">
+            {textWidth(group) <= box.width - 12 && (
+              <text x={6} y={14} className="fill-foreground font-medium">
                 {group}
               </text>
             )}
@@ -151,16 +153,12 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
                   className="stroke-foreground"
                 />
               )}
-              {box.width >= MIN_LABEL_WIDTH && box.height >= MIN_LABEL_HEIGHT && (
-                <text x={8} y={18} className="fill-foreground">
-                  <tspan className="font-medium">{fit(item.name, box.width - 16)}</tspan>
-                  {box.height >= TWO_LINE_HEIGHT && (
-                    <tspan x={8} dy={16}>
-                      {change(item.change)}
-                    </tspan>
-                  )}
-                </text>
-              )}
+              <TileLabel
+                width={box.width}
+                height={box.height}
+                lines={[item.name, change(item.change), item.detail]}
+                fill={heatText(item.change, range)}
+              />
             </svg>
           );
         })}
@@ -169,19 +167,78 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
   );
 }
 
-// Painted with an SVG fill, as the tiles are, so a swatch and a tile of one step are the same colour.
-// Geist at text-xs averages about 6.6px a character; a label longer than its box ends in an ellipsis instead
-// of being cut mid-letter by the box's clip.
-const CHAR_PX = 6.6;
-const textWidth = (text: string): number => text.length * CHAR_PX;
-function fit(text: string, width: number): string {
-  const room = Math.floor(width / CHAR_PX);
+// Geist averages about 0.55em a character, and a semibold symbol in capitals about 0.7em; a name longer than its
+// box ends in an ellipsis instead of being cut mid-letter by the box's clip.
+const CHAR_EM = 0.55;
+const CAPS_EM = 0.7;
+const textWidth = (text: string): number => text.length * 12 * CHAR_EM;
+function fit(text: string, width: number, size: number): string {
+  const room = Math.floor(width / (size * CAPS_EM));
   return text.length <= room ? text : `${text.slice(0, Math.max(room - 1, 1)).trimEnd()}…`;
 }
 // Below these a tile's text is a few clipped letters; its figures stay in the hover and the aria-label.
 const MIN_LABEL_WIDTH = 56;
 const MIN_LABEL_HEIGHT = 28;
-const TWO_LINE_HEIGHT = 44;
+// The name grows with its tile, up to MAX_TEXT, so a large position is read from across the room; the lines under
+// it run at SUB_TEXT of its size, smaller where the tile is narrow, never below MIN_TEXT.
+const MIN_TEXT = 11;
+const MAX_TEXT = 28;
+const SUB_TEXT = 0.7;
+const PAD = 8;
+
+/**
+ * A tile's name, change and detail, centred and sized to the tile. A figure is never cut short, since "₹43,…" reads
+ * as a different number: a line that does not fit at MIN_TEXT, or below the lines above it, is left off with every
+ * line after it.
+ */
+function TileLabel({
+  width,
+  height,
+  lines: [name, ...rest],
+  fill,
+}: {
+  width: number;
+  height: number;
+  lines: [string, string, string | undefined];
+  fill: string;
+}) {
+  if (width < MIN_LABEL_WIDTH || height < MIN_LABEL_HEIGHT) return null;
+  // Whole pixels: a size that fits the name exactly would otherwise round to one character short in fit().
+  const size = Math.floor(
+    Math.max(MIN_TEXT, Math.min(MAX_TEXT, (width - 2 * PAD) / (name.length * CAPS_EM), height * 0.3)),
+  );
+  const sub = Math.max(MIN_TEXT, size * SUB_TEXT);
+  // Each line takes 1.25 of its size; a line is drawn only when it and every line above it fit.
+  const room = width - 2 * PAD;
+  const shown: { line: number; text: string; size: number }[] = [{ line: 0, text: fit(name, room, size), size }];
+  let used = size * 1.25;
+  for (const [i, text] of rest.entries()) {
+    if (text === undefined) break;
+    const lineSize = Math.floor(Math.min(sub, room / (text.length * CHAR_EM)));
+    if (lineSize < MIN_TEXT || used + lineSize * 1.25 > height - PAD) break;
+    shown.push({ line: i + 1, text, size: lineSize });
+    used += lineSize * 1.25;
+  }
+  let y = (height - used) / 2;
+  return (
+    <text x={width / 2} textAnchor="middle" style={{ fill }} className="tabular-nums">
+      {shown.map((line) => {
+        y += line.size * 1.25;
+        return (
+          <tspan
+            key={line.line}
+            x={width / 2}
+            y={y - line.size * 0.3}
+            fontSize={line.size}
+            className={line.line === 0 ? "font-semibold" : undefined}
+          >
+            {line.text}
+          </tspan>
+        );
+      })}
+    </text>
+  );
+}
 
 function Swatch({ label, fill }: { label: string; fill: string }) {
   return (
