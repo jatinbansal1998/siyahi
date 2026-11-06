@@ -10,6 +10,8 @@ import {
   XAxis,
   YAxis,
   useChartWidth,
+  useXAxisTicks,
+  useYAxisTicks,
   type YAxisProps,
 } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
@@ -98,6 +100,27 @@ interface TickProps {
   x?: number | string;
   y?: number | string;
   payload?: { value?: unknown };
+}
+
+interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
+  payload?: { value?: unknown };
+  /** The axis that carries the values: y, or x when the bars run sideways. */
+  axis: "x" | "y";
+  format: (value: number, scale: number) => string;
+}
+
+/**
+ * A value-axis tick formatted against the axis' largest tick, so every label shares one unit: ₹1.6L down to ₹0.4L,
+ * never ₹80,000 halfway up. Recharts' tickFormatter sees one value at a time; the axis' ticks come from its hooks.
+ * The rest of Recharts' tick props pass on as its own tick does, including the class it measures an auto width by.
+ */
+function ValueTick({ payload, axis, format, ...tick }: ValueTickProps) {
+  const xTicks = useXAxisTicks();
+  const yTicks = useYAxisTicks();
+  const value = Number(payload?.value);
+  const ticks = (axis === "x" ? xTicks : yTicks) ?? [];
+  const scale = Math.max(Math.abs(value), ...ticks.map((t) => Math.abs(Number(t.value))));
+  return <Text {...tick}>{format(value, scale)}</Text>;
 }
 
 // At the ticks' 12px, Geist averages about 6.6px a character and Geist Mono 7.2px.
@@ -330,8 +353,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tickFormatter={yTickFormatter}
-                    tick={TICK}
+                    tick={yTickFormatter ? <ValueTick axis="x" format={yTickFormatter} {...TICK} /> : TICK}
                   />
                   <HorizontalAxis
                     data={data}
@@ -378,8 +400,10 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     }
                     // Recharts calls a tick formatter with (value, index); a page's formatter may
                     // read a second parameter of its own, such as pct's decimals, so it gets the value alone.
-                    tickFormatter={(value: number) => (yTickFormatter ?? formatValue)(value)}
-                    tick={TICK}
+                    // A page's formatter gets the axis' scale only when it asks for one: valueFormatter may read a second
+                    // parameter of its own, such as pct's decimals.
+                    tick={yTickFormatter ? <ValueTick axis="y" format={yTickFormatter} {...TICK} /> : TICK}
+                    tickFormatter={yTickFormatter ? undefined : (value: number) => formatValue(value)}
                   />
                 </>
               )}

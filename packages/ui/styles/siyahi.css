@@ -255,6 +255,20 @@
   stroke: var(--border);
 }
 
+/*
+ * The selected sub-page marks its stretch of the sidebar's rail in the accent,
+ * so the current place reads at a glance in a long list, as a docs index does.
+ */
+[data-slot="sidebar-menu-sub-item"]:has(> [data-active])::before {
+  content: "";
+  position: absolute;
+  inset-block: 2px;
+  left: -11px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--sidebar-accent-foreground);
+}
+
 /* Touch targets follow input capability, including touch laptops. */
 @media (pointer: coarse) {
   :is(

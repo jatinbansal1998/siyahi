@@ -26,21 +26,40 @@ export function money(value: number, locale: SiyahiLocale = defaultLocale, fract
   }).format(value);
 }
 
+const DIGITS = new Set<Intl.NumberFormatPartTypes>(["integer", "fraction"]);
+const NUMBER = new Set<Intl.NumberFormatPartTypes>(["integer", "group", "decimal", "fraction"]);
+
 /**
  * A short amount: ₹2.4L and ₹40Cr in en-IN, $2.4M in en-US. Indian readers
  * count in thousands up to a lakh, so in an Indian-region locale amounts under
  * one lakh print in full (₹99,999), never as ₹99.9K. Signed figures belong in
  * `Delta`, which adds the arrow.
+ *
+ * Give `scale`, the largest amount on the same axis, and every tick takes that
+ * amount's unit, to two decimals so close ticks stay apart: ₹1.5L, ₹0.75L,
+ * ₹0, rather than switching to ₹75,000 halfway up.
  */
-export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale): string {
+export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale, scale?: number): string {
   if (!regions.has(locale.numberLocale)) regions.set(locale.numberLocale, new Intl.Locale(locale.numberLocale).region);
-  if (regions.get(locale.numberLocale) === "IN" && Math.abs(value) < 100_000) return money(value, locale);
-  return numberFormat(locale.numberLocale, {
+  if (regions.get(locale.numberLocale) === "IN" && (scale ?? Math.abs(value)) < 100_000) return money(value, locale);
+  const compact = numberFormat(locale.numberLocale, {
     style: "currency",
     currency: locale.currency,
     notation: "compact",
     maximumFractionDigits: 1,
-  }).format(value);
+  });
+  if (scale === undefined || value === 0) return compact.format(value);
+  // Intl names the unit but not its size: read the size off the scale's own short form, then write this value
+  // in that unit inside the same parts, so the currency, unit and sign sit where the locale puts them.
+  const parts = compact.formatToParts(Math.sign(value) * scale);
+  const shown = Number(
+    parts.flatMap((part) => (part.type === "decimal" ? "." : DIGITS.has(part.type) ? part.value : [])).join(""),
+  );
+  const unit = 10 ** Math.round(Math.log10(scale / shown));
+  if (unit === 1) return compact.format(value);
+  const digits = numberFormat(locale.numberLocale, { maximumFractionDigits: 2 }).format(Math.abs(value) / unit);
+  const first = parts.findIndex((part) => part.type === "integer");
+  return parts.flatMap((part, index) => (index === first ? digits : NUMBER.has(part.type) ? [] : part.value)).join("");
 }
 
 /** A whole count with the locale's grouping: 1,53,110 in en-IN. */
@@ -89,7 +108,8 @@ export function time(
 export interface Formatters {
   count: (value: number) => string;
   money: (value: number, fractionDigits?: number) => string;
-  moneyCompact: (value: number) => string;
+  /** Pass `scale` on an axis so every tick shares one unit; a chart's yTickFormatter gets it as its second argument. */
+  moneyCompact: (value: number, scale?: number) => string;
   pct: (value: number, fractionDigits?: number) => string;
   time: (value: Date | number | string, options?: TimeOptions) => string;
 }
@@ -101,7 +121,7 @@ export function useFormat(): Formatters {
     () => ({
       count: (value) => count(value, locale),
       money: (value, fractionDigits) => money(value, locale, fractionDigits),
-      moneyCompact: (value) => moneyCompact(value, locale),
+      moneyCompact: (value, scale) => moneyCompact(value, locale, scale),
       pct: (value, fractionDigits) => pct(value, locale, fractionDigits),
       time: (value, options) => time(value, locale, options),
     }),
