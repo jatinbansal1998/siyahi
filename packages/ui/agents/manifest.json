@@ -304,10 +304,9 @@
     {
       "file": "agents/examples/alert.tsx",
       "components": [
-        "Alert",
         "AlertDescription",
         "AlertTitle",
-        "WarningAlert"
+        "StatusAlert"
       ]
     },
     {
@@ -328,7 +327,8 @@
       "file": "agents/examples/badge.tsx",
       "components": [
         "Badge",
-        "Delta"
+        "Delta",
+        "StatusBadge"
       ]
     },
     {
@@ -401,11 +401,11 @@
     {
       "file": "agents/examples/callout.tsx",
       "components": [
+        "AlertDescription",
+        "AlertTitle",
         "Callout",
         "Quote",
-        "WarningAlert",
-        "AlertDescription",
-        "AlertTitle"
+        "StatusAlert"
       ]
     },
     {

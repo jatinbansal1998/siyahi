@@ -48,19 +48,27 @@ const display: Entry[] = [
   {
     id: "badge",
     title: "Badge",
-    lead: "A short label beside a name or a figure, neutral by default.",
-    imports: ["Badge"],
+    lead: "A short label beside a name or a figure: StatusBadge for a state, an outline Badge for a category.",
+    imports: ["Badge", "StatusBadge"],
     props: [
       VARIANT(
         '"default" | "secondary" | "destructive" | "outline" | "ghost" | "link"',
         "outline for categories and signed figures.",
       ),
+      {
+        name: "StatusBadge tone",
+        type: '"neutral" | "accent" | "warning" | "positive" | "negative"',
+        default: '"neutral"',
+        purpose:
+          "positive for paid or done, warning for pending, negative for failed, accent for new, neutral for a draft.",
+      },
     ],
     rules: [
       "Categories stay neutral: a team, a region or a product line is an outline badge, never a colour.",
+      "A state (paid, pending, failed) is a StatusBadge: its tone's wash with a dot in the tone's colour; the label stays in the text colour so it reads.",
       "A signed figure goes in an outline badge too, as a Delta.",
     ],
-    caption: "Each variant, with a team and signed figures in outline badges.",
+    caption: "States as StatusBadges, then the stock variants with a team and signed figures in outline badges.",
   },
   {
     id: "card",
@@ -118,14 +126,21 @@ const display: Entry[] = [
   {
     id: "alert",
     title: "Alert",
-    lead: "A notice: default for information, WarningAlert for a caution, destructive for errors.",
-    imports: ["Alert", "AlertTitle", "AlertDescription", "WarningAlert"],
-    props: [VARIANT('"default" | "destructive"', "destructive for errors; information uses default.")],
+    lead: "A notice is a StatusAlert in its tone: neutral for information, warning for a caution, negative for an error, positive for a success.",
+    imports: ["StatusAlert", "AlertTitle", "AlertDescription"],
+    props: [
+      {
+        name: "tone",
+        type: '"neutral" | "accent" | "warning" | "positive" | "negative"',
+        default: '"neutral"',
+        purpose: "Sets the wash, the border and the icon; title and description stay in the text colours.",
+      },
+    ],
     rules: [
-      "A warning is WarningAlert: the whole card takes a faint amber wash inside an amber border, with the triangle.",
+      "Every tone tints the whole card: a faint wash inside a border of the same colour, with its icon. An error reads like a warning, only red.",
       "Never mark a notice, card or row with one coloured edge (a left border stripe); tint the whole box or use the icon.",
     ],
-    caption: "Information, a warning tinted across the card, and an error.",
+    caption: "Information, a warning, an error and a success, each tinted across the card.",
   },
   {
     id: "tabs",
