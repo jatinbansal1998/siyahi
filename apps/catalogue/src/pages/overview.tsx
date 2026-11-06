@@ -11,7 +11,7 @@ const RULES = [
   "Tables are the registry data table, inside a Card.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
   "Ink indigo is placed, not spread: links, focus rings, the selected sidebar item and the first chart series. Three meaning colours, positive, negative and warning, carry gains, losses and caution. Buttons, badges and toggles stay black and white.",
-  "Notices are shadcn Alert, used as shipped: default for information, destructive for errors. Warnings are the default variant with an amber icon, coloured text-warning! (the ! outranks Alert's own icon colour).",
+  "Notices are shadcn Alert: default for information, destructive for errors. A warning is WarningAlert, the whole card washed in amber; never a single coloured edge on any box.",
   "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
   "Indian grouping, compact rupees, IST with zone, arrows beside colour, scheme follows the device, reduced motion honoured.",
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables hide columns that do not fit, never their meta.compact ones, behind an All columns toggle, sidebar becomes a drawer.",

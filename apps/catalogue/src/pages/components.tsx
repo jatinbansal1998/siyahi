@@ -118,13 +118,14 @@ const display: Entry[] = [
   {
     id: "alert",
     title: "Alert",
-    lead: "A notice: default for information, destructive for errors, default with an amber icon for warnings.",
-    imports: ["Alert", "AlertTitle", "AlertDescription"],
-    props: [VARIANT('"default" | "destructive"', "destructive for errors; information and warnings use default.")],
+    lead: "A notice: default for information, WarningAlert for a caution, destructive for errors.",
+    imports: ["Alert", "AlertTitle", "AlertDescription", "WarningAlert"],
+    props: [VARIANT('"default" | "destructive"', "destructive for errors; information uses default.")],
     rules: [
-      "A warning's icon takes text-warning! with the !: Alert colours its icons through a selector that outranks a plain text-warning.",
+      "A warning is WarningAlert: the whole card takes a faint amber wash inside an amber border, with the triangle.",
+      "Never mark a notice, card or row with one coloured edge (a left border stripe); tint the whole box or use the icon.",
     ],
-    caption: "Information, a warning with its amber icon, and an error.",
+    caption: "Information, a warning tinted across the card, and an error.",
   },
   {
     id: "tabs",

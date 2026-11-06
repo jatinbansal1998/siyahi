@@ -1,5 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@siyahi/ui";
-import { CircleAlertIcon, InfoIcon, TriangleAlertIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle, WarningAlert } from "@siyahi/ui";
+import { CircleAlertIcon, InfoIcon } from "lucide-react";
 
 export default function AlertExample() {
   return (
@@ -9,12 +9,10 @@ export default function AlertExample() {
         <AlertTitle>Prices are delayed</AlertTitle>
         <AlertDescription>Quotes refresh every fifteen minutes during market hours.</AlertDescription>
       </Alert>
-      <Alert>
-        {/* Alert sets its icons to the text colour with a stronger selector; the ! lets the icon's colour win. */}
-        <TriangleAlertIcon className="text-warning!" />
+      <WarningAlert>
         <AlertTitle>Two trades are unmatched</AlertTitle>
         <AlertDescription>The contract notes list trades the ledger does not have yet.</AlertDescription>
-      </Alert>
+      </WarningAlert>
       <Alert variant="destructive">
         <CircleAlertIcon />
         <AlertTitle>Import failed</AlertTitle>

@@ -306,7 +306,8 @@
       "components": [
         "Alert",
         "AlertDescription",
-        "AlertTitle"
+        "AlertTitle",
+        "WarningAlert"
       ]
     },
     {
@@ -395,6 +396,16 @@
       "file": "agents/examples/calendar.tsx",
       "components": [
         "Calendar"
+      ]
+    },
+    {
+      "file": "agents/examples/callout.tsx",
+      "components": [
+        "Callout",
+        "Quote",
+        "WarningAlert",
+        "AlertDescription",
+        "AlertTitle"
       ]
     },
     {

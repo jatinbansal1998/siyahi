@@ -53,6 +53,9 @@ layouts and product-specific logic belong in the consuming app.
   place it, do not spread it. Buttons, badges and toggles stay monochrome.
   Numbers use `useFormat()`, changes use `Delta`; do not replace the formatters
   with bare `toLocaleString()`. Prose uses `max-w-prose`.
+- Never mark a notice, card, row or quote with one coloured edge (a left or
+  side border stripe). A warning is `WarningAlert`, tinted across the whole
+  card; anything else that needs emphasis is tinted whole or carries an icon.
 - The installed README owns surfaces, chart colours, locale and dark mode.
   Include `<meta name="color-scheme" content="light dark">` in app HTML.
   Follow the package's reduced-motion behaviour; JavaScript-started motion
