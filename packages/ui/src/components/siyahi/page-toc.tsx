@@ -1,4 +1,5 @@
 import { cn } from "cn";
+import { ChevronRightIcon } from "lucide-react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 
 export interface PageTocItem {
@@ -40,10 +41,15 @@ export function PageToc({ items, label = "On this page", className }: PageTocPro
       className={cn("sticky top-0 z-10 -mx-4 border-b bg-background px-4 sm:mx-0 sm:px-0", className)}
     >
       {/* An index, not tabs: a visible label and plain links, the current one underlined, since every section
-          stays on the page. */}
+          stays on the page. The label is set as a small-caps eyebrow with a chevron, so it reads as the heading of
+          the links after it; in link type it looked like one more link and drew taps. */}
       <div ref={strip} className="flex items-baseline gap-x-4 overflow-x-auto py-2.5 [scrollbar-width:none]">
-        <span aria-hidden className="shrink-0 text-xs text-muted-foreground">
+        <span
+          aria-hidden
+          className="flex shrink-0 cursor-default items-center gap-1 self-center text-[0.6875rem] font-medium tracking-wider text-muted-foreground uppercase select-none"
+        >
           {label}
+          <ChevronRightIcon className="size-3.5" />
         </span>
         {items.map((item) => (
           <a
