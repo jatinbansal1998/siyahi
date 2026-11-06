@@ -2,6 +2,9 @@
 
 ## 0.1.9
 
+- `Delta` sits on the text's baseline again: its icon had lifted the line and
+  made table rows taller. A button rendered as a popover or menu trigger keeps
+  the faint button edge in dark mode instead of the field edge.
 - `StatusAlert` replaces `WarningAlert` (rename `<WarningAlert>` to
   `<StatusAlert tone="warning">`): every notice tints the whole card in its
   tone, so an error reads like a warning, only red, with title and description
