@@ -360,6 +360,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   {/* The value axis shows along the bottom once a page gives it a tick format to read by. */}
                   <XAxis
                     type="number"
+                    niceTicks="snap125"
                     hide={!yTickFormatter}
                     domain={yDomain}
                     ticks={yTicks as number[] | undefined}
@@ -394,7 +395,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     // names its ticks, or gives each a second line, wants every one drawn.
                     interval={xTickDetail || xTicks ? 0 : undefined}
                   />
+                  {/* Value ticks step by 1, 2, 2.5 or 5 × 10ⁿ: ₹0.5L, ₹1L, ₹1.5L, never ₹0.95L. */}
                   <YAxis
+                    niceTicks="snap125"
                     tickLine={false}
                     axisLine={false}
                     width="auto"

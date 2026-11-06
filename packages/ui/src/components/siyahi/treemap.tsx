@@ -21,7 +21,10 @@ export interface TreemapProps<T extends TreemapItem> {
   height: number;
   /** ±range: the change, as a fraction, that takes the deepest heat step. Default 0.05 (±5%); a range that is not a positive number uses the default. */
   range?: number;
-  /** Gets the item under the pointer, and null when the pointer moves onto a group's name or leaves the map. */
+  /**
+   * Gets the item under a mouse, and null when it moves onto a group's name or leaves the map. A tap fires no hover:
+   * on a touch screen it selects, so the page shows the tile in place rather than in a card at the finger.
+   */
   onHover?: (item: T | null) => void;
   /** The selected item, matched by key, whose tile carries a ring. Pass back what onSelect gave. */
   selected?: T | null;
@@ -65,10 +68,15 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
         role={onSelect ? "group" : "img"}
         aria-label="Treemap of holdings by weight and change"
         className="text-xs"
-        onPointerLeave={() => onHover?.(null)}
+        onPointerLeave={(event) => event.pointerType === "mouse" && onHover?.(null)}
       >
         {groups.map(({ group, ...box }) => (
-          <svg key={group} {...box} data-slot="treemap-group" onPointerEnter={() => onHover?.(null)}>
+          <svg
+            key={group}
+            {...box}
+            data-slot="treemap-group"
+            onPointerEnter={(event) => event.pointerType === "mouse" && onHover?.(null)}
+          >
             <rect width="100%" height="100%" fill="none" pointerEvents="all" />
             <title>{group}</title>
             {/* A name cut to "Co…" reads as a different word; a group too narrow for its name drops it to the tooltip. */}
@@ -125,7 +133,9 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
                   ref.current?.querySelectorAll<SVGSVGElement>('[data-slot="treemap-tile"]')[next]?.focus();
                 }
               }}
-              onPointerEnter={() => onHover?.(item)}
+              // Hover is a mouse's: a tap fires pointerenter too, which opened a page's hover card wherever the finger
+              // landed. A tap selects, and the page shows the selection in place.
+              onPointerEnter={(event) => event.pointerType === "mouse" && onHover?.(item)}
               onClick={() => onSelect?.(key === selectedKey ? null : item)}
             >
               <rect width="100%" height="100%" rx={4} style={{ fill: heat(item.change, range) }} />

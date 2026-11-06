@@ -16,6 +16,8 @@
 // Siyahi edit: the entire tooltip category selects, including empty space around a bar.
 // Siyahi edit: horizontal lays the bars sideways, categories down the left,
 // as shadcn's chart-bar-horizontal does, for long names such as sectors.
+// Siyahi edit: a signed series (negativeColor) fills its bars with a tint of
+// the meaning colour inside a full-strength 1.5px edge.
 // Siyahi edit: a stack runs negative values down from zero and positive ones
 // up, so money out sits below the line rather than hanging from money in.
 // Siyahi edit: an unselected bar mixes 55% toward the card rather than fading
@@ -56,6 +58,12 @@ const DOWN_FROM_ZERO: YAxisProps["domain"] = ["auto", 0]
 // low opacity a mid-lightness colour all but vanishes on a dark card.
 const dimUnselected = (color: string, isSelected: boolean) =>
   isSelected ? color : `color-mix(in oklab, ${color} 55%, var(--card))`
+
+// A gain or a loss fills its bar with a tint of the meaning colour inside a
+// full-strength edge: solid green and red slabs were the loudest thing on a
+// page whose other meaning colours sit on text and dots.
+const signedFill = (color: string, isSelected: boolean) =>
+  `color-mix(in oklab, ${color} ${isSelected ? 35 : 15}%, var(--card))`
 
 export function BarChartCard<T extends object, K extends keyof T>({
   stacked = false,
@@ -105,17 +113,24 @@ export function BarChartCard<T extends object, K extends keyof T>({
             }
           >
             {(negativeColor || selected !== null) &&
-              props.data.map((row, i) => (
-                <Cell
-                  key={i}
-                  fill={dimUnselected(
-                    negativeColor && Number(row[key as keyof T]) < 0
-                      ? negativeColor
-                      : color,
-                    selected === null || row[props.xKey] === selected,
-                  )}
-                />
-              ))}
+              props.data.map((row, i) => {
+                const isSelected =
+                  selected === null || row[props.xKey] === selected
+                const tone =
+                  negativeColor && Number(row[key as keyof T]) < 0
+                    ? negativeColor
+                    : color
+                return negativeColor ? (
+                  <Cell
+                    key={i}
+                    fill={signedFill(tone, isSelected)}
+                    stroke={dimUnselected(tone, isSelected)}
+                    strokeWidth={1.5}
+                  />
+                ) : (
+                  <Cell key={i} fill={dimUnselected(tone, isSelected)} />
+                )
+              })}
           </Bar>
         )
       })}

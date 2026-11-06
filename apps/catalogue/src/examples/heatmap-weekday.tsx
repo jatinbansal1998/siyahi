@@ -25,7 +25,10 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 const hourLabel = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
 
 export default function HeatmapWeekdayExample() {
-  const [selected, setSelected] = useState<string | null>(null);
+  // The page owns the pick: a second tap on the same cell clears it.
+  const [picked, setPicked] = useState<(typeof data)[number] | null>(null);
+  const isPicked = (cell: { weekday: number; hour: number }) =>
+    cell.weekday === picked?.weekday && cell.hour === picked.hour;
   const { count } = useFormat();
   return (
     <Card>
@@ -46,9 +49,8 @@ export default function HeatmapWeekdayExample() {
             {({ activity }) => (
               <WeekdayHeatmapBlock
                 activity={activity}
-                onCellClick={(cell) =>
-                  setSelected(`${DAYS[cell.weekday]}, ${hourLabel(cell.hour)} IST: ${count(cell.value)} orders`)
-                }
+                selected={isPicked(activity)}
+                onCellClick={(cell) => setPicked(isPicked(cell) ? null : cell)}
               />
             )}
           </WeekdayHeatmapBody>
@@ -61,7 +63,9 @@ export default function HeatmapWeekdayExample() {
               Busiest: {DAYS[busiest.weekday]} at {hourLabel(busiest.hour)}, {count(busiest.value)} orders
             </p>
             <p aria-live="polite" className="text-muted-foreground">
-              {selected ?? "Select a cell for its order count. Use arrow keys to move between cells."}
+              {picked
+                ? `${DAYS[picked.weekday]}, ${hourLabel(picked.hour)} IST: ${count(picked.value)} orders`
+                : "Select a cell for its order count. Use arrow keys to move between cells."}
             </p>
           </div>
         </WeekdayHeatmap>

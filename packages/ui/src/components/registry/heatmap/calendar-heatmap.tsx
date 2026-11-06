@@ -10,6 +10,8 @@
 // on the latest weeks.
 // Siyahi edit: a row's total counts the days drawn in that row.
 // Siyahi edit: legend swatches keep one size however large the cells grow.
+// Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
+// ring in the text colour and announced as pressed, as a Treemap tile is.
 import type { Locale, Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
@@ -637,6 +639,8 @@ export const CalendarHeatmap = ({
 };
 
 export type CalendarHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
+  /** The cell the page has picked: drawn with a ring and announced as pressed. */
+  selected?: boolean;
   activity: ActivityWithLevel;
   dayIndex: number;
   weekIndex: number;
@@ -651,6 +655,7 @@ export const CalendarHeatmapBlock = ({
   dayIndex,
   weekIndex,
   highlighted = false,
+  selected = false,
   onCellClick,
   onCellHover,
   onClick,
@@ -689,6 +694,7 @@ export const CalendarHeatmapBlock = ({
       ref={ref}
       data-slot="calendar-heatmap-block"
       role={onCellClick ? "button" : "img"}
+      aria-pressed={onCellClick ? selected : undefined}
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
@@ -701,6 +707,7 @@ export const CalendarHeatmapBlock = ({
       data-date={activity.date}
       data-level={level}
       data-highlighted={highlighted || undefined}
+      data-selected={selected || undefined}
       height={blockSize}
       rx={blockRadius}
       ry={blockRadius}
@@ -709,6 +716,8 @@ export const CalendarHeatmapBlock = ({
       y={labelHeight + (blockSize + blockMargin) * dayIndex}
       style={{
         fill: getLevelFill(level, levels, isNormalized, highlighted, colors),
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
+        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
       }}
       onClick={(event) => {

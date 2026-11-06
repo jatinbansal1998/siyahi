@@ -1,4 +1,14 @@
-import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import {
+  Fragment,
+  lazy,
+  startTransition,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import {
   Button,
   Card,
@@ -65,7 +75,9 @@ function Example({ name, caption }: ExampleSpec) {
         </CollapsibleTrigger>
       </div>
       <div data-open={open || undefined} className="grid min-w-0 items-start data-open:xl:grid-cols-2">
-        <div data-slot="example-preview" className="flex min-w-0 flex-col gap-4 bg-muted/40 p-4 md:p-6">
+        {/* The well is the page's canvas, so a card inside it sits raised in both schemes; a muted wash was lighter
+            than the card in dark, and the cards looked sunk into a tray. */}
+        <div data-slot="example-preview" className="flex min-w-0 flex-col gap-4 bg-background p-4 md:p-6">
           <Component />
         </div>
         <CollapsibleContent className="min-w-0 border-t xl:border-t-0 xl:border-l">
@@ -243,16 +255,19 @@ export function FamilyView({ page, family }: { page: Page; family: Family }) {
   );
 }
 
-/** True once the element has come within a screen of the viewport, and stays true. */
+/**
+ * True once the element is in view, and stays true. It flips in a transition, so mounting a preview never holds up
+ * a click to another page: that navigation interrupts it.
+ */
 function useNear<E extends Element>() {
   const ref = useRef<E>(null);
   const [near, setNear] = useState(false);
   useEffect(() => {
     const element = ref.current;
     if (!element || near) return;
-    const observer = new IntersectionObserver(([entry]) => entry?.isIntersecting && setNear(true), {
-      rootMargin: "100% 0px",
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => entry?.isIntersecting && startTransition(() => setNear(true)),
+    );
     observer.observe(element);
     return () => observer.disconnect();
   }, [near]);
@@ -261,7 +276,7 @@ function useNear<E extends Element>() {
 
 /**
  * A family's first example, live, in a band at the top of its card, so the index shows each component
- * rather than describing it. It mounts near the viewport, so a long index does not load every chart at once. It is a
+ * rather than describing it. It mounts once in view, so a long index does not draw every chart at once. It is a
  * picture of the example: inert, and hidden from assistive technology, since the card's link names the family.
  */
 function Preview({ name }: { name: string }) {
@@ -272,7 +287,7 @@ function Preview({ name }: { name: string }) {
       ref={band}
       data-slot="family-preview"
       aria-hidden
-      className="relative h-56 shrink-0 overflow-hidden border-b bg-muted/40 mask-b-from-75%"
+      className="relative h-56 shrink-0 overflow-hidden border-b bg-background mask-b-from-75%"
     >
       {near && Component && (
         // At its own size: charts measure their axes in layout pixels, so a scaled-down copy cut off its ticks. The
@@ -302,22 +317,25 @@ export function FamilyIndex({ page }: { page: Page }) {
         const first = family.examples?.[0];
         return (
           <li key={family.id} className="flex">
-            <a
-              href={`#/${page.id}/${family.id}`}
-              className="group/family flex w-full rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            {/* Only the title is a link, stretched over the card: the live preview holds links of its own, and a link
+                inside a link is invalid. */}
+            <Card
+              className={`relative w-full transition-colors has-[a:hover]:ring-foreground/25 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50 ${first ? "pt-0" : ""}`}
             >
-              <Card className={`w-full transition-colors group-hover/family:ring-foreground/25 ${first ? "pt-0" : ""}`}>
-                {first && <Preview name={first.name} />}
-                <CardHeader>
-                  <CardTitle>{family.title}</CardTitle>
-                  <CardDescription>{family.lead}</CardDescription>
-                </CardHeader>
-                <div className="mt-auto flex items-center justify-between gap-2 px-4 text-xs text-muted-foreground">
-                  <span className="truncate font-mono">{family.imports?.[0]}</span>
-                  {count > 1 && <span className="shrink-0">{count} examples</span>}
-                </div>
-              </Card>
-            </a>
+              {first && <Preview name={first.name} />}
+              <CardHeader>
+                <CardTitle>
+                  <a href={`#/${page.id}/${family.id}`} className="outline-none after:absolute after:inset-0">
+                    {family.title}
+                  </a>
+                </CardTitle>
+                <CardDescription>{family.lead}</CardDescription>
+              </CardHeader>
+              <div className="mt-auto flex items-center justify-between gap-2 px-4 text-xs text-muted-foreground">
+                <span className="truncate font-mono">{family.imports?.[0]}</span>
+                {count > 1 && <span className="shrink-0">{count} examples</span>}
+              </div>
+            </Card>
           </li>
         );
       })}

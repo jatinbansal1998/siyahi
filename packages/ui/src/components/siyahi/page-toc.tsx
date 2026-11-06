@@ -43,7 +43,11 @@ export function PageToc({ items, label = "On this page", className }: PageTocPro
       {/* An index, not tabs: a visible label and plain links, the current one underlined, since every section
           stays on the page. The label is set as a small-caps eyebrow with a chevron, so it reads as the heading of
           the links after it; in link type it looked like one more link and drew taps. */}
-      <div ref={strip} className="flex items-baseline gap-x-4 overflow-x-auto py-2.5 [scrollbar-width:none]">
+      {/* The right edge fades, so a link cut off at a phone's edge reads as more to scroll, not as broken. */}
+      <div
+        ref={strip}
+        className="flex items-baseline gap-x-4 overflow-x-auto py-2.5 mask-r-from-90% [scrollbar-width:none] sm:mask-none"
+      >
         <span
           aria-hidden
           className="flex shrink-0 cursor-default items-center gap-1 self-center text-[0.6875rem] font-medium tracking-wider text-muted-foreground uppercase select-none"

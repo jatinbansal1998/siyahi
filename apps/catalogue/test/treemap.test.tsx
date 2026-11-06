@@ -46,10 +46,14 @@ const box = (el: Element | undefined) => ({
 
 // A browser fires pointerout on the element left and pointerover on the
 // one entered; React derives onPointerEnter and onPointerLeave from them.
-const move = async (from: Element | null | undefined, to: Element | null | undefined) =>
+const move = async (from: Element | null | undefined, to: Element | null | undefined, pointerType = "mouse") =>
   act(async () => {
-    from?.dispatchEvent(new PointerEvent("pointerout", { bubbles: true, relatedTarget: to ?? document.body }));
-    to?.dispatchEvent(new PointerEvent("pointerover", { bubbles: true, relatedTarget: from ?? document.body }));
+    from?.dispatchEvent(
+      new PointerEvent("pointerout", { bubbles: true, pointerType, relatedTarget: to ?? document.body }),
+    );
+    to?.dispatchEvent(
+      new PointerEvent("pointerover", { bubbles: true, pointerType, relatedTarget: from ?? document.body }),
+    );
   });
 
 const tap = (el: Element | null | undefined) =>
@@ -210,6 +214,15 @@ describe("Treemap", () => {
     await move(label, undefined);
     expect(onHover.mock.calls.map(([item]) => item?.key ?? null)).toEqual(["INFY-kite", "INFY-dhan", null, null]);
     expect(onHover.mock.calls[1]?.[0]).toBe(items[1]);
+  });
+
+  it("reports no hover for a finger, so a page's hover card does not open where it landed", async () => {
+    const onHover = vi.fn<(item: TreemapItem | null) => void>();
+    await render({ height: 300, items: [{ name: "INFY", group: "IT", weight: 300, change: 0.01 }], onHover });
+    const infy = tiles()[0]?.querySelector("rect");
+    await move(undefined, infy, "touch");
+    await move(infy, undefined, "touch");
+    expect(onHover).not.toHaveBeenCalled();
   });
 
   it("selects a tapped tile with a ring, and clears on a second tap or a tap anywhere else", async () => {

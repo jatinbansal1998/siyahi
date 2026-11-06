@@ -469,19 +469,20 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(detail).toBeGreaterThan(name ?? Number.POSITIVE_INFINITY);
   });
 
-  it("a bar below zero takes the series' negative colour, in the plot and the tooltip", async () => {
+  it("a bar below zero takes the series' negative colour, as a tint inside a full edge, and in the tooltip", async () => {
     await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
     await settled(bars);
-    expect(await bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill")))).toEqual([
+    expect(await bars.evaluateAll((els) => els.map((el) => el.getAttribute("stroke")))).toEqual([
       "var(--positive)",
       "var(--positive)",
       "var(--negative)",
       "var(--positive)",
       "var(--negative)",
     ]);
+    expect(await bars.nth(2).getAttribute("fill")).toBe("color-mix(in oklab, var(--negative) 35%, var(--card))");
     const { x, y } = await center(bars.nth(2));
     await tooltipAt(chart, x, y, "FY24");
     const swatch = chart.locator(".recharts-tooltip-wrapper span").first();
@@ -496,7 +497,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     // A faded bar mixes toward the card, opaque, so it stays readable on a dark card.
     const faded = async () => {
       await settled(bars);
-      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("fill") ?? "").startsWith("color-mix")));
+      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("stroke") ?? "").startsWith("color-mix")));
     };
     const none = [false, false, false, false, false];
     expect(await faded()).toEqual(none);
@@ -521,7 +522,9 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await page.mouse.click(x, grid.y + 2);
     await expect
-      .poll(() => bars.evaluateAll((els) => els.some((el) => (el.getAttribute("fill") ?? "").startsWith("color-mix"))))
+      .poll(() =>
+        bars.evaluateAll((els) => els.some((el) => (el.getAttribute("stroke") ?? "").startsWith("color-mix"))),
+      )
       .toBe(false);
   });
 

@@ -9,6 +9,8 @@
 // so the grid fills its column, scrolling only below a readable cell; the
 // padding around the grid is just room for the end hour label.
 // Siyahi edit: legend swatches keep one size however large the cells grow.
+// Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
+// ring in the text colour and announced as pressed, as a Treemap tile is.
 import type { Locale, Day as WeekDay } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -484,6 +486,8 @@ export const WeekdayHeatmap = ({
 };
 
 export type WeekdayHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
+  /** The cell the page has picked: drawn with a ring and announced as pressed. */
+  selected?: boolean;
   activity: WeekdayHourlyActivityWithLevel;
   extra?: "row" | "column";
   highlighted?: boolean;
@@ -497,6 +501,7 @@ export const WeekdayHeatmapBlock = ({
   activity,
   extra,
   highlighted = false,
+  selected = false,
   onCellClick,
   onCellHover,
   onClick,
@@ -563,6 +568,7 @@ export const WeekdayHeatmapBlock = ({
       ref={ref}
       data-slot="weekday-heatmap-block"
       role={onCellClick ? "button" : "img"}
+      aria-pressed={onCellClick ? selected : undefined}
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
@@ -576,6 +582,7 @@ export const WeekdayHeatmapBlock = ({
       data-hour={isExtraColumn ? "extra" : activity.hour}
       data-level={level}
       data-highlighted={highlighted || undefined}
+      data-selected={selected || undefined}
       height={blockSize}
       rx={blockRadius}
       ry={blockRadius}
@@ -584,6 +591,8 @@ export const WeekdayHeatmapBlock = ({
       y={yPosition}
       style={{
         fill: getLevelFill(level, levels, isNormalized, highlighted, colors),
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
+        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
       }}
       onClick={(event) => {

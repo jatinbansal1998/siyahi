@@ -127,7 +127,7 @@ export const foundations: Page = {
       title: "Chart palette",
       lead: "Five hues in the same order in both schemes, with no green or red, so no series reads as a gain or a loss.",
       rules: [
-        "Each slot reaches 3:1 against the card and against the slots next to it, which only lightness can give, so indigo, plum and teal are the deep members in light and the pale ones in dark.",
+        "Each slot reaches 3:1 against the card and against the slots next to it, which only lightness can give, so indigo, plum and teal are the deep members and amber and sky the pale ones, in both schemes.",
         "Slots two apart share a lightness and are told apart by hue, so series take slots in order.",
         "In charts, amber (chart-2) carries no warning meaning; warning amber is for alerts and badges only.",
         "Ordered buckets (largest 5 / #6–10 / rest) use chart-1 heat steps (100% / 60% / 30%), not separate hues.",
@@ -201,14 +201,15 @@ export const foundations: Page = {
                 <span className="w-24 font-mono text-xs text-muted-foreground">
                   {s.name} · {s.px}px
                 </span>
-                <div className={`h-3 rounded-sm bg-primary ${s.bar}`} />
+                {/* Square ends: a rounded 4px bar read as a dot, not a length. */}
+                <div className={`h-4 bg-primary ${s.bar}`} />
               </div>
             ))}
           </div>
           <div className="flex flex-wrap gap-4">
             {RADII.map((r) => (
               <div key={r} className="flex flex-col items-center gap-2">
-                <div className={`size-16 border bg-muted ${r}`} />
+                <div className={`size-16 border border-foreground/25 bg-muted ${r}`} />
                 <span className="font-mono text-xs text-muted-foreground">{r}</span>
               </div>
             ))}

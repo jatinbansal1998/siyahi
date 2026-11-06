@@ -9,6 +9,47 @@ export const layout: Page = {
   layout: "stack",
   families: [
     {
+      id: "page-hero",
+      title: "Page hero",
+      lead: "PageHero introduces a front page or a long explainer: a large title, what the page is, and where to go next.",
+      imports: ["PageHero"],
+      props: [
+        { name: "title", type: "ReactNode", purpose: "The page's h1, set large." },
+        {
+          name: "eyebrow",
+          type: "ReactNode",
+          default: "—",
+          purpose: "A short line above the title in the link colour.",
+        },
+        { name: "lead", type: "ReactNode", default: "—", purpose: "What the page is, in a sentence or two." },
+        { name: "detail", type: "ReactNode", default: "—", purpose: "Muted detail under the lead: scope, sources." },
+        {
+          name: "actions",
+          type: "ReactNode",
+          default: "—",
+          purpose: "The one or two places a reader goes next: a primary Button and an outline one.",
+        },
+        {
+          name: "mark",
+          type: "ReactNode",
+          default: "—",
+          purpose:
+            "A large decorative mark drawn faintly in the accent, such as a logo SVG that paints with currentColor.",
+        },
+      ],
+      rules: [
+        "One per page, above everything else; the parts below it are PageSections.",
+        "A dashboard view opens on its answer, not a hero: the hero is for front pages and explainers.",
+        "At most one primary action.",
+      ],
+      examples: [
+        {
+          name: "page-hero",
+          caption: "The catalogue's own front page: eyebrow, title, lead, detail, two actions and its ink drop.",
+        },
+      ],
+    },
+    {
       id: "page-section",
       title: "Sections and facts",
       lead: "PageSection is one part of a long page; DataList holds its facts and InlineCode its identifiers.",

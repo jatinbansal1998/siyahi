@@ -20,7 +20,8 @@ const data = Array.from({ length: 60 }, (_, i) => {
 });
 
 export default function HeatmapStatusExample() {
-  const [selected, setSelected] = useState<string | null>(null);
+  // The page owns the pick: a second tap on the same day clears it.
+  const [picked, setPicked] = useState<(typeof data)[number] | null>(null);
 
   return (
     <Card>
@@ -35,17 +36,16 @@ export default function HeatmapStatusExample() {
               <StatusHeatmapBlock
                 activity={activity}
                 dayIndex={dayIndex}
-                onCellClick={(cell) =>
-                  setSelected(
-                    `${cell.date}: ${["unknown", "critical", "degraded", "healthy"][cell.value] ?? "unknown"}`,
-                  )
-                }
+                selected={activity.date === picked?.date}
+                onCellClick={(cell) => setPicked(cell.date === picked?.date ? null : cell)}
               />
             )}
           </StatusHeatmapBody>
           <StatusHeatmapFooter className="items-center justify-between gap-x-6 gap-y-2 whitespace-normal">
             <p aria-live="polite" className="text-sm">
-              {selected ?? "Select a day for its health. Use arrow keys to move between days."}
+              {picked
+                ? `${picked.date}: ${["unknown", "critical", "degraded", "healthy"][picked.value] ?? "unknown"}`
+                : "Select a day for its health. Use arrow keys to move between days."}
             </p>
             {/* No day lacks data, so the legend leaves out "No Data". */}
             <StatusHeatmapLegend className="gap-3" />

@@ -74,21 +74,9 @@ describe("data table surfaces", () => {
     expect(document.querySelector("thead")?.classList.contains("bg-card")).toBe(true);
   });
 
-  it("rules the pinned column with a hairline, and casts its shadow only while rows scroll under it", async () => {
+  it("rules the pinned column with a hairline at the row lines' weight", () => {
     const pinned = document.querySelector<HTMLElement>('td[data-col-id="symbol"]');
-    expect(pinned?.getAttribute("style")).toContain("inset -1px 0 0 0 var(--border), var(--pinned-start-shadow");
-    const scroll = document.querySelector<HTMLElement>('[data-slot="table-container"]');
-    if (!scroll) throw new Error("no table container");
-    expect(scroll.dataset.scrolledStart).toBeUndefined();
-    // happy-dom lays nothing out, so the scrolled geometry is stated.
-    Object.defineProperties(scroll, {
-      scrollLeft: { value: 40, configurable: true },
-      clientWidth: { value: 300, configurable: true },
-      scrollWidth: { value: 600, configurable: true },
-    });
-    await act(async () => scroll.dispatchEvent(new Event("scroll")));
-    expect(scroll.dataset.scrolledStart).toBe("true");
-    expect(scroll.className).toContain("data-scrolled-start:[--pinned-start-shadow:");
+    expect(pinned?.getAttribute("style")).toContain("box-shadow: inset -1px 0 0 0 var(--border);");
   });
 
   // happy-dom paints nothing, so this checks that the pinned cells and the

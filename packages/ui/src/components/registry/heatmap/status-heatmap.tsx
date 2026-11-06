@@ -6,6 +6,8 @@
 // Siyahi edit: without a blockAspectRatio the strip spans its width: bars are
 // as wide as an equal share allows, and the padding is just room for a focus ring.
 // Siyahi edit: legend swatches keep one size however narrow the bars get.
+// Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
+// ring in the text colour and announced as pressed, as a Treemap tile is.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -326,6 +328,8 @@ export const StatusHeatmap = ({
 };
 
 export type StatusHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
+  /** The cell the page has picked: drawn with a ring and announced as pressed. */
+  selected?: boolean;
   activity: StatusActivity;
   dayIndex: number;
   highlighted?: boolean;
@@ -339,6 +343,7 @@ export const StatusHeatmapBlock = ({
   activity,
   dayIndex,
   highlighted = false,
+  selected = false,
   onCellClick,
   onCellHover,
   onClick,
@@ -367,6 +372,7 @@ export const StatusHeatmapBlock = ({
       ref={ref}
       data-slot="status-heatmap-block"
       role={onCellClick ? "button" : "img"}
+      aria-pressed={onCellClick ? selected : undefined}
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
@@ -378,6 +384,7 @@ export const StatusHeatmapBlock = ({
       data-value={activity.value}
       data-date={activity.date}
       data-highlighted={highlighted || undefined}
+      data-selected={selected || undefined}
       height={blockSize}
       rx={blockRadius}
       ry={blockRadius}
@@ -386,6 +393,8 @@ export const StatusHeatmapBlock = ({
       y={0}
       style={{
         fill: getStatusFill(activity.value, colors, highlighted),
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
+        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
       }}
       onClick={(event) => {

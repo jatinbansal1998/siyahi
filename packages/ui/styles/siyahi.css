@@ -114,7 +114,8 @@
    * Indigo, amber, plum, sky, teal: no green or red, so no series reads as a
    * gain or a loss. Each slot reaches 3:1 against the card and against the
    * slots next to it, which only lightness can give, so indigo, plum and teal
-   * are the deep members in light and the pale ones in dark. Slots two apart
+   * are the deep members and amber and sky the pale ones, in both schemes: a
+   * pale indigo in dark read as lavender and lost the accent. Slots two apart
    * share a lightness and are told apart by hue; series take slots in order.
    * Every chart value is inside sRGB, so the browser paints what the contrast
    * check scored.
@@ -169,11 +170,11 @@
     --warning: oklch(0.828 0.189 84.429);
     --warning-foreground: oklch(0.145 0 0);
     --link: oklch(0.75 0.13 275);
-    --chart-1: oklch(0.84 0.07 275);
-    --chart-2: oklch(0.52 0.1 70);
-    --chart-3: oklch(0.86 0.07 335);
-    --chart-4: oklch(0.52 0.1 235);
-    --chart-5: oklch(0.86 0.06 205);
+    --chart-1: oklch(0.58 0.2 275);
+    --chart-2: oklch(0.88 0.08 75);
+    --chart-3: oklch(0.58 0.16 335);
+    --chart-4: oklch(0.88 0.05 235);
+    --chart-5: oklch(0.56 0.08 205);
     --sidebar: oklch(0.145 0 0);
     --sidebar-foreground: oklch(0.922 0 0);
     --sidebar-primary: oklch(0.922 0 0);

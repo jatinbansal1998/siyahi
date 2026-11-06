@@ -788,6 +788,13 @@
       "components": []
     },
     {
+      "file": "agents/examples/page-hero.tsx",
+      "components": [
+        "Button",
+        "PageHero"
+      ]
+    },
+    {
       "file": "agents/examples/page-section.tsx",
       "components": [
         "Button",
@@ -842,13 +849,6 @@
       ]
     },
     {
-      "file": "agents/examples/scroll-area.tsx",
-      "components": [
-        "ScrollArea",
-        "Separator"
-      ]
-    },
-    {
       "file": "agents/examples/range-position-table.tsx",
       "components": [
         "Card",
@@ -879,6 +879,13 @@
         "DataListItem",
         "RangePosition",
         "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/scroll-area.tsx",
+      "components": [
+        "ScrollArea",
+        "Separator"
       ]
     },
     {
@@ -997,13 +1004,6 @@
       ]
     },
     {
-      "file": "agents/examples/toggle-group.tsx",
-      "components": [
-        "ToggleGroup",
-        "ToggleGroupItem"
-      ]
-    },
-    {
       "file": "agents/examples/target-rows.tsx",
       "components": [
         "Card",
@@ -1013,6 +1013,13 @@
         "CardTitle",
         "TargetRows",
         "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/toggle-group.tsx",
+      "components": [
+        "ToggleGroup",
+        "ToggleGroupItem"
       ]
     },
     {

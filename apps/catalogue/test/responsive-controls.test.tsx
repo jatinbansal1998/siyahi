@@ -38,7 +38,11 @@ describe("touch controls", () => {
     await filters.click();
     const done = page.getByRole("dialog").getByRole("button", { name: "Close", exact: true });
     await done.waitFor({ state: "visible" });
-    await expect.poll(() => done.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    // The sheet scales in; measure the button at rest, not partway through the opening animation.
+    await page
+      .getByRole("dialog")
+      .evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((animation) => animation.finished)));
+    expect(await done.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
     await done.click();
   });
 });

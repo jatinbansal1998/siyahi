@@ -9,8 +9,7 @@
 // Siyahi edit: narrow containers suspend sticky styling without changing the
 // caller's pinning preference, including externally managed table instances.
 // Siyahi edit: the pinned edge is a 1px --border hairline, the weight of the
-// row lines, not a 2px foreground rule; its depth shadow comes from a
-// variable DataTable sets only while content is scrolled under the column.
+// row lines, not a 2px foreground rule with a shadow.
 import { type Column, type RowData } from "@tanstack/react-table"
 import type { DataTableFeatures } from "./data-table-features"
 import type React from "react"
@@ -44,8 +43,6 @@ export const getCommonPinningStyles = <TData extends RowData>(
     // cell's own paint) rather than a plain border: a border on a sticky cell
     // gets covered by scrolled-under content in some browsers, so it vanishes
     // once you scroll horizontally. An inset shadow stays put.
-    boxShadow: isLeft
-      ? "inset -1px 0 0 0 var(--border), var(--pinned-start-shadow, 0 0 transparent)"
-      : "inset 1px 0 0 0 var(--border), var(--pinned-end-shadow, 0 0 transparent)",
+    boxShadow: isLeft ? "inset -1px 0 0 0 var(--border)" : "inset 1px 0 0 0 var(--border)",
   }
 }
