@@ -1,7 +1,6 @@
 import { FileTextIcon } from "lucide-react";
 import reportCss from "@siyahi/ui/report.css?raw";
 import { Code } from "../code";
-import { Lead } from "../example";
 import type { Page } from "../page";
 import reportRules from "../report-rules.json";
 
@@ -31,24 +30,22 @@ export const reports: Page = {
   title: "Reports",
   icon: <FileTextIcon />,
   lead: "Static HTML reports skip React. They inline report.css, generated from the same theme, and follow five layout rules.",
-  sections: [
+  layout: "stack",
+  families: [
     {
       id: "report-css",
       title: "report.css",
-      body: (
-        <>
-          <Lead>
-            The theme's variables for both schemes, a system font stack with Geist first, and base body styles. It makes
-            no network requests. Copy it from @siyahi/ui/report.css into the report's style tag at write time, so each
-            report is a dated, self-contained snapshot.
-          </Lead>
-          <Code>{reportCss}</Code>
-        </>
-      ),
+      lead: "The theme's variables for both schemes, a system font stack with Geist first, and base body styles.",
+      rules: [
+        "It makes no network requests.",
+        "Copy it from @siyahi/ui/report.css into the report's style tag at write time, so each report is a dated, self-contained snapshot.",
+      ],
+      body: <Code className="max-h-96">{reportCss}</Code>,
     },
     {
       id: "report-rules",
       title: "The five report rules",
+      lead: "The layout rules every static report follows.",
       body: (
         <ol className="flex max-w-prose list-decimal flex-col gap-2 pl-5">
           {reportRules.map((rule) => (
@@ -60,6 +57,7 @@ export const reports: Page = {
     {
       id: "report-sample",
       title: "A minimal report",
+      lead: "The smallest page that follows the rules: report.css pasted in, figures in panels, gains and losses in their colours.",
       body: <Code>{SAMPLE}</Code>,
     },
   ],

@@ -38,9 +38,11 @@ export function NavMain({
     // Siyahi edit: a flat item's anchor takes extra props, such as hover
     // handlers that prefetch the view's data.
     linkProps?: Omit<React.ComponentProps<"a">, "href">
+    // Siyahi edit: a sub-item can be the open page too, marked like a flat item.
     items?: {
       title: string
       url: string
+      isActive?: boolean
     }[]
   }[]
 }) {
@@ -86,8 +88,14 @@ export function NavMain({
             className="group/collapsible"
             render={<SidebarMenuItem />}
           >
+            {/* Siyahi edit: the group reads as the open page until one of its sub-items does. */}
             <CollapsibleTrigger
-              render={<SidebarMenuButton tooltip={item.title} />}
+              render={
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  isActive={item.isActive && !item.items?.some(subItem => subItem.isActive)}
+                />
+              }
             >
               {item.icon}
               <span>{item.title}</span>
@@ -98,7 +106,13 @@ export function NavMain({
                 {item.items?.map((subItem) => (
                   <SidebarMenuSubItem key={subItem.title}>
                     <SidebarMenuSubButton
-                      render={<a href={subItem.url} />}
+                      isActive={subItem.isActive}
+                      render={
+                        <a
+                          href={subItem.url}
+                          aria-current={subItem.isActive ? "page" : undefined}
+                        />
+                      }
                       onClick={closeDrawer}
                     >
                       <span>{subItem.title}</span>

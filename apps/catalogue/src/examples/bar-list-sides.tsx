@@ -21,9 +21,17 @@ export default function BarListSidesExample() {
         <CardTitle>What drives the P&L</CardTitle>
         <CardDescription>The biggest ₹ gains and losses, on one scale</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-6 md:grid-cols-2">
-        <BarList data={gains} max={max} color="var(--positive)" valueFormatter={(v) => money(v)} />
-        <BarList data={losses} max={max} color="var(--negative)" valueFormatter={(v) => money(v)} />
+      {/* Each list is a column of its own, headed and ruled off, with its figures at its own right edge, so a
+          gain's figure never reads as the label of the loss beside it. */}
+      <CardContent className="grid gap-6 md:grid-cols-2 md:gap-0 md:divide-x">
+        <div className="md:pr-6">
+          <h3 className="text-muted-foreground mb-2 text-xs font-medium">Gains</h3>
+          <BarList data={gains} max={max} color="var(--positive)" valueFormatter={(v) => money(v)} />
+        </div>
+        <div className="md:pl-6">
+          <h3 className="text-muted-foreground mb-2 text-xs font-medium">Losses</h3>
+          <BarList data={losses} max={max} color="var(--negative)" valueFormatter={(v) => money(v)} />
+        </div>
       </CardContent>
     </Card>
   );

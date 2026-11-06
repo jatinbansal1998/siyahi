@@ -10,6 +10,8 @@ import {
   XAxis,
   YAxis,
   useChartWidth,
+  useXAxisTicks,
+  useYAxisTicks,
   type YAxisProps,
 } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
@@ -53,8 +55,9 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   /** One Bar, Area or Line per series. */
   children: ReactNode;
   /**
-   * Bars run sideways: the categories go down the left, where long names fit, and the value axis is hidden, as
-   * in shadcn's chart-bar-horizontal. x and y keep their meaning: x is the category, y the value.
+   * Bars run sideways: the categories go down the left, where long names fit, as in shadcn's
+   * chart-bar-horizontal. The value axis runs along the bottom when yTickFormatter is given, and is hidden
+   * otherwise. x and y keep their meaning: x is the category, y the value.
    */
   horizontal?: boolean;
   /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
@@ -74,6 +77,19 @@ export function seriesFill<T>(item: ChartSeriesItem<T>, data: readonly T[]): Cha
   return item.negativeColor && values.length > 0 && values.every((value) => value < 0)
     ? item.negativeColor
     : item.color;
+}
+
+/**
+ * A Line or Area's dots: one solid dot on the latest point, ringed in the card's colour so it stands clear of the
+ * grid, and none elsewhere. The eye lands on now, where a reader starts.
+ */
+export function endDot(color: ChartColor, count: number) {
+  return ({ cx, cy, index }: { cx?: number; cy?: number; index?: number }) =>
+    index === count - 1 && cx !== undefined && cy !== undefined ? (
+      <circle key="end" cx={cx} cy={cy} r={4} fill={color} stroke="var(--card)" strokeWidth={2} />
+    ) : (
+      <g key={index} />
+    );
 }
 
 /** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */
@@ -97,6 +113,27 @@ interface TickProps {
   x?: number | string;
   y?: number | string;
   payload?: { value?: unknown };
+}
+
+interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
+  payload?: { value?: unknown };
+  /** The axis that carries the values: y, or x when the bars run sideways. */
+  axis: "x" | "y";
+  formatter: (value: number, scale: number) => string;
+}
+
+/**
+ * A value-axis tick formatted against the axis' largest tick, so every label shares one unit: ₹1.6L down to ₹0.4L,
+ * never ₹80,000 halfway up. Recharts' tickFormatter sees one value at a time; the axis' ticks come from its hooks.
+ * The rest of Recharts' tick props pass on as its own tick does, including the class it measures an auto width by.
+ */
+function ValueTick({ payload, axis, formatter, ...tick }: ValueTickProps) {
+  const xTicks = useXAxisTicks();
+  const yTicks = useYAxisTicks();
+  const value = Number(payload?.value);
+  const ticks = (axis === "x" ? xTicks : yTicks) ?? [];
+  const scale = Math.max(Math.abs(value), ...ticks.map((t) => Math.abs(Number(t.value))));
+  return <Text {...tick}>{formatter(value, scale)}</Text>;
 }
 
 // At the ticks' 12px, Geist averages about 6.6px a character and Geist Mono 7.2px.
@@ -309,12 +346,29 @@ export function ChartFrame<T extends object, K extends keyof T>({
               // Selection reads the hovered category in this event; defer no pointer updates.
               throttledEvents={onClick ? [] : undefined}
               // Bottom-axis ticks need room at the right end; sideways labels already have the left axis.
-              margin={{ left: 0, right: !horizontal && xTicks ? endRoom(xFormatter, xTicks) : 8 }}
+              // A sideways chart's value axis ends in a centred tick label, which needs room past the plot.
+              // Room above the plot for half the top tick label, so that label centres on its gridline.
+              margin={{
+                top: 12,
+                left: 0,
+                right: !horizontal && xTicks ? endRoom(xFormatter, xTicks) : horizontal && yTickFormatter ? 28 : 8,
+              }}
             >
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} strokeDasharray="3 3" />
               {horizontal ? (
                 <>
-                  <XAxis type="number" hide domain={yDomain} ticks={yTicks as number[] | undefined} />
+                  {/* The value axis shows along the bottom once a page gives it a tick format to read by. */}
+                  <XAxis
+                    type="number"
+                    niceTicks="snap125"
+                    hide={!yTickFormatter}
+                    domain={yDomain}
+                    ticks={yTicks as number[] | undefined}
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tick={yTickFormatter ? <ValueTick axis="x" formatter={yTickFormatter} {...TICK} /> : TICK}
+                  />
                   <HorizontalAxis
                     data={data}
                     xKey={xKey}
@@ -341,7 +395,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     // names its ticks, or gives each a second line, wants every one drawn.
                     interval={xTickDetail || xTicks ? 0 : undefined}
                   />
+                  {/* Value ticks step by 1, 2, 2.5 or 5 × 10ⁿ: ₹0.5L, ₹1L, ₹1.5L, never ₹0.95L. */}
                   <YAxis
+                    niceTicks="snap125"
                     tickLine={false}
                     axisLine={false}
                     width="auto"
@@ -360,8 +416,10 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     }
                     // Recharts calls a tick formatter with (value, index); a page's formatter may
                     // read a second parameter of its own, such as pct's decimals, so it gets the value alone.
-                    tickFormatter={(value: number) => (yTickFormatter ?? formatValue)(value)}
-                    tick={TICK}
+                    // A page's formatter gets the axis' scale only when it asks for one: valueFormatter may read a second
+                    // parameter of its own, such as pct's decimals.
+                    tick={yTickFormatter ? <ValueTick axis="y" formatter={yTickFormatter} {...TICK} /> : TICK}
+                    tickFormatter={yTickFormatter ? undefined : (value: number) => formatValue(value)}
                   />
                 </>
               )}

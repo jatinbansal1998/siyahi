@@ -8,6 +8,8 @@
 // table sits in a card, where the page background is a darker band in dark mode.
 // Siyahi edit: a pinned cell draws its row's hover and selected tint as a flat
 // gradient over its opaque inline background, which outranks bg-* classes.
+// Siyahi edit: a number column's head and cells carry data-numeric, which the
+// theme right-aligns so figures line up by their units.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
@@ -103,6 +105,7 @@ export const DataTableHeader = React.memo(function DataTableHeader({
               <TableHead
                 key={header.id}
                 data-col-id={header.column.id}
+                data-numeric={header.column.columnDef.meta?.variant === "number" || undefined}
                 style={headerStyle}
                 className={cn(
                   !isCompact && header.column.getIsPinned() && "bg-background",
@@ -248,6 +251,7 @@ const BodyRow = React.memo(function BodyRow({
             key={cell.id}
             data-flash={flashing ? "true" : undefined}
             data-col-id={cell.column.id}
+            data-numeric={cell.column.columnDef.meta?.variant === "number" || undefined}
             style={cellStyle}
             className={cn(
               // Match virtualized/grid: clip overflow. `truncate` adds ellipsis

@@ -20,7 +20,7 @@ describe("narrow ranked labels", () => {
     }));
     expect(shape.height).toBeGreaterThan(shape.lineHeight);
     expect(shape.clipped).toBe(false);
-    const bar = await row.locator('div[aria-hidden="true"]').boundingBox();
+    const bar = await row.locator('[data-slot="bar-list-bar"]').boundingBox();
     const text = await label.boundingBox();
     expect(bar?.y).toBeGreaterThanOrEqual((text?.y ?? 0) + (text?.height ?? 0));
   });

@@ -1,4 +1,4 @@
-import { Delta, SectionCards, useFormat, type SectionCard } from "@siyahi/ui";
+import { Delta, SectionCards, SiyahiProvider, useFormat, type SectionCard } from "@siyahi/ui";
 import { useState } from "react";
 
 const classes = [
@@ -19,9 +19,12 @@ export default function SectionCardsSelectExample() {
     disabled: c.positions === 0,
   }));
   return (
-    <div className="flex flex-col gap-3">
-      <SectionCards items={items} selected={scope} onSelect={setScope} />
-      <p className="text-sm text-muted-foreground">Showing {scope}</p>
-    </div>
+    // On a ruled surface the tiles part with hairlines, as on a trading screen, instead of sitting as cards.
+    <SiyahiProvider surface="ruled">
+      <div className="flex flex-col gap-3">
+        <SectionCards items={items} selected={scope} onSelect={setScope} />
+        <p className="text-sm text-muted-foreground">Showing {scope}</p>
+      </div>
+    </SiyahiProvider>
   );
 }

@@ -48,9 +48,15 @@ layouts and product-specific logic belong in the consuming app.
   `className` for layout; keep colours and typography on the theme.
 - Charts use the chart cards and their supported props, not page-local
   Recharts axes, grids or tooltips. Match charts to the manifest's `needs`.
-- Use semantic colour tokens; categories remain neutral. No gradients.
+- Use semantic colour tokens; categories remain neutral. No gradients. Ink
+  indigo lives in `link`, `ring`, the sidebar's selected item and `chart-1`;
+  place it, do not spread it. Buttons, badges and toggles stay monochrome.
   Numbers use `useFormat()`, changes use `Delta`; do not replace the formatters
   with bare `toLocaleString()`. Prose uses `max-w-prose`.
+- Follow the installed `DESIGN.md` (`node_modules/@siyahi/ui/DESIGN.md`)
+  before designing or changing UI: its rules on colour and emphasis are
+  binding. In short, colour carries meaning and emphasis tints the whole box
+  (`WarningAlert`, `Callout`, `Quote`), never a stripe down one side.
 - The installed README owns surfaces, chart colours, locale and dark mode.
   Include `<meta name="color-scheme" content="light dark">` in app HTML.
   Follow the package's reduced-motion behaviour; JavaScript-started motion
@@ -62,6 +68,10 @@ layouts and product-specific logic belong in the consuming app.
 - Include relevant loading, empty and error states. Use the package parts
   available in the installed version and do not invent an unsupported `status`
   prop. Explain units and unfamiliar labels in the page.
+- A wide table marks the columns that answer its question with `meta.compact`
+  and puts `DataTableCompactColumnsToggle` in its toolbar: when its columns do
+  not fit, on a phone or a laptop, the rest hide rightmost first instead of
+  scrolling the answer out of view.
 
 When reusable UI behaviour is missing, add it to Siyahi rather than recreating
 it in each app. Read the source repository's CONTRIBUTING.md: shadcn first,

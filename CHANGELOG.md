@@ -2,6 +2,33 @@
 
 ## 0.1.9
 
+- Design review batch (#57), from ten rounds of independent design reviews:
+  - Tables fit their width: columns marked `meta.compact` stay and the rest
+    hide from the right behind `DataTableCompactColumnsToggle` ("All columns
+    (+N)"), read from `useDataTable().compactColumns`. Number columns
+    right-align; the pinned column is a hairline; a sideways-scrolling table
+    fades at its edge.
+  - Charts write every axis tick in the largest tick's unit (₹1.6L to ₹0.4L,
+    not ₹80,000 halfway up) and step ticks by 1, 2, 2.5 or 5 x 10^n.
+    `yTickFormatter` now receives the axis scale as a second argument, which
+    `moneyCompact` uses. Gain and loss bars are a tint inside a full-colour
+    edge; area fills fade to the axis; lines and areas end in a dot on the
+    latest value; sparklines draw their run grey and ink only the last step.
+  - Theme: an ink-indigo accent placed on links, focus, the selected sidebar
+    item and `chart-1`; the dark chart palette keeps indigo saturated; dark
+    muted text is a step brighter. The default surface is `card`.
+  - New: `ChangeBar` with `DataTableFootnote`, `TargetRows`, `RangePosition`,
+    `PageHero`, `PageToc`, `WarningAlert`, `Callout` and `Quote`,
+    `defaultSidebarOpen`. A warning or callout is tinted across the whole box;
+    the skill rules out one-sided coloured edges.
+  - Heatmap blocks take `selected` (a ring and `aria-pressed`) and fill their
+    card with a unit legend. Treemap hides labels that do not fit, and reports
+    `onHover` only for a mouse, so a tap selects instead of opening a hover
+    card. BarList labels sit on a full-width track.
+  - The catalogue indexes each category as family cards with live previews;
+    each family page leads with its example, then the import line, a props
+    table and rules. Cmd/Ctrl+K searches it.
+
 - `AppSidebar` reaches the bottom of the screen on a phone in landscape. Core
   sized the fixed sidebar with `h-svh`, the height with the browser's bars
   shown, so it stopped short once Safari hid them; it now passes `h-auto` and

@@ -109,6 +109,29 @@
       ]
     },
     {
+      "need": "A table column of changes that should rank by eye, and a note on how to read the table",
+      "guidance": "`ChangeBar` in the column's cell, `diverging` when it holds both signs; `DataTableFootnote` after `DataTableBody`",
+      "components": [
+        "ChangeBar",
+        "DataTableFootnote",
+        "DataTableBody"
+      ]
+    },
+    {
+      "need": "Figures against their targets, such as allocation against plan",
+      "guidance": "`TargetRows`, with neutral `bands` and a `status` per row",
+      "components": [
+        "TargetRows"
+      ]
+    },
+    {
+      "need": "Where a value sits in its range, such as a price in its 52-week range",
+      "guidance": "`RangePosition`; `variant=\"compact\"` in a table cell",
+      "components": [
+        "RangePosition"
+      ]
+    },
+    {
       "need": "One instrument's price history",
       "guidance": "`PriceChart`",
       "components": [
@@ -283,7 +306,8 @@
       "components": [
         "Alert",
         "AlertDescription",
-        "AlertTitle"
+        "AlertTitle",
+        "WarningAlert"
       ]
     },
     {
@@ -356,6 +380,13 @@
       ]
     },
     {
+      "file": "agents/examples/button-states.tsx",
+      "components": [
+        "Button",
+        "Toggle"
+      ]
+    },
+    {
       "file": "agents/examples/button.tsx",
       "components": [
         "Button"
@@ -365,6 +396,16 @@
       "file": "agents/examples/calendar.tsx",
       "components": [
         "Calendar"
+      ]
+    },
+    {
+      "file": "agents/examples/callout.tsx",
+      "components": [
+        "Callout",
+        "Quote",
+        "WarningAlert",
+        "AlertDescription",
+        "AlertTitle"
       ]
     },
     {
@@ -378,6 +419,26 @@
         "CardFooter",
         "CardHeader",
         "CardTitle",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/change-bar.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "ChangeBar",
+        "DataTable",
+        "DataTableBody",
+        "DataTableCompactColumnsToggle",
+        "DataTableFootnote",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableSortHeader",
+        "DataTableToolbarSection",
         "useFormat"
       ]
     },
@@ -529,6 +590,27 @@
       ]
     },
     {
+      "file": "agents/examples/data-table-compact.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataTable",
+        "DataTableBody",
+        "DataTableCompactColumnsToggle",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableRowCount",
+        "DataTableSortHeader",
+        "DataTableToolbarSection",
+        "Delta",
+        "useDataTable",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/data-table-filters.tsx",
       "components": [
         "Button",
@@ -654,6 +736,8 @@
         "CalendarHeatmap",
         "CalendarHeatmapBlock",
         "CalendarHeatmapBody",
+        "CalendarHeatmapFooter",
+        "CalendarHeatmapLegend",
         "useFormat",
         "Card",
         "CardContent",
@@ -672,7 +756,9 @@
         "CardTitle",
         "StatusHeatmap",
         "StatusHeatmapBlock",
-        "StatusHeatmapBody"
+        "StatusHeatmapBody",
+        "StatusHeatmapFooter",
+        "StatusHeatmapLegend"
       ]
     },
     {
@@ -686,7 +772,14 @@
         "CardTitle",
         "WeekdayHeatmap",
         "WeekdayHeatmapBlock",
-        "WeekdayHeatmapBody"
+        "WeekdayHeatmapBody",
+        "WeekdayHeatmapLegend"
+      ]
+    },
+    {
+      "file": "agents/examples/input-states.tsx",
+      "components": [
+        "Input"
       ]
     },
     {
@@ -712,6 +805,17 @@
         "ToggleGroup",
         "ToggleGroupItem",
         "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/overview-dashboard.tsx",
+      "components": []
+    },
+    {
+      "file": "agents/examples/page-hero.tsx",
+      "components": [
+        "Button",
+        "PageHero"
       ]
     },
     {
@@ -769,6 +873,39 @@
       ]
     },
     {
+      "file": "agents/examples/range-position-table.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataTable",
+        "DataTableBody",
+        "DataTableCompactColumnsToggle",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableSortHeader",
+        "DataTableToolbarSection",
+        "RangePosition",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/range-position.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataList",
+        "DataListItem",
+        "RangePosition",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/scroll-area.tsx",
       "components": [
         "ScrollArea",
@@ -780,6 +917,7 @@
       "components": [
         "Delta",
         "SectionCards",
+        "SiyahiProvider",
         "useFormat"
       ]
     },
@@ -887,6 +1025,18 @@
         "TabsContent",
         "TabsList",
         "TabsTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/target-rows.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "TargetRows",
+        "useFormat"
       ]
     },
     {

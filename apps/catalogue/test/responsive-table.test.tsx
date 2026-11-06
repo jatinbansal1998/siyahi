@@ -24,7 +24,8 @@ describe("responsive table", () => {
 
   it("scrolls the instrument away in narrow containers and restores freezing without losing search or sort", async () => {
     const { page } = catalogue;
-    const section = page.locator('#data-table [data-slot="card"]').first();
+    // The family's Props table is a card too; the table under test is the first example's.
+    const section = page.locator('#data-table [data-slot="example"] [data-slot="card"]').first();
     const scroll = section.locator('[data-slot="table-container"]');
     const instrument = section.locator('tbody td[data-col-id="symbol"]').first();
     await page.setViewportSize({ width: 390, height: 844 });
@@ -56,5 +57,38 @@ describe("responsive table", () => {
     expect(await instrument.evaluate((el) => getComputedStyle(el).position)).not.toBe("sticky");
     await scroll.focus();
     expect(await scroll.evaluate((el) => el === document.activeElement)).toBe(true);
+  }, 30_000);
+
+  it("fades the edge a narrow table can still scroll toward, and not a table that fits", async () => {
+    const { page } = catalogue;
+    await page.setViewportSize({ width: 390, height: 844 });
+    const fade = (name: string) =>
+      page
+        .locator('#data-table [data-slot="card"]', { hasText: name })
+        .first()
+        .locator('[data-slot="table-container"]')
+        .evaluate((el) => [
+          getComputedStyle(el).getPropertyValue("--table-fade-start"),
+          getComputedStyle(el).getPropertyValue("--table-fade-end"),
+        ]);
+    await expect.poll(() => fade("Search every column")).toEqual(["0px", "32px"]);
+    expect(await fade("Holdings on a phone")).toEqual(["0px", "0px"]);
+  });
+
+  it("shows only the key columns on a phone until the reader asks for all of them", async () => {
+    const { page } = catalogue;
+    const card = page.locator('#data-table [data-slot="card"]', { hasText: "Holdings on a phone" });
+    const table = card.locator("table");
+    const headers = () => table.locator("thead th").allInnerTexts();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect.poll(async () => (await headers()).join("|")).toBe("Symbol|Value");
+    expect(await table.locator("tbody tr").first().innerText()).toContain("1.8%");
+    await card.getByRole("button", { name: "All columns" }).click();
+    await expect.poll(async () => (await headers()).length).toBe(5);
+    await card.getByRole("button", { name: "Key columns" }).click();
+    await expect.poll(async () => (await headers()).length).toBe(2);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await expect.poll(async () => (await headers()).length).toBe(5);
+    expect(await card.getByRole("button", { name: "All columns" }).count()).toBe(0);
   }, 30_000);
 });

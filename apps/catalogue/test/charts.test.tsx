@@ -9,7 +9,7 @@ let catalogue: Catalogue;
 let page: Page;
 
 beforeAll(async () => {
-  catalogue = await openCatalogue("data");
+  catalogue = await openCatalogue("data/bar-chart");
   page = catalogue.page;
 }, 60_000);
 
@@ -17,15 +17,34 @@ afterAll(async () => {
   await catalogue?.close();
 });
 
+/** Opens a Data family's own route: the Data page itself only links to the families. */
+async function show(family: string): Promise<void> {
+  const hash = `#/data/${family}`;
+  if ((await page.evaluate(() => location.hash)) !== hash) {
+    await page.evaluate((next) => {
+      location.hash = next;
+    }, hash);
+  }
+  await page.locator(`#${family} [data-slot="example-preview"]`).first().waitFor();
+}
+
 const card = (title: string): Locator =>
   page.locator('[data-slot="card"]', { has: page.getByText(title, { exact: true }) });
 
 const center = async (target: Locator): Promise<{ x: number; y: number }> => {
   // A chart re-renders its marks as it animates in; wait for this one to be on the page before measuring it.
-  await target.waitFor({ state: "visible" });
-  const box = await target.boundingBox();
+  // Recharts swaps a mark's element when the tooltip re-renders it, so a box read in that moment is empty; read again.
+  let box: Awaited<ReturnType<Locator["boundingBox"]>> = null;
+  await expect
+    .poll(async () => {
+      await target.waitFor({ state: "visible" });
+      box = await target.boundingBox();
+      return box !== null;
+    })
+    .toBe(true);
   if (!box) throw new Error("not laid out");
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const { x, y, width, height } = box;
+  return { x: x + width / 2, y: y + height / 2 };
 };
 
 /** Waits until the targets stop moving: the chart resizes to its card and animates in after the first paint. */
@@ -116,7 +135,8 @@ const quarterLines = (quarter: string, ...values: string[]) => [
   quarter,
   ...["Equity", "Debt", "Gold", "Cash", "REITs"].flatMap((label, i) => [label, values[i] ?? ""]),
 ];
-const valueLines = (month: string, invested: string, value: string) => [month, "Invested", invested, "Value", value];
+// The tooltip lists the series in their order: value first, then the money put in.
+const valueLines = (month: string, invested: string, value: string) => [month, "Value", value, "Invested", invested];
 const returnLines = (month: string, portfolio: string, index: string) => [
   month,
   "Portfolio",
@@ -127,6 +147,7 @@ const returnLines = (month: string, portfolio: string, index: string) => [
 
 describe("chart cards", { timeout: 60_000 }, () => {
   it("category xTicks labels only April without dropping months or their tooltips on every series card", async () => {
+    await show("category-ticks");
     for (const kind of ["bars", "line", "area"]) {
       const chart = card(`Monthly orders, ${kind}`);
       await chart.scrollIntoViewIfNeeded();
@@ -154,6 +175,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("category xTicks follows the category axis on sideways bars", async () => {
+    await show("category-ticks");
     const chart = card("Monthly orders, sideways");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -166,6 +188,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("keeps sideways bars visible with a long selected category on mobile", async () => {
+    await show("category-ticks");
     const viewport = page.viewportSize()!;
     try {
       await page.setViewportSize({ width: 390, height: 844 });
@@ -191,6 +214,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("keeps wrapped category names and their details apart on phones", async () => {
+    await show("bar-chart");
     const viewport = page.viewportSize()!;
     try {
       for (const width of [320, 390]) {
@@ -225,6 +249,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("BarChartCard names the hovered category and its formatted values", async () => {
+    await show("bar-chart");
     await hoverEachBar("Orders by hour", [
       ["09:00", "Orders", "42"],
       ["10:00", "Orders", "31"],
@@ -243,7 +268,8 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("AreaChartCard names the hovered month and its formatted values", async () => {
-    await hoverEachPoint("Portfolio value", [
+    await show("area-chart");
+    await hoverEachPoint("₹4.9L ahead of the money put in", [
       valueLines("May", "₹36,00,000", "₹38,20,000"),
       valueLines("Jun", "₹36,85,000", "₹39,50,000"),
       valueLines("Jul", "₹37,70,000", "₹41,10,000"),
@@ -254,6 +280,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("LineChartCard names the hovered month and its formatted values", async () => {
+    await show("line-chart");
     await hoverEachPoint("Return against the index", [
       returnLines("May", "1.2%", "0.8%"),
       returnLines("Jun", "2.1%", "1.5%"),
@@ -265,6 +292,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("the quarterly bar example starts grouped and stacks on Stacked", async () => {
+    await show("bar-chart");
     // A fresh page, so the default is what this reads and not a layout an earlier test chose.
     await page.reload();
     const chart = card("Money invested by quarter");
@@ -275,6 +303,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("the quarterly bar example's stacked tooltip lists every series at the hovered quarter", async () => {
+    await show("bar-chart");
     const chart = card("Money invested by quarter");
     await chart.scrollIntoViewIfNeeded();
     await chart.getByRole("button", { name: "Stacked" }).click();
@@ -288,6 +317,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a numeric x axis puts each tick at its value, not in a slot per row", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -303,6 +333,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("reference lines mark limits dashed and events solid, each with its label and emphasis", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const lines = chart.locator(".recharts-reference-line");
@@ -340,6 +371,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("the tooltip heading can say more than the x tick", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     await settled(chart.locator(".recharts-line-curve"));
@@ -355,12 +387,14 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a series of losses runs down from zero, unstacked, with the negative colour in its legend", async () => {
+    await show("bar-chart");
     const chart = card("F&O realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
     await settled(bars);
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
-    expect(await ticks.allTextContents()).toEqual(["-₹1L", "-₹75,000", "-₹50,000", "-₹25,000", "₹0"]);
+    // Every tick in the unit of the largest, so the axis does not switch from lakh to thousands half way down.
+    expect(await ticks.allTextContents()).toEqual(["-₹1L", "-₹0.75L", "-₹0.5L", "-₹0.25L", "₹0"]);
     // Zero ends the value axis, so every bar hangs from the plot's top edge (the grid's box adds half a stroke).
     const plot = await chart.locator(".recharts-cartesian-grid").boundingBox();
     if (!plot) throw new Error("not laid out");
@@ -372,6 +406,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a fixed y domain and ticks hold the value axis at 0 to 100%", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -385,6 +420,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a linear curve joins samples with straight segments", async () => {
+    await show("limits-and-events");
     const chart = card("Memory pressure of a test group, %");
     await chart.scrollIntoViewIfNeeded();
     const path = chart.locator("path.recharts-line-curve");
@@ -394,6 +430,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("axis titles sit under the x ticks and beside the y ticks, read bottom to top", async () => {
+    await show("bar-chart");
     const chart = card("Orders by hour");
     await chart.scrollIntoViewIfNeeded();
     // Recharts draws an axis title as text with the class it is given, in a layer of its own.
@@ -417,6 +454,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a two-line x tick prints each row's figure under its name", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-xAxis-tick-labels text");
@@ -439,18 +477,20 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(detail).toBeGreaterThan(name ?? Number.POSITIVE_INFINITY);
   });
 
-  it("a bar below zero takes the series' negative colour, in the plot and the tooltip", async () => {
+  it("a bar below zero takes the series' negative colour, as a tint inside a full edge, and in the tooltip", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
     await settled(bars);
-    expect(await bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill")))).toEqual([
+    expect(await bars.evaluateAll((els) => els.map((el) => el.getAttribute("stroke")))).toEqual([
       "var(--positive)",
       "var(--positive)",
       "var(--negative)",
       "var(--positive)",
       "var(--negative)",
     ]);
+    expect(await bars.nth(2).getAttribute("fill")).toBe("color-mix(in oklab, var(--negative) 35%, var(--card))");
     const { x, y } = await center(bars.nth(2));
     await tooltipAt(chart, x, y, "FY24");
     const swatch = chart.locator(".recharts-tooltip-wrapper span").first();
@@ -458,22 +498,26 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a click picks a year, fading the others, and a second click clears it", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
-    const opacities = async () => {
+    // A faded bar mixes toward the card, opaque, so it stays readable on a dark card.
+    const faded = async () => {
       await settled(bars);
-      return bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity")));
+      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("stroke") ?? "").startsWith("color-mix")));
     };
-    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
+    const none = [false, false, false, false, false];
+    expect(await faded()).toEqual(none);
     await bars.nth(2).click();
-    expect(await opacities()).toEqual(["0.35", "0.35", "1", "0.35", "0.35"]);
+    expect(await faded()).toEqual([true, true, false, true, true]);
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await bars.nth(2).click();
-    expect(await opacities()).toEqual(["1", "1", "1", "1", "1"]);
+    expect(await faded()).toEqual(none);
   });
 
   it("selects the full highlighted category outside the bar", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
@@ -486,11 +530,14 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await page.mouse.click(x, grid.y + 2);
     await expect
-      .poll(() => bars.evaluateAll((els) => els.map((el) => el.getAttribute("fill-opacity"))))
-      .toEqual(["1", "1", "1", "1", "1"]);
+      .poll(() =>
+        bars.evaluateAll((els) => els.some((el) => (el.getAttribute("stroke") ?? "").startsWith("color-mix"))),
+      )
+      .toBe(false);
   });
 
   it("horizontal bars put the categories down the left, each name beside its own bars", async () => {
+    await show("bar-chart");
     const chart = card("Sectors against the index");
     await chart.scrollIntoViewIfNeeded();
     const names = chart.locator(".recharts-yAxis-tick-labels text.recharts-cartesian-axis-tick-value");
@@ -518,6 +565,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("two-line ticks remain readable and do not overlap in a narrow scrolling chart", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     const fill = (selector: string) =>
       chart
@@ -554,6 +602,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("stacked bars put negative values below zero, not hanging from the positive stack", async () => {
+    await show("bar-chart");
     const chart = card("Cash in and out by month");
     await chart.scrollIntoViewIfNeeded();
     const layers = chart.locator(".recharts-bar");
@@ -574,6 +623,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("sideways, a value level runs down the plot at its value on the fixed axis", async () => {
+    await show("bar-chart");
     const chart = card("Sectors against the index");
     await chart.scrollIntoViewIfNeeded();
     const line = chart.locator(".recharts-reference-line line");
@@ -596,6 +646,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("a value formatter is called with the value alone, so its own second parameter keeps its default", async () => {
+    await show("line-chart");
     const chart = card("Return against the index");
     await chart.scrollIntoViewIfNeeded();
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -605,6 +656,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("draws every explicit x tick inside the chart, the ones at both ends of the domain included", async () => {
+    await show("limits-and-events");
     const chart = card("Memory in use, GiB");
     const all = ["15:00", "15:10", "15:20", "15:30", "15:40", "15:50", "16:00", "16:10"];
     const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
@@ -627,6 +679,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
   });
 
   it("names each mark after its series, and no mark on the page carries a name of undefined", async () => {
+    await show("bar-chart");
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");

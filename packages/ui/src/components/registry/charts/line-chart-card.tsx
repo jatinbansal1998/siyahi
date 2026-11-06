@@ -11,12 +11,13 @@
 // between two samples, as the Dell page's events do between 15 s samples.
 // Siyahi edit: curve picks the block's monotone or straight segments
 // (chart-line-linear), since the Dell page draws measured samples as linear.
+// Siyahi edit: each line ends in a dot on its latest point.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
 import { Line, LineChart } from "recharts"
 
-import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame, endDot } from "@siyahi/ui/lib/chart-frame"
 import type {
   ChartCurve,
   NumericXProps,
@@ -43,7 +44,7 @@ export function LineChartCard<T extends object, K extends keyof T>({
           type={curve}
           stroke={color}
           strokeWidth={2}
-          dot={false}
+          dot={endDot(color, props.data.length)}
         />
       ))}
     </ChartFrame>

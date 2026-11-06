@@ -8,9 +8,10 @@ const data = [
   { month: "Oct", in: 70000, out: -66000 },
 ];
 
+// Money moving is not a gain or a loss, so in and out take chart colours, not green and red.
 const series: ChartSeries<(typeof data)[number]> = [
-  { key: "in", label: "In", color: "var(--positive)" },
-  { key: "out", label: "Out", color: "var(--negative)" },
+  { key: "in", label: "In", color: "var(--chart-1)" },
+  { key: "out", label: "Out", color: "var(--chart-2)" },
 ];
 
 export default function ChartBarFlowsExample() {

@@ -24,15 +24,17 @@ it("loads example source only when requested and keeps it copyable", async () =>
   await page.evaluate(() => {
     location.hash = "#/components/button";
   });
-  const section = page.locator("#button");
-  await section.locator('[data-slot="example-preview"]').waitFor();
+  // The family's first example: the Button page also shows its states below it.
+  const example = page.locator("#button").locator('[data-slot="example"]').first();
+  await example.locator('[data-slot="example-preview"]').waitFor();
   expect(await page.locator("main > section").count()).toBe(1);
   expect(fetched).toEqual([]);
-  await section.getByRole("button", { name: "Show source", exact: true }).click();
-  await section.locator("pre").waitFor();
-  expect((await section.locator("pre").innerText()).includes('from "@siyahi/ui"')).toBe(true);
+  await example.getByRole("button", { name: "Show source", exact: true }).click();
+  await example.locator("pre").waitFor();
+  expect((await example.locator("pre").innerText()).includes('from "@siyahi/ui"')).toBe(true);
   expect(fetched.some((url) => url.includes("button.tsx"))).toBe(true);
-  await page.getByRole("link", { name: "All Components examples", exact: true }).click();
-  await page.locator("main > section").nth(1).waitFor();
-  expect(await page.locator("main > section").count()).toBeGreaterThan(1);
+  // Back up to the category, which lists the families and loads none of their examples.
+  await page.getByRole("navigation", { name: "breadcrumb" }).getByRole("link", { name: "Components" }).click();
+  await page.getByRole("heading", { level: 1, name: "Components" }).waitFor();
+  expect(await page.locator('[data-slot="example"]').count()).toBe(0);
 }, 30_000);

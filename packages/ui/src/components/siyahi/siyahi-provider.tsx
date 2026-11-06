@@ -9,14 +9,14 @@ import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
 export type Surface = "ruled" | "open" | "card";
 
 const LocaleContext = createContext<SiyahiLocale>(defaultLocale);
-const SurfaceContext = createContext<Surface>("ruled");
+const SurfaceContext = createContext<Surface>("card");
 
 export interface SiyahiProviderProps {
   /** Any setting left out keeps its default: en-IN, INR, Asia/Kolkata. */
   locale?: Partial<SiyahiLocale>;
   /**
    * Set it on a nested provider for one part of a page. Left out, a provider keeps the surface around it, so a
-   * provider that only changes the locale changes nothing else; the outermost default is "ruled".
+   * provider that only changes the locale changes nothing else; the outermost default is "card".
    */
   surface?: Surface;
   children: ReactNode;

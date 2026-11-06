@@ -56,6 +56,11 @@ const groupedNav = (isActive: boolean) => [
   },
 ];
 
+const subNav = (sub: boolean) => [
+  { ...groupedNav(true)[0]!, items: [{ title: "Tables", url: "#/data/data-table", isActive: sub }] },
+];
+const groupActive = () => document.querySelector('[data-slot="collapsible-trigger"]')?.hasAttribute("data-active");
+
 describe("AppSidebar with flat items", () => {
   it("updates active navigation groups without changing an uncontrolled default", async () => {
     await render(shell(groupedNav(false)));
@@ -68,6 +73,16 @@ describe("AppSidebar with flat items", () => {
     } finally {
       error.mockRestore();
     }
+  });
+
+  it("marks an open sub-item, and its group only while none is", async () => {
+    await render(shell(subNav(false)));
+    expect(groupActive()).toBe(true);
+    await act(async () => roots.at(-1)?.render(shell(subNav(true))));
+    const sub = document.querySelector('a[href="#/data/data-table"]');
+    expect(sub?.getAttribute("aria-current")).toBe("page");
+    expect(sub?.hasAttribute("data-active")).toBe(true);
+    expect(groupActive()).toBe(false);
   });
 
   it("renders an item without sub-items as a link to its view", async () => {

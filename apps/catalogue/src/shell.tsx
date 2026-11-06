@@ -1,9 +1,12 @@
 import {
   AppSidebar,
+  defaultSidebarOpen,
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
   Separator,
   SidebarInset,
   SidebarMenu,
@@ -13,7 +16,7 @@ import {
   SidebarTrigger,
   type AppSidebarProps,
 } from "@siyahi/ui";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 
 function Brand() {
   return (
@@ -33,14 +36,17 @@ function Brand() {
 
 export interface ShellProps {
   nav: AppSidebarProps["navMain"];
-  title: string;
+  /** Where the page sits, outermost first; every step but the last links back up. */
+  trail: { title: string; href: string }[];
+  /** Sits at the header's end, such as the catalogue search. */
+  actions: ReactNode;
   children: ReactNode;
 }
 
 /** The sidebar-07 block as an app shell: sidebar, a sticky header with the page's place, then the page. */
-export function Shell({ nav, title, children }: ShellProps) {
+export function Shell({ nav, trail, actions, children }: ShellProps) {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultSidebarOpen()}>
       <AppSidebar header={<Brand />} navMain={nav} navLabel="Catalogue" />
       {/* min-w-0: as a flex item the inset would otherwise grow to its widest content, so the page scrolls
           sideways and the sticky header slides under the fixed sidebar. */}
@@ -50,11 +56,21 @@ export function Shell({ nav, title, children }: ShellProps) {
           <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbPage>{title}</BreadcrumbPage>
-              </BreadcrumbItem>
+              {trail.map((step, index) => (
+                <Fragment key={step.href}>
+                  {index > 0 && <BreadcrumbSeparator />}
+                  <BreadcrumbItem>
+                    {index === trail.length - 1 ? (
+                      <BreadcrumbPage>{step.title}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={step.href}>{step.title}</BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </Fragment>
+              ))}
             </BreadcrumbList>
           </Breadcrumb>
+          {actions}
         </header>
         <main className="flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8">{children}</main>
       </SidebarInset>

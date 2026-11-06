@@ -3,6 +3,11 @@
 // Licence: MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE
 // Copied: 2026-10-20, sha256 9ab8be330eaa760a6e177722e799fc3a10288567eec47885eb65a6fdba666b06
 // Siyahi edit: the surrounding card owns padding; the heatmap body owns scrolling.
+// Siyahi edit: without a blockAspectRatio the strip spans its width: bars are
+// as wide as an equal share allows, and the padding is just room for a focus ring.
+// Siyahi edit: legend swatches keep one size however narrow the bars get.
+// Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
+// ring in the text colour and announced as pressed, as a Treemap tile is.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -10,6 +15,7 @@ import { createContext, Fragment, use, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 // Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
 import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
+import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 // Status values. 0 is reserved for no-data. Defaults: 1=critical, 2=degraded, 3=healthy.
 // Extend by passing `colors` / `labels.statuses` keyed by the numeric value.
@@ -59,13 +65,14 @@ export type StatusColorConfig = Record<number, string> & {
   healthy?: string;
 };
 
-// Siyahi edit: the defaults name the theme's meaning colours instead of fixed
-// Tailwind values, so they follow the scheme and pass the contrast check.
+// Siyahi edit: the defaults name the theme's colours instead of fixed Tailwind
+// values. Green and red mean gain and loss, so health is not green: a healthy
+// day is a quiet grey, degraded is the warning colour, critical the error one.
 const DEFAULT_COLORS: Record<number, string> = {
   0: "var(--color-secondary)",
-  1: "var(--negative)", // critical
+  1: "var(--destructive)", // critical
   2: "var(--warning)", // degraded
-  3: "var(--positive)", // healthy
+  3: "color-mix(in oklab, var(--muted-foreground) 40%, transparent)", // healthy
 };
 
 const SEMANTIC_KEYS: Record<
@@ -132,7 +139,10 @@ const getStatusFill = (
 };
 
 const EMPTY_STYLE: CSSProperties = {};
-const PADDING = 20;
+const PADDING = 3;
+const LEGEND_SWATCH = 10;
+const MIN_FITTED_BAR = 2;
+const DEFAULT_ASPECT_RATIO = 0.2;
 
 const StatusHeatmapContext = createContext<StatusHeatmapContextType | null>(
   null,
@@ -196,7 +206,7 @@ export type StatusHeatmapProps = HTMLAttributes<HTMLDivElement> & {
  *
  * @param data - Array of activities with date (YYYY-MM-DD) and status value (0-3)
  * @param dateFormat - Date format string for tooltips. Default: "MMM d"
- * @param blockAspectRatio - Width/height ratio of blocks. Default: 0.2 (narrow vertical bars)
+ * @param blockAspectRatio - Width/height ratio of blocks. Default: bars share the full width
  * @param colors - Custom colors for critical, degraded, and healthy states
  */
 export const StatusHeatmap = ({
@@ -205,7 +215,7 @@ export const StatusHeatmap = ({
   blockSize = 40,
   blockMargin = 2,
   blockRadius = 2,
-  blockAspectRatio = 0.2,
+  blockAspectRatio: blockAspectRatioProp,
   colors,
   locale,
   labels: labelsProp,
@@ -218,6 +228,7 @@ export const StatusHeatmap = ({
   children,
   ...props
 }: StatusHeatmapProps) => {
+  const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
   const labels = useMemo<StatusHeatmapLabels>(
     () => ({
       statuses: {
@@ -242,7 +253,15 @@ export const StatusHeatmap = ({
     return Array.from(uniqueDates).sort();
   }, [data]);
 
-  const blockWidth = blockSize * blockAspectRatio;
+  const fits = blockAspectRatioProp === undefined;
+  const fitted =
+    (rootWidth - PADDING * 2 + blockMargin) / Math.max(dates.length, 1) -
+    blockMargin;
+  const blockWidth =
+    fits && rootWidth > 0
+      ? Math.max(MIN_FITTED_BAR, fitted)
+      : blockSize * (blockAspectRatioProp ?? DEFAULT_ASPECT_RATIO);
+  const blockAspectRatio = blockWidth / blockSize;
   const width = dates.length * (blockWidth + blockMargin) - blockMargin;
   const height = blockSize;
 
@@ -292,8 +311,13 @@ export const StatusHeatmap = ({
   return (
     <StatusHeatmapContext value={contextValue}>
       <div
+        ref={rootRef}
         data-slot="status-heatmap"
-        className={cn("flex w-max max-w-full flex-col gap-2", className)}
+        className={cn(
+          "flex flex-col gap-2",
+          fits ? "w-full" : "w-max max-w-full",
+          className,
+        )}
         style={{ fontSize, ...style }}
         {...props}
       >
@@ -304,6 +328,8 @@ export const StatusHeatmap = ({
 };
 
 export type StatusHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
+  /** The cell the page has picked: drawn with a ring and announced as pressed. */
+  selected?: boolean;
   activity: StatusActivity;
   dayIndex: number;
   highlighted?: boolean;
@@ -317,6 +343,7 @@ export const StatusHeatmapBlock = ({
   activity,
   dayIndex,
   highlighted = false,
+  selected = false,
   onCellClick,
   onCellHover,
   onClick,
@@ -345,6 +372,7 @@ export const StatusHeatmapBlock = ({
       ref={ref}
       data-slot="status-heatmap-block"
       role={onCellClick ? "button" : "img"}
+      aria-pressed={onCellClick ? selected : undefined}
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
@@ -356,6 +384,7 @@ export const StatusHeatmapBlock = ({
       data-value={activity.value}
       data-date={activity.date}
       data-highlighted={highlighted || undefined}
+      data-selected={selected || undefined}
       height={blockSize}
       rx={blockRadius}
       ry={blockRadius}
@@ -364,6 +393,8 @@ export const StatusHeatmapBlock = ({
       y={0}
       style={{
         fill: getStatusFill(activity.value, colors, highlighted),
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
+        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
       }}
       onClick={(event) => {
@@ -580,8 +611,7 @@ export const StatusHeatmapLegend = ({
   children,
   ...props
 }: StatusHeatmapLegendProps) => {
-  const { labels, statusValues, blockSize, blockWidth, blockRadius, colors } =
-    useStatusHeatmap();
+  const { labels, statusValues, blockRadius, colors } = useStatusHeatmap();
 
   const statuses = statusValues.map((value) => ({
     value,
@@ -605,13 +635,13 @@ export const StatusHeatmapLegend = ({
             key={`status-${status.value}`}
             className="flex items-center gap-1"
           >
-            <svg aria-hidden="true" height={blockSize / 2} width={blockWidth}>
+            <svg aria-hidden="true" height={LEGEND_SWATCH} width={LEGEND_SWATCH}>
               <rect
                 data-value={status.value}
-                height={blockSize / 2}
+                height={LEGEND_SWATCH}
                 rx={blockRadius}
                 ry={blockRadius}
-                width={blockWidth}
+                width={LEGEND_SWATCH}
                 style={{ fill: getStatusFill(status.value, colors) }}
               />
             </svg>

@@ -24,7 +24,7 @@ describe("touch controls", () => {
   });
 
   it("gives touch controls a finger-sized target without relying on screen width", async () => {
-    const sort = catalogue.page.locator('#data-table th[data-col-id="value"] button');
+    const sort = catalogue.page.locator('#data-table th[data-col-id="value"] button').first();
     await sort.waitFor();
     expect((await sort.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   });
@@ -38,7 +38,14 @@ describe("touch controls", () => {
     await filters.click();
     const done = page.getByRole("dialog").getByRole("button", { name: "Close", exact: true });
     await done.waitFor({ state: "visible" });
-    await expect.poll(() => done.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    // The sheet scales in; measure the button at rest, not partway through the opening animation.
+    await page
+      .getByRole("dialog")
+      // A cancelled animation rejects its finished promise; it has ended all the same.
+      .evaluate((el) =>
+        Promise.all(el.getAnimations({ subtree: true }).map((animation) => animation.finished.catch(() => undefined))),
+      );
+    expect(await done.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
     await done.click();
   });
 });

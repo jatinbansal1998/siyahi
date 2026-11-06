@@ -74,6 +74,11 @@ describe("data table surfaces", () => {
     expect(document.querySelector("thead")?.classList.contains("bg-card")).toBe(true);
   });
 
+  it("rules the pinned column with a hairline at the row lines' weight", () => {
+    const pinned = document.querySelector<HTMLElement>('td[data-col-id="symbol"]');
+    expect(pinned?.getAttribute("style")).toContain("box-shadow: inset -1px 0 0 0 var(--border);");
+  });
+
   // happy-dom paints nothing, so this checks that the pinned cells and the
   // sticky header sit inside an `isolate` box; the stacking itself was checked
   // in Chromium against the catalogue.

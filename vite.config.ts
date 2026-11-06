@@ -17,6 +17,7 @@ const GENERATED = [
   "packages/ui/registry.lock.json",
   "packages/ui/src/index.ts",
   "packages/ui/README.md",
+  "packages/ui/DESIGN.md",
   "packages/*/LICENSE",
   "packages/*/THIRD_PARTY_NOTICES.md",
 ];
@@ -33,6 +34,8 @@ export default defineConfig({
   },
   test: {
     include: ["packages/*/test/**/*.test.{ts,tsx,mjs}", "apps/*/test/**/*.test.tsx"],
+    // One catalogue server for every browser suite (apps/catalogue/test/serve-catalogue.ts).
+    globalSetup: ["apps/catalogue/test/serve-catalogue.ts"],
   },
   fmt: {
     printWidth: 120,

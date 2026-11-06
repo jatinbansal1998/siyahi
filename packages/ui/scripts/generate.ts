@@ -7,7 +7,7 @@
 //   registry.lock.json    origin, licence and hash of each registry add-on,
 //                         read from the header every copied file carries
 //   src/index.ts          the barrel behind `import { … } from "@siyahi/ui"`
-//   README.md, LICENSE, THIRD_PARTY_NOTICES.md
+//   README.md, DESIGN.md, LICENSE, THIRD_PARTY_NOTICES.md
 //                         copies of the root files, here and in
 //                         packages/tools, so every tarball carries them
 //                         (MIT needs the notices to travel with the code)
@@ -427,6 +427,7 @@ const outputs: Record<string, () => string> = {
   "agents/report-rules.json": fromRepo("apps/catalogue/src/report-rules.json"),
   ...Object.fromEntries(examples.map(({ file }) => [file, fromRepo(`${exampleDir}/${path.basename(file)}`)])),
   "README.md": fromRepo("README.md"),
+  "DESIGN.md": fromRepo("DESIGN.md"),
   LICENSE: fromRepo("LICENSE"),
   "THIRD_PARTY_NOTICES.md": fromRepo("THIRD_PARTY_NOTICES.md"),
   "../tools/LICENSE": fromRepo("LICENSE"),

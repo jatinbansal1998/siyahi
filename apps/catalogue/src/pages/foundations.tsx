@@ -1,7 +1,6 @@
 import { PaletteIcon } from "lucide-react";
 import { Card, CardContent } from "@siyahi/ui";
 import { useSyncExternalStore } from "react";
-import { Example, Lead } from "../example";
 import type { Page } from "../page";
 
 // Classes are spelled out so Tailwind sees them.
@@ -25,11 +24,11 @@ const MEANING = [
   { name: "link", swatch: "bg-link", text: "text-link", sample: "Open the statement" },
 ];
 const CHART = [
-  { name: "chart-1", swatch: "bg-chart-1", hue: "blue" },
-  { name: "chart-2", swatch: "bg-chart-2", hue: "emerald" },
-  { name: "chart-3", swatch: "bg-chart-3", hue: "amber" },
-  { name: "chart-4", swatch: "bg-chart-4", hue: "violet" },
-  { name: "chart-5", swatch: "bg-chart-5", hue: "rose" },
+  { name: "chart-1", swatch: "bg-chart-1", hue: "indigo" },
+  { name: "chart-2", swatch: "bg-chart-2", hue: "amber" },
+  { name: "chart-3", swatch: "bg-chart-3", hue: "plum" },
+  { name: "chart-4", swatch: "bg-chart-4", hue: "sky" },
+  { name: "chart-5", swatch: "bg-chart-5", hue: "teal" },
 ];
 const TYPE = [
   { name: "text-xs", className: "text-xs", note: "12px: ticks, captions" },
@@ -86,147 +85,131 @@ export const foundations: Page = {
   title: "Foundations",
   icon: <PaletteIcon />,
   lead: "Every value comes from one theme file, styles/siyahi.css. Pages name tokens; they never write a colour or a size.",
-  sections: [
+  // Short rules beside their swatches: one page reads faster than seven routes.
+  layout: "stack",
+  families: [
     {
       id: "colours",
       title: "Colours",
+      lead: "shadcn's neutral greys in both schemes; the scheme follows the device.",
+      rules: [
+        "Ink indigo is placed, not spread: links, focus rings, the selected sidebar item and the first chart series.",
+      ],
       body: (
-        <>
-          <Lead>shadcn's stock neutral theme in both schemes. The scheme follows the device.</Lead>
-          <div className={grid}>
-            {SURFACES.map((s) => (
-              <Swatch key={s.name} {...s} />
-            ))}
-          </div>
-        </>
+        <div className={grid}>
+          {SURFACES.map((s) => (
+            <Swatch key={s.name} {...s} />
+          ))}
+        </div>
       ),
     },
     {
       id: "meaning",
       title: "Meaning colours",
+      lead: "Four colours carry meaning; nothing else is coloured.",
+      rules: [
+        "Each passes 4.5:1 as text on the canvas and the card.",
+        "positive, negative and warning have a -foreground for text on a fill.",
+      ],
       body: (
-        <>
-          <Lead>
-            Four colours carry meaning; nothing else is coloured. Each passes 4.5:1 as text on the canvas and the card,
-            and positive, negative and warning have a -foreground for text on a fill.
-          </Lead>
-          <div className={grid}>
-            {MEANING.map((m) => (
-              <div key={m.name} className="flex flex-col gap-2">
-                <Swatch name={m.name} swatch={m.swatch} />
-                <span className={m.text}>{m.sample}</span>
-              </div>
-            ))}
-          </div>
-        </>
+        <div className={grid}>
+          {MEANING.map((m) => (
+            <div key={m.name} className="flex flex-col gap-2">
+              <Swatch name={m.name} swatch={m.swatch} />
+              <span className={m.text}>{m.sample}</span>
+            </div>
+          ))}
+        </div>
       ),
     },
     {
       id: "chart-palette",
       title: "Chart palette",
+      lead: "Five hues in the same order in both schemes, with no green or red, so no series reads as a gain or a loss.",
+      rules: [
+        "Each slot reaches 3:1 against the card and against the slots next to it, which only lightness can give, so indigo, plum and teal are the deep members and amber and sky the pale ones, in both schemes.",
+        "Slots two apart share a lightness and are told apart by hue, so series take slots in order.",
+        "In charts, amber (chart-2) carries no warning meaning; warning amber is for alerts and badges only.",
+        "Ordered buckets (largest 5 / #6–10 / rest) use chart-1 heat steps (100% / 60% / 30%), not separate hues.",
+        "Every value is inside sRGB.",
+      ],
       body: (
-        <>
-          <Lead>
-            Five hues in the same order in both schemes. Each slot reaches 3:1 against the card and against the slots
-            next to it, which only lightness can give, so emerald and violet are the deep members. Slots two apart share
-            a lightness and are told apart by hue, so series take slots in order. Every value is inside sRGB.
-          </Lead>
-          <div className={grid}>
-            {CHART.map((c) => (
-              <Swatch key={c.name} name={c.name} swatch={c.swatch} note={c.hue} />
-            ))}
-          </div>
-          <Card>
-            <CardContent className="flex h-24 flex-row items-end gap-2">
-              {CHART.map((c, i) => (
-                <div
-                  key={c.name}
-                  className={`flex-1 rounded-t-sm ${c.swatch} ${["h-1/2", "h-3/4", "h-full", "h-2/3", "h-5/6"][i]}`}
-                />
-              ))}
-            </CardContent>
-          </Card>
-        </>
+        <div className={grid}>
+          {CHART.map((c) => (
+            <Swatch key={c.name} name={c.name} swatch={c.swatch} note={c.hue} />
+          ))}
+        </div>
       ),
+      examples: [{ name: "chart-bar", caption: "Three series taking --chart-1 to --chart-3 in order." }],
     },
     {
       id: "heat",
       title: "Heat steps",
+      lead: "Signed scales mix --positive or --negative toward the card colour in five steps; unsigned scales use steps of --chart-1.",
       body: (
-        <>
-          <Lead>
-            Signed scales mix --positive or --negative toward the card colour in five steps. Unsigned scales use steps
-            of --chart-1.
-          </Lead>
-          <Card>
-            <CardContent className="flex flex-col gap-2">
-              {["--negative", "--positive", "--chart-1"].map((token) => (
-                <div key={token} className="flex items-center gap-2">
-                  <span className="w-24 font-mono text-xs">{token}</span>
-                  {HEAT_STEPS.map((step) => (
-                    <div
-                      key={step}
-                      className="flex h-8 flex-1 items-center justify-center rounded-sm text-xs"
-                      style={{ backgroundColor: `color-mix(in oklab, var(${token}) ${step}%, var(--card))` }}
-                    >
-                      {step}%
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </>
+        <Card>
+          <CardContent className="flex flex-col gap-2">
+            {["--negative", "--positive", "--chart-1"].map((token) => (
+              <div key={token} className="flex items-center gap-2">
+                <span className="w-24 font-mono text-xs">{token}</span>
+                {HEAT_STEPS.map((step) => (
+                  <div
+                    key={step}
+                    className="flex h-8 flex-1 items-center justify-center rounded-sm text-xs"
+                    style={{ backgroundColor: `color-mix(in oklab, var(${token}) ${step}%, var(--card))` }}
+                  >
+                    {step}%
+                  </div>
+                ))}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       ),
     },
     {
       id: "type",
       title: "Type",
+      lead: "Geist for text, Geist Mono for identifiers and chart ticks.",
+      rules: ["Figures are tabular everywhere, so columns of numbers line up."],
       body: (
-        <>
-          <Lead>
-            Geist for text, Geist Mono for identifiers and chart ticks. Figures are tabular everywhere, so columns of
-            numbers line up.
-          </Lead>
-          <div className="flex flex-col gap-3">
-            {TYPE.map((t) => (
-              <div key={t.name} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <span className="w-24 font-mono text-xs text-muted-foreground">{t.name}</span>
-                <span className={t.className}>₹1,53,110 portfolio</span>
-                <span className="text-xs text-muted-foreground">{t.note}</span>
-              </div>
-            ))}
-            <div className="flex flex-wrap items-baseline gap-x-4">
-              <span className="w-24 font-mono text-xs text-muted-foreground">font-mono</span>
-              <span className="font-mono">INE009A01021 · NSE:INFY</span>
+        <div className="flex flex-col gap-3">
+          {TYPE.map((t) => (
+            <div key={t.name} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span className="w-24 font-mono text-xs text-muted-foreground">{t.name}</span>
+              <span className={t.className}>₹1,53,110 portfolio</span>
+              <span className="text-xs text-muted-foreground">{t.note}</span>
             </div>
+          ))}
+          <div className="flex flex-wrap items-baseline gap-x-4">
+            <span className="w-24 font-mono text-xs text-muted-foreground">font-mono</span>
+            <span className="font-mono">INE009A01021 · NSE:INFY</span>
           </div>
-        </>
+        </div>
       ),
     },
     {
       id: "spacing",
       title: "Spacing and radius",
+      lead: "Tailwind's 4px scale, and radii derived from one --radius.",
+      rules: ['Cards pad 16px (12px for size="sm"); page gutters are 16px on a phone.'],
       body: (
         <>
-          <Lead>
-            Tailwind's 4px scale. Cards pad 16px (12px for size="sm"), page gutters are 16px on a phone. Radii derive
-            from one --radius.
-          </Lead>
           <div className="flex flex-col gap-2">
             {SPACING.map((s) => (
               <div key={s.name} className="flex items-center gap-3">
                 <span className="w-24 font-mono text-xs text-muted-foreground">
                   {s.name} · {s.px}px
                 </span>
-                <div className={`h-3 rounded-sm bg-primary ${s.bar}`} />
+                {/* Square ends: a rounded 4px bar read as a dot, not a length. */}
+                <div className={`h-4 bg-primary ${s.bar}`} />
               </div>
             ))}
           </div>
           <div className="flex flex-wrap gap-4">
             {RADII.map((r) => (
               <div key={r} className="flex flex-col items-center gap-2">
-                <div className={`size-16 border bg-muted ${r}`} />
+                <div className={`size-16 border border-foreground/25 bg-muted ${r}`} />
                 <span className="font-mono text-xs text-muted-foreground">{r}</span>
               </div>
             ))}
@@ -237,19 +220,28 @@ export const foundations: Page = {
     {
       id: "surfaces",
       title: "Surfaces",
-      body: (
-        <>
-          <Lead>
-            How a data block sits on the page, set by SiyahiProvider's surface. Ruled, the default, takes the box off
-            every card and draws a hairline between the blocks of a PanelGrid, with a rule above and below it: one
-            surface, parted by lines, as on a trading screen. Open drops the lines too, and the card's padding, so a
-            block's content sits level with the page's text, for pages read top to bottom. Card gives shadcn's own card
-            back, a filled box with a 1px ring. A nested provider sets the surface for one part of a page. A picked
-            SectionCards tile keeps its ring on every surface.
-          </Lead>
-          <Example name="surfaces" />
-        </>
-      ),
+      lead: "How a data block sits on the page, set by SiyahiProvider's surface.",
+      imports: ["SiyahiProvider", "PanelGrid", "type Surface"],
+      props: [
+        {
+          name: "surface",
+          type: '"card" | "ruled" | "open"',
+          default: '"card"',
+          purpose: "Set on a nested provider for one part of a page; left out, a provider keeps the surface around it.",
+        },
+      ],
+      rules: [
+        "card, the default, is shadcn's own card: a white box with a 1px ring on the faintly tinted canvas, so data reads as raised off the page.",
+        "ruled takes the box off every card and draws a hairline between the blocks of a PanelGrid: one surface, parted by lines, as on a trading screen.",
+        "open drops the lines too, and the card's padding, so a block's content sits level with the page's text, for pages read top to bottom.",
+        "A picked SectionCards tile keeps its ring on every surface.",
+      ],
+      examples: [
+        {
+          name: "surfaces",
+          caption: "A toggle switching one set of figures, a chart and a table between card, ruled and open.",
+        },
+      ],
     },
   ],
 };

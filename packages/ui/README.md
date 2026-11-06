@@ -100,10 +100,10 @@ and support one keyboard entry with arrow navigation. `WeekdayHeatmap` accepts
 
 `SiyahiProvider` sets how data blocks sit on the page:
 
-- `surface="ruled"` (default, even outside a provider): unboxed blocks;
-  `PanelGrid` draws hairlines between them.
+- `surface="card"` (default, even outside a provider): each block is a card
+  lifted off a faintly tinted canvas.
+- `surface="ruled"`: unboxed blocks; `PanelGrid` draws hairlines between them.
 - `surface="open"`: no boxes or rules; card padding is removed.
-- `surface="card"`: shadcn's filled Nova cards with a ring.
 
 Nest a provider to change one section. Stack `PageSection` blocks with
 `flex flex-col gap-6`; use `PanelGrid` for blocks side by side. Categories use

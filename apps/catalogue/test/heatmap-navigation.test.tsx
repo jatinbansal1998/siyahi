@@ -42,4 +42,20 @@ describe("heatmap interactions", () => {
       expect(await readout.textContent()).not.toContain("Select a");
     }
   });
+
+  it("rings the tapped cell on every heatmap, one at a time, and clears it on a second tap", async () => {
+    const { page } = catalogue;
+    for (const kind of ["calendar", "weekday", "status"]) {
+      const heatmap = page.locator(`[data-slot="${kind}-heatmap"]`);
+      const buttons = heatmap.locator('rect[role="button"]');
+      const pressed = heatmap.locator('rect[aria-pressed="true"]');
+      await buttons.nth(2).tap();
+      await buttons.nth(3).tap();
+      expect(await pressed.count()).toBe(1);
+      expect(await pressed.getAttribute("data-value")).toBe(await buttons.nth(3).getAttribute("data-value"));
+      expect(await pressed.evaluate((el) => (el as SVGRectElement).style.stroke)).toBe("var(--foreground)");
+      await buttons.nth(3).tap();
+      expect(await pressed.count()).toBe(0);
+    }
+  });
 });

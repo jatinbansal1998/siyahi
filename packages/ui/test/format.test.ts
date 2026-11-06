@@ -55,6 +55,19 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
     expect(moneyCompact(99999)).toBe("₹99,999");
   });
 
+  it("writes every tick on an axis in the unit of its largest", () => {
+    expect([160000, 120000, 80000, 40000, 0].map((tick) => moneyCompact(tick, undefined, 160000))).toEqual([
+      "₹1.6L",
+      "₹1.2L",
+      "₹0.8L",
+      "₹0.4L",
+      "₹0",
+    ]);
+    expect(moneyCompact(-75000, undefined, 150000)).toBe("-₹0.75L");
+    expect(moneyCompact(50000, undefined, 90000)).toBe("₹50,000");
+    expect(moneyCompact(500000, us, 1500000)).toBe("$0.5M");
+  });
+
   it("keeps the sign on negative compact amounts", () => {
     expect(moneyCompact(-240000)).toBe("-₹2.4L");
     expect(moneyCompact(-50000)).toBe("-₹50,000");

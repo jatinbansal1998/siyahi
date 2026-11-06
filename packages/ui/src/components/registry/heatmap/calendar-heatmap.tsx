@@ -3,6 +3,15 @@
 // Licence: MIT, Copyright (c) 2026 ChingRu, https://github.com/rutopio/shadcn-heatmap/blob/master/LICENSE
 // Copied: 2026-10-20, sha256 93e31382cd9323695a69611c1323b1d31b84cf7157a0557d686d706fefdb371e
 // Siyahi edit: the surrounding card owns padding; the heatmap body owns scrolling.
+// Siyahi edit: without a blockSize, cells are sized from the heatmap's width
+// so the calendar spans its card, scrolling only below a readable cell.
+// Siyahi edit: continuous months are one strip, with the year as the tick at
+// each January instead of a row per calendar year, and a narrow screen opens
+// on the latest weeks.
+// Siyahi edit: a row's total counts the days drawn in that row.
+// Siyahi edit: legend swatches keep one size however large the cells grow.
+// Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
+// ring in the text colour and announced as pressed, as a Treemap tile is.
 import type { Locale, Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
@@ -17,10 +26,11 @@ import {
   subWeeks,
 } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
-import { createContext, Fragment, use, useMemo } from "react";
+import { createContext, Fragment, use, useLayoutEffect, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 // Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
 import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
+import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 export type Activity = {
   date: string;
@@ -144,6 +154,14 @@ type CalendarHeatmapContextType = {
 
 const EMPTY_STYLE: CSSProperties = {};
 const LABEL_MARGIN = 8;
+const WEEKDAY_LABEL_WIDTH = 40;
+const STROKE_PADDING = 3;
+const LEGEND_SWATCH = 12;
+// A fitted cell stays between these: smaller is unreadable (the body scrolls
+// instead), larger turns a year into a wall of tiles.
+const MIN_FITTED_BLOCK = 10;
+const MAX_FITTED_BLOCK = 20;
+const DEFAULT_BLOCK = 12;
 
 const CalendarHeatmapContext = createContext<CalendarHeatmapContextType | null>(
   null,
@@ -336,32 +354,15 @@ const groupContinuous = (
     .fill(undefined)
     .map((_, i) => padded.slice(i * 7, i * 7 + 7));
 
-  const yearMap = new Map<number, Week[]>();
-  for (const week of allWeeks) {
-    const firstActivity = week.find((a) => a !== undefined);
-    const year = firstActivity
-      ? getYear(parseISO(firstActivity.date))
-      : undefined;
-    if (year !== undefined) {
-      if (!yearMap.has(year)) yearMap.set(year, []);
-      yearMap.get(year)?.push(week);
-    }
-  }
-
-  return Array.from(yearMap.entries())
-    .sort(([a], [b]) => a - b)
-    .map(([year, weeks]) => ({
-      year,
-      startMonth: 0,
-      weeks,
-    }));
+  return [{ year: getYear(firstDate), startMonth: 0, weeks: allWeeks }];
 };
 
 const getMonthLabels = (
   weeks: Week[],
   monthNames: string[] = generateMonthLabels(),
+  yearTicks = false,
 ): MonthLabel[] => {
-  return weeks
+  const ticks = weeks
     .reduce<MonthLabel[]>((labels, week, weekIndex) => {
       const firstActivity = week.find((activity) => activity !== undefined);
 
@@ -369,7 +370,8 @@ const getMonthLabels = (
         return labels;
       }
 
-      const month = monthNames[getMonth(parseISO(firstActivity.date))];
+      const date = parseISO(firstActivity.date);
+      const month = monthNames[getMonth(date)];
 
       if (!month) {
         const monthName = new Date(firstActivity.date).toLocaleString("en-US", {
@@ -383,7 +385,7 @@ const getMonthLabels = (
       const prevLabel = labels.at(-1);
 
       if (weekIndex === 0 || !prevLabel || prevLabel.label !== month) {
-        return labels.concat({ weekIndex, label: month });
+        return labels.concat({ weekIndex, label: month, year: getMonth(date) === 0 ? getYear(date) : undefined });
       }
 
       return labels;
@@ -401,6 +403,18 @@ const getMonthLabels = (
 
       return true;
     });
+  if (!yearTicks) return ticks;
+  // January reads as its year, so a strip across two years needs no year rows;
+  // a strip with no January names its year on its first tick.
+  const hasJanuary = ticks.some(({ year }) => year !== undefined);
+  return ticks.map((tick, index) => {
+    if (tick.year !== undefined) return { ...tick, label: String(tick.year) };
+    if (index === 0 && !hasJanuary) {
+      const week = weeks[tick.weekIndex]?.find((activity) => activity !== undefined);
+      return week ? { ...tick, label: `${tick.label} ${getYear(parseISO(week.date))}` } : tick;
+    }
+    return tick;
+  });
 };
 
 export type CalendarHeatmapProps = HTMLAttributes<HTMLDivElement> & {
@@ -463,7 +477,7 @@ export const CalendarHeatmap = ({
   weekStart = 0,
   continuousMonths = true,
   hasEmptyColumn = false,
-  blockSize = 12,
+  blockSize: blockSizeProp,
   blockMargin = 4,
   blockRadius = 2,
   blockAspectRatio = 1,
@@ -481,6 +495,7 @@ export const CalendarHeatmap = ({
   ...props
 }: CalendarHeatmapProps) => {
   const levels = Math.max(1, levelsProp);
+  const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
 
   const dataWithLevels = useMemo((): ActivityWithLevel[] => {
     if (data.length === 0) return [];
@@ -535,6 +550,16 @@ export const CalendarHeatmap = ({
       ? totalCountProp
       : dataWithLevels.reduce((sum, activity) => sum + activity.value, 0);
 
+  const fitted =
+    (rootWidth - WEEKDAY_LABEL_WIDTH - STROKE_PADDING * 2 + blockMargin) /
+      Math.max(weeks.length, 1) -
+    blockMargin;
+  const blockSize =
+    blockSizeProp ??
+    (rootWidth > 0
+      ? Math.min(MAX_FITTED_BLOCK, Math.max(MIN_FITTED_BLOCK, fitted)) /
+        blockAspectRatio
+      : DEFAULT_BLOCK);
   const blockWidth = blockSize * blockAspectRatio;
   const width = weeks.length * (blockWidth + blockMargin) - blockMargin;
   const height = labelHeight + (blockSize + blockMargin) * 7 - blockMargin;
@@ -597,8 +622,13 @@ export const CalendarHeatmap = ({
   return (
     <CalendarHeatmapContext value={contextValue}>
       <div
+        ref={rootRef}
         data-slot="calendar-heatmap"
-        className={cn("flex w-max max-w-full flex-col gap-2", className)}
+        className={cn(
+          "flex flex-col gap-2",
+          blockSizeProp === undefined ? "w-full" : "w-max max-w-full",
+          className,
+        )}
         style={{ fontSize, ...style }}
         {...props}
       >
@@ -609,6 +639,8 @@ export const CalendarHeatmap = ({
 };
 
 export type CalendarHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
+  /** The cell the page has picked: drawn with a ring and announced as pressed. */
+  selected?: boolean;
   activity: ActivityWithLevel;
   dayIndex: number;
   weekIndex: number;
@@ -623,6 +655,7 @@ export const CalendarHeatmapBlock = ({
   dayIndex,
   weekIndex,
   highlighted = false,
+  selected = false,
   onCellClick,
   onCellHover,
   onClick,
@@ -661,6 +694,7 @@ export const CalendarHeatmapBlock = ({
       ref={ref}
       data-slot="calendar-heatmap-block"
       role={onCellClick ? "button" : "img"}
+      aria-pressed={onCellClick ? selected : undefined}
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
@@ -673,6 +707,7 @@ export const CalendarHeatmapBlock = ({
       data-date={activity.date}
       data-level={level}
       data-highlighted={highlighted || undefined}
+      data-selected={selected || undefined}
       height={blockSize}
       rx={blockRadius}
       ry={blockRadius}
@@ -681,6 +716,8 @@ export const CalendarHeatmapBlock = ({
       y={labelHeight + (blockSize + blockMargin) * dayIndex}
       style={{
         fill: getLevelFill(level, levels, isNormalized, highlighted, colors),
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
+        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
       }}
       onClick={(event) => {
@@ -747,21 +784,21 @@ export const CalendarHeatmapBody = ({
     labelHeight,
     fontSize,
     weekStart,
-    data,
+    continuousMonths,
   } = useCalendarHeatmap();
 
-  const weekdayLabelWidth = hideWeekdayLabels ? 0 : 40;
-  const strokePadding = 3;
+  const weekdayLabelWidth = hideWeekdayLabels ? 0 : WEEKDAY_LABEL_WIDTH;
+  const strokePadding = STROKE_PADDING;
 
   const rowData = useMemo(() => {
     return yearRows.map((yearRow) => {
       const width =
         yearRow.weeks.length * (blockWidth + blockMargin) - blockMargin;
       const height = labelHeight + (blockSize + blockMargin) * 7 - blockMargin;
-      const monthLabels = getMonthLabels(yearRow.weeks, labels.months);
-      const yearTotalCount = data
-        .filter((activity) => getYear(parseISO(activity.date)) === yearRow.year)
-        .reduce((sum, activity) => sum + activity.value, 0);
+      const monthLabels = getMonthLabels(yearRow.weeks, labels.months, continuousMonths);
+      const yearTotalCount = yearRow.weeks
+        .flat()
+        .reduce((sum, activity) => sum + (activity?.value ?? 0), 0);
 
       return {
         yearRow,
@@ -778,11 +815,17 @@ export const CalendarHeatmapBody = ({
     blockMargin,
     labelHeight,
     labels.months,
-    data,
+    continuousMonths,
   ]);
 
   const maxWidth = Math.max(...rowData.map((r) => r.width));
   const totalWidth = weekdayLabelWidth + maxWidth + strokePadding * 2;
+
+  // The latest weeks matter most; when the strip outgrows a phone, show them first.
+  const scroller = navigation.ref;
+  useLayoutEffect(() => {
+    if (continuousMonths && scroller.current) scroller.current.scrollLeft = scroller.current.scrollWidth;
+  }, [continuousMonths, scroller, totalWidth]);
 
   return (
     <div
@@ -797,7 +840,7 @@ export const CalendarHeatmapBody = ({
     >
       {rowData.map(({ yearRow, height, monthLabels, yearTotalCount }) => (
         <div key={`year-row-${yearRow.year}`}>
-          {!hideYearLabels && (
+          {!hideYearLabels && !continuousMonths && (
             <div className={cn("mb-2 text-muted-foreground", yearClassName)}>
               {yearRow.year}
             </div>
@@ -968,8 +1011,6 @@ export const CalendarHeatmapLegend = ({
   const {
     levels,
     isNormalized,
-    blockSize,
-    blockWidth,
     blockRadius,
     colors,
     labels,
@@ -1004,16 +1045,16 @@ export const CalendarHeatmapLegend = ({
             aria-label={(
               labels.legendLevelLabel ?? "{{level}} contributions"
             ).replace("{{level}}", String(level))}
-            height={blockSize}
+            height={LEGEND_SWATCH}
             key={`legend-level-${level}`}
-            width={blockWidth}
+            width={LEGEND_SWATCH}
           >
             <rect
               data-level={level}
-              height={blockSize}
+              height={LEGEND_SWATCH}
               rx={blockRadius}
               ry={blockRadius}
-              width={blockWidth}
+              width={LEGEND_SWATCH}
               style={{
                 fill: getLevelFill(level, levels, isNormalized, false, colors),
               }}

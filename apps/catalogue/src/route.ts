@@ -14,13 +14,13 @@ function parse(hash: string): Route {
 export function useRoute(): Route {
   const [route, setRoute] = useState(() => parse(location.hash));
   useEffect(() => {
-    const onChange = () => startTransition(() => setRoute(parse(location.hash)));
+    const onChange = () => {
+      // A section's route shows that section alone, so every route opens at its top.
+      scrollTo(0, 0);
+      startTransition(() => setRoute(parse(location.hash)));
+    };
     addEventListener("hashchange", onChange);
     return () => removeEventListener("hashchange", onChange);
   }, []);
-  useEffect(() => {
-    if (route.section) document.getElementById(route.section)?.scrollIntoView();
-    else scrollTo(0, 0);
-  }, [route]);
   return route;
 }

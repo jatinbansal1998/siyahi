@@ -5,6 +5,12 @@
 // Siyahi edit: explicit hours and weekdays crop the displayed domain without
 // renumbering source data; the surrounding card owns padding.
 // Siyahi edit: custom blocks outside that domain must not paint over the axis labels.
+// Siyahi edit: without a blockSize, cells are sized from the heatmap's width
+// so the grid fills its column, scrolling only below a readable cell; the
+// padding around the grid is just room for the end hour label.
+// Siyahi edit: legend swatches keep one size however large the cells grow.
+// Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
+// ring in the text colour and announced as pressed, as a Treemap tile is.
 import type { Locale, Day as WeekDay } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -12,6 +18,7 @@ import { createContext, Fragment, use, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 // Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
 import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
+import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 export type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -183,7 +190,13 @@ const generateWeekdayLabels = (locale: Locale): string[] =>
 
 const EMPTY_STYLE: CSSProperties = {};
 const LABEL_MARGIN = 8;
-const PADDING = 20;
+const PADDING = 12;
+const LEGEND_SWATCH = 12;
+// A fitted cell stays between these: smaller is unreadable (the body scrolls
+// instead), larger turns a week into a wall of tiles.
+const MIN_FITTED_BLOCK = 14;
+const MAX_FITTED_BLOCK = 44;
+const DEFAULT_BLOCK = 24;
 
 const WeekdayHeatmapContext = createContext<WeekdayHeatmapContextType | null>(
   null,
@@ -265,7 +278,7 @@ export const WeekdayHeatmap = ({
   hours = HOURS,
   weekdays: displayedWeekdays,
   use12Hour = false,
-  blockSize = 24,
+  blockSize: blockSizeProp,
   blockMargin = 4,
   blockRadius = 2,
   blockAspectRatio = 1,
@@ -285,6 +298,7 @@ export const WeekdayHeatmap = ({
   ...props
 }: WeekdayHeatmapProps) => {
   const levels = Math.max(1, levelsProp);
+  const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
   const weekdays = useMemo(() => displayedWeekdays ?? Array.from({ length: 7 }, (_, i) => (weekStart + i) % 7), [displayedWeekdays, weekStart]);
 
   const dataWithLevels = useMemo((): WeekdayHourlyActivityWithLevel[] => {
@@ -365,9 +379,26 @@ export const WeekdayHeatmap = ({
       ? totalCountProp
       : dataWithLevels.reduce((sum, a) => sum + a.value, 0);
 
+  const hasExtraColumn = resolvedExtraColumn !== null;
+  // Solves the body's width for the cell width: n cells and their gaps, plus
+  // two more and half a cell for an extra column.
+  const columns = hours.length + (hasExtraColumn ? 2 : 0);
+  const room =
+    rootWidth -
+    PADDING * 2 -
+    labelWidth -
+    columns * blockMargin +
+    (hasExtraColumn ? 0 : blockMargin);
+  const fitted =
+    room / (columns + (hasExtraColumn ? 1 / (2 * blockAspectRatio) : 0));
+  const blockSize =
+    blockSizeProp ??
+    (rootWidth > 0
+      ? Math.min(MAX_FITTED_BLOCK, Math.max(MIN_FITTED_BLOCK, fitted)) /
+        blockAspectRatio
+      : DEFAULT_BLOCK);
   const blockWidth = blockSize * blockAspectRatio;
   const labelHeight = fontSize + LABEL_MARGIN;
-  const hasExtraColumn = resolvedExtraColumn !== null;
   const hasExtraRow = resolvedExtraRow !== null;
   const width =
     hours.length * (blockWidth + blockMargin) +
@@ -438,8 +469,13 @@ export const WeekdayHeatmap = ({
   return (
     <WeekdayHeatmapContext value={contextValue}>
       <div
+        ref={rootRef}
         data-slot="weekday-heatmap"
-        className={cn("flex w-max max-w-full flex-col gap-2", className)}
+        className={cn(
+          "flex flex-col gap-2",
+          blockSizeProp === undefined ? "w-full" : "w-max max-w-full",
+          className,
+        )}
         style={{ fontSize, ...style }}
         {...props}
       >
@@ -450,6 +486,8 @@ export const WeekdayHeatmap = ({
 };
 
 export type WeekdayHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
+  /** The cell the page has picked: drawn with a ring and announced as pressed. */
+  selected?: boolean;
   activity: WeekdayHourlyActivityWithLevel;
   extra?: "row" | "column";
   highlighted?: boolean;
@@ -463,6 +501,7 @@ export const WeekdayHeatmapBlock = ({
   activity,
   extra,
   highlighted = false,
+  selected = false,
   onCellClick,
   onCellHover,
   onClick,
@@ -529,6 +568,7 @@ export const WeekdayHeatmapBlock = ({
       ref={ref}
       data-slot="weekday-heatmap-block"
       role={onCellClick ? "button" : "img"}
+      aria-pressed={onCellClick ? selected : undefined}
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
@@ -542,6 +582,7 @@ export const WeekdayHeatmapBlock = ({
       data-hour={isExtraColumn ? "extra" : activity.hour}
       data-level={level}
       data-highlighted={highlighted || undefined}
+      data-selected={selected || undefined}
       height={blockSize}
       rx={blockRadius}
       ry={blockRadius}
@@ -550,6 +591,8 @@ export const WeekdayHeatmapBlock = ({
       y={yPosition}
       style={{
         fill: getLevelFill(level, levels, isNormalized, highlighted, colors),
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
+        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
       }}
       onClick={(event) => {
@@ -922,8 +965,6 @@ export const WeekdayHeatmapLegend = ({
   const {
     levels,
     isNormalized,
-    blockSize,
-    blockWidth,
     blockRadius,
     colors,
     labels,
@@ -958,16 +999,16 @@ export const WeekdayHeatmapLegend = ({
             aria-label={(
               labels.legendLevelLabel ?? "{{level}} contributions"
             ).replace("{{level}}", String(level))}
-            height={blockSize}
+            height={LEGEND_SWATCH}
             key={`legend-level-${level}`}
-            width={blockWidth}
+            width={LEGEND_SWATCH}
           >
             <rect
               data-level={level}
-              height={blockSize}
+              height={LEGEND_SWATCH}
               rx={blockRadius}
               ry={blockRadius}
-              width={blockWidth}
+              width={LEGEND_SWATCH}
               style={{
                 fill: getLevelFill(level, levels, isNormalized, false, colors),
               }}

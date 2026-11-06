@@ -13,6 +13,8 @@
 // on the chart cards, instead of dashboardcn's PeriodTabs; the footer link and
 // the per-metric icon are dropped, and the theme's narrow-card rule places the
 // header action, so the header's own @max-sm overrides go.
+// Siyahi edit: tiles keep 16px all round, the SectionCards tile's breathing,
+// with an 80px sparkline beside the figure.
 // Siyahi edit: tiles wrap onto rows, the column steps following the tile
 // count as SectionCards' do, with a rule between tiles across and down. The
 // rules sit on each tile's left and top edge, and the strip clips the ones on
@@ -107,7 +109,7 @@ function MetricStrip({
               <div
                 key={item.label}
                 data-slot="metric-strip-item"
-                className={cn("flex min-w-0 flex-col gap-1 border-t border-l px-4 py-3", columns)}
+                className={cn("flex min-w-0 flex-col gap-1.5 border-t border-l px-4 py-4", columns)}
               >
                 <div className="truncate text-xs text-muted-foreground">{item.label}</div>
                 <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
@@ -125,7 +127,7 @@ function MetricStrip({
                       data={item.trend}
                       variant="line"
                       color={trendColor(item.change)}
-                      className="h-8 w-16 shrink-0"
+                      className="h-9 w-20 shrink-0"
                     />
                   )}
                 </div>
