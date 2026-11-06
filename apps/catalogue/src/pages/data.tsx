@@ -400,6 +400,45 @@ export const data: Page = {
       ],
     },
     {
+      id: "change-bar",
+      title: "Change bars",
+      lead: "ChangeBar sets a cell's Delta over a thin bar of its size, so a column of changes ranks by eye; DataTableFootnote says how to read it.",
+      imports: ["ChangeBar", "DataTableFootnote"],
+      props: [
+        { name: "value", type: "number", purpose: "The signed change, as Delta takes it; for pct a fraction." },
+        {
+          name: "max",
+          type: "number",
+          purpose: "The column's largest change by size: Math.max(...rows.map((r) => Math.abs(r.change))).",
+        },
+        {
+          name: "diverging",
+          type: "boolean",
+          default: "false",
+          purpose:
+            "Bars grow from a centre line, losses left and gains right. Pass it when the column holds both signs.",
+        },
+        { name: "format", type: '"pct" | "money"', default: '"pct"', purpose: "How the Delta writes the change." },
+        {
+          name: "DataTableFootnote children",
+          type: "ReactNode",
+          purpose: "One sentence on the encoding, in a full-width last row after DataTableBody.",
+        },
+      ],
+      rules: [
+        "The bar is neutral because it shows size; the Delta above it carries the gain or loss colour. Do not also colour the bar.",
+        "Every row draws to the column's largest change, so give each cell the same max.",
+        "The footnote stays at the card's width while a wide table scrolls under it.",
+      ],
+      examples: [
+        {
+          name: "change-bar",
+          caption:
+            "A month's change per holding, diverging around a centre line, January's values muted, with a footnote.",
+        },
+      ],
+    },
+    {
       id: "price-chart",
       title: "PriceChart",
       lead: "TradingView Lightweight Charts in theme colours, for a price series over time.",
@@ -595,6 +634,94 @@ export const data: Page = {
         {
           name: "distribution-bar-tug",
           caption: "Closed positions' losses left of zero and gains right, with a readout of the hovered one.",
+        },
+      ],
+    },
+    {
+      id: "target-rows",
+      title: "Target rows",
+      lead: "TargetRows sets each figure against its target as a bullet row: a solid bar for the value, a tall tick for the target, grey bands for the ranges that matter.",
+      imports: ["TargetRows", "type TargetRow", "type TargetStatus"],
+      props: [
+        {
+          name: "rows",
+          type: "TargetRow[]",
+          purpose: "{ label, value, target, detail?, bands?, status?, key? } per row.",
+        },
+        {
+          name: "rows[].bands",
+          type: "[number, number][]",
+          default: "—",
+          purpose: "Ranges behind the bar; each later band is a grey step darker, so list the widest first.",
+        },
+        {
+          name: "rows[].status",
+          type: "TargetStatus",
+          default: "—",
+          purpose: '{ kind: "met" | "missed" | "warning", label }: ✓, — or an amber ⚠ before the label.',
+        },
+        {
+          name: "domain",
+          type: "[number, number]",
+          default: "0 to the largest figure",
+          purpose: "The scale every row shares, so rows compare.",
+        },
+        {
+          name: "valueFormatter",
+          type: "(value: number) => string",
+          default: "useFormat().count",
+          purpose: "Writes the value and the target.",
+        },
+      ],
+      rules: [
+        "Bands are neutral greys; never shade them red, amber and green. The bar stays foreground whether it beat the target or not; the status says which.",
+        "Keep warning for a real problem, such as drift far enough to rebalance; a plain miss is —.",
+        "Say how to read the bands in a line above the rows.",
+        "On a card narrower than about 32rem the label and value stack above the track.",
+      ],
+      examples: [
+        {
+          name: "target-rows",
+          caption: "Asset allocation against the plan, with ±5 and ±2 point bands and a rebalance warning.",
+        },
+      ],
+    },
+    {
+      id: "range-position",
+      title: "Range position",
+      lead: "RangePosition shows how far a value sits between a low and a high, such as a price in its 52-week range.",
+      imports: ["RangePosition"],
+      props: [
+        { name: "low, high, value", type: "number", purpose: "The range's ends and where the value sits in it." },
+        { name: "lowLabel, highLabel", type: "string", default: '"Low", "High"', purpose: "Names the ends." },
+        {
+          name: "caption",
+          type: "ReactNode",
+          default: '"of the way up the range"',
+          purpose: "Follows the percentage in the full variant.",
+        },
+        {
+          name: "valueFormatter",
+          type: "(value: number) => string",
+          default: "useFormat().money",
+          purpose: "Writes the ends and the value.",
+        },
+        {
+          name: "variant",
+          type: '"full" | "compact"',
+          default: '"full"',
+          purpose: "compact fits a table cell: the ends' figures either side of the track.",
+        },
+      ],
+      rules: [
+        "A value outside the range pins the thumb to the nearer end.",
+        "In a table, sort the column by the position, (close − low) / (high − low), not by the close.",
+      ],
+      examples: [
+        { name: "range-position", caption: "One stock in its 52-week range, beside the low, high and last close." },
+        {
+          name: "range-position-table",
+          caption: "The compact variant in a holdings table, sortable by how far up its range each one sits.",
         },
       ],
     },

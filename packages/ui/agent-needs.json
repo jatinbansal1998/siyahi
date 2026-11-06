@@ -52,6 +52,18 @@
     "guidance": "`DataBar` in the column's cell"
   },
   {
+    "need": "A table column of changes that should rank by eye, and a note on how to read the table",
+    "guidance": "`ChangeBar` in the column's cell, `diverging` when it holds both signs; `DataTableFootnote` after `DataTableBody`"
+  },
+  {
+    "need": "Figures against their targets, such as allocation against plan",
+    "guidance": "`TargetRows`, with neutral `bands` and a `status` per row"
+  },
+  {
+    "need": "Where a value sits in its range, such as a price in its 52-week range",
+    "guidance": "`RangePosition`; `variant=\"compact\"` in a table cell"
+  },
+  {
     "need": "One instrument's price history",
     "guidance": "`PriceChart`"
   },
