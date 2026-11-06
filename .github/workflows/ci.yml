@@ -68,14 +68,17 @@ jobs:
     name: Test
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    # The browser suites render the catalogue in Playwright's headless Chromium.
+    # Its image ships the browser and its system packages, so a run no longer
+    # downloads them from the Ubuntu mirror, which once took the whole timeout.
+    # The tag must match the lockfile's playwright; a mismatch fails at launch
+    # with "Executable doesn't exist".
+    container: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
       - uses: actions/checkout@v7
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version-file: package.json
           cache: true
-      # The siyahi-shots tests render pages in Playwright's headless Chromium.
-      - name: Install Chromium
-        run: pnpm --filter @siyahi/tools exec playwright install --with-deps --only-shell chromium
       - name: Test
         run: vp test
