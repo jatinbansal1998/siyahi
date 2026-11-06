@@ -33,10 +33,18 @@ const card = (title: string): Locator =>
 
 const center = async (target: Locator): Promise<{ x: number; y: number }> => {
   // A chart re-renders its marks as it animates in; wait for this one to be on the page before measuring it.
-  await target.waitFor({ state: "visible" });
-  const box = await target.boundingBox();
+  // Recharts swaps a mark's element when the tooltip re-renders it, so a box read in that moment is empty; read again.
+  let box: Awaited<ReturnType<Locator["boundingBox"]>> = null;
+  await expect
+    .poll(async () => {
+      await target.waitFor({ state: "visible" });
+      box = await target.boundingBox();
+      return box !== null;
+    })
+    .toBe(true);
   if (!box) throw new Error("not laid out");
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const { x, y, width, height } = box;
+  return { x: x + width / 2, y: y + height / 2 };
 };
 
 /** Waits until the targets stop moving: the chart resizes to its card and animates in after the first paint. */
