@@ -247,6 +247,14 @@
   }
 }
 
+/*
+ * Chart gridlines take the full border colour: stock shadcn draws them at half
+ * of it, which all but vanishes on a dark card (5% white).
+ */
+[data-slot="chart"] .recharts-cartesian-grid line {
+  stroke: var(--border);
+}
+
 /* Touch targets follow input capability, including touch laptops. */
 @media (pointer: coarse) {
   :is(

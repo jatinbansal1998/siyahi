@@ -16,8 +16,9 @@ export interface PageTocProps {
 }
 
 /**
- * A long page's sections as one sticky strip of links. It stays at the top while the reader scrolls, marks the
- * section in view in the link colour, and scrolls sideways on a phone with the current link kept in sight.
+ * A long page's sections as one sticky "On this page" index. It stays at the top while the reader scrolls,
+ * underlines the section in view in the link colour, and scrolls sideways on a phone with the current link kept
+ * in sight.
  */
 export function PageToc({ items, label = "On this page", className }: PageTocProps) {
   const nav = useRef<HTMLElement>(null);
@@ -38,7 +39,12 @@ export function PageToc({ items, label = "On this page", className }: PageTocPro
       data-slot="page-toc"
       className={cn("sticky top-0 z-10 -mx-4 border-b bg-background px-4 sm:mx-0 sm:px-0", className)}
     >
-      <div ref={strip} className="flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
+      {/* An index, not tabs: a visible label and plain links, the current one underlined, since every section
+          stays on the page. */}
+      <div ref={strip} className="flex items-baseline gap-x-4 overflow-x-auto py-2.5 [scrollbar-width:none]">
+        <span aria-hidden className="shrink-0 text-xs text-muted-foreground">
+          {label}
+        </span>
         {items.map((item) => (
           <a
             key={item.id}
@@ -49,7 +55,7 @@ export function PageToc({ items, label = "On this page", className }: PageTocPro
               event.preventDefault();
               document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="shrink-0 rounded-md px-2.5 py-1 text-sm whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground aria-[current=location]:bg-muted aria-[current=location]:font-medium aria-[current=location]:text-link"
+            className="shrink-0 text-sm whitespace-nowrap text-muted-foreground decoration-2 underline-offset-[6px] transition-colors hover:text-foreground hover:underline hover:decoration-border aria-[current=location]:font-medium aria-[current=location]:text-link aria-[current=location]:underline aria-[current=location]:decoration-current"
           >
             {item.title}
           </a>
