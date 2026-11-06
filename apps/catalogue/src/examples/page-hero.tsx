@@ -19,8 +19,8 @@ export default function PageHeroExample() {
     <PageHero
       eyebrow="@siyahi/ui"
       title="Siyahi"
-      lead="Ink for numbers. A design system for pages people read figures from: portfolios, ledgers, research."
-      detail="Stock shadcn/ui on Base UI and Tailwind v4, with a finance theme, charts and tables that fit a phone, Indian-aware formatters and a lint. Siyahi is Hindi for ink."
+      lead="Ink for numbers. A design system for pages people read figures from: dashboards, ledgers, reports."
+      detail="Stock shadcn/ui on Base UI and Tailwind v4, with a theme for figures, charts and tables that fit a phone, Indian-aware formatters and a lint. Siyahi is Hindi for ink."
       actions={
         <>
           <Button nativeButton={false} render={<a href="#/data" />}>

@@ -67,14 +67,14 @@ describe("surfaces", { timeout: 60_000 }, () => {
   });
 
   it("gives shadcn's card back on a card surface, and drops the padding on an open one", async () => {
-    const holdings = example().locator('[data-slot="card"]', { hasText: "Holdings" });
+    const products = example().locator('[data-slot="card"]', { hasText: "Top products" });
     await pick("Card");
-    const card = await box(holdings);
+    const card = await box(products);
     expect(card.fill).not.toBe(NONE.fill);
     expect(card.corner).toBe("10.08px");
     expect(transparentRing(card.ring)).toBe(false);
     await pick("Open");
-    expect((await box(holdings)).padding).toBe("0px");
+    expect((await box(products)).padding).toBe("0px");
     expect(
       await example()
         .locator('[data-slot="panel"]')
@@ -86,7 +86,7 @@ describe("surfaces", { timeout: 60_000 }, () => {
 
   it("is a card outside any provider", async () => {
     const corner = await example()
-      .locator('[data-slot="card"]', { hasText: "Holdings" })
+      .locator('[data-slot="card"]', { hasText: "Top products" })
       .evaluate((card) => {
         const copy = document.body.appendChild(card.cloneNode(true)) as HTMLElement;
         const result = getComputedStyle(copy).borderTopLeftRadius;
@@ -170,7 +170,7 @@ describe("surfaces", { timeout: 60_000 }, () => {
       });
       try {
         const fixture = page.locator("#sticky-panels");
-        const detail = fixture.locator('[data-slot="card"]', { hasText: "Holdings" });
+        const detail = fixture.locator('[data-slot="card"]', { hasText: "Top products" });
         const top = await fixture.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
         for (const offset of [100, 300]) {
           await page.evaluate((y) => window.scrollTo(0, y), top + offset);

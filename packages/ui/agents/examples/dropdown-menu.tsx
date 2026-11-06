@@ -19,8 +19,8 @@ export default function DropdownMenuExample() {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Holding</DropdownMenuLabel>
-          <DropdownMenuItem>View lots</DropdownMenuItem>
+          <DropdownMenuLabel>Order</DropdownMenuLabel>
+          <DropdownMenuItem>View parcels</DropdownMenuItem>
           <DropdownMenuItem>Export CSV</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

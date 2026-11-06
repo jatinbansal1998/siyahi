@@ -1,6 +1,6 @@
 import { BarChartCard } from "@siyahi/ui";
 
-// Market hours in IST; each row is the hour an order was placed in.
+// Opening hours in IST; each row is the hour an order was placed in.
 const data = [
   { hour: 9, orders: 42 },
   { hour: 10, orders: 31 },

@@ -13,7 +13,7 @@ describe("responsive table", () => {
   it("keeps search inside the card on a small phone", async () => {
     const { page } = catalogue;
     await page.setViewportSize({ width: 320, height: 844 });
-    const search = page.getByRole("textbox", { name: "Filter holdings", exact: true });
+    const search = page.getByRole("textbox", { name: "Filter products", exact: true });
     const fits = await search.evaluate((el) => {
       const field = el.getBoundingClientRect();
       const card = el.closest('[data-slot="card"]')!.getBoundingClientRect();
@@ -27,7 +27,7 @@ describe("responsive table", () => {
     // The family's Props table is a card too; the table under test is the first example's.
     const section = page.locator('#data-table [data-slot="example"] [data-slot="card"]').first();
     const scroll = section.locator('[data-slot="table-container"]');
-    const instrument = section.locator('tbody td[data-col-id="symbol"]').first();
+    const instrument = section.locator('tbody td[data-col-id="product"]').first();
     await page.setViewportSize({ width: 390, height: 844 });
     await expect
       .poll(() => instrument.evaluate((el) => getComputedStyle(el).position), { timeout: 1500 })
@@ -38,16 +38,16 @@ describe("responsive table", () => {
     );
 
     await scroll.evaluate((el) => (el.scrollLeft = 0));
-    await section.getByRole("button", { name: "Value", exact: true }).click();
-    await section.getByRole("textbox", { name: "Filter holdings" }).fill("INFY");
+    await section.getByRole("button", { name: "Revenue", exact: true }).click();
+    await section.getByRole("textbox", { name: "Filter products" }).fill("Standing desk");
     await expect.poll(() => section.locator("tbody tr").count()).toBe(1);
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.evaluate(
       () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
     );
     expect(await instrument.evaluate((el) => getComputedStyle(el).position)).toBe("sticky");
-    expect(await section.getByRole("textbox", { name: "Filter holdings" }).inputValue()).toBe("INFY");
-    expect(await section.getByRole("button", { name: /Value.*sorted descending/ }).count()).toBe(1);
+    expect(await section.getByRole("textbox", { name: "Filter products" }).inputValue()).toBe("Standing desk");
+    expect(await section.getByRole("button", { name: /Revenue.*sorted descending/ }).count()).toBe(1);
 
     await page.setViewportSize({ width: 1366, height: 900 });
     await scroll.evaluate((el) => (el.style.width = "20rem"));
@@ -72,16 +72,16 @@ describe("responsive table", () => {
           getComputedStyle(el).getPropertyValue("--table-fade-end"),
         ]);
     await expect.poll(() => fade("Search every column")).toEqual(["0px", "32px"]);
-    expect(await fade("Holdings on a phone")).toEqual(["0px", "0px"]);
+    expect(await fade("Products on a phone")).toEqual(["0px", "0px"]);
   });
 
   it("shows only the key columns on a phone until the reader asks for all of them", async () => {
     const { page } = catalogue;
-    const card = page.locator('#data-table [data-slot="card"]', { hasText: "Holdings on a phone" });
+    const card = page.locator('#data-table [data-slot="card"]', { hasText: "Products on a phone" });
     const table = card.locator("table");
     const headers = () => table.locator("thead th").allInnerTexts();
     await page.setViewportSize({ width: 390, height: 844 });
-    await expect.poll(async () => (await headers()).join("|")).toBe("Symbol|Value");
+    await expect.poll(async () => (await headers()).join("|")).toBe("Product|Revenue");
     expect(await table.locator("tbody tr").first().innerText()).toContain("1.8%");
     await card.getByRole("button", { name: "All columns" }).click();
     await expect.poll(async () => (await headers()).length).toBe(5);

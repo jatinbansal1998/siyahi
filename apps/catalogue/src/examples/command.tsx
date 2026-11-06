@@ -1,5 +1,5 @@
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@siyahi/ui";
-import { ChartLineIcon, LandmarkIcon, WalletIcon } from "lucide-react";
+import { ChartLineIcon, PackageIcon, UsersIcon } from "lucide-react";
 
 export default function CommandExample() {
   return (
@@ -10,16 +10,16 @@ export default function CommandExample() {
           <CommandEmpty>No page matches.</CommandEmpty>
           <CommandGroup heading="Pages">
             <CommandItem>
-              <WalletIcon />
-              Holdings
+              <PackageIcon />
+              Orders
             </CommandItem>
             <CommandItem>
               <ChartLineIcon />
-              Realized
+              Revenue
             </CommandItem>
             <CommandItem>
-              <LandmarkIcon />
-              Cash flow
+              <UsersIcon />
+              Customers
             </CommandItem>
           </CommandGroup>
         </CommandList>

@@ -49,7 +49,7 @@ export const blocks: Page = {
           type: "boolean",
           default: "false",
           purpose:
-            "In a picker, a tile that cannot be picked, such as a class with no positions: faded, its button disabled.",
+            "In a picker, a tile that cannot be picked, such as a channel with no orders: faded, its button disabled.",
         },
       ],
       rules: [
@@ -61,7 +61,7 @@ export const blocks: Page = {
         { name: "section-cards", caption: "Five headline figures, each with a Delta badge and two footer lines." },
         {
           name: "section-cards-select",
-          caption: "Tiles as a picker of asset classes on a ruled surface; an empty class is disabled.",
+          caption: "Tiles as a picker of sales channels on a ruled surface; an empty channel is disabled.",
         },
         {
           name: "section-cards-trend",

@@ -1,9 +1,9 @@
 import { BarList, Card, CardContent, CardDescription, CardHeader, CardTitle, useFormat } from "@siyahi/ui";
 
-const sectors = [
-  { name: "Information Technology and Services", value: 100 },
-  { name: "Fast Moving Consumer Goods", value: 70 },
-  { name: "Automobile and Auto Components", value: 50 },
+const categories = [
+  { name: "Home Appliances and Kitchen Equipment", value: 100 },
+  { name: "Health, Beauty and Personal Care", value: 70 },
+  { name: "Books, Stationery and Office Supplies", value: 50 },
 ];
 
 export default function BarListLabelsExample() {
@@ -11,11 +11,11 @@ export default function BarListLabelsExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Orders by sector, ranked</CardTitle>
+        <CardTitle>Orders by category, ranked</CardTitle>
         <CardDescription>Full labels and order counts stay readable in narrow panels</CardDescription>
       </CardHeader>
       <CardContent>
-        <BarList data={sectors} valueFormatter={count} />
+        <BarList data={categories} valueFormatter={count} />
       </CardContent>
     </Card>
   );

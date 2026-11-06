@@ -18,52 +18,53 @@ import {
   type DataTableColumnDef,
 } from "@siyahi/ui";
 
-interface Holding {
-  symbol: string;
-  sector: string;
-  quantity: number;
-  value: number;
+interface Product {
+  product: string;
+  category: string;
+  /** Units sold and revenue this month; change is the revenue against last week. Made-up figures. */
+  units: number;
+  revenue: number;
   change: number;
 }
 
-const holdings: Holding[] = [
-  { symbol: "INFY", sector: "IT", quantity: 120, value: 224400, change: 0.018 },
-  { symbol: "HDFCBANK", sector: "Banks", quantity: 150, value: 262500, change: -0.006 },
-  { symbol: "TCS", sector: "IT", quantity: 40, value: 166000, change: 0.004 },
-  { symbol: "ITC", sector: "Fast Moving Consumer Goods", quantity: 600, value: 276000, change: -0.012 },
+const products: Product[] = [
+  { product: "Standing desk", category: "Furniture", units: 120, revenue: 224400, change: 0.018 },
+  { product: "Office chair", category: "Seating", units: 150, revenue: 262500, change: -0.006 },
+  { product: "Bookshelf", category: "Furniture", units: 40, revenue: 166000, change: 0.004 },
+  { product: "Dinner set", category: "Kitchen, Dining & Tableware", units: 600, revenue: 276000, change: -0.012 },
 ];
 
 const header = () => <DataTableSortHeader />;
 
-// While the Day column is hidden to fit, the day's move rides under the value it belongs to.
-function ValueCell({ holding }: { holding: Holding }) {
+// While the Week column is hidden to fit, the week's change rides under the revenue it belongs to.
+function RevenueCell({ product }: { product: Product }) {
   const format = useFormat();
-  const { compactColumns } = useDataTable<Holding>();
-  if (!compactColumns?.hidden.has("change")) return format.money(holding.value);
+  const { compactColumns } = useDataTable<Product>();
+  if (!compactColumns?.hidden.has("change")) return format.money(product.revenue);
   return (
     <div className="flex flex-col items-end">
-      {format.money(holding.value)}
-      <Delta value={holding.change} />
+      {format.money(product.revenue)}
+      <Delta value={product.change} />
     </div>
   );
 }
 
-const columns: DataTableColumnDef<Holding>[] = [
-  { accessorKey: "symbol", header, size: 140, meta: { label: "Symbol", compact: true } },
-  { accessorKey: "sector", header, size: 120, meta: { label: "Sector" } },
-  { accessorKey: "quantity", header, size: 100, meta: { label: "Qty", variant: "number" } },
+const columns: DataTableColumnDef<Product>[] = [
+  { accessorKey: "product", header, size: 140, meta: { label: "Product", compact: true } },
+  { accessorKey: "category", header, size: 120, meta: { label: "Category" } },
+  { accessorKey: "units", header, size: 100, meta: { label: "Units", variant: "number" } },
   {
-    accessorKey: "value",
+    accessorKey: "revenue",
     header,
     size: 140,
-    meta: { label: "Value", variant: "number", compact: true },
-    cell: ({ row }) => <ValueCell holding={row.original} />,
+    meta: { label: "Revenue", variant: "number", compact: true },
+    cell: ({ row }) => <RevenueCell product={row.original} />,
   },
   {
     accessorKey: "change",
     header,
     size: 110,
-    meta: { label: "Day", variant: "number" },
+    meta: { label: "Week", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
   },
 ];
@@ -72,19 +73,19 @@ export default function DataTableCompactExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Holdings on a phone</CardTitle>
+        <CardTitle>Products on a phone</CardTitle>
         <CardDescription>
-          Symbol and value are the key columns. When the columns do not fit, the others hide from the right, and the
-          day's move rides under the value once its column is gone; All columns brings back the rest
+          Product and revenue are the key columns. When the columns do not fit, the others hide from the right, and the
+          week's change rides under the revenue once its column is gone; All columns brings back the rest
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <DataTableRoot data={holdings} columns={columns}>
+        <DataTableRoot data={products} columns={columns}>
           <DataTableToolbarSection>
             <DataTableCompactColumnsToggle />
-            <DataTableRowCount unit="holdings" />
+            <DataTableRowCount unit="products" />
           </DataTableToolbarSection>
-          <DataTable aria-label="Holdings on a phone">
+          <DataTable aria-label="Products on a phone">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

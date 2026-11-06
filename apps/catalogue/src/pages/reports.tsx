@@ -20,7 +20,7 @@ const SAMPLE = `<!doctype html>
   </head>
   <body>
     <h1>Week ending 17 October</h1>
-    <p>Nifty 50 closed at 25,145, <span class="up">▲ 1.2%</span> on the week.</p>
+    <p>Orders reached 25,145, <span class="up">▲ 1.2%</span> on the week.</p>
     <div class="panel">…</div>
   </body>
 </html>`;

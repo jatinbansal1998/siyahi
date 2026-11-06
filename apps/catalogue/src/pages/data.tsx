@@ -7,7 +7,7 @@ const SERIES_PROPS: PropRow[] = [
   {
     name: "xKey",
     type: "keyof T",
-    purpose: "The field the x axis reads: a month, an hour, a price bucket. A repeated value hides behind the first.",
+    purpose: "The field the x axis reads: a month, an hour, a size bucket. A repeated value hides behind the first.",
   },
   {
     name: "series",
@@ -127,7 +127,7 @@ export const data: Page = {
       examples: [
         {
           name: "chart-area",
-          caption: "A portfolio's value filled, the money put in drawn as a line over it, with a range toggle.",
+          caption: "Monthly revenue filled, its target drawn as a line over it, with a range toggle.",
         },
       ],
     },
@@ -164,7 +164,7 @@ export const data: Page = {
         },
       ],
       rules: [
-        "Use it when the axis has an order of its own: quarters, hours of day, price buckets. A ranked list (name, bar, figure, largest first) is a BarList.",
+        "Use it when the axis has an order of its own: quarters, hours of day, size buckets. A ranked list (name, bar, figure, largest first) is a BarList.",
         'Series take --chart-1 to --chart-5 in order and never skip a slot: each reaches 3:1 against the card and its neighbours, and slots two apart share a lightness and differ by hue. Past five, fold the rest into "Other" in --muted-foreground.',
         "A gain and a loss take var(--positive) and var(--negative): give the series color and negativeColor, and each bar takes the one its sign calls for.",
         "The value axis always includes zero, so a series of losses runs down from it.",
@@ -178,21 +178,20 @@ export const data: Page = {
         },
         {
           name: "chart-bar-years",
-          caption:
-            "Gains and losses by year in the meaning colours, xTickDetail under each tick, click to pick a year.",
+          caption: "Profit and loss by year in the meaning colours, xTickDetail under each tick, click to pick a year.",
         },
         {
           name: "chart-bar-losses",
           caption: "A loss every year, running down from zero, with the negative colour in the legend.",
         },
-        { name: "chart-bar-sectors", caption: "Horizontal bars for long sector names, against an index's weights." },
+        { name: "chart-bar-teams", caption: "Horizontal bars for long team names, against the plan or last year." },
         { name: "chart-bar-flows", caption: "Stacked money in and out: out runs down from zero, in runs up." },
       ],
     },
     {
       id: "line-chart",
       title: "Line chart",
-      lead: "LineChartCard draws values over an ordered axis as lines, for comparing series such as a portfolio against its index.",
+      lead: "LineChartCard draws values over an ordered axis as lines, for comparing series such as a store against its category.",
       imports: ["LineChartCard", "type ChartSeries"],
       props: [...SERIES_PROPS, X_DOMAIN, CURVE],
       rules: [
@@ -203,7 +202,8 @@ export const data: Page = {
       examples: [
         {
           name: "chart-line",
-          caption: "A return against its index, with valueFormatter for the tooltip and yTickFormatter for the axis.",
+          caption:
+            "Sales growth against the category, with valueFormatter for the tooltip and yTickFormatter for the axis.",
         },
       ],
     },
@@ -321,7 +321,7 @@ export const data: Page = {
         {
           name: "DataTableRowCount unit",
           type: "string",
-          purpose: 'What a row is, plural: "3 of 6" while filtered, "6 holdings" when nothing is.',
+          purpose: 'What a row is, plural: "3 of 6" while filtered, "6 products" when nothing is.',
         },
         {
           name: "DataTableRowCount total",
@@ -349,7 +349,7 @@ export const data: Page = {
         "Scrolling sideways hides the figure a reader came for, on a phone and a laptop alike: mark the few answering columns meta.compact, and put DataTableCompactColumnsToggle in the toolbar to show them all and back.",
       ],
       examples: [
-        { name: "data-table", caption: "Search, a sector filter, one-click sort headers and the row count." },
+        { name: "data-table", caption: "Search, a category filter, one-click sort headers and the row count." },
         {
           name: "data-table-filters",
           caption: "Search stays in the toolbar; the other filters move into a sheet when space is narrow.",
@@ -357,7 +357,7 @@ export const data: Page = {
         {
           name: "data-table-compact",
           caption:
-            "meta.compact columns with the All columns toggle; the day's move folds under the value while hidden.",
+            "meta.compact columns with the All columns toggle; the week's change folds under the revenue while hidden.",
         },
       ],
     },
@@ -395,7 +395,8 @@ export const data: Page = {
       examples: [
         {
           name: "data-bar",
-          caption: "Value as bars to one scale, gain in the sign tone, and a sparkline of each row's last ten closes.",
+          caption:
+            "Sales as bars to one scale, change in the sign tone, and a sparkline of each store's last ten days.",
         },
       ],
     },
@@ -434,14 +435,14 @@ export const data: Page = {
         {
           name: "change-bar",
           caption:
-            "A month's change per holding, diverging around a centre line, January's values muted, with a footnote.",
+            "A month's change per region, diverging around a centre line, January's values muted, with a footnote.",
         },
       ],
     },
     {
       id: "price-chart",
       title: "PriceChart",
-      lead: "TradingView Lightweight Charts in theme colours, for a price series over time.",
+      lead: "TradingView Lightweight Charts in theme colours, for a long daily series such as a price or an order value.",
       imports: ["PriceChart"],
       props: [
         { name: "data", type: "LineData<Time>[]", purpose: "The series, as Lightweight Charts takes it." },
@@ -454,7 +455,9 @@ export const data: Page = {
         },
       ],
       rules: ["Keep the logo on one chart per page and put a credit link under that chart, as the example does."],
-      examples: [{ name: "price-chart", caption: "A year of made-up daily closes, with the credit link under it." }],
+      examples: [
+        { name: "price-chart", caption: "A year of made-up daily order values, with the credit link under it." },
+      ],
     },
     {
       id: "treemap",
@@ -498,7 +501,7 @@ export const data: Page = {
         "Heat is five steps of --positive and --negative mixed toward the card colour, the deepest at ±range.",
         'A change of null is a muted tile marked "—".',
         "Items with a group sit together under its name, which draws even for a group of one.",
-        "Give items a key when names repeat, such as one symbol at two brokers.",
+        "Give items a key when names repeat, such as one city selling through two channels.",
         "A phone has no hover, so a tap selects a tile. The selection is the page's state, so a filter that drops the item drops its ring too.",
         "TreemapLegend draws five steps of loss, no change and five of gain, each swatch naming its span on hover.",
       ],
@@ -506,7 +509,7 @@ export const data: Page = {
         {
           name: "treemap",
           caption:
-            "Holdings grouped by sector, with a hover tooltip, tap to select and the selection printed under the map.",
+            "Cities grouped by region, with a hover tooltip, tap to select and the selection printed under the map.",
         },
       ],
     },
@@ -517,11 +520,12 @@ export const data: Page = {
       imports: ["CalendarHeatmap", "WeekdayHeatmap", "StatusHeatmap"],
       rules: ["Counts fade in --chart-1."],
       examples: [
-        { name: "heatmap-calendar", caption: "A year of trading days, each coloured by its count of trades." },
-        { name: "heatmap-weekday", caption: "Orders by weekday and hour of the trading session." },
+        { name: "heatmap-calendar", caption: "A year of working days, each coloured by its count of deploys." },
+        { name: "heatmap-weekday", caption: "Support tickets by weekday and office hour." },
         {
           name: "heatmap-status",
-          caption: "Sixty days of status: healthy in quiet grey, degraded in --warning, critical in --destructive.",
+          caption:
+            "Sixty days of an API's status: healthy in quiet grey, degraded in --warning, critical in --destructive.",
         },
       ],
     },
@@ -569,11 +573,11 @@ export const data: Page = {
         "A row's detail keeps its own colour; a long label truncates before the detail does.",
       ],
       examples: [
-        { name: "bar-list", caption: "Holdings that need attention, each loss as a Delta after its name." },
-        { name: "bar-list-sides", caption: "The biggest gains and losses as two lists sharing one max." },
+        { name: "bar-list", caption: "Customers that need attention, each drop as a Delta after its name." },
+        { name: "bar-list-sides", caption: "The biggest rises and falls as two lists sharing one max." },
         {
           name: "bar-list-labels",
-          caption: "Long sector names that stay readable beside their counts in a narrow panel.",
+          caption: "Long category names that stay readable beside their counts in a narrow panel.",
         },
       ],
     },
@@ -633,7 +637,7 @@ export const data: Page = {
         { name: "distribution-bar-budget", caption: "A memory budget on a fixed 0–12 GiB scale with a limit marker." },
         {
           name: "distribution-bar-tug",
-          caption: "Closed positions' losses left of zero and gains right, with a readout of the hovered one.",
+          caption: "Finished campaigns' losses left of zero and gains right, with a readout of the hovered one.",
         },
       ],
     },
@@ -675,21 +679,21 @@ export const data: Page = {
       ],
       rules: [
         "Bands are neutral greys; never shade them red, amber and green. The bar stays foreground whether it beat the target or not; the status says which.",
-        "Keep warning for a real problem, such as drift far enough to rebalance; a plain miss is —.",
+        "Keep warning for a real problem, such as drift far enough to act on; a plain miss is —.",
         "Say how to read the bands in a line above the rows.",
         "On a card narrower than about 32rem the label and value stack above the track.",
       ],
       examples: [
         {
           name: "target-rows",
-          caption: "Asset allocation against the plan, with ±5 and ±2 point bands and a rebalance warning.",
+          caption: "Team spend against the budget, with ±5 and ±2 point bands and a review warning.",
         },
       ],
     },
     {
       id: "range-position",
       title: "Range position",
-      lead: "RangePosition shows how far a value sits between a low and a high, such as a price in its 52-week range.",
+      lead: "RangePosition shows how far a value sits between a low and a high, such as today's response time in its 30-day range.",
       imports: ["RangePosition"],
       props: [
         { name: "low, high, value", type: "number", purpose: "The range's ends and where the value sits in it." },
@@ -715,13 +719,16 @@ export const data: Page = {
       ],
       rules: [
         "A value outside the range pins the thumb to the nearer end.",
-        "In a table, sort the column by the position, (close − low) / (high − low), not by the close.",
+        "In a table, sort the column by the position, (value − low) / (high − low), not by the value.",
       ],
       examples: [
-        { name: "range-position", caption: "One stock in its 52-week range, beside the low, high and last close." },
+        {
+          name: "range-position",
+          caption: "One service in its 30-day range, beside the fastest, slowest and today's figure.",
+        },
         {
           name: "range-position-table",
-          caption: "The compact variant in a holdings table, sortable by how far up its range each one sits.",
+          caption: "The compact variant in a services table, sortable by how far up its range each one sits.",
         },
       ],
     },

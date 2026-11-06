@@ -70,7 +70,7 @@ export const overview: Page = {
   id: "overview",
   title: "Siyahi",
   icon: <HouseIcon />,
-  lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a finance theme, a few compositions, locale-aware formatters, a lint and this catalogue.",
+  lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a theme for figures, a few compositions, locale-aware formatters, a lint and this catalogue.",
   hero: <PageHeroExample />,
   // Overview is the front page: a live dashboard and the setup, read top to bottom.
   layout: "stack",

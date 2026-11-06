@@ -26,7 +26,7 @@ export default function HeatmapStatusExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Price feed</CardTitle>
+        <CardTitle>Checkout API</CardTitle>
         <CardDescription>Daily health: healthy, degraded or critical</CardDescription>
       </CardHeader>
       <CardContent>

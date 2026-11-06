@@ -41,8 +41,8 @@ describe("heatmap layout", () => {
     const { page } = catalogue;
     await page.setViewportSize({ width: 390, height: 844 });
     const legend = (slot: string) => page.locator(`[data-slot="${slot}-legend"]`).first();
-    await expect.poll(() => legend("calendar-heatmap").textContent()).toMatch(/0 trades.*5 trades/);
-    expect(await legend("weekday-heatmap").textContent()).toMatch(/0 orders.*13 orders an hour/);
+    await expect.poll(() => legend("calendar-heatmap").textContent()).toMatch(/0 deploys.*5 deploys/);
+    expect(await legend("weekday-heatmap").textContent()).toMatch(/0 tickets.*13 tickets an hour/);
     expect(await legend("status-heatmap").textContent()).toBe("HealthyDegradedCritical");
     for (const slot of ["calendar-heatmap", "weekday-heatmap", "status-heatmap"]) {
       expect(await legend(slot).isVisible()).toBe(true);

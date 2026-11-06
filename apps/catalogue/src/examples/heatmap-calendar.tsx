@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@siyahi/ui";
 
-// A year of trading days with a count of trades on each.
+// A year of working days with a count of production deploys on each.
 const data = Array.from({ length: 365 }, (_, i) => {
   const day = new Date(Date.UTC(2025, 9, 20 + i));
   const weekday = day.getUTCDay();
@@ -29,11 +29,11 @@ export default function HeatmapCalendarExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Trades per day</CardTitle>
+        <CardTitle>Deploys per day</CardTitle>
         <CardDescription>The last 12 months; counts use a single-hue fade of --chart-1</CardDescription>
       </CardHeader>
       <CardContent>
-        <CalendarHeatmap data={data} labels={{ heatmapLabel: "Trades per day over the last 12 months" }}>
+        <CalendarHeatmap data={data} labels={{ heatmapLabel: "Deploys per day over the last 12 months" }}>
           <CalendarHeatmapBody>
             {({ activity, dayIndex, weekIndex }) => (
               <CalendarHeatmapBlock
@@ -49,10 +49,10 @@ export default function HeatmapCalendarExample() {
             <div className="flex w-full flex-wrap items-center justify-between gap-x-6 gap-y-2">
               <p aria-live="polite" className="text-sm">
                 {picked
-                  ? `${picked.date}: ${count(picked.value)} trades`
-                  : "Select a day for its trade count. Use arrow keys to move between days."}
+                  ? `${picked.date}: ${count(picked.value)} deploys`
+                  : "Select a day for its deploy count. Use arrow keys to move between days."}
               </p>
-              <CalendarHeatmapLegend labels={{ less: "0 trades", more: `${count(busiest)} trades` }} />
+              <CalendarHeatmapLegend labels={{ less: "0 deploys", more: `${count(busiest)} deploys` }} />
             </div>
           </CalendarHeatmapFooter>
         </CalendarHeatmap>

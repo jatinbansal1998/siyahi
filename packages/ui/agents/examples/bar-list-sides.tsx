@@ -1,14 +1,14 @@
 import { BarList, Card, CardContent, CardDescription, CardHeader, CardTitle, useFormat } from "@siyahi/ui";
 
-// The biggest unrealised gains and losses; made-up figures.
+// This quarter's revenue against last quarter's, by city: the biggest rises and falls; made-up figures.
 const gains = [
-  { name: "INFY", value: 84000 },
-  { name: "TCS", value: 52000 },
-  { name: "HDFCBANK", value: 31000 },
+  { name: "Mumbai", value: 84000 },
+  { name: "Bengaluru", value: 52000 },
+  { name: "Pune", value: 31000 },
 ];
 const losses = [
-  { name: "ITC", value: 18400 },
-  { name: "WIPRO", value: 7600 },
+  { name: "Kolkata", value: 18400 },
+  { name: "Jaipur", value: 7600 },
 ];
 
 export default function BarListSidesExample() {
@@ -18,8 +18,8 @@ export default function BarListSidesExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>What drives the P&L</CardTitle>
-        <CardDescription>The biggest ₹ gains and losses, on one scale</CardDescription>
+        <CardTitle>What moved revenue</CardTitle>
+        <CardDescription>The biggest ₹ rises and falls by city, on one scale</CardDescription>
       </CardHeader>
       {/* Each list is a column of its own, headed and ruled off, with its figures at its own right edge, so a
           gain's figure never reads as the label of the loss beside it. */}

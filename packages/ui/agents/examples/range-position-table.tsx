@@ -16,61 +16,61 @@ import {
   type DataTableColumnDef,
 } from "@siyahi/ui";
 
-interface Holding {
-  symbol: string;
-  /** Last close and the 52-week low and high closes, in rupees; made-up figures. */
-  close: number;
+interface Service {
+  service: string;
+  /** Today's 95th-percentile response time and the fastest and slowest day of the last 30, in ms; made-up figures. */
+  today: number;
   low: number;
   high: number;
-  /** How far up its range the close sits, 0 at the low and 1 at the high, so the column sorts. */
+  /** How far up its range today sits, 0 at the fastest day and 1 at the slowest, so the column sorts. */
   position: number;
 }
 
-const holding = (symbol: string, close: number, low: number, high: number): Holding => ({
-  symbol,
-  close,
+const service = (name: string, today: number, low: number, high: number): Service => ({
+  service: name,
+  today,
   low,
   high,
-  position: (close - low) / (high - low),
+  position: (today - low) / (high - low),
 });
 
-const holdings: Holding[] = [
-  holding("NIFTYBEES", 284, 241.2, 291.8),
-  holding("INFY", 1870, 1307, 2006.45),
-  holding("ICICIBANK", 1290, 1051.05, 1362.35),
-  holding("TCS", 4150, 3591.5, 4592.25),
-  holding("ITC", 460, 399.35, 528.5),
-  holding("HDFCBANK", 1750, 1613.6, 2027.4),
+const services: Service[] = [
+  service("search", 284, 241, 292),
+  service("catalogue", 187, 131, 201),
+  service("checkout", 329, 265, 342),
+  service("images", 415, 359, 459),
+  service("payments", 460, 399, 529),
+  service("login", 175, 161, 203),
 ];
 
-function Price({ amount }: { amount: number }) {
-  return useFormat().money(amount, 2);
+function Milliseconds({ value }: { value: number }) {
+  return `${useFormat().count(value)} ms`;
 }
 
 const header = () => <DataTableSortHeader />;
 
-const columns: DataTableColumnDef<Holding>[] = [
-  { accessorKey: "symbol", header, size: 130, meta: { label: "Symbol", compact: true } },
+const columns: DataTableColumnDef<Service>[] = [
+  { accessorKey: "service", header, size: 130, meta: { label: "Service", compact: true } },
   {
-    accessorKey: "close",
+    accessorKey: "today",
     header,
     size: 120,
-    meta: { label: "Close", variant: "number" },
-    cell: ({ row }) => <Price amount={row.original.close} />,
+    meta: { label: "p95 today", variant: "number" },
+    cell: ({ row }) => <Milliseconds value={row.original.today} />,
   },
   {
     accessorKey: "position",
     header,
     size: 200,
-    meta: { label: "52-week range", compact: true },
+    meta: { label: "30-day range", compact: true },
     cell: ({ row }) => (
       <RangePosition
         variant="compact"
         low={row.original.low}
         high={row.original.high}
-        value={row.original.close}
-        lowLabel="52-week low"
-        highLabel="52-week high"
+        value={row.original.today}
+        lowLabel="30-day fastest"
+        highLabel="30-day slowest"
       />
     ),
   },
@@ -80,17 +80,17 @@ export default function RangePositionTableExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>NIFTYBEES trades near its 52-week high, HDFCBANK near its low</CardTitle>
+        <CardTitle>Search is near its slowest of the month, login near its fastest</CardTitle>
         <CardDescription>
-          Each close on a track from the year's low close to its high; sort to rank them
+          Each service's response time today on a track from its fastest day to its slowest; sort to rank them
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <DataTableRoot data={holdings} columns={columns}>
+        <DataTableRoot data={services} columns={columns}>
           <DataTableToolbarSection>
             <DataTableCompactColumnsToggle />
           </DataTableToolbarSection>
-          <DataTable aria-label="Holdings in their 52-week range">
+          <DataTable aria-label="Services in their 30-day range">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

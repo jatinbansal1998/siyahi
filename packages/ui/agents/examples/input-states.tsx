@@ -10,23 +10,23 @@ export default function InputStatesExample() {
         </label>
         <Input id="budget" inputMode="numeric" defaultValue="25,000" aria-describedby="budget-hint" />
         <p id="budget-hint" className="text-sm text-muted-foreground">
-          In rupees, before brokerage
+          In rupees, before tax
         </p>
       </div>
       <div className="grid gap-1.5">
-        <label htmlFor="folio" className="text-sm font-medium">
-          Folio number
+        <label htmlFor="pin" className="text-sm font-medium">
+          PIN code
         </label>
-        <Input id="folio" defaultValue="12/34" aria-invalid aria-describedby="folio-error" />
-        <p id="folio-error" className="text-sm text-destructive">
-          A folio is digits only, such as 1234567
+        <Input id="pin" defaultValue="56/001" aria-invalid aria-describedby="pin-error" />
+        <p id="pin-error" className="text-sm text-destructive">
+          A PIN code is six digits, such as 560001
         </p>
       </div>
       <div className="grid gap-1.5">
-        <label htmlFor="broker" className="text-sm font-medium text-muted-foreground">
-          Broker
+        <label htmlFor="team" className="text-sm font-medium text-muted-foreground">
+          Team
         </label>
-        <Input id="broker" defaultValue="Kite" disabled />
+        <Input id="team" defaultValue="Finance" disabled />
       </div>
     </div>
   );

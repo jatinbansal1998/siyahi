@@ -7,7 +7,7 @@ export default function SheetExample() {
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Filters</SheetTitle>
-          <SheetDescription>Narrow the ledger by account, symbol or date.</SheetDescription>
+          <SheetDescription>Narrow the orders by store, status or date.</SheetDescription>
         </SheetHeader>
       </SheetContent>
     </Sheet>

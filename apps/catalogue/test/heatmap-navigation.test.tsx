@@ -32,12 +32,12 @@ describe("heatmap interactions", () => {
       const date = await active.getAttribute("data-date");
       await page.keyboard.press("Enter");
       const readout = heatmap.locator("..").locator('p[aria-live="polite"]');
-      if (kind === "calendar") expect(await readout.textContent()).toBe(`${date}: ${value} trades`);
+      if (kind === "calendar") expect(await readout.textContent()).toBe(`${date}: ${value} deploys`);
       else if (kind === "status")
         expect(await readout.textContent()).toBe(
           `${date}: ${["unknown", "critical", "degraded", "healthy"][Number(value)]}`,
         );
-      else expect(await readout.textContent()).toBe(`Monday, 10:00 IST: ${value} orders`);
+      else expect(await readout.textContent()).toBe(`Monday, 10:00 IST: ${value} tickets`);
       await buttons.first().tap();
       expect(await readout.textContent()).not.toContain("Select a");
     }

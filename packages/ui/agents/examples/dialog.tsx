@@ -13,11 +13,11 @@ import {
 export default function DialogExample() {
   return (
     <Dialog>
-      <DialogTrigger render={<Button variant="outline" className="w-fit" />}>Show fills</DialogTrigger>
+      <DialogTrigger render={<Button variant="outline" className="w-fit" />}>Show parcels</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Fills for this sell</DialogTitle>
-          <DialogDescription>Each lot this sale was matched against, oldest first.</DialogDescription>
+          <DialogTitle>Parcels for this order</DialogTitle>
+          <DialogDescription>Each parcel this order was split into, earliest first.</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>Close</DialogClose>

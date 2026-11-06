@@ -1,23 +1,23 @@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@siyahi/ui";
 
-const accounts = [
-  { label: "All accounts", value: "all" },
-  { label: "Equity", value: "equity" },
-  { label: "Mutual funds", value: "funds" },
-  { label: "Bonds", value: "bonds" },
+const stores = [
+  { label: "All stores", value: "all" },
+  { label: "Online", value: "online" },
+  { label: "Retail", value: "retail" },
+  { label: "Wholesale", value: "wholesale" },
 ];
 
 export default function SelectExample() {
   return (
-    <Select items={accounts} defaultValue="all">
+    <Select items={stores} defaultValue="all">
       <SelectTrigger className="w-48">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          {accounts.map((account) => (
-            <SelectItem key={account.value} value={account.value}>
-              {account.label}
+          {stores.map((store) => (
+            <SelectItem key={store.value} value={store.value}>
+              {store.label}
             </SelectItem>
           ))}
         </SelectGroup>

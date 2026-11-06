@@ -52,8 +52,8 @@ async function pick(menu: HTMLElement, label: string): Promise<void> {
   await act(async () => item.click());
 }
 
-// The example's six holdings, under one header row.
-const holdingsShown = 6;
+// The example's six products, under one header row.
+const productsShown = 6;
 
 const firstColumn = () =>
   [...document.querySelectorAll("tbody tr")].map((row) => row.querySelector("td")?.textContent?.trim());
@@ -65,8 +65,8 @@ describe("data table surfaces", () => {
   });
 
   it("paints the pinned column in the card's colour, so it shows no stripe inside a card", () => {
-    const pinned = [...document.querySelectorAll<HTMLElement>('[data-col-id="symbol"]')];
-    expect(pinned.length).toBe(holdingsShown + 1);
+    const pinned = [...document.querySelectorAll<HTMLElement>('[data-col-id="product"]')];
+    expect(pinned.length).toBe(productsShown + 1);
     for (const cell of pinned) expect(cell.style.backgroundColor).toBe("var(--card)");
   });
 
@@ -75,7 +75,7 @@ describe("data table surfaces", () => {
   });
 
   it("rules the pinned column with a hairline at the row lines' weight", () => {
-    const pinned = document.querySelector<HTMLElement>('td[data-col-id="symbol"]');
+    const pinned = document.querySelector<HTMLElement>('td[data-col-id="product"]');
     expect(pinned?.getAttribute("style")).toContain("box-shadow: inset -1px 0 0 0 var(--border);");
   });
 
@@ -83,13 +83,13 @@ describe("data table surfaces", () => {
   // sticky header sit inside an `isolate` box; the stacking itself was checked
   // in Chromium against the catalogue.
   it("keeps its z-indexes in its own stacking context, under a page's sticky header", () => {
-    const pinned = document.querySelector('td[data-col-id="symbol"]');
+    const pinned = document.querySelector('td[data-col-id="product"]');
     expect(pinned?.closest(".isolate")).not.toBeNull();
     expect(pinned?.closest(".isolate")?.contains(document.querySelector("thead"))).toBe(true);
   });
 });
 
-// The example's holdings by value, each column with the full column menu.
+// The example's products by revenue, each column with the full column menu.
 const menuHeader = (title: string) => () => (
   <DataTableColumnHeader>
     <DataTableColumnTitle title={title} />
@@ -101,16 +101,16 @@ const menuHeader = (title: string) => () => (
 const menuTable = (
   <DataTableRoot
     data={[
-      { symbol: "INFY", value: 224400 },
-      { symbol: "HDFCBANK", value: 262500 },
-      { symbol: "TCS", value: 166000 },
-      { symbol: "ITC", value: 276000 },
-      { symbol: "ICICIBANK", value: 258000 },
-      { symbol: "NIFTYBEES", value: 255600 },
+      { product: "Standing desk", revenue: 224400 },
+      { product: "Office chair", revenue: 262500 },
+      { product: "Bookshelf", revenue: 166000 },
+      { product: "Dinner set", revenue: 276000 },
+      { product: "Kids chair", revenue: 258000 },
+      { product: "Desk lamp", revenue: 255600 },
     ]}
     columns={[
-      { accessorKey: "symbol", header: menuHeader("Symbol") },
-      { accessorKey: "value", header: menuHeader("Value"), meta: { variant: "number" } },
+      { accessorKey: "product", header: menuHeader("Product") },
+      { accessorKey: "revenue", header: menuHeader("Revenue"), meta: { variant: "number" } },
     ]}
   >
     <DataTable>
@@ -122,19 +122,19 @@ const menuTable = (
 
 describe("data table column menus", () => {
   it("DataTableColumnActions opens with its labels and sorts the column", async () => {
-    const menu = await openColumnMenu(menuTable, "Value");
+    const menu = await openColumnMenu(menuTable, "Revenue");
     expect(menu.textContent).toContain("Column Actions");
     expect(menu.textContent).toContain("Column Sort");
     await pick(menu, "High to Low");
-    expect(firstColumn().slice(0, 3)).toEqual(["ITC", "HDFCBANK", "ICICIBANK"]);
+    expect(firstColumn().slice(0, 3)).toEqual(["Dinner set", "Office chair", "Kids chair"]);
   });
 
   it("DataTableColumnActions opens again after Escape closes it, with both labels", async () => {
-    let menu = await openColumnMenu(menuTable, "Value");
+    let menu = await openColumnMenu(menuTable, "Revenue");
     for (let round = 0; round < 2; round++) {
       await act(async () => menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
       expect(document.querySelector('[role="menu"]')).toBeNull();
-      menu = await reopenColumnMenu("Value");
+      menu = await reopenColumnMenu("Revenue");
     }
     const groups = [...menu.querySelectorAll('[role="group"]')];
     expect(groups.map((g) => document.getElementById(g.getAttribute("aria-labelledby") ?? "")?.textContent)).toEqual([
@@ -142,34 +142,37 @@ describe("data table column menus", () => {
       "Column Sort",
     ]);
     await pick(menu, "High to Low");
-    expect(firstColumn().slice(0, 3)).toEqual(["ITC", "HDFCBANK", "ICICIBANK"]);
+    expect(firstColumn().slice(0, 3)).toEqual(["Dinner set", "Office chair", "Kids chair"]);
   });
 
   it("DataTableColumnSortMenu opens on its own and sorts the column", async () => {
-    const columns: DataTableColumnDef<{ symbol: string }>[] = [
+    const columns: DataTableColumnDef<{ product: string }>[] = [
       {
-        accessorKey: "symbol",
-        meta: { label: "Symbol" },
+        accessorKey: "product",
+        meta: { label: "Product" },
         header: () => (
           <DataTableColumnHeader>
-            <DataTableColumnTitle title="Symbol" />
+            <DataTableColumnTitle title="Product" />
             <DataTableColumnSortMenu />
           </DataTableColumnHeader>
         ),
       },
     ];
     const table = (
-      <DataTableRoot data={[{ symbol: "INFY" }, { symbol: "ITC" }, { symbol: "TCS" }]} columns={columns}>
+      <DataTableRoot
+        data={[{ product: "Bookshelf" }, { product: "Dinner set" }, { product: "Standing desk" }]}
+        columns={columns}
+      >
         <DataTable>
           <DataTableHeader />
           <DataTableBody />
         </DataTable>
       </DataTableRoot>
     );
-    const menu = await openColumnMenu(table, "Symbol");
+    const menu = await openColumnMenu(table, "Product");
     expect(menu.textContent).toContain("Column Sort");
     await pick(menu, "Desc");
-    expect(firstColumn()).toEqual(["TCS", "ITC", "INFY"]);
+    expect(firstColumn()).toEqual(["Standing desk", "Dinner set", "Bookshelf"]);
   });
 });
 
@@ -184,24 +187,24 @@ describe("data table toolbar and sort header", () => {
   });
 
   it("DataTableSortHeader sorts largest first on one click, then smallest", async () => {
-    expect(sortButton("Value")?.textContent).toBe("Value");
-    await act(async () => sortButton("Value")?.click());
-    expect(firstColumn().slice(0, 3)).toEqual(["ITC", "HDFCBANK", "ICICIBANK"]);
-    expect(sortButton("Value")?.textContent).toBe("Value, sorted descending");
-    await act(async () => sortButton("Value")?.click());
-    expect(firstColumn().slice(0, 3)).toEqual(["TCS", "INFY", "NIFTYBEES"]);
-    expect(sortButton("Value")?.textContent).toBe("Value, sorted ascending");
+    expect(sortButton("Revenue")?.textContent).toBe("Revenue");
+    await act(async () => sortButton("Revenue")?.click());
+    expect(firstColumn().slice(0, 3)).toEqual(["Dinner set", "Office chair", "Kids chair"]);
+    expect(sortButton("Revenue")?.textContent).toBe("Revenue, sorted descending");
+    await act(async () => sortButton("Revenue")?.click());
+    expect(firstColumn().slice(0, 3)).toEqual(["Bookshelf", "Standing desk", "Desk lamp"]);
+    expect(sortButton("Revenue")?.textContent).toBe("Revenue, sorted ascending");
   });
 
   it("DataTableRowCount counts the rows the search leaves, named by the search's label", async () => {
-    expect(rowCount()).toBe("6 holdings");
-    const search = document.querySelector<HTMLInputElement>('input[aria-label="Filter holdings"]');
-    if (!search) throw new Error("no search field labelled Filter holdings");
+    expect(rowCount()).toBe("6 products");
+    const search = document.querySelector<HTMLInputElement>('input[aria-label="Filter products"]');
+    if (!search) throw new Error("no search field labelled Filter products");
     await act(async () => {
-      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(search, "bank");
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(search, "chair");
       search.dispatchEvent(new Event("input", { bubbles: true }));
     });
-    expect(firstColumn()).toEqual(["HDFCBANK", "ICICIBANK"]);
+    expect(firstColumn()).toEqual(["Office chair", "Kids chair"]);
     expect(rowCount()).toBe("2 of 6");
   });
 });
