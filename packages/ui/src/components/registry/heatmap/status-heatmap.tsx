@@ -6,6 +6,7 @@
 // Siyahi edit: without a blockAspectRatio the strip spans its width: bars are
 // as wide as an equal share allows, and the padding is just room for a focus ring.
 // Siyahi edit: legend swatches keep one size however narrow the bars get.
+// Siyahi edit: legend entries sit gap-3 apart, so each label stays with its own swatch.
 // Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
 // ring in the text colour and announced as pressed, as a Treemap tile is.
 import type { Locale } from "date-fns";
@@ -622,7 +623,7 @@ export const StatusHeatmapLegend = ({
     <fieldset
       data-slot="status-heatmap-legend"
       aria-label={labels.legendLabel ?? "Status legend"}
-      className={cn("ml-auto flex items-center gap-1", className)}
+      className={cn("ml-auto flex items-center gap-3", className)}
       {...props}
     >
       {statuses.map((status) =>

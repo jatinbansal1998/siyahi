@@ -8,8 +8,8 @@ export default function CollapsibleExample() {
         <ChevronsUpDownIcon />
         How lots are matched
       </CollapsibleTrigger>
-      <CollapsibleContent className="text-muted-foreground">
-        Sells are matched to the oldest buy first, as the tax rules require.
+      <CollapsibleContent>
+        <p className="text-muted-foreground">Sells are matched to the oldest buy first, as the tax rules require.</p>
       </CollapsibleContent>
     </Collapsible>
   );

@@ -32,6 +32,10 @@
     gamut.
 - Corners are shadcn's "small" radius, `--radius: 0.45rem` (was `0.625rem`):
   cards round at 10px (was 14px), buttons and inputs at 7px (was 10px).
+- Lint: `siyahi/no-restyle` (shadcn's `no-restyle`) rejects classes that change
+  a component's spacing, colour, shape or type; pages may only place it. Add
+  `"siyahi/no-restyle": "error"` to an app's oxlint rules. The catalogue's
+  examples now style plain wrappers instead of the components.
 - Design review batch (#57), from ten rounds of independent design reviews:
   - Tables fit their width: columns marked `meta.compact` stay and the rest
     hide from the right behind `DataTableCompactColumnsToggle` ("All columns

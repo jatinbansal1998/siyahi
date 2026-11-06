@@ -12,14 +12,15 @@ const oxlint = path.join(tools, "node_modules/.bin/oxlint");
 /**
  * Lints one file with only the siyahi rules and returns the rule names that fired.
  * @param {string} source
+ * @param {object} [settings] oxlint settings, such as shadcn's, which tell it where components come from
  * @returns {string[]}
  */
-function lint(source) {
+function lint(source, settings = {}) {
   const dir = mkdtempSync(path.join(tmpdir(), "siyahi-lint-"));
   writeFileSync(path.join(dir, "page.tsx"), source);
   writeFileSync(
     path.join(dir, "oxlintrc.json"),
-    JSON.stringify({ jsPlugins: [path.join(tools, "lint/index.mjs")], rules: recommended }),
+    JSON.stringify({ jsPlugins: [path.join(tools, "lint/index.mjs")], settings, rules: recommended }),
   );
   let output = "";
   try {
@@ -94,6 +95,16 @@ describe("siyahi lint rules", () => {
         `${IMPORT}export const A = () => <Card className="bg-card text-sm text-positive" style={{ color: "var(--chart-1)" }} />;`,
       ),
     ).toEqual([]);
+  });
+
+  it("reports a component restyled with spacing, colour or shape, and lets layout through", () => {
+    const shadcn = { shadcn: { ui: "@siyahi/ui" } };
+    expect(lint(`${IMPORT}export const A = () => <Card className="p-4 bg-muted rounded-none" />;`, shadcn)).toEqual([
+      "no-restyle",
+      "no-restyle",
+      "no-restyle",
+    ]);
+    expect(lint(`${IMPORT}export const A = () => <Card className="mt-4 w-full md:col-span-2" />;`, shadcn)).toEqual([]);
   });
 
   it("leaves files that do not import @siyahi/ui alone", () => {

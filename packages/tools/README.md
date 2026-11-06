@@ -12,14 +12,15 @@ that import `@siyahi/ui`.
 npm install --save-dev @siyahi/tools@next oxlint
 ```
 
-| Rule                          | Rejects                                                                                                             |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `siyahi/no-color-literal`     | hex, `rgb()`, `hsl()`, `oklch()` and other colour literals in strings                                               |
-| `siyahi/no-scheme-variant`    | `dark:` and `light:` Tailwind variants                                                                              |
-| `siyahi/no-numeric-font-size` | `fontSize: 13`, `fontSize="12px"`                                                                                   |
-| `siyahi/no-chart-theme-map`   | a chart config `theme: { light, dark }` map; shadcn's chart applies the dark half only under a `.dark` class        |
-| `siyahi/no-raw-colors`        | Tailwind palette colours such as `bg-pink-500` ([@shadcn/lint](https://github.com/shadcn-ui/lint))                  |
-| `siyahi/no-arbitrary-values`  | arbitrary values such as `text-[13px]`, `w-[37px]`, `bg-[#fff]` ([@shadcn/lint](https://github.com/shadcn-ui/lint)) |
+| Rule                          | Rejects                                                                                                                                                         |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `siyahi/no-color-literal`     | hex, `rgb()`, `hsl()`, `oklch()` and other colour literals in strings                                                                                           |
+| `siyahi/no-scheme-variant`    | `dark:` and `light:` Tailwind variants                                                                                                                          |
+| `siyahi/no-numeric-font-size` | `fontSize: 13`, `fontSize="12px"`                                                                                                                               |
+| `siyahi/no-chart-theme-map`   | a chart config `theme: { light, dark }` map; shadcn's chart applies the dark half only under a `.dark` class                                                    |
+| `siyahi/no-raw-colors`        | Tailwind palette colours such as `bg-pink-500` ([@shadcn/lint](https://github.com/shadcn-ui/lint))                                                              |
+| `siyahi/no-arbitrary-values`  | arbitrary values such as `text-[13px]`, `w-[37px]`, `bg-[#fff]` ([@shadcn/lint](https://github.com/shadcn-ui/lint))                                             |
+| `siyahi/no-restyle`           | classes that change a component's spacing, colour, shape or type, such as `<CardContent className="gap-4">` ([@shadcn/lint](https://github.com/shadcn-ui/lint)) |
 
 ```json
 {
@@ -31,10 +32,19 @@ npm install --save-dev @siyahi/tools@next oxlint
     "siyahi/no-numeric-font-size": "error",
     "siyahi/no-chart-theme-map": "error",
     "siyahi/no-raw-colors": "error",
-    "siyahi/no-arbitrary-values": "error"
+    "siyahi/no-arbitrary-values": "error",
+    "siyahi/no-restyle": "error"
   }
 }
 ```
+
+`siyahi/no-restyle` lets a page place a component (margin, width, grid and
+flex placement) and nothing else; `Collapsible` and `CollapsibleContent`, which
+draw nothing of their own, may also take spacing. Put anything else on a plain
+element inside or around the component: `<CardContent><div className="flex
+flex-col gap-4">`, `<TableCell><span className="font-mono">`,
+`<div className="rounded-lg border"><Command>`. Body text is already
+`tabular-nums`, so cells need no class for it.
 
 A Vite+ or ESLint config can spread every rule at once:
 `import { recommended } from "@siyahi/tools/lint"`.

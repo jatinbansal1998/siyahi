@@ -32,7 +32,9 @@ export default function AppSidebarExample() {
   return (
     // In an app, AppSidebar sits fixed at the edge; collapsible="none" draws it in place here.
     <SidebarProvider className="min-h-0">
-      <AppSidebar collapsible="none" navMain={views} navLabel="Views" className="rounded-lg border" />
+      <div className="flex overflow-hidden rounded-lg border">
+        <AppSidebar collapsible="none" navMain={views} navLabel="Views" />
+      </div>
     </SidebarProvider>
   );
 }

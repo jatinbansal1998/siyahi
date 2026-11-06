@@ -41,14 +41,16 @@ export default function HeatmapStatusExample() {
               />
             )}
           </StatusHeatmapBody>
-          <StatusHeatmapFooter className="items-center justify-between gap-x-6 gap-y-2 whitespace-normal">
-            <p aria-live="polite" className="text-sm">
-              {picked
-                ? `${picked.date}: ${["unknown", "critical", "degraded", "healthy"][picked.value] ?? "unknown"}`
-                : "Select a day for its health. Use arrow keys to move between days."}
-            </p>
-            {/* No day lacks data, so the legend leaves out "No Data". */}
-            <StatusHeatmapLegend className="gap-3" />
+          <StatusHeatmapFooter className="whitespace-normal">
+            <div className="flex w-full flex-wrap items-center justify-between gap-x-6 gap-y-2">
+              <p aria-live="polite" className="text-sm">
+                {picked
+                  ? `${picked.date}: ${["unknown", "critical", "degraded", "healthy"][picked.value] ?? "unknown"}`
+                  : "Select a day for its health. Use arrow keys to move between days."}
+              </p>
+              {/* No day lacks data, so the legend leaves out "No Data". */}
+              <StatusHeatmapLegend />
+            </div>
           </StatusHeatmapFooter>
         </StatusHeatmap>
       </CardContent>

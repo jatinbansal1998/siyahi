@@ -1,8 +1,8 @@
 // @ts-check
 // Oxlint (and ESLint) plugin `siyahi`. Every rule runs only in files that
 // import `@siyahi/ui`, so pages written before Siyahi stay outside the rules
-// without any configuration. Two rules come from @shadcn/lint as they are;
-// the other three cover what it does not check.
+// without any configuration. Three rules come from @shadcn/lint; the other
+// four cover what it does not check.
 import { plugin as shadcn } from "@shadcn/lint";
 
 /** @typedef {{ sourceCode: { text: string }, report: (problem: { node: unknown, message: string }) => void }} Context */
@@ -138,6 +138,31 @@ const noChartThemeMap = {
   }),
 };
 
+/**
+ * Options for shadcn's no-restyle, so every app gets the same policy from
+ * `"siyahi/no-restyle": "error"` alone. Pages may place a component (margin,
+ * width, grid and flex placement); its spacing, colour, shape and type stay
+ * the component's. Primitives with no styles of their own are open.
+ */
+const RESTYLE = {
+  allow: ["layout"],
+  contracts: [{ pattern: "^(Collapsible|CollapsibleContent)$", allow: ["layout", "spacing"] }],
+};
+
+/**
+ * Runs `rule` with `options` unless the config passes its own.
+ * @param {Rule} rule
+ * @param {object} options
+ * @returns {Rule}
+ */
+function withOptions(rule, options) {
+  return {
+    ...rule,
+    create: (context) =>
+      rule.create(context.options?.length ? context : Object.create(context, { options: { value: [options] } })),
+  };
+}
+
 /** @type {{ meta: { name: string }, rules: Record<string, Rule> }} */
 const plugin = {
   meta: { name: "siyahi" },
@@ -148,6 +173,7 @@ const plugin = {
     "no-chart-theme-map": scoped(noChartThemeMap),
     "no-raw-colors": scoped(shadcn.rules["no-raw-colors"]),
     "no-arbitrary-values": scoped(shadcn.rules["no-arbitrary-values"]),
+    "no-restyle": scoped(withOptions(shadcn.rules["no-restyle"], RESTYLE)),
   },
 };
 

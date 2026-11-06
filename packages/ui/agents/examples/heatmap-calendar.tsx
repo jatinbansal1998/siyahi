@@ -45,13 +45,15 @@ export default function HeatmapCalendarExample() {
               />
             )}
           </CalendarHeatmapBody>
-          <CalendarHeatmapFooter className="items-center justify-between gap-x-6 gap-y-2 whitespace-normal">
-            <p aria-live="polite" className="text-sm">
-              {picked
-                ? `${picked.date}: ${count(picked.value)} trades`
-                : "Select a day for its trade count. Use arrow keys to move between days."}
-            </p>
-            <CalendarHeatmapLegend labels={{ less: "0 trades", more: `${count(busiest)} trades` }} />
+          <CalendarHeatmapFooter className="whitespace-normal">
+            <div className="flex w-full flex-wrap items-center justify-between gap-x-6 gap-y-2">
+              <p aria-live="polite" className="text-sm">
+                {picked
+                  ? `${picked.date}: ${count(picked.value)} trades`
+                  : "Select a day for its trade count. Use arrow keys to move between days."}
+              </p>
+              <CalendarHeatmapLegend labels={{ less: "0 trades", more: `${count(busiest)} trades` }} />
+            </div>
           </CalendarHeatmapFooter>
         </CalendarHeatmap>
       </CardContent>

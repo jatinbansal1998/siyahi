@@ -39,34 +39,31 @@ export default function HeatmapWeekdayExample() {
       {/* Seven hours by five days is a small grid: capped, it keeps square cells, and the legend and the answer
           sit beside it instead of a wide empty card. */}
       <CardContent>
-        <WeekdayHeatmap
-          data={data}
-          hours={[9, 10, 11, 12, 13, 14, 15]}
-          weekdays={[1, 2, 3, 4, 5]}
-          className="gap-4 lg:flex-row lg:items-center lg:gap-8"
-        >
-          <WeekdayHeatmapBody className="lg:w-md lg:shrink-0">
-            {({ activity }) => (
-              <WeekdayHeatmapBlock
-                activity={activity}
-                selected={isPicked(activity)}
-                onCellClick={(cell) => setPicked(isPicked(cell) ? null : cell)}
+        <WeekdayHeatmap data={data} hours={[9, 10, 11, 12, 13, 14, 15]} weekdays={[1, 2, 3, 4, 5]}>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-8">
+            <WeekdayHeatmapBody className="lg:w-md lg:shrink-0">
+              {({ activity }) => (
+                <WeekdayHeatmapBlock
+                  activity={activity}
+                  selected={isPicked(activity)}
+                  onCellClick={(cell) => setPicked(isPicked(cell) ? null : cell)}
+                />
+              )}
+            </WeekdayHeatmapBody>
+            <div className="flex flex-col items-start gap-3 text-sm">
+              <WeekdayHeatmapLegend
+                className="ml-0"
+                labels={{ less: "0 orders", more: `${count(busiest.value)} orders an hour` }}
               />
-            )}
-          </WeekdayHeatmapBody>
-          <div className="flex flex-col items-start gap-3 text-sm">
-            <WeekdayHeatmapLegend
-              className="ml-0"
-              labels={{ less: "0 orders", more: `${count(busiest.value)} orders an hour` }}
-            />
-            <p>
-              Busiest: {DAYS[busiest.weekday]} at {hourLabel(busiest.hour)}, {count(busiest.value)} orders
-            </p>
-            <p aria-live="polite" className="text-muted-foreground">
-              {picked
-                ? `${DAYS[picked.weekday]}, ${hourLabel(picked.hour)} IST: ${count(picked.value)} orders`
-                : "Select a cell for its order count. Use arrow keys to move between cells."}
-            </p>
+              <p>
+                Busiest: {DAYS[busiest.weekday]} at {hourLabel(busiest.hour)}, {count(busiest.value)} orders
+              </p>
+              <p aria-live="polite" className="text-muted-foreground">
+                {picked
+                  ? `${DAYS[picked.weekday]}, ${hourLabel(picked.hour)} IST: ${count(picked.value)} orders`
+                  : "Select a cell for its order count. Use arrow keys to move between cells."}
+              </p>
+            </div>
           </div>
         </WeekdayHeatmap>
       </CardContent>

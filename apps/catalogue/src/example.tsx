@@ -12,6 +12,7 @@ import {
 import {
   Button,
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -57,38 +58,37 @@ function Example({ name, caption }: ExampleSpec) {
   const Source = code[path];
   if (!Component || !Source) throw new Error(`no example ${path}`);
   return (
-    <Collapsible
-      open={open}
-      onOpenChange={setOpen}
-      data-slot="example"
-      // Every frame takes the page's width, as the import line and props table do, so the page has one right edge.
-      className="flex min-w-0 flex-col overflow-hidden rounded-xl border bg-card"
-    >
-      <div className="flex items-center justify-between gap-2 border-b px-3 py-1.5">
-        <div className="flex min-w-0 flex-col">
-          <span className="text-sm">{caption}</span>
-          <code className="truncate font-mono text-xs text-muted-foreground">examples/{name}.tsx</code>
+    // Every frame takes the page's width, as the import line and props table do, so the page has one right edge.
+    <div data-slot="example" className="min-w-0 overflow-hidden rounded-xl border bg-card">
+      <Collapsible open={open} onOpenChange={setOpen} className="flex min-w-0 flex-col">
+        <div className="flex items-center justify-between gap-2 border-b px-3 py-1.5">
+          <div className="flex min-w-0 flex-col">
+            <span className="text-sm">{caption}</span>
+            <code className="truncate font-mono text-xs text-muted-foreground">examples/{name}.tsx</code>
+          </div>
+          <CollapsibleTrigger render={<Button variant="ghost" size="sm" />}>
+            <CodeIcon />
+            {open ? "Hide source" : "Show source"}
+          </CollapsibleTrigger>
         </div>
-        <CollapsibleTrigger render={<Button variant="ghost" size="sm" />}>
-          <CodeIcon />
-          {open ? "Hide source" : "Show source"}
-        </CollapsibleTrigger>
-      </div>
-      <div data-open={open || undefined} className="grid min-w-0 items-start data-open:xl:grid-cols-2">
-        {/* The well is the page's canvas, so a card inside it sits raised in both schemes; a muted wash was lighter
+        <div data-open={open || undefined} className="grid min-w-0 items-start data-open:xl:grid-cols-2">
+          {/* The well is the page's canvas, so a card inside it sits raised in both schemes; a muted wash was lighter
             than the card in dark, and the cards looked sunk into a tray. */}
-        <div data-slot="example-preview" className="flex min-w-0 flex-col gap-4 bg-background p-4 md:p-6">
-          <Component />
+          <div data-slot="example-preview" className="flex min-w-0 flex-col gap-4 bg-background p-4 md:p-6">
+            <Component />
+          </div>
+          <CollapsibleContent className="min-w-0">
+            <div className="border-t xl:border-t-0 xl:border-l">
+              {open && (
+                <Suspense fallback={<Skeleton className="h-96" />}>
+                  <Source />
+                </Suspense>
+              )}
+            </div>
+          </CollapsibleContent>
         </div>
-        <CollapsibleContent className="min-w-0 border-t xl:border-t-0 xl:border-l">
-          {open && (
-            <Suspense fallback={<Skeleton className="h-96" />}>
-              <Source />
-            </Suspense>
-          )}
-        </CollapsibleContent>
-      </div>
-    </Collapsible>
+      </Collapsible>
+    </div>
   );
 }
 
@@ -119,40 +119,42 @@ function TypeText({ type }: { type: string }) {
 
 function PropsTable({ rows }: { rows: PropRow[] }) {
   return (
-    <Card className="py-0">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="pl-4">Prop and type</TableHead>
-            <TableHead className="hidden sm:table-cell">Default</TableHead>
-            <TableHead className="hidden pr-4 sm:table-cell">What it does</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.name}>
-              <TableCell className="pl-4 align-top whitespace-normal">
-                <div className="font-mono font-medium">{row.name}</div>
-                <div className="font-mono text-xs text-muted-foreground">
-                  <TypeText type={row.type} />
-                </div>
-                {/* Three columns do not fit a phone: the default and purpose follow the type in the one cell. */}
-                <div className="mt-1 font-mono text-xs text-muted-foreground sm:hidden">
-                  Default: {row.default ?? "required"}
-                </div>
-                <div className="mt-1 pr-4 sm:hidden">{row.purpose}</div>
-              </TableCell>
-              {/* 2px lower, so the smaller default sits on the prop name's baseline. */}
-              <TableCell className="hidden pt-2.5 align-top font-mono text-xs whitespace-normal text-muted-foreground sm:table-cell">
-                {row.default ?? "required"}
-              </TableCell>
-              <TableCell className="hidden min-w-48 pr-4 align-top whitespace-normal sm:table-cell">
-                {row.purpose}
-              </TableCell>
+    <Card>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Prop and type</TableHead>
+              <TableHead className="hidden sm:table-cell">Default</TableHead>
+              <TableHead className="hidden sm:table-cell">What it does</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow key={row.name}>
+                <TableCell className="align-top whitespace-normal">
+                  <div className="font-mono font-medium">{row.name}</div>
+                  <div className="font-mono text-xs text-muted-foreground">
+                    <TypeText type={row.type} />
+                  </div>
+                  {/* Three columns do not fit a phone: the default and purpose follow the type in the one cell. */}
+                  <div className="mt-1 font-mono text-xs text-muted-foreground sm:hidden">
+                    Default: {row.default ?? "required"}
+                  </div>
+                  <div className="mt-1 sm:hidden">{row.purpose}</div>
+                </TableCell>
+                {/* 2px lower, so the smaller default sits on the prop name's baseline. */}
+                <TableCell className="hidden align-top whitespace-normal sm:table-cell">
+                  <div className="pt-0.5 font-mono text-xs text-muted-foreground">{row.default ?? "required"}</div>
+                </TableCell>
+                <TableCell className="hidden min-w-48 align-top whitespace-normal sm:table-cell">
+                  {row.purpose}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
   );
 }
@@ -317,11 +319,16 @@ export function FamilyIndex({ page }: { page: Page }) {
         const count = family.examples?.length ?? 0;
         const first = family.examples?.[0];
         return (
-          <li key={family.id} className="flex">
+          // The hover and focus ring sit on the item, which shares the card's corner, so the card stays stock.
+          <li
+            key={family.id}
+            className="flex rounded-xl transition-shadow has-[a:hover]:ring-1 has-[a:hover]:ring-foreground/25 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50"
+          >
             {/* Only the title is a link, stretched over the card: the live preview holds links of its own, and a link
                 inside a link is invalid. */}
             <Card
-              className={`relative w-full transition-colors has-[a:hover]:ring-foreground/25 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50 ${first ? "pt-0" : ""}`}
+              // oxlint-disable-next-line siyahi/no-restyle -- the live preview runs to the top edge, as Card does for an <img>.
+              className={`relative w-full ${first ? "pt-0" : ""}`}
             >
               {first && <Preview name={first.name} />}
               <CardHeader>

@@ -76,6 +76,12 @@ export default defineConfig({
         files: ["apps/catalogue/src/**", "packages/ui/src/components/siyahi/**", "packages/ui/src/lib/**"],
         rules: siyahiRules,
       },
+      {
+        // Siyahi's own compositions are the design system: styling the
+        // components they wrap is their job, not a restyle.
+        files: ["packages/ui/src/**"],
+        rules: { "siyahi/no-restyle": "off" },
+      },
     ],
     options: {
       reportUnusedDisableDirectives: "error",

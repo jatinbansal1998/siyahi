@@ -75,8 +75,10 @@ function Dashboard() {
               <TableBody>
                 {holdings.map((row) => (
                   <TableRow key={row.symbol}>
-                    <TableCell className="font-mono">{row.symbol}</TableCell>
-                    <TableCell className="tabular-nums">{money(row.value)}</TableCell>
+                    <TableCell>
+                      <span className="font-mono">{row.symbol}</span>
+                    </TableCell>
+                    <TableCell>{money(row.value)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
