@@ -502,15 +502,18 @@ describe("chart cards", { timeout: 60_000 }, () => {
     const chart = card("Realized by financial year");
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
-    // A faded bar mixes toward the card, opaque, so it stays readable on a dark card.
+    // A faded bar's interior mixes further toward the card; its outline stays at full colour, so it keeps 3:1.
     const faded = async () => {
       await settled(bars);
-      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("stroke") ?? "").startsWith("color-mix")));
+      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("fill") ?? "").includes(" 15%")));
     };
     const none = [false, false, false, false, false];
     expect(await faded()).toEqual(none);
     await bars.nth(2).click();
     expect(await faded()).toEqual([true, true, false, true, true]);
+    expect(await bars.evaluateAll((els) => els.every((el) => el.getAttribute("stroke")?.startsWith("var(--")))).toBe(
+      true,
+    );
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await bars.nth(2).click();
     expect(await faded()).toEqual(none);
@@ -530,9 +533,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await page.mouse.click(x, grid.y + 2);
     await expect
-      .poll(() =>
-        bars.evaluateAll((els) => els.some((el) => (el.getAttribute("stroke") ?? "").startsWith("color-mix"))),
-      )
+      .poll(() => bars.evaluateAll((els) => els.some((el) => (el.getAttribute("fill") ?? "").includes(" 15%"))))
       .toBe(false);
   });
 

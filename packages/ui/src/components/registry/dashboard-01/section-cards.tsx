@@ -37,6 +37,8 @@
 // figures stays dense; the stock 16px padding and 30px figure ran a six-tile
 // block taller than the reading it summed up. The spacing is set, not
 // size="sm", which would also shrink the figure to 14px.
+// Siyahi edit: a selectable tile focuses with an opaque ring, its only focus
+// sign; the half-strength ring was under 2:1 against the card.
 "use client"
 
 import * as React from "react"
@@ -111,7 +113,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
                   aria-pressed={item.label === selected}
                   disabled={item.disabled}
                   onClick={() => onSelect(item.label)}
-                  className="absolute inset-0 z-10 rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
+                  className="absolute inset-0 z-10 rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-inset"
                 />
               )}
               <CardHeader>

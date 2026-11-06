@@ -1,90 +1,176 @@
 #!/usr/bin/env node
 // @ts-check
-// Fails when a theme colour is too faint to read: 4.5:1 for text on the
-// canvas and the card and for a foreground on its own fill, 3:1 for chart
-// colours against the card and against the slot next to them. Slots two apart
-// share a lightness and are told apart by hue, so they are not compared. Chart
-// colours must also sit inside sRGB, so the browser paints what was scored.
+// Fails when a theme colour is too faint where Siyahi's components paint it:
+// 4.5:1 for text, 3:1 for a mark a reader needs (a control's edge, a focus
+// ring, a selected tab, a chart mark). Each pair is checked on both surfaces a
+// block can sit on, the canvas and the card, with translucent fills blended
+// over that surface as the browser paints them. Chart slots two apart share a
+// lightness and are told apart by hue, so they are not compared. Every colour
+// must also sit inside sRGB, so the browser paints what was scored.
 //
 //   siyahi-contrast styles/siyahi.css
 import { readFileSync, realpathSync } from "node:fs";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
-import { contrast, inSrgb, parseOklch, toHex } from "./color.mjs";
+import { contrastSrgb, inSrgb, mixOklab, oklchToSrgb, over, parseOklch, srgbHex } from "./color.mjs";
 import { readTheme } from "./theme.mjs";
 
 /** @typedef {import("./theme.mjs").Theme} Theme */
-/** @typedef {{ scheme: "light" | "dark", fg: string, bg: string, ratio: number, min: number }} Check */
+/** @typedef {import("./color.mjs").Oklch} Oklch */
+/** @typedef {"light" | "dark"} Scheme */
+/** @typedef {{ scheme: Scheme, fg: string, bg: string, fgHex: string, bgHex: string, ratio: number, min: number }} Check */
+/**
+ * What a component paints, written as Tailwind writes it:
+ * `muted` is the token, `muted/50` the token at 50% over what lies under it,
+ * and `positive@60` is `color-mix(in oklab, var(--positive) 60%, var(--card))`,
+ * a treemap tile.
+ * @typedef {string} Paint
+ */
+/** @typedef {{ fg: Paint, bg: Paint, min: number, scheme?: Scheme }} Pair */
 
-const TEXT = ["foreground", "muted-foreground", "positive", "negative", "warning", "link", "destructive"];
+const TEXT = 4.5;
+const MARK = 3;
 const SURFACES = ["background", "card"];
-const FILLS = [
-  ["card-foreground", "card"],
-  ["popover-foreground", "popover"],
-  ["primary-foreground", "primary"],
-  ["secondary-foreground", "secondary"],
-  ["accent-foreground", "accent"],
-  ["positive-foreground", "positive"],
-  ["negative-foreground", "negative"],
-  ["warning-foreground", "warning"],
-  ["sidebar-foreground", "sidebar"],
-];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
+
+/**
+ * The light label on each treemap heat step, both sides.
+ * @param {Scheme} scheme @param {number[]} shares
+ * @returns {Pair[]}
+ */
+const heatLabels = (scheme, shares) =>
+  ["positive", "negative"].flatMap((side) =>
+    shares.map((share) => ({ fg: "foreground", bg: `${side}@${share}`, min: TEXT, scheme })),
+  );
+
+/** @type {Pair[]} */
+const PAIRS = [
+  // Text on the page and on each token's own fill.
+  ...["foreground", "muted-foreground", "positive", "negative", "warning", "link", "destructive"].map((fg) => ({
+    fg,
+    bg: "",
+    min: TEXT,
+  })),
+  ...[
+    ["card-foreground", "card"],
+    ["popover-foreground", "popover"],
+    ["primary-foreground", "primary"],
+    ["secondary-foreground", "secondary"],
+    ["accent-foreground", "accent"],
+    ["positive-foreground", "positive"],
+    ["negative-foreground", "negative"],
+    ["warning-foreground", "warning"],
+    ["sidebar-foreground", "sidebar"],
+    ["sidebar-primary-foreground", "sidebar-primary"],
+    ["sidebar-accent-foreground", "sidebar-accent"],
+    // A selected toggle or tab: the foreground fill with the canvas colour as text.
+    ["background", "foreground"],
+  ].map(([fg = "", bg = ""]) => ({ fg, bg, min: TEXT })),
+  // Muted text on the fills it sits on: avatar initials and highlighted code
+  // lines (muted), a neutral Callout, CardFooter and the command field
+  // (muted/50), a Quote's source (muted/60), the accent, warning, positive and
+  // negative Callouts and WarningAlert, a removed code line (destructive/10).
+  ...["muted", "muted/50", "muted/60", "chart-1/8", "warning/10", "positive/8", "negative/8", "destructive/10"].map(
+    (bg) => ({ fg: "muted-foreground", bg, min: TEXT }),
+  ),
+  // A destructive button or badge: its tint at rest and on hover, a light
+  // menu item's focus, and a dark input's own fill under its text.
+  { fg: "destructive", bg: "destructive/10", min: TEXT, scheme: "light" },
+  { fg: "destructive", bg: "destructive/20", min: TEXT },
+  { fg: "destructive", bg: "destructive/30", min: TEXT, scheme: "dark" },
+  { fg: "foreground", bg: "input/30", min: TEXT, scheme: "dark" },
+  { fg: "muted-foreground", bg: "input/30", min: TEXT, scheme: "dark" },
+  // A field's edge against the page, against its own fill (a slider's muted
+  // track, the command field, a dark field), so the box reads as a box. A
+  // focus ring and an invalid field's edge recolour that edge and are read
+  // against the page.
+  ...["", "muted", "muted/50"].map((bg) => ({ fg: "input", bg, min: MARK })),
+  { fg: "input", bg: "input/30", min: MARK, scheme: "dark" },
+  ...["ring", "destructive"].map((fg) => ({ fg, bg: "", min: MARK })),
+  // The selected tab's fill against its list.
+  { fg: "foreground", bg: "muted", min: MARK },
+  // Chart marks on the canvas and the card. A dimmed bar keeps its full colour
+  // as its outline, so these are the outlines too.
+  ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "", min: MARK })),
+  ...CHARTS.slice(0, -1).map((fg, i) => ({ fg, bg: CHARTS[i + 1] ?? "", min: MARK })),
+  // Treemap labels on every heat step (lib/treemap.ts heatFill): 12% to 60% of
+  // the meaning colour in the card in light, 25% to 60% in dark.
+  ...heatLabels("light", [12, 24, 36, 48, 60]),
+  ...heatLabels("dark", [25, 33.75, 42.5, 51.25, 60]),
+];
 
 /**
  * @param {Theme} theme
  * @returns {Check[]}
  */
 export function checkContrast(theme) {
-  /** @type {Check[]} */
-  const checks = [];
+  /** @type {Map<string, Check>} */
+  const checks = new Map();
   for (const scheme of /** @type {const} */ (["light", "dark"])) {
-    const vars = theme[scheme];
-    const color = (/** @type {string} */ name) => {
-      const value = vars[name];
+    const token = (/** @type {string} */ name) => {
+      const value = theme[scheme][name];
       if (value === undefined) throw new Error(`${scheme}: --${name} is not set in the ${scheme} block`);
       const parsed = parseOklch(value);
       if (!parsed) throw new Error(`${scheme}: --${name} is "${value}", not an oklch() colour`);
-      if (parsed.alpha < 1) throw new Error(`${scheme}: --${name} is translucent; contrast needs an opaque colour`);
       return parsed;
     };
-    const pair = (/** @type {string} */ fg, /** @type {string} */ bg, /** @type {number} */ min) =>
-      checks.push({ scheme, fg, bg, ratio: contrast(color(fg), color(bg)), min });
-    for (const fg of TEXT) for (const bg of SURFACES) pair(fg, bg, 4.5);
-    for (const [fg, bg] of FILLS) pair(/** @type {string} */ (fg), /** @type {string} */ (bg), 4.5);
-    CHARTS.forEach((chart, i) => {
-      pair(chart, "card", 3);
-      const next = CHARTS[i + 1];
-      if (next) pair(chart, next, 3);
-    });
+    /**
+     * The sRGB a paint shows over what lies under it, and how a message names it.
+     * @param {Paint} paint @param {{ rgb: [number, number, number], name: string }} under
+     */
+    const paintOver = (paint, under) => {
+      const [, name = "", sep, amount] = /^([\w-]+)(?:([/@])([\d.]+))?$/.exec(paint) ?? [];
+      const base = token(name);
+      if (sep === "@") {
+        const rgb = oklchToSrgb(mixOklab(base, token("card"), Number(amount) / 100));
+        return { rgb, name: `--${name} ${amount}% in --card` };
+      }
+      const alpha = base.alpha * (sep === "/" ? Number(amount) / 100 : 1);
+      if (alpha === 1) return { rgb: oklchToSrgb(base), name: `--${paint}` };
+      return { rgb: over({ ...base, alpha }, under.rgb), name: `--${paint} over ${under.name}` };
+    };
+    for (const pair of PAIRS) {
+      if (pair.scheme && pair.scheme !== scheme) continue;
+      for (const surface of SURFACES) {
+        const page = { rgb: oklchToSrgb(token(surface)), name: `--${surface}` };
+        const bg = pair.bg ? paintOver(pair.bg, page) : page;
+        const fg = paintOver(pair.fg, bg);
+        const [fgHex, bgHex] = [srgbHex(fg.rgb), srgbHex(bg.rgb)];
+        const ratio = contrastSrgb(fg.rgb, bg.rgb);
+        checks.set(`${scheme} ${fg.name} ${bg.name}`, {
+          scheme,
+          fg: fg.name,
+          bg: bg.name,
+          fgHex,
+          bgHex,
+          ratio,
+          min: pair.min,
+        });
+      }
+    }
   }
-  return checks;
+  return [...checks.values()];
 }
 
 /**
- * Chart colours outside sRGB, named for the error message.
+ * Colours outside sRGB, named for the error message.
  * @param {Theme} theme
  * @returns {string[]}
  */
 export function checkGamut(theme) {
   return /** @type {const} */ (["light", "dark"]).flatMap((scheme) =>
-    CHARTS.filter((name) => {
-      const parsed = parseOklch(theme[scheme][name] ?? "");
-      return parsed !== null && !inSrgb(parsed);
-    }).map((name) => `${scheme} --${name} ${theme[scheme][name]} is outside sRGB; lower its chroma`),
+    Object.entries(theme[scheme])
+      .filter(([, value]) => {
+        const parsed = parseOklch(value);
+        return parsed !== null && !inSrgb(parsed);
+      })
+      .map(([name, value]) => `${scheme} --${name} ${value} is outside sRGB; lower its chroma`),
   );
 }
 
-/**
- * @param {Theme} theme
- * @param {Check} check
- */
-function describe(theme, check) {
-  const hex = (/** @type {string} */ name) => {
-    const parsed = parseOklch(theme[check.scheme][name] ?? "");
-    return parsed ? toHex(parsed) : "?";
-  };
-  return `${check.scheme.padEnd(5)} --${check.fg} ${hex(check.fg)} on --${check.bg} ${hex(check.bg)}: ${check.ratio.toFixed(2)}:1 (needs ${check.min}:1)`;
+/** @param {Check} check */
+function describe(check) {
+  return `${check.scheme.padEnd(5)} ${check.fg} ${check.fgHex} on ${check.bg} ${check.bgHex}: ${check.ratio.toFixed(2)}:1 (needs ${check.min}:1)`;
 }
 
 // Run as a command, not when imported. A package manager starts this file
@@ -100,12 +186,12 @@ if (import.meta.url === invoked) {
   const checks = checkContrast(theme);
   const failures = checks.filter((c) => c.ratio < c.min);
   const outOfGamut = checkGamut(theme);
-  for (const check of failures) console.error(`FAIL ${describe(theme, check)}`);
+  for (const check of failures) console.error(`FAIL ${describe(check)}`);
   for (const problem of outOfGamut) console.error(`FAIL ${problem}`);
   const weakest = checks.toSorted((a, b) => a.ratio / a.min - b.ratio / b.min)[0];
   console.log(
     `contrast: ${checks.length - failures.length}/${checks.length} pairs pass` +
-      (weakest ? `; closest: ${describe(theme, weakest)}` : ""),
+      (weakest ? `; closest: ${describe(weakest)}` : ""),
   );
   process.exit(failures.length || outOfGamut.length ? 1 : 0);
 }

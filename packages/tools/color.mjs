@@ -77,14 +77,55 @@ export function luminance([r, g, b]) {
 }
 
 /**
+ * WCAG contrast ratio between two opaque colours, as gamma-encoded sRGB.
+ * @param {[number, number, number]} a
+ * @param {[number, number, number]} b
+ * @returns {number}
+ */
+export function contrastSrgb(a, b) {
+  const [hi, lo] = [luminance(a), luminance(b)].toSorted((x, y) => y - x);
+  return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05);
+}
+
+/**
  * WCAG contrast ratio between two opaque OKLCH colours.
  * @param {Oklch} a
  * @param {Oklch} b
  * @returns {number}
  */
 export function contrast(a, b) {
-  const [hi, lo] = [luminance(oklchToSrgb(a)), luminance(oklchToSrgb(b))].toSorted((x, y) => y - x);
-  return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05);
+  return contrastSrgb(oklchToSrgb(a), oklchToSrgb(b));
+}
+
+/**
+ * The colour a translucent colour paints over an opaque one. Browsers blend
+ * gamma-encoded sRGB channels, so `bg-muted/50` over the card is half of each.
+ * @param {Oklch} top
+ * @param {[number, number, number]} under
+ * @returns {[number, number, number]}
+ */
+export function over(top, [r0, g0, b0]) {
+  const [r, g, b] = oklchToSrgb(top);
+  const blend = (/** @type {number} */ fg, /** @type {number} */ bg) => top.alpha * fg + (1 - top.alpha) * bg;
+  return [blend(r, r0), blend(g, g0), blend(b, b0)];
+}
+
+/** @param {Oklch} color @returns {[number, number, number]} */
+const toOklab = ({ l, c, h }) => [l, c * Math.cos((h * Math.PI) / 180), c * Math.sin((h * Math.PI) / 180)];
+
+/**
+ * `color-mix(in oklab, a share, b)`, with share in 0..1 and opaque inputs.
+ * @param {Oklch} a
+ * @param {Oklch} b
+ * @param {number} share
+ * @returns {Oklch}
+ */
+export function mixOklab(a, b, share) {
+  const [la, xa, ya] = toOklab(a);
+  const [lb, xb, yb] = toOklab(b);
+  const along = (/** @type {number} */ from, /** @type {number} */ to) => share * from + (1 - share) * to;
+  const [x, y] = [along(xa, xb), along(ya, yb)];
+  return { l: along(la, lb), c: Math.hypot(x, y), h: (Math.atan2(y, x) * 180) / Math.PI, alpha: 1 };
 }
 
 /**
@@ -93,7 +134,16 @@ export function contrast(a, b) {
  * @returns {string}
  */
 export function toHex(color) {
-  return `#${oklchToSrgb(color)
+  return srgbHex(oklchToSrgb(color));
+}
+
+/**
+ * Hex form of gamma-encoded sRGB channels in 0..1.
+ * @param {[number, number, number]} rgb
+ * @returns {string}
+ */
+export function srgbHex(rgb) {
+  return `#${rgb
     .map((v) =>
       Math.round(v * 255)
         .toString(16)

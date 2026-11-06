@@ -25,6 +25,16 @@ a meaning:
   with a left (or any single-side) coloured border; tint the box or add an
   icon. 1px neutral dividers between columns are separators, not accents, and
   are fine.
+- **Edges that matter reach 3:1; the rest stay faint.** A field's edge (input,
+  textarea, select, input group, the command search) is `--input`, at 3:1 on the
+  canvas and the card; dividers, card rings, gridlines and the outlines of
+  buttons, toggles and code blocks are the faint `--border`. Focus is an opaque
+  `--ring`, or the opaque destructive red on a destructive control. A selected
+  toggle or pill tab fills with the foreground. A chart bar that a selection
+  dims keeps its full-colour outline and fades only inside.
+- **Destructive is not loss.** `--destructive` (delete, an invalid field) is a
+  deeper red than `--negative` (a loss figure), so its label reads on its own
+  tint; never use one for the other.
 - Categories (a broker, a sector, an asset class) stay neutral: outline badges,
   never a hue each. Ordered buckets (largest 5, next 5, rest) use steps of one
   colour, not separate hues.
