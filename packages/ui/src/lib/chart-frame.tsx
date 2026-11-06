@@ -79,6 +79,19 @@ export function seriesFill<T>(item: ChartSeriesItem<T>, data: readonly T[]): Cha
     : item.color;
 }
 
+/**
+ * A Line or Area's dots: one solid dot on the latest point, ringed in the card's colour so it stands clear of the
+ * grid, and none elsewhere. The eye lands on now, where a reader starts.
+ */
+export function endDot(color: ChartColor, count: number) {
+  return ({ cx, cy, index }: { cx?: number; cy?: number; index?: number }) =>
+    index === count - 1 && cx !== undefined && cy !== undefined ? (
+      <circle key="end" cx={cx} cy={cy} r={4} fill={color} stroke="var(--card)" strokeWidth={2} />
+    ) : (
+      <g key={index} />
+    );
+}
+
 /** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */
 export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number) => string) {
   return (value: unknown, _name: unknown, item: { dataKey?: unknown }) => {
@@ -106,7 +119,7 @@ interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
   payload?: { value?: unknown };
   /** The axis that carries the values: y, or x when the bars run sideways. */
   axis: "x" | "y";
-  format: (value: number, scale: number) => string;
+  formatter: (value: number, scale: number) => string;
 }
 
 /**
@@ -114,13 +127,13 @@ interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
  * never ₹80,000 halfway up. Recharts' tickFormatter sees one value at a time; the axis' ticks come from its hooks.
  * The rest of Recharts' tick props pass on as its own tick does, including the class it measures an auto width by.
  */
-function ValueTick({ payload, axis, format, ...tick }: ValueTickProps) {
+function ValueTick({ payload, axis, formatter, ...tick }: ValueTickProps) {
   const xTicks = useXAxisTicks();
   const yTicks = useYAxisTicks();
   const value = Number(payload?.value);
   const ticks = (axis === "x" ? xTicks : yTicks) ?? [];
   const scale = Math.max(Math.abs(value), ...ticks.map((t) => Math.abs(Number(t.value))));
-  return <Text {...tick}>{format(value, scale)}</Text>;
+  return <Text {...tick}>{formatter(value, scale)}</Text>;
 }
 
 // At the ticks' 12px, Geist averages about 6.6px a character and Geist Mono 7.2px.
@@ -353,7 +366,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tick={yTickFormatter ? <ValueTick axis="x" format={yTickFormatter} {...TICK} /> : TICK}
+                    tick={yTickFormatter ? <ValueTick axis="x" formatter={yTickFormatter} {...TICK} /> : TICK}
                   />
                   <HorizontalAxis
                     data={data}
@@ -402,7 +415,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     // read a second parameter of its own, such as pct's decimals, so it gets the value alone.
                     // A page's formatter gets the axis' scale only when it asks for one: valueFormatter may read a second
                     // parameter of its own, such as pct's decimals.
-                    tick={yTickFormatter ? <ValueTick axis="y" format={yTickFormatter} {...TICK} /> : TICK}
+                    tick={yTickFormatter ? <ValueTick axis="y" formatter={yTickFormatter} {...TICK} /> : TICK}
                     tickFormatter={yTickFormatter ? undefined : (value: number) => formatValue(value)}
                   />
                 </>

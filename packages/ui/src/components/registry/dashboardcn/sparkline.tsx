@@ -9,6 +9,11 @@
 // Siyahi edit: a hidden value axis fitted to the data. Recharts' default axis
 // starts at zero, so a portfolio's run from ₹38L to ₹45L drew as a flat line.
 // With the lowest point now on the edge, 2px of room below keeps its stroke whole.
+// Siyahi edit: the run is drawn in muted grey and only its last step, with a
+// dot on the latest value, takes the colour, so the eye lands on now and the
+// direction of the last move; a whole line in green or red read loud in a row
+// of tiles. The dot needs 3px of room past the plot's ends. Lines are straight,
+// so the last step lies exactly on the run.
 import * as React from "react"
 import { Area, AreaChart, Line, LineChart, ResponsiveContainer, YAxis } from "recharts"
 
@@ -19,9 +24,13 @@ export interface SparklineProps extends React.ComponentProps<"div"> {
   /** Series to plot, oldest first. */
   data: number[]
   variant?: "area" | "line"
-  /** A chart slot, or var(--positive) or var(--negative) for a gain or a loss. Defaults to var(--chart-1). */
+  /**
+   * The last step and the dot on the latest value: a chart slot, or var(--positive) or var(--negative) for a gain or
+   * a loss. Defaults to var(--chart-1). The run before it is muted.
+   */
   color?: ChartColor
   curve?: "monotone" | "linear" | "step"
+  /** The run's line; the last step is 2px. */
   strokeWidth?: number
   /** Animate after hydration and when data changes. Respects reduced motion. */
   animate?: boolean
@@ -48,8 +57,8 @@ function Sparkline({
   data,
   variant = "area",
   color = "var(--chart-1)",
-  curve = "monotone",
-  strokeWidth = 1.5,
+  curve = "linear",
+  strokeWidth = 1.25,
   animate = true,
   animationDuration = 500,
   className,
@@ -62,9 +71,32 @@ function Sparkline({
     getReducedMotionServerSnapshot
   )
   const animationActive = animate && !reducedMotion
-  const points = React.useMemo(() => data.map((y, i) => ({ i, y })), [data])
-  const margin = { top: 2, right: 0, bottom: 2, left: 0 }
+  const points = React.useMemo(
+    () => data.map((y, i) => ({ i, y, now: i >= data.length - 2 ? y : undefined })),
+    [data]
+  )
+  const margin = { top: 3, right: 3, bottom: 3, left: 0 }
   const axis = <YAxis hide domain={["dataMin", "dataMax"]} />
+  const now = (
+    <Line
+      className="sparkline-now"
+      type={curve}
+      dataKey="now"
+      stroke={color}
+      strokeWidth={2}
+      dot={(dot: { cx?: number; cy?: number; index?: number }) =>
+        dot.index === data.length - 1 ? (
+          <circle key="now" cx={dot.cx} cy={dot.cy} r={3} fill={color} />
+        ) : (
+          <g key={dot.index} />
+        )
+      }
+      // Drawn once the run has reached it.
+      isAnimationActive={animationActive}
+      animationBegin={animationDuration}
+      animationDuration={150}
+    />
+  )
 
   return (
     <div
@@ -80,27 +112,28 @@ function Sparkline({
             <Line
               type={curve}
               dataKey="y"
-              stroke={color}
+              stroke="var(--muted-foreground)"
               strokeWidth={strokeWidth}
               dot={false}
               isAnimationActive={animationActive}
               animationDuration={animationDuration}
               animationEasing="ease-out"
             />
+            {now}
           </LineChart>
         ) : (
           <AreaChart data={points} margin={margin}>
             {axis}
             <defs>
               <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+                <stop offset="0%" stopColor={color} stopOpacity={0.18} />
                 <stop offset="100%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
             <Area
               type={curve}
               dataKey="y"
-              stroke={color}
+              stroke="var(--muted-foreground)"
               strokeWidth={strokeWidth}
               fill={`url(#${id})`}
               dot={false}
@@ -108,6 +141,7 @@ function Sparkline({
               animationDuration={animationDuration}
               animationEasing="ease-out"
             />
+            {now}
           </AreaChart>
         )}
       </ResponsiveContainer>

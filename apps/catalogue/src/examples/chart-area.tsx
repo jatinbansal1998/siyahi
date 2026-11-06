@@ -9,6 +9,7 @@ const data = [
   { month: "Oct", value: 4512300, invested: 4025000 },
 ];
 
+// The title states the finding, not the measure: what the reader would say after looking.
 // The first series fills; the money put in draws as a line over it.
 const series: ChartSeries<(typeof data)[number]> = [
   { key: "value", label: "Value", color: "var(--chart-1)" },
@@ -19,8 +20,8 @@ export default function ChartAreaExample() {
   const { money, moneyCompact } = useFormat();
   return (
     <AreaChartCard
-      title="Portfolio value"
-      description="Month-end value against money put in"
+      title="₹4.9L ahead of the money put in"
+      description="Portfolio value against money invested, at each month end"
       action={
         <ToggleGroup defaultValue={["6M"]} variant="outline" size="sm" aria-label="Range">
           <ToggleGroupItem value="6M">6M</ToggleGroupItem>

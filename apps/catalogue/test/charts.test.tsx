@@ -261,7 +261,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
 
   it("AreaChartCard names the hovered month and its formatted values", async () => {
     await show("area-chart");
-    await hoverEachPoint("Portfolio value", [
+    await hoverEachPoint("₹4.9L ahead of the money put in", [
       valueLines("May", "₹36,00,000", "₹38,20,000"),
       valueLines("Jun", "₹36,85,000", "₹39,50,000"),
       valueLines("Jul", "₹37,70,000", "₹41,10,000"),

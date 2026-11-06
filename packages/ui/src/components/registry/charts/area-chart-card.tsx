@@ -14,7 +14,7 @@
 // so a curve never overshoots past a data point.
 // Siyahi edit: a filled area fades from its line down to the axis, as in
 // @shadcn/chart-area-gradient, and its line is 2px: a flat 20% wash went to a
-// grey slab on a dark card.
+// grey slab on a dark card. Each line ends in a dot on its latest point.
 // Siyahi edit: xDomain and xTicks make the x axis numeric, so a mark can sit
 // between two samples, as the Dell page's events do between 15 s samples.
 // Siyahi edit: curve picks monotone or straight edges (chart-area-linear).
@@ -24,7 +24,7 @@
 import { useId } from "react"
 import { Area, AreaChart } from "recharts"
 
-import { ChartFrame } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame, endDot } from "@siyahi/ui/lib/chart-frame"
 import type {
   ChartCurve,
   NumericXProps,
@@ -65,6 +65,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
           fill={stacked || index === 0 ? `url(#${id}-${index})` : "none"}
           stroke={color}
           strokeWidth={2}
+          dot={endDot(color, props.data.length)}
           stackId={stacked ? "stack" : undefined}
         />
       ))}

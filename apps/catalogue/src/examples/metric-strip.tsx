@@ -31,7 +31,7 @@ export default function MetricStripExample() {
   ];
   return (
     <MetricStrip
-      title="October"
+      title="Portfolio up 3.1% in October"
       description="Month-end figures with the six-month run behind each"
       action={
         <ToggleGroup defaultValue={["1M"]} variant="outline" size="sm" aria-label="Period">

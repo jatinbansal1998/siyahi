@@ -19,13 +19,19 @@ export default function MetricStripExample() {
       trend: [3600000, 3685000, 3770000, 3855000, 3940000, 4025000],
     },
     { label: "XIRR", value: pct(0.142), change: -0.004, trend: [0.151, 0.149, 0.152, 0.144, 0.146, 0.142] },
-    { label: "Realised", value: moneyCompact(-61200), change: -61200, changeFormat: "money" },
+    {
+      label: "Realised",
+      value: moneyCompact(-61200),
+      change: -61200,
+      changeFormat: "money",
+      trend: [14200, -3800, 9100, 2600, -18400, -61200],
+    },
     { label: "Dividends", value: moneyCompact(38400), change: 0.18, trend: [4100, 0, 12800, 3300, 9900, 8300] },
-    { label: "Holdings", value: count(42), note: "3 bought in Oct" },
+    { label: "Holdings", value: count(42), note: "3 bought in Oct", trend: [38, 39, 39, 40, 39, 42] },
   ];
   return (
     <MetricStrip
-      title="October"
+      title="Portfolio up 3.1% in October"
       description="Month-end figures with the six-month run behind each"
       action={
         <ToggleGroup defaultValue={["1M"]} variant="outline" size="sm" aria-label="Period">
