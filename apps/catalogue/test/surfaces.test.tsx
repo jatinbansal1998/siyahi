@@ -71,7 +71,7 @@ describe("surfaces", { timeout: 60_000 }, () => {
     await pick("Card");
     const card = await box(holdings);
     expect(card.fill).not.toBe(NONE.fill);
-    expect(card.corner).toBe("14px");
+    expect(card.corner).toBe("10.08px");
     expect(transparentRing(card.ring)).toBe(false);
     await pick("Open");
     expect((await box(holdings)).padding).toBe("0px");

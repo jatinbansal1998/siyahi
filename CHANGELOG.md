@@ -2,6 +2,8 @@
 
 ## 0.1.9
 
+- Corners are shadcn's "small" radius, `--radius: 0.45rem` (was `0.625rem`):
+  cards round at 10px (was 14px), buttons and inputs at 7px (was 10px).
 - Design review batch (#57), from ten rounds of independent design reviews:
   - Tables fit their width: columns marked `meta.compact` stay and the rest
     hide from the right behind `DataTableCompactColumnsToggle` ("All columns
