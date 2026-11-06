@@ -237,9 +237,11 @@
  * --input is the edge of a field, where the reader types or picks. A button,
  * a toggle and a code block are framed by their label or their content, so
  * their outline stays the faint divider colour; scoping the variable keeps
- * the fill each derives from it faint too.
+ * the fill each derives from it faint too. A button is matched by its own
+ * group/button class: rendered as a popover or menu trigger, it takes that
+ * trigger's data-slot instead of "button".
  */
-:is([data-slot="button"], [data-slot="toggle"], [data-slot="toggle-group-item"], [data-slot="code-block"]) {
+:is([class~="group/button"], [data-slot="toggle"], [data-slot="toggle-group-item"], [data-slot="code-block"]) {
   --input: var(--border);
 }
 
@@ -263,7 +265,7 @@
  * hidden range input, so it shows the input's focus.
  */
 :is([data-slot="toggle"], [data-slot="toggle-group-item"], [data-slot="scroll-area-viewport"]):focus-visible,
-[data-slot="button"][data-day]:focus-visible {
+[class~="group/button"][data-day]:focus-visible {
   --tw-ring-color: var(--ring);
 }
 [data-slot="slider-thumb"]:has(input:focus-visible) {
@@ -274,13 +276,13 @@
  * A destructive control focuses, and an invalid field is edged, in the full
  * destructive colour; stock fades both to 40-50%, under 3:1.
  */
-[data-slot="button"][class~="text-destructive"]:focus-visible,
+[class~="group/button"][class~="text-destructive"]:focus-visible,
 [data-slot="code-block"][data-variant="destructive"]:has(> [data-slot="code-block-content"]:focus-visible),
 :is(
   [data-slot="input"],
   [data-slot="textarea"],
   [data-slot="select-trigger"],
-  [data-slot="button"]
+  [class~="group/button"]
 )[aria-invalid="true"],
 [data-slot="input-group"]:has([data-slot][aria-invalid="true"]) {
   border-color: var(--destructive);

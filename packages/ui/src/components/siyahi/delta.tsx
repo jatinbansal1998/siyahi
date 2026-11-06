@@ -25,12 +25,14 @@ export function Delta({ value, format = "pct", className }: DeltaProps) {
     <span
       data-slot="delta"
       data-direction={direction}
-      className={cn("inline-flex items-center gap-1 whitespace-nowrap", className)}
+      // Baseline, so the figure sits on the line with the text around it; centred,
+      // the icon's bottom edge would become the line's baseline and lift the row.
+      className={cn("inline-flex items-baseline gap-1 whitespace-nowrap", className)}
     >
       <Icon
         aria-hidden="true"
         className={cn(
-          "size-3.5 shrink-0",
+          "size-3.5 shrink-0 self-center",
           direction === "up" && "text-positive",
           direction === "down" && "text-negative",
           direction === "none" && "text-muted-foreground",
