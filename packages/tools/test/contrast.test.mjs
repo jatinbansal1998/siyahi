@@ -10,6 +10,7 @@ import { readTheme } from "../theme.mjs";
 
 const themeCss = readFileSync(fileURLToPath(new URL("../../ui/styles/siyahi.css", import.meta.url)), "utf8");
 const failures = (/** @type {string} */ css) => checkContrast(readTheme(css)).filter((c) => c.ratio < c.min);
+const named = (/** @type {string} */ css) => failures(css).map((c) => `${c.scheme} ${c.fg} on ${c.bg}`);
 
 /**
  * Replaces one variable's value inside the light block or the dark block.
@@ -43,34 +44,63 @@ describe("contrast check", () => {
   it("fails text between 3:1 and 4.5:1 on the canvas and the card", () => {
     // About 3.7:1 on white: enough for a chart mark, not for text.
     const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.62 0 0)");
-    expect(failures(broken).map((c) => `${c.scheme} ${c.fg}/${c.bg}`)).toEqual([
-      "light muted-foreground/background",
-      "light muted-foreground/card",
-    ]);
+    expect(named(broken)).toEqual(
+      expect.arrayContaining(["light --muted-foreground on --background", "light --muted-foreground on --card"]),
+    );
+  });
+
+  it("blends a translucent tint over the surface under it", () => {
+    // shadcn's red passes on the plain card (4.8:1) but not on its own 20% hover tint over it (3.3:1).
+    const broken = setVar(themeCss, "light", "destructive", "oklch(0.577 0.235 27.325)");
+    expect(named(broken)).toContain("light --destructive on --destructive/20 over --card");
+    expect(named(broken)).not.toContain("light --destructive on --card");
+  });
+
+  it("fails muted text on a Callout's tint", () => {
+    // shadcn's muted grey: 4.7:1 on the card, 4.1:1 on the accent Callout's indigo wash over it.
+    const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.556 0 0)");
+    expect(named(broken)).toContain("light --muted-foreground on --chart-1/8 over --card");
+    expect(named(broken)).not.toContain("light --muted-foreground on --card");
+  });
+
+  it("fails a treemap label on its deepest heat step", () => {
+    const broken = setVar(themeCss, "dark", "positive", "oklch(0.74 0.16 151.711)");
+    expect(named(broken)).toEqual(["dark --foreground on --positive 60% in --card"]);
+  });
+
+  it("fails a field edge under 3:1, translucent or not", () => {
+    expect(named(setVar(themeCss, "light", "input", "oklch(0.922 0 0)"))).toContain("light --input on --card");
+    expect(named(setVar(themeCss, "dark", "input", "oklch(1 0 0 / 15%)"))).toContain(
+      "dark --input over --card on --card",
+    );
   });
 
   it("fails a chart colour too close to its neighbour", () => {
     const broken = setVar(themeCss, "dark", "chart-2", "oklch(0.84 0.09 160)");
-    expect(failures(broken).map((c) => `${c.scheme} ${c.fg}/${c.bg}`)).toEqual([
-      "dark chart-1/chart-2",
-      "dark chart-2/chart-3",
-    ]);
+    expect(named(broken)).toEqual(["dark --chart-1 on --chart-2", "dark --chart-2 on --chart-3"]);
   });
 
   it("fails a chart colour too faint against the card", () => {
     const broken = setVar(themeCss, "light", "chart-3", "oklch(0.85 0.1 60)");
-    expect(failures(broken).some((c) => c.fg === "chart-3" && c.bg === "card")).toBe(true);
+    expect(named(broken)).toContain("light --chart-3 on --card");
   });
 
   it("fails a foreground that does not stand out on its fill", () => {
     const broken = setVar(themeCss, "dark", "positive-foreground", "oklch(0.9 0 0)");
-    expect(failures(broken).map((c) => `${c.scheme} ${c.fg}/${c.bg}`)).toEqual(["dark positive-foreground/positive"]);
+    expect(named(broken)).toEqual(["dark --positive-foreground on --positive"]);
   });
 
   it("fails a dark block that leaves a checked token to the light value", () => {
     const darkStart = themeCss.indexOf("@variant dark {");
     const broken = themeCss.slice(0, darkStart) + themeCss.slice(darkStart).replace(/\n\s*--positive:[^;]+;/, "");
     expect(() => checkContrast(readTheme(broken))).toThrow("dark: --positive is not set in the dark block");
+  });
+
+  it("fails a meaning colour outside sRGB", () => {
+    const broken = setVar(themeCss, "light", "negative", "oklch(0.577 0.245 27.325)");
+    expect(checkGamut(readTheme(broken))).toEqual([
+      "light --negative oklch(0.577 0.245 27.325) is outside sRGB; lower its chroma",
+    ]);
   });
 
   it("fails a chart colour outside sRGB", () => {
@@ -94,7 +124,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 64\/64 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 160\/160 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

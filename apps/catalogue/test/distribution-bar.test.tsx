@@ -106,7 +106,11 @@ describe("DistributionBar", () => {
         ]}
       />,
     );
-    expect(segments().map((s) => s.style.opacity)).toEqual(["0.35", "1"]);
+    // A faded segment keeps its full colour as an edge, so its extent still reads at 3:1.
+    expect(segments().map((s) => [s.style.opacity, s.style.boxShadow])).toEqual([
+      ["", "inset 0 0 0 1px var(--chart-1)"],
+      ["", ""],
+    ]);
     await act(async () => {
       segments()[1]?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, relatedTarget: document.body }));
       segments()[1]?.parentElement?.dispatchEvent(

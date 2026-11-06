@@ -96,24 +96,27 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* Below shadcn's 0.556, so muted text keeps 4.5:1 on the muted fill and on every Callout's tint. */
+  --muted-foreground: oklch(0.51 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Deeper than the loss red, so a destructive button's label reads on its own red tint, hovered too. */
+  --destructive: oklch(0.49 0.19 27.325);
   --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  /* The edge of a field (input, textarea, select, input group) at 3:1: --border stays faint for dividers. */
+  --input: oklch(0.64 0 0);
   --ring: oklch(0.62 0.16 275);
-  /* Tailwind green-700, red-600, amber-700, blue-600. */
-  --positive: oklch(0.527 0.154 150.069);
+  /* Tailwind green-700, red-600, amber-700, with their chroma lowered to the sRGB edge. */
+  --positive: oklch(0.527 0.145 150.069);
   --positive-foreground: oklch(0.985 0 0);
-  --negative: oklch(0.577 0.245 27.325);
+  --negative: oklch(0.577 0.235 27.325);
   --negative-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.555 0.163 48.998);
+  --warning: oklch(0.555 0.149 48.998);
   --warning-foreground: oklch(0.985 0 0);
   --link: oklch(0.51 0.2 275);
   /*
    * Indigo, amber, plum, sky, teal: no green or red, so no series reads as a
-   * gain or a loss. Each slot reaches 3:1 against the card and against the
+   * gain or a loss. Each slot reaches 3:1 against the canvas, the card and the
    * slots next to it, which only lightness can give, so indigo, plum and teal
    * are the deep members and amber and sky the pale ones, in both schemes: a
    * pale indigo in dark read as lavender and lost the accent. Slots two apart
@@ -124,7 +127,7 @@
   --chart-1: oklch(0.4 0.17 275);
   --chart-2: oklch(0.66 0.13 70);
   --chart-3: oklch(0.38 0.13 335);
-  --chart-4: oklch(0.66 0.11 235);
+  --chart-4: oklch(0.65 0.11 235);
   --chart-5: oklch(0.36 0.06 205);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -160,18 +163,23 @@
     --muted-foreground: oklch(0.74 0 0);
     --accent: oklch(0.269 0 0);
     --accent-foreground: oklch(0.922 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
+    /* Paler and calmer than the loss red, so a destructive label reads on its red tint over the card, hovered too. */
+    --destructive: oklch(0.8 0.1 22.216);
     --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
+    --input: oklch(0.62 0 0);
     --ring: oklch(0.6 0.14 275);
-    /* Green toned down from Tailwind green-400 to the lightness and calm of red-400 beside it, so gains do not shout; amber-400. */
-    --positive: oklch(0.74 0.16 151.711);
+    /*
+     * Green toned down from Tailwind green-400, below red-400's lightness so a
+     * treemap's deepest green tile keeps its light label at 4.5:1; amber-400.
+     * Red, amber and the link sit at the sRGB edge.
+     */
+    --positive: oklch(0.69 0.16 151.711);
     --positive-foreground: oklch(0.145 0 0);
-    --negative: oklch(0.704 0.191 22.216);
+    --negative: oklch(0.704 0.187 22.216);
     --negative-foreground: oklch(0.145 0 0);
-    --warning: oklch(0.828 0.189 84.429);
+    --warning: oklch(0.828 0.169 84.429);
     --warning-foreground: oklch(0.145 0 0);
-    --link: oklch(0.75 0.13 275);
+    --link: oklch(0.75 0.128 275);
     --chart-1: oklch(0.58 0.2 275);
     --chart-2: oklch(0.88 0.08 75);
     --chart-3: oklch(0.58 0.16 335);
@@ -214,13 +222,76 @@
 /*
  * Every selected toggle, a view switch or a filter chip alike, fills with the
  * foreground, black on white and white on black, so the reader sees at once
- * what is on; stock shadcn marks it with a faint grey. Unlayered, to outrank
- * the stock aria-pressed:bg-muted.
+ * what is on; stock shadcn marks it with a faint grey. A default (pill) tab
+ * selects the same way: stock fills it with the canvas colour, 1.05:1 against
+ * its grey list. Unlayered, to outrank the stock aria-pressed:bg-muted.
  */
-:is([data-slot="toggle"], [data-slot="toggle-group-item"]):is([aria-pressed="true"], [data-pressed]) {
+:is([data-slot="toggle"], [data-slot="toggle-group-item"]):is([aria-pressed="true"], [data-pressed]),
+[data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active] {
   background-color: var(--foreground);
   color: var(--background);
   border-color: var(--foreground);
+}
+
+/*
+ * --input is the edge of a field, where the reader types or picks. A button,
+ * a toggle and a code block are framed by their label or their content, so
+ * their outline stays the faint divider colour; scoping the variable keeps
+ * the fill each derives from it faint too.
+ */
+:is([data-slot="button"], [data-slot="toggle"], [data-slot="toggle-group-item"], [data-slot="code-block"]) {
+  --input: var(--border);
+}
+
+/*
+ * The command palette's search field is a field: the --input edge on a muted
+ * fill, and the muted placeholder every other field uses (stock leaves it at
+ * Tailwind's half-strength text, 3.7:1).
+ */
+[data-slot="command-input-wrapper"] > [data-slot="input-group"] {
+  border-color: var(--input);
+  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+[data-slot="command-input"]::placeholder {
+  color: var(--muted-foreground);
+}
+
+/*
+ * Focus is opaque wherever the ring is the only sign of it: stock draws the
+ * ring at half strength (under 2:1 on the canvas) and relies on an opaque
+ * border these controls do not have. The slider's thumb is a div around a
+ * hidden range input, so it shows the input's focus.
+ */
+:is([data-slot="toggle"], [data-slot="toggle-group-item"], [data-slot="scroll-area-viewport"]):focus-visible,
+[data-slot="button"][data-day]:focus-visible {
+  --tw-ring-color: var(--ring);
+}
+[data-slot="slider-thumb"]:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+/*
+ * A destructive control focuses, and an invalid field is edged, in the full
+ * destructive colour; stock fades both to 40-50%, under 3:1.
+ */
+[data-slot="button"][class~="text-destructive"]:focus-visible,
+[data-slot="code-block"][data-variant="destructive"]:has(> [data-slot="code-block-content"]:focus-visible),
+:is(
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"],
+  [data-slot="button"]
+)[aria-invalid="true"],
+[data-slot="input-group"]:has([data-slot][aria-invalid="true"]) {
+  border-color: var(--destructive);
+}
+
+/*
+ * A slider's unfilled track is outlined in the field edge, so its extent reads
+ * at 3:1; the muted track alone is 1.05:1 on the canvas.
+ */
+[data-slot="slider-track"] {
+  box-shadow: inset 0 0 0 1px var(--input);
 }
 
 /*

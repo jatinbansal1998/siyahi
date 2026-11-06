@@ -131,7 +131,11 @@ npx siyahi-contrast path/to/theme.css
 
 Reads the light `:root` block and the `@variant dark { … }` block inside it.
 Every checked token must be set in both; dark never borrows a light value. It
-fails unless text colours reach 4.5:1 on the canvas, the card and their own
-fills, chart colours reach 3:1 against the card and against the slots next to
-them, and every chart colour sits inside sRGB. Slots two apart share a
-lightness and are told apart by hue, so series take slots in order.
+checks each pair on the canvas and on the card, blending a translucent fill over
+the surface under it. It fails unless text reaches 4.5:1 on the page, on its own
+fill and on the tints Siyahi's components put it on (Callout washes, the
+destructive tint and its hover, code-line fills, treemap heat steps), a field's
+edge, the focus ring, a selected tab and every chart and meaning colour reach
+3:1 against what is next to them, and every colour sits inside sRGB. Slots two
+apart share a lightness and are told apart by hue, so series take slots in
+order.

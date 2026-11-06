@@ -2,6 +2,34 @@
 
 ## 0.1.9
 
+- Contrast fixes from a measured light and dark review (WCAG 1.4.3 text 4.5:1,
+  1.4.11 marks 3:1):
+  - Focus is visible wherever the ring was the only sign of it: toggles, a
+    calendar day and a scroll area take an opaque `--ring`; the slider's thumb
+    now shows its hidden input's keyboard focus (it showed none); a destructive
+    control focuses, and an invalid field is edged, in the full destructive red.
+  - `--destructive` is its own colour, deeper than the loss red `--negative`:
+    light `oklch(0.49 0.19 27.325)`, dark `oklch(0.8 0.1 22.216)`, so a delete
+    button's label reaches 4.5:1 on its tint and on hover.
+  - Light `--muted-foreground` is `oklch(0.51 0 0)` (was `0.556`), 4.5:1 on the
+    muted fill and every Callout, WarningAlert and Quote wash.
+  - `--input` is a field's edge at 3:1: light `oklch(0.64 0 0)`, dark
+    `oklch(0.62 0 0)` (was a faint grey and 15% white). Inputs, textareas,
+    selects, input groups and the command search take it; buttons, toggles and
+    code blocks keep the faint `--border` outline. The command search gets the
+    muted placeholder and a muted fill. A slider's track is outlined in it.
+  - A selected pill tab fills with the foreground, as a selected toggle does.
+  - A chart bar dimmed by a selection, and a DistributionBar segment faded by
+    `highlighted`, keep a full-colour outline and fade only inside.
+  - Dark `--positive` is `oklch(0.69 0.16 151.711)` (was `0.74`), so a
+    treemap's deepest green tile keeps its label at 4.5:1. Light `--chart-4`
+    is `oklch(0.65 0.11 235)`, 3:1 on the canvas as well as the card.
+  - Meaning colours sit inside sRGB: light positive, negative and warning and
+    dark negative, warning and link lose a little chroma.
+  - `siyahi-contrast` checks 160 pairs (was 64): every pair on the canvas and
+    the card, translucent tints blended over them, the tints above, field
+    edges, the focus ring, selected tabs, treemap heat steps, and every colour's
+    gamut.
 - Corners are shadcn's "small" radius, `--radius: 0.45rem` (was `0.625rem`):
   cards round at 10px (was 14px), buttons and inputs at 7px (was 10px).
 - Design review batch (#57), from ten rounds of independent design reviews:

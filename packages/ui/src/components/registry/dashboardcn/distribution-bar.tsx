@@ -19,6 +19,8 @@
 // at either end aligns to that end, so it does not spill past the bar.
 // Siyahi edit: highlighted fades every segment but one, and onHover reports
 // the segment under the pointer, so a page can drive a readout from it.
+// A faded segment mixes its interior toward the card inside a full-colour
+// edge, so its extent still reads at 3:1; 35% opacity fell under it.
 // Segments take a key for when names repeat, and chart tokens as colours.
 import * as React from "react"
 
@@ -165,12 +167,16 @@ function DistributionBar({
               <div
                 key={segment.key}
                 data-slot="distribution-segment"
-                className="border-card absolute inset-y-0 border-x transition-[width,left,opacity] duration-300"
+                className="border-card absolute inset-y-0 border-x transition-[width,left,background-color] duration-300"
                 style={{
                   left: `${segment.left}%`,
                   width: `${segment.width}%`,
-                  backgroundColor: segment.color,
-                  opacity: highlighted === null || highlighted === segment.key ? 1 : 0.35,
+                  ...(highlighted === null || highlighted === segment.key
+                    ? { backgroundColor: segment.color }
+                    : {
+                        backgroundColor: `color-mix(in oklab, ${segment.color} 35%, var(--card))`,
+                        boxShadow: `inset 0 0 0 1px ${segment.color}`,
+                      }),
                 }}
                 onMouseEnter={onHover ? () => onHover(segment) : undefined}
               />

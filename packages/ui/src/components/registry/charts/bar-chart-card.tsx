@@ -22,6 +22,9 @@
 // up, so money out sits below the line rather than hanging from money in.
 // Siyahi edit: an unselected bar mixes 55% toward the card rather than fading
 // to 35% opacity, so it stays readable on a dark card.
+// Siyahi edit: while a category is selected every bar keeps a full-colour
+// 1.5px outline and only the interior dims, so an unselected bar still meets
+// 3:1 against the card (a 55% mix fell to 1.8:1).
 // Siyahi edit: a series whose bars are all below zero takes its negativeColor
 // as the Bar's fill, so its legend chip matches the bars; each Bar is named
 // after its series, so no bar path carries name="undefined".
@@ -54,8 +57,9 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
 const DOWN_FROM_ZERO: YAxisProps["domain"] = ["auto", 0]
 
 /** Values over an ordered axis as bars: one series, or several grouped or stacked. */
-// An unselected bar mixes toward the card instead of turning see-through: at
-// low opacity a mid-lightness colour all but vanishes on a dark card.
+// An unselected bar's interior mixes toward the card instead of turning
+// see-through: at low opacity a mid-lightness colour all but vanishes on a dark
+// card. Its outline stays at full colour, so the bar keeps 3:1.
 const dimUnselected = (color: string, isSelected: boolean) =>
   isSelected ? color : `color-mix(in oklab, ${color} 55%, var(--card))`
 
@@ -124,11 +128,16 @@ export function BarChartCard<T extends object, K extends keyof T>({
                   <Cell
                     key={i}
                     fill={signedFill(tone, isSelected)}
-                    stroke={dimUnselected(tone, isSelected)}
+                    stroke={tone}
                     strokeWidth={1.5}
                   />
                 ) : (
-                  <Cell key={i} fill={dimUnselected(tone, isSelected)} />
+                  <Cell
+                    key={i}
+                    fill={dimUnselected(tone, isSelected)}
+                    stroke={tone}
+                    strokeWidth={1.5}
+                  />
                 )
               })}
           </Bar>
