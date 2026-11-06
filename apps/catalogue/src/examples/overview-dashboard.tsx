@@ -7,7 +7,8 @@ export default function OverviewDashboard() {
   return (
     <div className="flex flex-col gap-4">
       <MetricStrip />
-      <div className="grid gap-4 xl:grid-cols-2">
+      {/* Each card keeps its own height: stretched to the taller one, the chart card ends in blank space. */}
+      <div className="grid items-start gap-4 xl:grid-cols-2">
         <ChartArea />
         <DataTableExample />
       </div>
