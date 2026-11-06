@@ -8,6 +8,8 @@ import {
   StatusHeatmap,
   StatusHeatmapBlock,
   StatusHeatmapBody,
+  StatusHeatmapFooter,
+  StatusHeatmapLegend,
 } from "@siyahi/ui";
 
 // One cell per day for the last 60 days, as a status the heatmap colours:
@@ -27,7 +29,7 @@ export default function HeatmapStatusExample() {
         <CardDescription>Daily health: healthy, degraded or critical</CardDescription>
       </CardHeader>
       <CardContent>
-        <StatusHeatmap data={data}>
+        <StatusHeatmap data={data} statusValues={[3, 2, 1]}>
           <StatusHeatmapBody>
             {({ activity, dayIndex }) => (
               <StatusHeatmapBlock
@@ -41,10 +43,14 @@ export default function HeatmapStatusExample() {
               />
             )}
           </StatusHeatmapBody>
+          <StatusHeatmapFooter className="items-center justify-between gap-x-6 gap-y-2 whitespace-normal">
+            <p aria-live="polite" className="text-sm">
+              {selected ?? "Select a day for its health. Use arrow keys to move between days."}
+            </p>
+            {/* No day lacks data, so the legend leaves out "No Data". */}
+            <StatusHeatmapLegend className="gap-3" />
+          </StatusHeatmapFooter>
         </StatusHeatmap>
-        <p aria-live="polite" className="mt-3 text-sm">
-          {selected ?? "Select a day for its health. Use arrow keys to move between days."}
-        </p>
       </CardContent>
     </Card>
   );

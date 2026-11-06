@@ -5,6 +5,13 @@
 // Siyahi edit: numbers follow the SiyahiProvider locale instead of
 // dashboardcn's en-US lib/format, which is not copied.
 // Siyahi edit: the bar fill is 32% of its colour, not 20%, so it reads against a white card.
+// Siyahi edit: the label sits on a full-width muted track with the translucent
+// bar behind it, in full-contrast text, so a short bar ending mid-label does
+// not cut the name in two ("WIPR|O").
+// Siyahi edit: a row with a detail (a Delta) draws a neutral bar, so the
+// detail's red or green is the row's only colour.
+// Siyahi edit: rows share one figure column, so every track ends at the same x
+// and the figures right-align to the list's own edge.
 // Siyahi edit: max sets the value a full-width bar stands for, so two lists
 // (the biggest gains beside the biggest losses) can share one scale.
 // Siyahi edit: an item's optional detail (a secondary figure such as a Delta)
@@ -72,7 +79,7 @@ function BarList({
   return (
     <div
       data-slot="bar-list"
-      className={cn("@container/bar-list flex flex-col gap-1.5", className)}
+      className={cn("@container/bar-list grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5", className)}
       {...props}
     >
       {items.map((item) => {
@@ -85,15 +92,23 @@ function BarList({
           <div
             key={item.key ?? item.name}
             data-slot="bar-list-row"
-            className="flex items-center gap-3 text-sm @max-sm/bar-list:items-start"
+            className="col-span-2 grid grid-cols-subgrid items-center text-sm @max-sm/bar-list:items-start"
           >
             <div className="relative flex h-8 min-w-0 flex-1 items-center @max-sm/bar-list:h-auto @max-sm/bar-list:min-h-8 @max-sm/bar-list:items-start @max-sm/bar-list:pb-3">
               <div
+                data-slot="bar-list-track"
+                aria-hidden="true"
+                className="bg-muted/60 absolute inset-0 rounded-md @max-sm/bar-list:inset-y-auto @max-sm/bar-list:bottom-0 @max-sm/bar-list:h-1.5"
+              />
+              <div
+                data-slot="bar-list-bar"
                 aria-hidden="true"
                 className="absolute inset-y-0 left-0 rounded-md transition-[width] duration-300 @max-sm/bar-list:inset-y-auto @max-sm/bar-list:bottom-0 @max-sm/bar-list:h-1.5"
                 style={{
                   width: `${width}%`,
-                  backgroundColor: `color-mix(in oklab, ${color} 32%, transparent)`,
+                  backgroundColor: item.detail
+                    ? "color-mix(in oklab, var(--muted-foreground) 20%, transparent)"
+                    : `color-mix(in oklab, ${color} 32%, transparent)`,
                 }}
               />
               <Label
@@ -102,7 +117,7 @@ function BarList({
                   ? { type: "button" as const, onClick: () => onItemClick(item) }
                   : {})}
                 className={cn(
-                  "relative flex min-w-0 items-center gap-2 px-2 text-left",
+                  "text-foreground relative flex min-w-0 items-center gap-2 px-2 text-left",
                   interactive && "hover:underline"
                 )}
               >
@@ -122,7 +137,7 @@ function BarList({
                 </span>
               ) : null}
             </div>
-            <div className="flex shrink-0 items-center gap-2 tabular-nums">
+            <div className="flex items-center justify-end gap-2 tabular-nums">
               <span className="font-medium">{format(item.value)}</span>
               {showPercentage ? (
                 <span className="text-muted-foreground w-12 text-right text-xs">

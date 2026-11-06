@@ -2,6 +2,7 @@
 import { BarList, Delta } from "@siyahi/ui";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
 declare global {
@@ -45,9 +46,34 @@ describe("BarList", () => {
         />,
       ),
     );
-    const widths = [...document.querySelectorAll<HTMLElement>('[data-slot="bar-list-row"] [aria-hidden="true"]')].map(
+    const widths = [...document.querySelectorAll<HTMLElement>('[data-slot="bar-list-bar"]')].map(
       (bar) => bar.style.width,
     );
     expect(widths).toEqual(["25%", "12.5%"]);
+  });
+
+  it("draws a neutral bar on a row with a detail, so the Delta's colour is the row's only one", () => {
+    // Server markup keeps the color-mix() that happy-dom's style parser drops.
+    const html = renderToStaticMarkup(
+      <BarList
+        color="var(--negative)"
+        data={[
+          { name: "ITC", value: 50, detail: <Delta value={-0.06} /> },
+          { name: "TCS", value: 25 },
+        ]}
+      />,
+    );
+    const fills = [...html.matchAll(/data-slot="bar-list-bar"[^>]*background-color:([^"]+)"/g)].map(([, fill]) => fill);
+    expect(fills).toHaveLength(2);
+    expect(fills[0]).toContain("var(--muted-foreground) 20%");
+    expect(fills[1]).toContain("var(--negative)");
+  });
+
+  it("lays each label on a full-width track, so a short bar's end does not cut it", async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () => root?.render(<BarList data={[{ name: "WIPRO", value: 1 }]} max={100} />));
+    const track = document.querySelector('[data-slot="bar-list-track"]');
+    expect(track?.classList.contains("inset-0")).toBe(true);
+    expect(track?.nextElementSibling?.getAttribute("data-slot")).toBe("bar-list-bar");
   });
 });

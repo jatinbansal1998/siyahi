@@ -63,6 +63,7 @@ export default function TreemapExample() {
                 <span className="font-medium">
                   {hovered.name} · {hovered.broker}
                 </span>
+                <span>{hovered.group}</span>
                 <span>{figures(hovered)}</span>
               </>
             )}
@@ -75,7 +76,7 @@ export default function TreemapExample() {
               <span className="font-medium">
                 {selected.name} · {selected.broker}
               </span>{" "}
-              · {figures(selected)}
+              · {selected.group} · {figures(selected)}
             </>
           ) : (
             <span className="text-muted-foreground">Tap a tile for its figures</span>

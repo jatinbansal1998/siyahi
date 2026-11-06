@@ -69,11 +69,17 @@ export const HEAT_STEPS = 5;
 export const heatRange = (range = DEFAULT_RANGE): number =>
   Number.isFinite(range) && range > 0 ? range : DEFAULT_RANGE;
 
-// Step 1 to 5: 12% to 60% of --positive or --negative mixed into the card.
+// Step 1 to 5: 12% to 60% of --positive or --negative mixed into the card, and
+// 25% to 60% in dark, where a 12% tint of a dark card reads as the card itself.
 // oklab, not oklch: the card is achromatic, and an oklch mix would swing green
 // through orange on its way to it.
-export const heatFill = (side: "positive" | "negative", step: number): string =>
-  `color-mix(in oklab, var(--${side}) ${step * 12}%, var(--card))`;
+const DARK_FLOOR = 25;
+const TOP = HEAT_STEPS * 12;
+export const heatFill = (side: "positive" | "negative", step: number): string => {
+  const mix = (share: number) => `color-mix(in oklab, var(--${side}) ${share}%, var(--card))`;
+  const dark = DARK_FLOOR + ((step - 1) * (TOP - DARK_FLOOR)) / (HEAT_STEPS - 1);
+  return `light-dark(${mix(step * 12)}, ${mix(dark)})`;
+};
 
 // Five equal steps across ±range. A range that is not a positive number falls
 // back to the default rather than painting every tile at one end of the scale.

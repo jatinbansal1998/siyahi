@@ -94,7 +94,7 @@ describe("Treemap", () => {
       ],
     });
     const groups = [...document.querySelectorAll('[data-slot="treemap-group"]')];
-    expect(groups.map((g) => g.textContent)).toEqual(["IT", "Banks"]);
+    expect(groups.map((g) => g.querySelector("text")?.textContent)).toEqual(["IT", "Banks"]);
     const itGroup = box(groups[0]);
     for (const name of ["INFY", "TCS"]) {
       const t = box(tile(name));
@@ -102,6 +102,39 @@ describe("Treemap", () => {
       expect(t.right).toBeLessThanOrEqual(itGroup.right);
       expect(t.y).toBeGreaterThanOrEqual(itGroup.y + 18);
     }
+  });
+
+  it("drops a group's name that its column cannot hold to the tooltip, never cutting it short", async () => {
+    await render({
+      height: 300,
+      items: [
+        { name: "INFY", group: "IT", weight: 950, change: 0.01 },
+        { name: "LT", group: "Construction", weight: 50, change: 0.01 },
+      ],
+    });
+    const narrow = [...document.querySelectorAll('[data-slot="treemap-group"]')].find(
+      (g) => g.querySelector("title")?.textContent === "Construction",
+    );
+    expect(Number(narrow?.getAttribute("width"))).toBeLessThan("Construction".length * 6.6);
+    expect(narrow?.querySelector("text")).toBeNull();
+  });
+
+  it("writes no text on a tile too narrow or too short to hold it", async () => {
+    await render({
+      height: 300,
+      items: [
+        { name: "BIG", weight: 940, change: 0.01 },
+        { name: "SLIM", weight: 60, change: 0.01 },
+      ],
+    });
+    const slim = tiles().find((t) => t.getAttribute("aria-label")?.startsWith("SLIM"));
+    expect(Number(slim?.getAttribute("width"))).toBeLessThan(56);
+    expect(slim?.querySelector("text")).toBeNull();
+  });
+
+  it("starts dark mode's heat at a quarter tint, so the first step does not read as the card", async () => {
+    await render({ height: 300, items: [{ name: "INFY", weight: 100, change: 0.001 }] });
+    expect(fill("INFY")).toMatch(/^light-dark\(.*var\(--positive\) 12%.*, .*var\(--positive\) 25%.*\)$/);
   });
 
   it("keys tiles by key, so one name at two brokers draws two tiles", async () => {

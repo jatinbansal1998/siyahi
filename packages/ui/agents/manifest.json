@@ -675,6 +675,8 @@
         "CalendarHeatmap",
         "CalendarHeatmapBlock",
         "CalendarHeatmapBody",
+        "CalendarHeatmapFooter",
+        "CalendarHeatmapLegend",
         "useFormat",
         "Card",
         "CardContent",
@@ -693,7 +695,9 @@
         "CardTitle",
         "StatusHeatmap",
         "StatusHeatmapBlock",
-        "StatusHeatmapBody"
+        "StatusHeatmapBody",
+        "StatusHeatmapFooter",
+        "StatusHeatmapLegend"
       ]
     },
     {
@@ -707,7 +711,8 @@
         "CardTitle",
         "WeekdayHeatmap",
         "WeekdayHeatmapBlock",
-        "WeekdayHeatmapBody"
+        "WeekdayHeatmapBody",
+        "WeekdayHeatmapLegend"
       ]
     },
     {

@@ -1,7 +1,8 @@
-import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
 import { cn } from "cn";
 import { HEAT_STEPS, heat, heatFill, heatRange, layout } from "@siyahi/ui/lib/treemap";
+import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 export interface TreemapItem {
   name: string;
@@ -34,16 +35,10 @@ export interface TreemapProps<T extends TreemapItem> {
 
 /** Holdings heat map: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
 export function Treemap<T extends TreemapItem>({ items, height, range, onHover, selected, onSelect }: TreemapProps<T>) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
+  const [ref, width] = useElementWidth<HTMLDivElement>();
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const selectedKey = selected ? (selected.key ?? selected.name) : null;
   const { pct } = useFormat();
-  useLayoutEffect(() => {
-    const observer = new ResizeObserver(([entry]) => setWidth(entry?.contentRect.width ?? 0));
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
   // A tap on a tile is handled by the tile's own click; any other tap clears.
   const clearOutside = useEffectEvent((event: PointerEvent) => {
     const tile = event.target instanceof Element ? event.target.closest('[data-slot="treemap-tile"]') : null;
@@ -75,9 +70,13 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
         {groups.map(({ group, ...box }) => (
           <svg key={group} {...box} data-slot="treemap-group" onPointerEnter={() => onHover?.(null)}>
             <rect width="100%" height="100%" fill="none" pointerEvents="all" />
-            <text x={2} y={12} className="fill-muted-foreground font-medium">
-              {fit(group, box.width - 4)}
-            </text>
+            <title>{group}</title>
+            {/* A name cut to "Co…" reads as a different word; a group too narrow for its name drops it to the tooltip. */}
+            {textWidth(group) <= box.width - 4 && (
+              <text x={2} y={12} className="fill-muted-foreground font-medium">
+                {group}
+              </text>
+            )}
           </svg>
         ))}
         {tiles.map(({ item, ...box }, index) => {
@@ -142,12 +141,14 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
                   className="stroke-foreground"
                 />
               )}
-              {box.width > 56 && box.height > 36 && (
+              {box.width >= MIN_LABEL_WIDTH && box.height >= MIN_LABEL_HEIGHT && (
                 <text x={8} y={18} className="fill-foreground">
                   <tspan className="font-medium">{fit(item.name, box.width - 16)}</tspan>
-                  <tspan x={8} dy={16}>
-                    {change(item.change)}
-                  </tspan>
+                  {box.height >= TWO_LINE_HEIGHT && (
+                    <tspan x={8} dy={16}>
+                      {change(item.change)}
+                    </tspan>
+                  )}
                 </text>
               )}
             </svg>
@@ -162,10 +163,15 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
 // Geist at text-xs averages about 6.6px a character; a label longer than its box ends in an ellipsis instead
 // of being cut mid-letter by the box's clip.
 const CHAR_PX = 6.6;
+const textWidth = (text: string): number => text.length * CHAR_PX;
 function fit(text: string, width: number): string {
   const room = Math.floor(width / CHAR_PX);
   return text.length <= room ? text : `${text.slice(0, Math.max(room - 1, 1)).trimEnd()}…`;
 }
+// Below these a tile's text is a few clipped letters; its figures stay in the hover and the aria-label.
+const MIN_LABEL_WIDTH = 56;
+const MIN_LABEL_HEIGHT = 28;
+const TWO_LINE_HEIGHT = 44;
 
 function Swatch({ label, fill }: { label: string; fill: string }) {
   return (

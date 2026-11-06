@@ -10,6 +10,8 @@
 // positive z-index paints over the table instead of under it.
 // Siyahi edit: the scrolling region is named and keyboard focusable, so every
 // column remains reachable without a pointer.
+// Siyahi edit: a pinned column casts its shadow only while content is
+// scrolled under it; at rest its hairline is enough.
 "use client"
 
 /**
@@ -185,10 +187,35 @@ export function DataTable({
   // Register the scroll container so opt-in features (e.g.
   // `<DataTableColumnAutoFit />`) can measure/observe the viewport width.
   const { registerScrollContainer } = useDataTable()
+  const [under, setUnder] = React.useState({ start: false, end: false })
+  const measureUnder = React.useCallback((el: HTMLDivElement) => {
+    const start = el.scrollLeft > 0
+    const end = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+    setUnder((prev) =>
+      prev.start === start && prev.end === end ? prev : { start, end },
+    )
+  }, [])
+  const containerRef = React.useCallback(
+    (el: HTMLDivElement | null) => {
+      registerScrollContainer(el)
+      if (!el) return
+      measureUnder(el)
+      const observer = new ResizeObserver(() => measureUnder(el))
+      observer.observe(el)
+      return () => {
+        observer.disconnect()
+        registerScrollContainer(null)
+      }
+    },
+    [registerScrollContainer, measureUnder],
+  )
 
   return (
     <div
-      ref={registerScrollContainer}
+      ref={containerRef}
+      onScroll={(event) => measureUnder(event.currentTarget)}
+      data-scrolled-start={under.start || undefined}
+      data-scrolled-end={under.end || undefined}
       data-slot="table-container"
       role="region"
       aria-label={labelledBy ? undefined : label}
@@ -196,6 +223,8 @@ export function DataTable({
       tabIndex={0}
       className={cn(
         "relative isolate w-full overflow-auto rounded-lg border",
+        "data-scrolled-start:[--pinned-start-shadow:4px_0_6px_-4px_var(--pinned-shadow)] data-scrolled-end:[--pinned-end-shadow:-4px_0_6px_-4px_var(--pinned-shadow)]",
+        "[--pinned-shadow:color-mix(in_oklab,var(--foreground)_16%,transparent)] dark:[--pinned-shadow:var(--background)]",
         // Custom scrollbar styling to match ScrollArea aesthetic
         // Scrollbar visible but subtle by default, more prominent on hover
         "[&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar]:w-2.5",
