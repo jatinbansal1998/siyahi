@@ -406,6 +406,69 @@ export const data: Page = {
       ],
     },
     {
+      id: "histogram-chart",
+      title: "Histogram",
+      lead: "HistogramChartCard shows how values spread: counts in buckets of one round width, with the median or a high percentile marked.",
+      imports: ["HistogramChartCard", "type HistogramMark"],
+      props: [
+        {
+          name: "values",
+          type: "number[]",
+          purpose: "The raw values, one per item, such as each request's response time. NaN is left out.",
+        },
+        {
+          name: "bins",
+          type: "number",
+          default: "12",
+          purpose:
+            "About how many buckets; the width is rounded to 1, 2, 2.5 or 5 × 10ⁿ, so the count varies a little.",
+        },
+        {
+          name: "valueFormatter",
+          type: "(value: number) => string",
+          default: "locale numbers",
+          purpose: "Writes the bucket edges and the marks, such as (v) => `${v} ms`.",
+        },
+        {
+          name: "tickFormatter",
+          type: "(value: number) => string",
+          default: "valueFormatter",
+          purpose: "Shorter bucket edges under the axis, with the unit in xLabel: 1,000 against 1,000 ms.",
+        },
+        {
+          name: "countLabel",
+          type: "string",
+          default: '"Count"',
+          purpose: "What is counted, in the legend and tooltip.",
+        },
+        {
+          name: "marks",
+          type: '("median" | "p90" | "p95" | "p99")[]',
+          default: "[]",
+          purpose: "Percentiles to mark with a line at their bucket; their exact values are written under the chart.",
+        },
+        {
+          name: "title, description, action, height, xLabel, yLabel, placeholder, footer",
+          type: "as BarChartCard",
+          default: "—",
+          purpose: "As on the other chart cards.",
+        },
+      ],
+      rules: [
+        "Give it the raw values; the card buckets them. Counts already bucketed, such as orders by hour, are a BarChartCard.",
+        "Every bar is --chart-1: a bucket is a range of one measure, not a category, and not a gain or a loss.",
+        "A percentile line sits on the bucket that holds it, named on the plot; its exact value, worked out between the two nearest values as spreadsheets do, is written under the chart, so a phone reads it without a hover.",
+        "Each tick names its bucket's lower edge and the tooltip gives the whole range. Name the bucket width in the description.",
+      ],
+      examples: [
+        {
+          name: "histogram-chart",
+          caption:
+            "2,000 checkout requests' response times in 50 ms buckets, with the median and 95th percentile marked.",
+        },
+      ],
+    },
+    {
       id: "data-table",
       title: "Data table",
       lead: "niko-table on TanStack Table: faceted filters, sorting and a pinned first column, inside a card.",

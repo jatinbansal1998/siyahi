@@ -21,7 +21,7 @@ describe("DrawdownChartCard", { timeout: 60_000 }, () => {
     // Recharts draws a reference line's label in a layer of its own, so each is found by itself.
     await expect.poll(() => chart.getByText("Deepest −20.9%").count()).toBe(1);
     const lineY = Number(
-      await chart.locator('.recharts-reference-line line[stroke-dasharray="4 4"]').getAttribute("y1"),
+      await chart.locator('.recharts-reference-line-line[stroke-dasharray="4 4"]').getAttribute("y1"),
     );
     const lowest = await chart
       .locator(".recharts-area-curve")

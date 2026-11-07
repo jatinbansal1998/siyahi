@@ -340,7 +340,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await settled(lines);
     const drawn = await lines.evaluateAll((groups) =>
       groups.map((g) => {
-        const line = g.querySelector("line");
+        const line = g.querySelector(".recharts-reference-line-line");
         const box = line?.getBoundingClientRect();
         return {
           stroke: line?.getAttribute("stroke"),
@@ -414,7 +414,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(await ticks.allTextContents()).toEqual(["0%", "25%", "50%", "75%", "100%"]);
     // The 80% limit sits a fifth of the way down from the top of a 0 to 100 axis.
     const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
-    const limit = await chart.locator(".recharts-reference-line line").first().boundingBox();
+    const limit = await chart.locator(".recharts-reference-line-line").first().boundingBox();
     if (!grid || !limit) throw new Error("not laid out");
     expect(limit.y).toBeCloseTo(grid.y + 0.2 * grid.height, 0);
   });
@@ -608,7 +608,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await chart.scrollIntoViewIfNeeded();
     const layers = chart.locator(".recharts-bar");
     await settled(chart.locator(".recharts-bar-rectangle"));
-    const zero = await chart.locator(".recharts-reference-line line").first().boundingBox();
+    const zero = await chart.locator(".recharts-reference-line-line").first().boundingBox();
     if (!zero) throw new Error("no zero line");
     const ins = await layers
       .nth(0)
@@ -627,7 +627,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await show("bar-chart");
     const chart = card("Spend by team against plan or last year");
     await chart.scrollIntoViewIfNeeded();
-    const line = chart.locator(".recharts-reference-line line");
+    const line = chart.locator(".recharts-reference-line-line");
     await settled(line);
     const cap = await line.boundingBox();
     const bars = await chart
@@ -708,12 +708,12 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await chart.scrollIntoViewIfNeeded();
     const bars = chart.locator(".recharts-bar-rectangle path");
     await settled(bars);
-    const lines = chart.locator(".recharts-reference-line line");
+    const lines = chart.locator(".recharts-reference-line-line");
     await expect.poll(() => lines.count()).toBe(12);
     // April rises from zero, so its line runs along April's top, where May starts.
     const geometry = await chart.evaluate((el) => {
       const [line, april, may] = [
-        el.querySelector(".recharts-reference-line line"),
+        el.querySelector(".recharts-reference-line-line"),
         ...el.querySelectorAll(".recharts-bar-rectangle path"),
       ].map((node) =>
         Object.fromEntries(
