@@ -84,6 +84,12 @@ describe("contrast check", () => {
     expect(named(broken)).toContain("dark --foreground on --positive 75% in --card");
   });
 
+  it("fails a degraded day that a healthy day's grey swallows", () => {
+    // A darker muted grey still reads as text, but its 30% healthy fill comes too close to the amber.
+    const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.3 0 0)");
+    expect(named(broken)).toContain("light --warning on --muted-foreground/30 over --card");
+  });
+
   it("fails a treemap label on its deepest heat step", () => {
     const broken = setVar(themeCss, "dark", "positive", "oklch(0.74 0.16 151.711)");
     expect(named(broken)).toEqual(["dark --foreground on --positive 60% in --card"]);
@@ -145,7 +151,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 198\/198 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 206\/206 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

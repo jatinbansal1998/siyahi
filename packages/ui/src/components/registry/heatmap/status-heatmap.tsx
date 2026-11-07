@@ -9,6 +9,8 @@
 // Siyahi edit: legend entries sit gap-3 apart, so each label stays with its own swatch.
 // Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
 // ring in the text colour and announced as pressed, as a Treemap tile is.
+// Siyahi edit: a healthy day is 30% grey (was 40%), so a light degraded day's
+// amber reaches 3:1 against it; contrast.mjs checks both status colours on it.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -73,7 +75,7 @@ const DEFAULT_COLORS: Record<number, string> = {
   0: "var(--color-secondary)",
   1: "var(--destructive)", // critical
   2: "var(--warning)", // degraded
-  3: "color-mix(in oklab, var(--muted-foreground) 40%, transparent)", // healthy
+  3: "color-mix(in oklab, var(--muted-foreground) 30%, transparent)", // healthy
 };
 
 const SEMANTIC_KEYS: Record<
