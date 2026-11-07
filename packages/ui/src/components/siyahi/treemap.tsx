@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
 import { cn } from "cn";
 import { HEAT_STEPS, heat, heatFill, heatRange } from "@siyahi/ui/lib/heat";
+import { fit, textWidth } from "@siyahi/ui/lib/fit-text";
 import { layout } from "@siyahi/ui/lib/treemap";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
@@ -171,14 +172,6 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
 }
 
 // Painted with an SVG fill, as the tiles are, so a swatch and a tile of one step are the same colour.
-// Geist at text-xs averages about 6.6px a character; a label longer than its box ends in an ellipsis instead
-// of being cut mid-letter by the box's clip.
-const CHAR_PX = 6.6;
-const textWidth = (text: string): number => text.length * CHAR_PX;
-function fit(text: string, width: number): string {
-  const room = Math.floor(width / CHAR_PX);
-  return text.length <= room ? text : `${text.slice(0, Math.max(room - 1, 1)).trimEnd()}…`;
-}
 // Below these a tile's text is a few clipped letters; its figures stay in the hover and the aria-label.
 const MIN_LABEL_WIDTH = 56;
 const MIN_LABEL_HEIGHT = 28;

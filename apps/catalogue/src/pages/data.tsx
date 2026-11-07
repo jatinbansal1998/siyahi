@@ -560,6 +560,55 @@ export const data: Page = {
       ],
     },
     {
+      id: "slope-chart",
+      title: "Slope chart",
+      lead: "SlopeChart draws each item as a line from a value on the left to one on the right: one year against the next, or our mix against a benchmark's.",
+      imports: ["SlopeChart", "type SlopeItem"],
+      props: [
+        {
+          name: "items",
+          type: "SlopeItem[]",
+          purpose: "{ name, from, to, key? } per line; from is the left value, to the right.",
+        },
+        {
+          name: "fromLabel, toLabel",
+          type: "string",
+          purpose: 'Head the two sides: "2025" and "2026", "Region" and "This store".',
+        },
+        {
+          name: "highlighted",
+          type: "string[]",
+          default: "[]",
+          purpose: "Keys, or names, of the lines to draw in --chart-1; the rest stay grey.",
+        },
+        {
+          name: "valueFormatter",
+          type: "(value: number) => string",
+          default: "useFormat().pct",
+          purpose: "Writes the value at each end.",
+        },
+      ],
+      rules: [
+        "Lines are grey; pick the two or three the page is about with highlighted, such as the ones furthest from the benchmark. Up is not a gain here, so never colour lines green and red.",
+        "Names sit on the left with the left value, the right value on the right; labels that would touch are nudged apart, and each line still starts and ends at its true value.",
+        "Put the comparison (last year, the benchmark) on the left and the figure the page is about on the right.",
+        "An item without both values (null or NaN) is not drawn and not read out: say on the page how many are left out.",
+        "The height follows the number of items. Past about fifteen lines, show the ones that moved most and list the rest in a table.",
+        "A change for each item with no shared before and after is a BarList or a ChangeBar column.",
+      ],
+      examples: [
+        {
+          name: "slope-chart",
+          caption: "A bookshop's sales by channel, last year against this, the two that moved most in colour.",
+        },
+        {
+          name: "slope-chart-market",
+          caption:
+            "A store's aisles against the region's mix, with long names and the aisles three points apart in colour.",
+        },
+      ],
+    },
+    {
       id: "price-chart",
       title: "PriceChart",
       lead: "TradingView Lightweight Charts in theme colours, for a long daily series such as a price or an order value.",

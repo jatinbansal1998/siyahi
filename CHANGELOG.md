@@ -10,6 +10,12 @@
   tooltip lists the page's rows, which a screen reader also hears. A tap, Enter
   or Space rings a dot (`selected`, `onSelect`), and the arrow keys walk the
   dots. A point with a null y is not drawn.
+- New: `SlopeChart` draws each item as a line from a value on the left to one
+  on the right, such as share of sales last year and this, or a store's mix
+  against the region's. Lines are grey and `highlighted` ones take `--chart-1`;
+  names sit on the left, values at both ends, nudged apart so none overlap; a
+  screen reader hears each item's two values. Treemap's label fitting moves to
+  `lib/fit-text.ts`, shared with SlopeChart.
 - New: `ChangeGrid` lays out signed changes rows by columns, such as sales
   growth by month and year or profit by store and quarter: every cell writes
   its figure with its sign on the Treemap's heat tint, `null` months are muted
