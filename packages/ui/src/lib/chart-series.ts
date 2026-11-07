@@ -15,7 +15,7 @@ export type ChartColor =
   | "var(--negative)";
 
 /** The fields of a row that hold numbers: the ones a series can plot. */
-type NumericKey<T> = { [K in keyof T]-?: T[K] extends number | null | undefined ? K : never }[keyof T] & string;
+export type NumericKey<T> = { [K in keyof T]-?: T[K] extends number | null | undefined ? K : never }[keyof T] & string;
 
 /** One series: the field it plots, its name in the legend and tooltip, and its colour. */
 export interface ChartSeriesItem<T> {

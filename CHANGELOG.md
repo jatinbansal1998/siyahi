@@ -2,6 +2,12 @@
 
 ## 0.1.9
 
+- New: `DrawdownChartCard` shows how far a level sits below the highest it had
+  reached, such as a fund's or a cash balance's fall from its peak: the area
+  hangs from zero in the loss colour and a dashed line names the deepest fall.
+  The page gives the levels; the card keeps the running peak.
+  Every chart card's reference-line labels now carry a card-coloured halo, so
+  they read over a bar or an area they cross.
 - `CalendarHeatmap` takes `signed` (and `range`): each day is green or red by
   its sign, deeper the larger it is, on the same heat steps as Treemap and
   ChangeGrid, inside a full-colour edge, a loss round and a gain square, so

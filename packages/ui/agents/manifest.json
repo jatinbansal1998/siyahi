@@ -155,6 +155,13 @@
       ]
     },
     {
+      "need": "How far a level fell below its highest so far, over time, such as a fund's or a cash balance's drawdown",
+      "guidance": "`DrawdownChartCard` with the levels in `levelKey`",
+      "components": [
+        "DrawdownChartCard"
+      ]
+    },
+    {
       "need": "A long daily series, such as a price or an order value",
       "guidance": "`PriceChart`",
       "components": [
@@ -768,6 +775,13 @@
         "CardTitle",
         "Delta",
         "DistributionBar"
+      ]
+    },
+    {
+      "file": "agents/examples/drawdown-chart.tsx",
+      "components": [
+        "DrawdownChartCard",
+        "useFormat"
       ]
     },
     {

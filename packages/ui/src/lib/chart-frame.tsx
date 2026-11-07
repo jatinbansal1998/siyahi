@@ -447,7 +447,13 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   label={
                     label === undefined
                       ? undefined
-                      : { value: label, position: labelPosition, className: "fill-muted-foreground text-xs" }
+                      : {
+                          value: label,
+                          position: labelPosition,
+                          // A halo in the card's colour keeps the label readable over a bar or an area it crosses.
+                          className: "fill-muted-foreground stroke-card text-xs",
+                          style: { paintOrder: "stroke", strokeWidth: 3, strokeLinejoin: "round" },
+                        }
                   }
                 />
               ))}
