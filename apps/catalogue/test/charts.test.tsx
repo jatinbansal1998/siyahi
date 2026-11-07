@@ -734,4 +734,16 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(geometry.line.from).toBeLessThan(geometry.april.right);
     expect(geometry.line.to).toBeGreaterThan(geometry.may.left);
   });
+
+  it("shows the band behind a hovered category at 40%, so a pale bar keeps 3:1 against it", async () => {
+    await show("bar-chart");
+    const chart = card("Orders by hour");
+    await chart.scrollIntoViewIfNeeded();
+    const bar = chart.locator(".recharts-bar-rectangle").nth(3);
+    const { x, y } = await center(bar);
+    await page.mouse.move(x, y);
+    const cursor = chart.locator(".recharts-tooltip-cursor");
+    await expect.poll(() => cursor.count()).toBe(1);
+    expect(await cursor.evaluate((el) => getComputedStyle(el).fillOpacity)).toBe("0.4");
+  });
 });

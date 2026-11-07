@@ -26,7 +26,11 @@ import { readTheme } from "./theme.mjs";
  * a treemap tile.
  * @typedef {string} Paint
  */
-/** @typedef {{ fg: Paint, bg: Paint, min: number, scheme?: Scheme }} Pair */
+/**
+ * `surface` limits a pair to the canvas or the card, for a paint only one of them ever holds, such as a chart card's
+ * hover band.
+ * @typedef {{ fg: Paint, bg: Paint, min: number, scheme?: Scheme, surface?: "background" | "card" }} Pair
+ */
 
 const TEXT = 4.5;
 const MARK = 3;
@@ -102,10 +106,10 @@ const PAIRS = [
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "", min: MARK })),
   ...CHARTS.slice(0, -1).map((fg, i) => ({ fg, bg: CHARTS[i + 1] ?? "", min: MARK })),
   // A waterfall's rise and fall: the full-colour edge against the tint it
-  // encloses, on the bar and its legend chip; and every bar's colour against
-  // the muted cursor Recharts lays behind a hovered category.
+  // encloses, on the bar and its legend chip; and every bar colour against the
+  // 40% muted band a chart card lays behind a hovered category (lib/chart-frame).
   ...["positive", "negative"].map((side) => ({ fg: side, bg: `${side}@35`, min: MARK })),
-  ...["chart-1", "positive", "negative"].map((fg) => ({ fg, bg: "muted", min: MARK })),
+  ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "muted/40", min: MARK, surface: "card" })),
   // A chart card's footer text, on the footer's muted wash.
   { fg: "foreground", bg: "muted/50", min: TEXT },
   // Treemap labels on every heat step (lib/treemap.ts heatFill): 12% to 60% of
@@ -147,6 +151,7 @@ export function checkContrast(theme) {
     for (const pair of PAIRS) {
       if (pair.scheme && pair.scheme !== scheme) continue;
       for (const surface of SURFACES) {
+        if (pair.surface && pair.surface !== surface) continue;
         const page = { rgb: oklchToSrgb(token(surface)), name: `--${surface}` };
         const bg = pair.bg ? paintOver(pair.bg, page) : page;
         const fg = paintOver(pair.fg, bg);

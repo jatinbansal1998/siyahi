@@ -451,6 +451,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 />
               ))}
               <ChartTooltip
+                // The core chart paints the band behind a hovered category in --muted; at full strength the pale
+                // chart slots fell under 3:1 against it, so it shows at 40%.
+                cursor={{ fillOpacity: 0.4 }}
                 content={
                   <ChartTooltipContent
                     // The heading comes from the hovered row, not Recharts' label,
