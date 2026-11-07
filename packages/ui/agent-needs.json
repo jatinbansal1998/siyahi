@@ -28,6 +28,10 @@
     "guidance": "a series with `color` and `negativeColor`"
   },
   {
+    "need": "A total built up or bridged step by step, such as a year's profit month by month or revenue from last year to this by store",
+    "guidance": "`WaterfallChartCard`; `horizontal` for long names"
+  },
+  {
     "need": "Ranked counts or amounts by category (a name, a bar and a figure)",
     "guidance": "`BarList`; give two lists one `max` to share a scale"
   },

@@ -289,6 +289,73 @@ export const data: Page = {
       ],
     },
     {
+      id: "waterfall-chart",
+      title: "Waterfall",
+      lead: "WaterfallChartCard bridges a running total step by step: where it starts, each change that moved it, and where it ends.",
+      imports: ["WaterfallChartCard", "type WaterfallStep"],
+      props: [
+        {
+          name: "steps",
+          type: "WaterfallStep[]",
+          purpose:
+            '{ kind: "change", label, value, key? } moves the running total; { kind: "total", label, value?, key? } draws it from zero.',
+        },
+        {
+          name: "steps[].value (total)",
+          type: "number",
+          default: "the running total",
+          purpose: "Sets the total instead of reading it, as an opening balance does.",
+        },
+        {
+          name: "horizontal",
+          type: "boolean",
+          default: "false",
+          purpose: "Bars run sideways with the labels down the left, for long names; give a height that fits the rows.",
+        },
+        {
+          name: "labels",
+          type: "{ rise, fall, total }",
+          default: '"Increase", "Decrease", "Total"',
+          purpose: "What the legend and the tooltip call each kind of bar.",
+        },
+        {
+          name: "valueFormatter",
+          type: "(value: number) => string",
+          default: "locale numbers",
+          purpose: "Writes the tooltip's figures; a change gets its + or − in front.",
+        },
+        {
+          name: "yTickFormatter",
+          type: "(value: number, scale: number) => string",
+          default: "valueFormatter",
+          purpose: "Shorter value ticks than the tooltip's figures: moneyCompact against money.",
+        },
+        { name: "title, height", type: "ReactNode, number", purpose: "As on BarChartCard." },
+        {
+          name: "description, action, yLabel, referenceLines, placeholder, footer",
+          type: "as BarChartCard",
+          default: "—",
+          purpose: "As on BarChartCard.",
+        },
+      ],
+      rules: [
+        "A rise is green and a fall red, each a tint inside a full-colour edge; a total is solid --chart-1. Use it where up is good, such as profit or revenue; for costs, show the saving as the change.",
+        "A dashed line carries each level across the gap to the next bar, so the eye follows the running total.",
+        "A total with a value that differs from the running total starts a new level, and no line joins it to the bar before.",
+        "Changes that share no running total, such as each team's growth, are a BarChartCard with negativeColor.",
+      ],
+      examples: [
+        {
+          name: "waterfall-chart",
+          caption: "A year's profit month by month, ending on a total read from the running sum.",
+        },
+        {
+          name: "waterfall-chart-stores",
+          caption: "Sideways bars from last year's revenue to this year's, store by store, with long names.",
+        },
+      ],
+    },
+    {
       id: "data-table",
       title: "Data table",
       lead: "niko-table on TanStack Table: faceted filters, sorting and a pinned first column, inside a card.",
