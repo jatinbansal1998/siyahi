@@ -1,4 +1,4 @@
-import { useMemo, type ComponentProps, type ReactNode } from "react";
+import { useMemo, type ComponentProps, type ReactElement, type ReactNode } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 import {
   AreaChart,
@@ -46,6 +46,8 @@ const AXIS_TITLE = "fill-muted-foreground text-xs";
 // muted-tick rule no longer reaches, so they would keep Recharts' #666 in both schemes.
 const TICK = { className: "fill-muted-foreground font-mono" };
 const NO_LINES: readonly ChartReferenceLine[] = [];
+// Five series' names do not fit one line on a phone; they wrap rather than run past the card.
+const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
 
 interface ChartFrameProps<T extends object, K extends keyof T>
   extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps {
@@ -63,6 +65,10 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
   stackOffset?: "sign";
   onClick?: ComponentProps<typeof BarChart>["onClick"];
+  /** A tooltip row per hovered mark; by default each series' colour, label and formatted value (seriesRow). */
+  tooltipRow?: ComponentProps<typeof ChartTooltipContent>["formatter"];
+  /** The legend under the plot; by default one chip per series. */
+  legend?: ReactElement;
 }
 
 /**
@@ -265,6 +271,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
   horizontal = false,
   stackOffset,
   onClick,
+  tooltipRow,
+  legend = SERIES_LEGEND,
   title,
   description,
   action,
@@ -444,6 +452,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 />
               ))}
               <ChartTooltip
+                // The core chart paints the band behind a hovered category in --muted; at full strength the pale
+                // chart slots fell under 3:1 against it, so it shows at 40%.
+                cursor={{ fillOpacity: 0.4 }}
                 content={
                   <ChartTooltipContent
                     // The heading comes from the hovered row, not Recharts' label,
@@ -452,12 +463,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
                       const row = payload[0]?.payload as T | undefined;
                       return row ? xTooltipFormatter(row[xKey]) : null;
                     }}
-                    formatter={seriesRow(series, formatValue)}
+                    formatter={tooltipRow ?? seriesRow(series, formatValue)}
                   />
                 }
               />
               {children}
-              <ChartLegend content={<ChartLegendContent />} itemSorter={null} />
+              <ChartLegend content={legend} itemSorter={null} />
             </Chart>
           </ChartContainer>
         )}

@@ -689,4 +689,74 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(await chart.locator('.recharts-bar-rectangle path[name="Net profit"]').count()).toBe(await bars.count());
     expect(await page.locator('.recharts-surface [name="undefined"]').count()).toBe(0);
   });
+
+  it("a waterfall's tooltip gives the step's signed change and the running total after it", async () => {
+    await show("waterfall-chart");
+    const chart = card("Profit for the year, month by month");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    await expect.poll(() => bars.count()).toBe(13);
+    await settled(bars);
+    await onePlot(chart);
+    const { x, y } = await center(bars.nth(2));
+    expect(await tooltipAt(chart, x, y, "Jun")).toEqual(["Jun", "Loss", "−₹12,000", "Running total", "₹68,000"]);
+  });
+
+  it("a waterfall's dashed line carries each level to the edge of the next bar", async () => {
+    await show("waterfall-chart");
+    const chart = card("Profit for the year, month by month");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle path");
+    await settled(bars);
+    const lines = chart.locator(".recharts-reference-line line");
+    await expect.poll(() => lines.count()).toBe(12);
+    // April rises from zero, so its line runs along April's top, where May starts.
+    const geometry = await chart.evaluate((el) => {
+      const [line, april, may] = [
+        el.querySelector(".recharts-reference-line line"),
+        ...el.querySelectorAll(".recharts-bar-rectangle path"),
+      ].map((node) =>
+        Object.fromEntries(
+          ["x", "y", "width", "height", "x1", "x2", "y1", "y2"].map((name) => [name, Number(node?.getAttribute(name))]),
+        ),
+      );
+      if (!line || !april || !may) throw new Error("not drawn");
+      return {
+        line: { y: line.y1!, y2: line.y2!, from: line.x1!, to: line.x2! },
+        april: { top: april.y!, right: april.x! + april.width! },
+        may: { bottom: may.y! + may.height!, left: may.x! },
+      };
+    });
+    expect(geometry.line.y2).toBe(geometry.line.y);
+    expect(geometry.line.y).toBeCloseTo(geometry.april.top, 1);
+    expect(geometry.line.y).toBeCloseTo(geometry.may.bottom, 1);
+    // It spans the gap between the two bars.
+    expect(geometry.line.from).toBeLessThan(geometry.april.right);
+    expect(geometry.line.to).toBeGreaterThan(geometry.may.left);
+  });
+
+  it("shows the band behind a hovered category at 40%, so a pale bar keeps 3:1 against it", async () => {
+    await show("bar-chart");
+    const chart = card("Orders by hour");
+    await chart.scrollIntoViewIfNeeded();
+    const bar = chart.locator(".recharts-bar-rectangle").nth(3);
+    const { x, y } = await center(bar);
+    await page.mouse.move(x, y);
+    const cursor = chart.locator(".recharts-tooltip-cursor");
+    await expect.poll(() => cursor.count()).toBe(1);
+    expect(await cursor.evaluate((el) => getComputedStyle(el).fillOpacity)).toBe("0.4");
+  });
+
+  it("wraps a five-series legend on a phone instead of running it past the card", async () => {
+    await show("bar-chart");
+    await page.setViewportSize({ width: 390, height: 900 });
+    const chart = card("Revenue by channel and quarter");
+    await chart.scrollIntoViewIfNeeded();
+    const items = chart.locator(".recharts-legend-wrapper > div > div");
+    await expect.poll(() => items.count()).toBe(5);
+    const frame = (await chart.boundingBox())!;
+    const boxes = await items.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    expect(boxes.filter((box) => box.left < frame.x || box.right > frame.x + frame.width)).toEqual([]);
+    await page.setViewportSize({ width: 1280, height: 900 });
+  });
 });

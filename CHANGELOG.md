@@ -10,6 +10,15 @@
   tooltip lists the page's rows, which a screen reader also hears. A tap, Enter
   or Space rings a dot (`selected`, `onSelect`), and the arrow keys walk the
   dots. A point with a null y is not drawn.
+- New: `WaterfallChartCard` bridges a running total step by step, such as a
+  year's profit month by month or revenue from last year to this by store.
+  Rises and falls are tinted green and red inside a full edge, totals are solid
+  `--chart-1`, and a dashed line carries each level to the next bar.
+  The band behind a hovered category on every chart card is now 40% `--muted`
+  (light `--chart-2` and `--chart-4` bars were 2.9:1 against the full band).
+  A chart card's legend wraps on a phone instead of running five series' names
+  past the card.
+  `horizontal` lays it sideways for long names.
 - `Delta` sits on the text's baseline again: its icon had lifted the line and
   made table rows taller. A button rendered as a popover or menu trigger keeps
   the faint button edge in dark mode instead of the field edge.

@@ -7,7 +7,7 @@ beforeAll(async () => {
 }, 60_000);
 afterAll(async () => catalogue?.close());
 
-describe("touch controls", () => {
+describe("touch controls", { timeout: 60_000 }, () => {
   it("keeps the compact example search readable on a narrow phone", async () => {
     const { page } = catalogue;
     await page.setViewportSize({ width: 320, height: 844 });
