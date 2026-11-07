@@ -33,6 +33,15 @@ describe("ChangeGrid", () => {
     expect(texts).toEqual(["+₹5.2L", "−₹0.42L", "₹0"]);
   });
 
+  it("treats NaN as no figure, so it neither shows nor spoils the grid's unit", () => {
+    const texts = cells([{ label: "Koramangala", values: [Number.NaN, 520_000, -42_000] }], "money");
+    expect(texts).toEqual([
+      { text: "—", fill: "var(--muted)" },
+      expect.objectContaining({ text: "+₹5.2L" }),
+      expect.objectContaining({ text: "−₹0.42L" }),
+    ]);
+  });
+
   it("draws the total column only when a row has a total, untinted", () => {
     const without = renderToStaticMarkup(
       <ChangeGrid label="Growth" columns={["Apr"]} rows={[{ label: "FY25", values: [0.01] }]} />,

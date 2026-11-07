@@ -5,7 +5,7 @@ import { heat } from "@siyahi/ui/lib/heat";
 
 export interface ChangeGridRow {
   label: string;
-  /** One figure per column, in column order; null where there is none, such as a month still to come. */
+  /** One figure per column, in column order; null where there is none, such as a month still to come. NaN counts as none. */
   values: readonly (number | null)[];
   /** The row's total as the page works it out: monthly returns compound rather than add. Leave it out for no total. */
   total?: number | null;
@@ -30,6 +30,10 @@ export interface ChangeGridProps {
 
 const MINUS = "−";
 
+/** A figure the grid can draw: anything that is not a finite number, NaN included, is no figure at all. */
+const known = (value: number | null | undefined): number | null =>
+  value != null && Number.isFinite(value) ? value : null;
+
 /**
  * Signed changes laid out rows by columns, such as each month of each year, every cell tinted by its sign and size
  * as a Treemap tile is and written with its sign, with an optional total per row. The figure is always written, so
@@ -45,8 +49,8 @@ export function ChangeGrid({
   className,
 }: ChangeGridProps) {
   const f = useFormat();
-  const sizes = rows.flatMap(({ values }) => values.flatMap((value) => (value === null ? [] : Math.abs(value))));
-  const deepest = range ?? Math.max(0, ...sizes);
+  const sizes = rows.flatMap(({ values }) => values.flatMap((value) => known(value) ?? []).map(Math.abs));
+  const deepest = known(range) ?? Math.max(0, ...sizes);
   const write = (value: number | null) => {
     if (value === null) return "—";
     const size = format === "money" ? f.moneyCompact(Math.abs(value), deepest) : f.pct(Math.abs(value));
@@ -77,7 +81,7 @@ export function ChangeGrid({
               {row.label}
             </TableHead>
             {columns.map((column, index) => {
-              const value = row.values[index] ?? null;
+              const value = known(row.values[index]);
               return (
                 <TableCell
                   key={column}
@@ -93,9 +97,7 @@ export function ChangeGrid({
               );
             })}
             {totals && (
-              <TableCell className="text-right font-mono font-medium tabular-nums">
-                {write(row.total ?? null)}
-              </TableCell>
+              <TableCell className="text-right font-mono font-medium tabular-nums">{write(known(row.total))}</TableCell>
             )}
           </TableRow>
         ))}
