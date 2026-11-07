@@ -12,6 +12,17 @@
 // Siyahi edit: legend swatches keep one size however large the cells grow.
 // Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
 // ring in the text colour and announced as pressed, as a Treemap tile is.
+// Siyahi edit: `signed` colours each day by its sign and size on the Treemap
+// and ChangeGrid heat scale (lib/heat.ts), deepest at `range` or the largest
+// day, and the legend shows its loss and gain steps: a daily profit or loss
+// has no single direction for one hue's fade to follow. A signed day carries a
+// full-colour edge (3:1 on the card, which its faint tint is not), a loss is
+// round and a gain square so the sign never rests on colour alone, and a day
+// with no change or no figure is muted inside the field-edge colour.
+// Siyahi edit: hover, `highlighted` and keyboard focus draw an outline (the
+// text colour, or the focus ring's) and never fade the day's colour; the ring
+// a focused SVG cell was given never drew. The picked cell's ring is a
+// class too, so focus outranks it.
 import type { Locale, Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
@@ -31,6 +42,7 @@ import { cn } from "@siyahi/ui/lib/utils";
 // Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
 import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
+import { HEAT_STEPS, heat, heatFill } from "@siyahi/ui/lib/heat";
 
 export type Activity = {
   date: string;
@@ -78,7 +90,6 @@ const getLevelFill = (
   level: number,
   levels: number,
   isNormalized: boolean,
-  highlighted = false,
   colors?: ColorConfig,
 ): string => {
   const emptyColor = colors?.empty ?? "var(--color-secondary)";
@@ -88,8 +99,7 @@ const getLevelFill = (
   const steps = colorStepCount(levels, isNormalized);
   const opacity =
     steps === 1 ? 100 : Math.round(20 + ((level - 1) * 80) / (steps - 1));
-  const finalOpacity = highlighted ? Math.round(opacity * 0.6) : opacity;
-  return `color-mix(in oklch, ${scaleColor} ${finalOpacity}%, transparent)`;
+  return `color-mix(in oklch, ${scaleColor} ${opacity}%, transparent)`;
 };
 
 const calculateLevel = (
@@ -150,6 +160,15 @@ type CalendarHeatmapContextType = {
   continuousMonths: boolean;
   locale?: Locale;
   colors?: ColorConfig;
+  /** The change that takes the deepest step when the heatmap is signed; null when it fades one hue. */
+  signedRange: number | null;
+};
+
+/** How a signed day is drawn: its heat tint, the edge that carries its sign's colour, and whether it is round. */
+const signedMark = (value: number) => {
+  const known = Number.isFinite(value) ? value : 0;
+  const side = known > 0 ? "var(--positive)" : known < 0 ? "var(--negative)" : "var(--input)";
+  return { stroke: side, round: known < 0 };
 };
 
 const EMPTY_STYLE: CSSProperties = {};
@@ -428,6 +447,10 @@ export type CalendarHeatmapProps = HTMLAttributes<HTMLDivElement> & {
   blockAspectRatio?: number;
   levels?: number;
   isNormalized?: boolean;
+  /** Colour each day green or red by its sign, deeper the larger it is, for a daily gain or loss. */
+  signed?: boolean;
+  /** With signed: the size that takes the deepest step. Defaults to the largest day's. */
+  range?: number;
   colors?: ColorConfig;
   locale?: Locale;
   labels?: Labels;
@@ -483,6 +506,8 @@ export const CalendarHeatmap = ({
   blockAspectRatio = 1,
   levels: levelsProp = 5,
   isNormalized = false,
+  signed = false,
+  range,
   colors,
   locale,
   labels: labelsProp,
@@ -525,6 +550,11 @@ export const CalendarHeatmap = ({
     [dataWithLevels, weekStart, hasEmptyColumn, continuousMonths],
   );
   const weeks = useMemo(() => yearRows.flatMap((r) => r.weeks), [yearRows]);
+  const signedRange = useMemo(() => {
+    if (!signed) return null;
+    if (range !== undefined && Number.isFinite(range) && range > 0) return range;
+    return Math.max(0, ...data.map((d) => (Number.isFinite(d.value) ? Math.abs(d.value) : 0)));
+  }, [signed, range, data]);
 
   const labels = useMemo(
     () => ({
@@ -588,6 +618,7 @@ export const CalendarHeatmap = ({
       continuousMonths,
       locale,
       colors,
+      signedRange,
     }),
     [
       dataWithLevels,
@@ -612,6 +643,7 @@ export const CalendarHeatmap = ({
       continuousMonths,
       locale,
       colors,
+      signedRange,
     ],
   );
 
@@ -678,12 +710,15 @@ export const CalendarHeatmapBlock = ({
     levels,
     isNormalized,
     colors,
+    signedRange,
   } = useCalendarHeatmap();
 
   const level = Math.max(
     0,
     Math.min(colorStepCount(levels, isNormalized), activity.level),
   );
+
+  const mark = signedRange === null ? null : signedMark(activity.value);
 
   const ariaLabel = (labels.cellLabel ?? "{{date}}: {{value}} contributions")
     .replace("{{date}}", activity.date)
@@ -698,9 +733,13 @@ export const CalendarHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
-        "motion-safe:transition-opacity motion-safe:hover:opacity-70",
+        "hover:stroke-foreground hover:stroke-1",
+        highlighted && "stroke-foreground stroke-1",
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level. A class,
+        // not an inline style, so keyboard focus on the picked cell still draws its own ring over it.
+        selected && "stroke-foreground stroke-2 hover:stroke-2",
         onCellClick &&
-          "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
         className,
       )}
       data-value={activity.value}
@@ -709,15 +748,19 @@ export const CalendarHeatmapBlock = ({
       data-highlighted={highlighted || undefined}
       data-selected={selected || undefined}
       height={blockSize}
-      rx={blockRadius}
-      ry={blockRadius}
+      rx={mark?.round ? blockSize / 2 : blockRadius}
+      ry={mark?.round ? blockSize / 2 : blockRadius}
       width={blockWidth}
+      // A signed day's edge is an attribute, not a style, so hover and focus outlines (classes) still win over it.
+      stroke={mark?.stroke}
+      strokeWidth={mark ? 1 : undefined}
       x={(blockWidth + blockMargin) * weekIndex}
       y={labelHeight + (blockSize + blockMargin) * dayIndex}
       style={{
-        fill: getLevelFill(level, levels, isNormalized, highlighted, colors),
-        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
-        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
+        fill:
+          signedRange === null
+            ? getLevelFill(level, levels, isNormalized, colors)
+            : heat(activity.value, signedRange),
         ...styleProp,
       }}
       onClick={(event) => {
@@ -999,11 +1042,14 @@ export type CalendarHeatmapLegendProps = Omit<
   "children"
 > & {
   labels?: { less?: string; more?: string };
+  /** A signed heatmap's figures in the legend's scale line, such as useFormat().money. */
+  valueFormatter?: (value: number) => string;
   children?: (props: { level: number }) => ReactNode;
 };
 
 export const CalendarHeatmapLegend = ({
   labels: labelsProp,
+  valueFormatter,
   className,
   children,
   ...props
@@ -1014,7 +1060,12 @@ export const CalendarHeatmapLegend = ({
     blockRadius,
     colors,
     labels,
+    signedRange,
   } = useCalendarHeatmap();
+
+  if (signedRange !== null) {
+    return <SignedLegend labels={labelsProp} valueFormatter={valueFormatter} className={className} {...props} />;
+  }
 
   const lessLabel = labelsProp?.less ?? "Less";
   const moreLabel = labelsProp?.more ?? "More";
@@ -1056,13 +1107,61 @@ export const CalendarHeatmapLegend = ({
               ry={blockRadius}
               width={LEGEND_SWATCH}
               style={{
-                fill: getLevelFill(level, levels, isNormalized, false, colors),
+                fill: getLevelFill(level, levels, isNormalized, colors),
               }}
             />
           </svg>
         ),
       )}
       <span className="ml-1 font-medium text-xs">{moreLabel}</span>
+    </fieldset>
+  );
+};
+
+/** A signed heatmap's scale: round loss steps deepest first, no change, square gain steps, and what they span. */
+const SignedLegend = ({
+  labels: labelsProp,
+  valueFormatter = String,
+  className,
+  ...props
+}: Omit<CalendarHeatmapLegendProps, "children">) => {
+  const { blockRadius, labels, signedRange } = useCalendarHeatmap();
+  const steps = Array.from({ length: HEAT_STEPS }, (_, i) => i + 1);
+  const swatch = (key: string, fill: string, value: number) => {
+    const { stroke, round } = signedMark(value);
+    const corner = round ? (LEGEND_SWATCH - 1) / 2 : blockRadius;
+    return (
+      <svg aria-hidden="true" key={key} height={LEGEND_SWATCH} width={LEGEND_SWATCH}>
+        <rect
+          x={0.5}
+          y={0.5}
+          height={LEGEND_SWATCH - 1}
+          width={LEGEND_SWATCH - 1}
+          rx={corner}
+          ry={corner}
+          stroke={stroke}
+          style={{ fill }}
+        />
+      </svg>
+    );
+  };
+  return (
+    <fieldset
+      data-slot="calendar-heatmap-legend"
+      aria-label={labels.legendLabel ?? "Activity intensity legend"}
+      className={cn("ml-auto flex flex-col items-end gap-1 text-muted-foreground", className)}
+      {...props}
+    >
+      <div className="flex items-center gap-1">
+        <span className="mr-1 font-medium text-xs">{labelsProp?.less ?? "Loss"}</span>
+        {steps.toReversed().map((step) => swatch(`loss-${step}`, heatFill("negative", step), -1))}
+        {swatch("none", heat(null), 0)}
+        {steps.map((step) => swatch(`gain-${step}`, heatFill("positive", step), 1))}
+        <span className="ml-1 font-medium text-xs">{labelsProp?.more ?? "Gain"}</span>
+      </div>
+      <p data-slot="calendar-heatmap-legend-scale" className="text-xs">
+        Deepest at ±{valueFormatter(signedRange ?? 0)}. Round days lost, square days gained; grey days had no change.
+      </p>
     </fieldset>
   );
 };

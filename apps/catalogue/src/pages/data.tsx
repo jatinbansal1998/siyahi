@@ -782,9 +782,32 @@ export const data: Page = {
       title: "Heatmaps",
       lead: "Calendar, weekday by hour and status timeline heatmaps from the @heatmap registry.",
       imports: ["CalendarHeatmap", "WeekdayHeatmap", "StatusHeatmap"],
-      rules: ["Counts fade in --chart-1."],
+      props: [
+        {
+          name: "CalendarHeatmap signed",
+          type: "boolean",
+          default: "false",
+          purpose:
+            "Colours each day green or red by its sign, deeper the larger it is, for a daily profit or loss; the legend shows the loss and gain steps.",
+        },
+        {
+          name: "CalendarHeatmap range",
+          type: "number",
+          default: "the largest day",
+          purpose: "With signed: the size that takes the deepest step; give calendars shown together the same range.",
+        },
+      ],
+      rules: [
+        "Counts fade in --chart-1.",
+        "A signed calendar uses the Treemap's and ChangeGrid's heat steps inside a full-colour edge, a loss round and a gain square, so the sign never rests on colour alone. A day with no change, or no figure (NaN, Infinity), is muted inside the field edge. Pass CalendarHeatmapLegend a valueFormatter, so its scale line says where the deepest step sits. Write the picked day's figure with its sign.",
+      ],
       examples: [
         { name: "heatmap-calendar", caption: "A year of working days, each coloured by its count of deploys." },
+        {
+          name: "heatmap-calendar-signed",
+          caption:
+            "Six months of a café's daily profit or loss, signed: square green days made money, round red days lost it.",
+        },
         { name: "heatmap-weekday", caption: "Support tickets by weekday and office hour." },
         {
           name: "heatmap-status",
