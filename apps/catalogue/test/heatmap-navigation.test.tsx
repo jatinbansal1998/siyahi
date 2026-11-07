@@ -55,7 +55,16 @@ describe("heatmap interactions", () => {
       await buttons.nth(3).tap();
       expect(await pressed.count()).toBe(1);
       expect(await pressed.getAttribute("data-value")).toBe(await buttons.nth(3).getAttribute("data-value"));
-      expect(await pressed.evaluate((el) => (el as SVGRectElement).style.stroke)).toBe("var(--foreground)");
+      // The ring is painted in the text colour, whether the heatmap sets it inline or by class.
+      const foreground = await page.evaluate(() => {
+        const probe = document.createElement("div");
+        probe.style.color = "var(--foreground)";
+        document.body.append(probe);
+        const color = getComputedStyle(probe).color;
+        probe.remove();
+        return color;
+      });
+      expect(await pressed.evaluate((el) => getComputedStyle(el).stroke)).toBe(foreground);
       await buttons.nth(3).tap();
       expect(await pressed.count()).toBe(0);
     }

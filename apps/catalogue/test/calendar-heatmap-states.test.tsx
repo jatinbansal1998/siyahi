@@ -50,4 +50,17 @@ describe("CalendarHeatmap states", { timeout: 60_000 }, () => {
     await expect.poll(async () => (await paint(focused)).stroke).toBe(await token("--ring"));
     expect((await paint(focused)).width).toBe("2px");
   });
+
+  it("rings a picked day in the focus colour when the keyboard comes back to it", async () => {
+    const first = calendar().locator('[data-slot="calendar-heatmap-block"][tabindex="0"]');
+    await first.focus();
+    await page.keyboard.press("Enter");
+    await expect
+      .poll(() => calendar().locator('[data-slot="calendar-heatmap-block"][aria-pressed="true"]').count())
+      .toBe(1);
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowLeft");
+    const focused = '[data-slot="calendar-heatmap-block"][aria-pressed="true"]:focus-visible';
+    await expect.poll(async () => (await paint(focused)).stroke).toBe(await token("--ring"));
+  });
 });
