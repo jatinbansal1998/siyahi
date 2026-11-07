@@ -14,7 +14,8 @@
 // Siyahi edit: hover, `highlighted` and keyboard focus draw an outline (the
 // text colour, or the focus ring's) and never fade the day's colour: a 70%
 // hover or 60% highlight dropped a degraded day under 3:1 against the card,
-// and the ring a focused SVG cell was given never drew.
+// and the ring a focused SVG cell was given never drew. The picked cell's
+// ring is a class too, so focus outranks it.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -376,6 +377,9 @@ export const StatusHeatmapBlock = ({
       className={cn(
         "hover:stroke-foreground hover:stroke-1",
         highlighted && "stroke-foreground stroke-1",
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level. A class,
+        // not an inline style, so keyboard focus on the picked cell still draws its own ring over it.
+        selected && "stroke-foreground stroke-2 hover:stroke-2",
         onCellClick &&
           "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
         className,
@@ -392,8 +396,6 @@ export const StatusHeatmapBlock = ({
       y={0}
       style={{
         fill: resolveColor(activity.value, colors),
-        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
-        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
       }}
       onClick={(event) => {
