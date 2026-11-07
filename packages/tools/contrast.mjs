@@ -101,6 +101,13 @@ const PAIRS = [
   // as its outline, so these are the outlines too.
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "", min: MARK })),
   ...CHARTS.slice(0, -1).map((fg, i) => ({ fg, bg: CHARTS[i + 1] ?? "", min: MARK })),
+  // A waterfall's rise and fall: the full-colour edge against the tint it
+  // encloses, on the bar and its legend chip; and every bar's colour against
+  // the muted cursor Recharts lays behind a hovered category.
+  ...["positive", "negative"].map((side) => ({ fg: side, bg: `${side}@35`, min: MARK })),
+  ...["chart-1", "positive", "negative"].map((fg) => ({ fg, bg: "muted", min: MARK })),
+  // A chart card's footer text, on the footer's muted wash.
+  { fg: "foreground", bg: "muted/50", min: TEXT },
   // Treemap labels on every heat step (lib/treemap.ts heatFill): 12% to 60% of
   // the meaning colour in the card in light, 25% to 60% in dark.
   ...heatLabels("light", [12, 24, 36, 48, 60]),

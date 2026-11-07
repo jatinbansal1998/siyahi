@@ -67,7 +67,9 @@ text on Callout, StatusAlert, StatusBadge and Quote washes and code-line fills, 
 text on its tint at rest and on hover, the command placeholder, treemap labels
 on every heat step); 3:1 for a field's edge (`--input`) against the page and its
 own fill, the focus ring, a selected tab against its list, and chart and
-meaning colours against the page and the slots next to them. Every colour must
+meaning colours against the page and the slots next to them, a waterfall's
+gain and loss edges against their own tint, and every bar against the hover
+cursor. Every colour must
 sit inside sRGB. When a component paints a token on a new fill, add the pair to
 `PAIRS` there. When a check fails, change the value, never the bar.
 
