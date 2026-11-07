@@ -146,6 +146,13 @@
       ]
     },
     {
+      "need": "How two measures relate across many items, such as stores' size against growth",
+      "guidance": "`ScatterChartCard`",
+      "components": [
+        "ScatterChartCard"
+      ]
+    },
+    {
       "need": "Activity by day, by weekday and hour, or a status over time",
       "guidance": "`CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`",
       "components": [
@@ -902,6 +909,13 @@
         "DataList",
         "DataListItem",
         "RangePosition",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/scatter-chart.tsx",
+      "components": [
+        "ScatterChartCard",
         "useFormat"
       ]
     },

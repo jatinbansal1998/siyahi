@@ -2,6 +2,14 @@
 
 ## 0.1.9
 
+- `ScatterChartCard`: each item as a dot by two measures, such as size against
+  growth, for many items where a treemap's boxes get too small to name. Every
+  dot takes one colour, since categories stay neutral. An x axis can be log,
+  ticked at 1, 2 and 5. The leading points' names sit beside their dots wherever
+  they cover no other name or dot, measured in the page's font at its size. The
+  tooltip lists the page's rows, which a screen reader also hears. A tap, Enter
+  or Space rings a dot (`selected`, `onSelect`), and the arrow keys walk the
+  dots. A point with a null y is not drawn.
 - `Delta` sits on the text's baseline again: its icon had lifted the line and
   made table rows taller. A button rendered as a popover or menu trigger keeps
   the faint button edge in dark mode instead of the field edge.
