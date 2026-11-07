@@ -61,7 +61,7 @@ describe("StatusHeatmap", () => {
     expect(block).toContain('style="fill:var(--destructive)"');
   });
 
-  it("draws a day with no data hollow, in the field-edge colour", () => {
+  it("draws a day with no data hollow, in a dashed field-edge outline", () => {
     const empty = renderToStaticMarkup(
       <StatusHeatmap data={[{ date: "2026-10-01", value: 0 }]}>
         <StatusHeatmapBody>
@@ -71,6 +71,20 @@ describe("StatusHeatmap", () => {
     );
     const block = /<rect[^>]*data-slot="status-heatmap-block"[^>]*>/.exec(empty)?.[0] ?? "";
     expect(block).toMatch(/class="[^"]*\bstroke-input stroke-1\b/);
+    expect(block).toContain('stroke-dasharray="2 2"');
     expect(block).toContain('style="fill:transparent"');
+  });
+
+  it("outlines a healthy day in the field-edge colour, solid, around its faint grey", () => {
+    const healthy = renderToStaticMarkup(
+      <StatusHeatmap data={[{ date: "2026-10-01", value: 3 }]}>
+        <StatusHeatmapBody>
+          {({ activity, dayIndex }) => <StatusHeatmapBlock activity={activity} dayIndex={dayIndex} />}
+        </StatusHeatmapBody>
+      </StatusHeatmap>,
+    );
+    const block = /<rect[^>]*data-slot="status-heatmap-block"[^>]*>/.exec(healthy)?.[0] ?? "";
+    expect(block).toMatch(/class="[^"]*\bstroke-input stroke-1\b/);
+    expect(block).not.toContain("stroke-dasharray");
   });
 });

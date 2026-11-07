@@ -23,6 +23,9 @@
 // Siyahi edit: a day with no data is hollow, an outline in the field-edge
 // colour (3:1 on the card), unless the page gives it a colour: its old grey
 // fill was 1.4:1 from a healthy day and 1.1:1 from the card.
+// Siyahi edit: a healthy day's faint grey sits inside a solid field-edge
+// outline, 3:1 on the card where the grey alone is 1.5:1, and a no-data day's
+// outline is dashed, so the two differ by more than a faint fill.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -171,6 +174,10 @@ const NO_DATA = 0;
 /** A no-data day is drawn hollow unless the page gave that state a colour of its own. */
 const isHollow = (value: StatusValue, colors?: StatusColorConfig) =>
   value === NO_DATA && colors?.[NO_DATA] === undefined && colors?.noData === undefined;
+
+/** The outline a day carries in the field-edge colour: solid round a healthy day, dashed round a day with no data. */
+const edgeOf = (value: StatusValue, healthyValue: StatusValue, colors?: StatusColorConfig) =>
+  isHollow(value, colors) ? "dashed" : value === healthyValue ? "solid" : null;
 
 const blockPaint = (value: StatusValue, degradedId: string, colors?: StatusColorConfig): CSSProperties =>
   value === DEGRADED
@@ -399,8 +406,9 @@ export const StatusHeatmapBlock = ({
 }: StatusHeatmapBlockProps & {
   ref?: React.RefObject<SVGRectElement | null>;
 }) => {
-  const { blockSize, blockWidth, blockMargin, blockRadius, labels, colors, degradedId } =
+  const { blockSize, blockWidth, blockMargin, blockRadius, labels, colors, degradedId, healthyValue } =
     useStatusHeatmap();
+  const edge = edgeOf(activity.value, healthyValue, colors);
 
   const statusText = resolveStatusLabel(activity.value, labels.statuses);
 
@@ -419,7 +427,7 @@ export const StatusHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
-        isHollow(activity.value, colors) && "stroke-input stroke-1",
+        edge && "stroke-input stroke-1",
         "hover:stroke-foreground hover:stroke-1",
         highlighted && "stroke-foreground stroke-1",
         // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level. A class,
@@ -437,6 +445,8 @@ export const StatusHeatmapBlock = ({
       rx={blockRadius}
       ry={blockRadius}
       width={blockWidth}
+      // An attribute, not a class, so hover and focus outlines restyle the line but keep its dashes off.
+      strokeDasharray={edge === "dashed" ? "2 2" : undefined}
       x={xPosition}
       y={0}
       style={{
@@ -691,9 +701,16 @@ export const StatusHeatmapLegend = ({
               )}
               <rect
                 data-value={status.value}
-                // A hollow swatch sits half a pixel in, so its whole outline draws inside the swatch.
-                {...(isHollow(status.value, colors)
-                  ? { x: 0.5, y: 0.5, height: LEGEND_SWATCH - 1, width: LEGEND_SWATCH - 1, className: "stroke-input" }
+                // An outlined swatch sits half a pixel in, so its whole outline draws inside the swatch.
+                {...(edgeOf(status.value, healthyValue, colors)
+                  ? {
+                      x: 0.5,
+                      y: 0.5,
+                      height: LEGEND_SWATCH - 1,
+                      width: LEGEND_SWATCH - 1,
+                      className: "stroke-input",
+                      strokeDasharray: edgeOf(status.value, healthyValue, colors) === "dashed" ? "2 1" : undefined,
+                    }
                   : { height: LEGEND_SWATCH, width: LEGEND_SWATCH })}
                 rx={blockRadius}
                 ry={blockRadius}
