@@ -41,13 +41,39 @@ describe("ScatterChartCard with size and quadrants", { timeout: 60_000 }, () => 
   });
 
   for (const width of [1920, 390]) {
-    it(`keeps the four corner names apart and clear of the points' names at ${width} wide`, async () => {
+    it(`keeps the four corner names apart and clear of the points' names and dots at ${width} wide`, async () => {
       await page.setViewportSize({ width, height: 1000 });
       await expect.poll(async () => (await boxes('[data-slot="scatter-quadrant-names"] text')).length).toBe(4);
       const corners = await boxes('[data-slot="scatter-quadrant-names"] text');
       const names = await boxes('[data-slot="scatter-labels"] text');
+      const circles = await boxes('[data-slot="scatter-point"]');
       const clashes = corners.flatMap((a, i) => [...corners.slice(i + 1), ...names].filter((b) => overlap(a, b)));
       expect(clashes).toEqual([]);
+      // Nor do the corner names sit on any dot: they keep to the bands the axis leaves above and below the data.
+      expect(corners.flatMap((a) => circles.filter((b) => overlap(a, b)))).toEqual([]);
     });
   }
+
+  it("rings each sized dot in the card colour, so overlapping dots keep their outlines", async () => {
+    const rings = await chart
+      .locator('[data-slot="scatter-point"]')
+      .evaluateAll((points) =>
+        points.map((dot) => [
+          dot.previousElementSibling?.getAttribute("stroke"),
+          dot.previousElementSibling?.getAttribute("fill"),
+        ]),
+      );
+    expect(rings.length).toBeGreaterThan(0);
+    expect(new Set(rings.map((ring) => ring.join(" ")))).toEqual(new Set(["var(--card) none"]));
+  });
+
+  it("selects a tapped dot and prints its figures under the chart", async () => {
+    await page.setViewportSize({ width: 390, height: 1000 });
+    const milk = chart.locator('[data-slot="scatter-point"][data-key="Full-cream milk"]');
+    await milk.click();
+    await expect.poll(() => milk.getAttribute("aria-pressed")).toBe("true");
+    expect(await chart.locator('[data-slot="scatter-selection"]').innerText()).toBe(
+      "Full-cream milk · price +3.0% · units +5.0% · ₹13.1L revenue",
+    );
+  });
 });

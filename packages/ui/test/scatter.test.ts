@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
-import { linearTicks, logTicks, placeLabels, type LabelCandidate } from "../src/lib/scatter";
+import {
+  corners,
+  dotSizes,
+  linearTicks,
+  logTicks,
+  placeLabels,
+  quadrantSplit,
+  type LabelCandidate,
+} from "../src/lib/scatter";
 
 const plot = { x: 0, y: 0, width: 400, height: 300 };
 // A fixed 7px a character stands in for the canvas, which happy-dom does not have.
@@ -79,5 +87,39 @@ describe("placeLabels", () => {
   it("keeps names off a reserved box, such as a quadrant's name", () => {
     const [label] = placeLabels([dot("Kochi", 100, 100)], plot, 1, type, [{ x: 100, y: 80, width: 200, height: 40 }]);
     expect(label?.x).toBeLessThan(100);
+  });
+});
+
+describe("dotSizes", () => {
+  it("gives a size that is not a positive number the smallest dot, leaving the others as they were", () => {
+    const { radiusOf } = dotSizes(
+      [{ size: Number.NaN }, { size: Number.POSITIVE_INFINITY }, { size: 100 }, { size: 25 }],
+      5,
+    );
+    expect([Number.NaN, Number.POSITIVE_INFINITY, 100, 25].map((size) => radiusOf({ size }))).toEqual([3, 3, 20, 10]);
+  });
+});
+
+describe("quadrantSplit", () => {
+  it("draws no split a log axis cannot place", () => {
+    expect(quadrantSplit({ x: 0, y: 0 }, "log")).toBeUndefined();
+    expect(quadrantSplit({ x: 1, y: 0 }, "log")).toEqual({ x: 1, y: 0 });
+    expect(quadrantSplit({ x: Number.NaN, y: 0 }, "linear")).toBeUndefined();
+  });
+});
+
+describe("corners", () => {
+  const names = { topLeft: "Cheaper, selling more", topRight: "Dearer, still selling more" };
+
+  it("keeps each name inside its own quadrant, so the two on one edge never meet", () => {
+    const placed = corners(plot, names, { x: 200, y: 150 }, type);
+    const [left, right] = placed.map(({ box }) => box);
+    expect(left!.x + left!.width).toBeLessThanOrEqual(200);
+    expect(right!.x).toBeGreaterThanOrEqual(200);
+  });
+
+  it("leaves out a name that will not fit its quadrant in two lines", () => {
+    // The split sits 40px from the left edge: "Cheaper, selling more" cannot fit 28px, its neighbour fits.
+    expect(corners(plot, names, { x: 40, y: 150 }, type).map(({ key }) => key)).toEqual(["right-top"]);
   });
 });

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ScatterChartCard, useFormat, type ScatterPoint } from "@siyahi/ui";
 
 // A grocer's products this quarter against last: x is the change in shelf price, y the change in units sold, and
@@ -18,6 +19,7 @@ const products: ScatterPoint[] = [
 ];
 
 export default function ScatterChartQuadrantsExample() {
+  const [selected, setSelected] = useState<ScatterPoint | null>(null);
   const { moneyCompact, pct } = useFormat();
   const signed = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${pct(Math.abs(value))}`;
   return (
@@ -32,6 +34,20 @@ export default function ScatterChartQuadrantsExample() {
       yFormatter={signed}
       sizeLabel="Revenue"
       sizeFormatter={(value) => moneyCompact(value)}
+      selected={selected}
+      onSelect={setSelected}
+      footer={
+        <p data-slot="scatter-selection" aria-live="polite" className="tabular-nums">
+          {selected ? (
+            <>
+              <span className="font-medium">{selected.name}</span> · price {signed(selected.x)} · units{" "}
+              {signed(selected.y ?? 0)} · {moneyCompact(selected.size ?? 0)} revenue
+            </>
+          ) : (
+            <span className="text-muted-foreground">Tap a dot, or Tab to the chart and use the arrow keys</span>
+          )}
+        </p>
+      }
       quadrants={{
         x: 0,
         y: 0,

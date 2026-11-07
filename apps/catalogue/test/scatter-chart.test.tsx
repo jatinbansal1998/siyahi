@@ -121,7 +121,7 @@ describe("ScatterChartCard", () => {
 
   it("rings a tapped dot and prints its figures, and a second tap or a tap on the plot clears it", async () => {
     const kochi = stores().locator('[data-slot="scatter-point"][data-key="Kochi"]');
-    const selection = page.locator('[data-slot="scatter-selection"]');
+    const selection = page.locator('[data-slot="scatter-selection"]').first();
     await kochi.click();
     await expect.poll(() => kochi.getAttribute("data-selected")).toBe("true");
     expect(await selection.innerText()).toContain("Kochi");
@@ -151,7 +151,7 @@ describe("ScatterChartCard", () => {
     await page.keyboard.press("Enter");
     const nagpur = stores().locator('[data-slot="scatter-point"][data-key="Nagpur"]');
     await expect.poll(() => nagpur.getAttribute("aria-pressed")).toBe("true");
-    expect(await page.locator('[data-slot="scatter-selection"]').innerText()).toContain("Nagpur");
+    expect(await page.locator('[data-slot="scatter-selection"]').first().innerText()).toContain("Nagpur");
     await page.keyboard.press("Escape");
     await expect.poll(() => nagpur.getAttribute("aria-pressed")).toBe("false");
   });

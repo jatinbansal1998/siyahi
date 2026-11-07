@@ -24,7 +24,17 @@ import {
   CardTitle,
 } from "@siyahi/ui/components/ui/card";
 import { ChartContainer } from "@siyahi/ui/components/ui/chart";
-import { linearTicks, logTicks, placeLabels, type Box, type LabelType } from "@siyahi/ui/lib/scatter";
+import {
+  MAX_RADIUS,
+  corners,
+  dotSizes,
+  linearTicks,
+  logTicks,
+  placeLabels,
+  quadrantSplit,
+  type LabelType,
+  type ScatterQuadrants,
+} from "@siyahi/ui/lib/scatter";
 
 export interface ScatterPoint {
   name: string;
@@ -34,16 +44,14 @@ export interface ScatterPoint {
   y: number | null;
   /** Unique key when names repeat, such as one product sold in two regions. Defaults to `name`. */
   key?: string;
-  /** A weight, such as a holding's value: the dot's area follows it. Give every point a size, or none. */
+  /**
+   * A weight, such as a holding's value: the dot's area follows it. Give every point a size, or none. A size that is
+   * not a positive number draws the smallest dot and leaves the others' sizes as they are.
+   */
   size?: number;
 }
 
-/** Splits the plot into four at a value on each axis, such as zero, with an optional name in each corner. */
-export interface ScatterQuadrants {
-  x: number;
-  y: number;
-  labels?: { topLeft?: string; topRight?: string; bottomLeft?: string; bottomRight?: string };
-}
+export type { ScatterQuadrants };
 
 /** One tooltip row: a label and its figure, such as ["Sales", "₹9.8L"]. */
 export type ScatterDetail = readonly [label: string, value: string];
@@ -86,12 +94,13 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
 }
 
 const RADIUS = 5;
-// The largest sized dot; the smallest stays big enough to see and to tap.
-const MAX_RADIUS = 20;
-const MIN_RADIUS = 3;
 const EDGE = 1.5;
-// A sized dot is a tint inside its full-colour edge, so overlapping dots show through each other.
+// A sized dot is a tint inside its full-colour edge, so overlapping dots show through each other, and a card-coloured
+// ring outside the edge keeps each dot's outline whole where it crosses another.
 const SIZED_FILL = 0.3;
+const RING = 3;
+// The band above and below the data where the corner names sit: two lines of text-xs and the gaps around them.
+const NAME_BAND = 6 + 32 + 4;
 const TICK = { className: "fill-muted-foreground font-mono" };
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 const keyOf = (point: ScatterPoint) => point.key ?? point.name;
@@ -155,20 +164,17 @@ export function ScatterChartCard<T extends ScatterPoint>({
   );
   // Arrow keys walk the dots left to right, as the eye reads the plot.
   const order = useMemo(() => drawn.toSorted((a, b) => a.x - b.x || (a.y ?? 0) - (b.y ?? 0)), [drawn]);
-  // Area, not radius, follows size, so a holding twice as large has twice the ink.
-  const largest = Math.max(0, ...drawn.map((p) => p.size ?? 0));
-  const radiusOf = (p: ScatterPoint) =>
-    p.size === undefined || largest <= 0
-      ? RADIUS
-      : Math.max(MIN_RADIUS, MAX_RADIUS * Math.sqrt(Math.max(0, p.size) / largest));
+  const { radiusOf, sized } = dotSizes(drawn, RADIUS);
   // The largest dots draw first, so a small one is never hidden under a big one.
-  const painted = largest > 0 ? drawn.toSorted((a, b) => (b.size ?? 0) - (a.size ?? 0)) : drawn;
-  // The axes reach the quadrants' split even when every point sits on one side of it.
-  const xs = [
-    ...drawn.map((p) => p.x),
-    ...(quadrants && (xScale === "linear" || quadrants.x > 0) ? [quadrants.x] : []),
-  ];
-  const ys = [...drawn.map((p) => p.y ?? 0), ...(quadrants ? [quadrants.y] : [])];
+  const painted = sized ? drawn.toSorted((a, b) => radiusOf(b) - radiusOf(a)) : drawn;
+  const split = quadrantSplit(quadrants, xScale);
+  // The axes reach the split even when every point sits on one side of it.
+  const xs = [...drawn.map((p) => p.x), ...(split ? [split.x] : [])];
+  const ys = [...drawn.map((p) => p.y ?? 0), ...(split ? [split.y] : [])];
+  // Room past the data for the largest dot, and above or below it for the corner names, so no dot reaches a name.
+  const reach = sized ? MAX_RADIUS + RING : 0;
+  const names = split?.labels;
+  const band = (named: boolean) => (named ? NAME_BAND + Math.max(reach, RADIUS + EDGE) : reach);
   const xTicks = xScale === "log" ? logTicks(Math.min(...xs), Math.max(...xs)) : undefined;
   const yTicks = linearTicks(Math.min(...ys), Math.max(...ys));
   const crossesZero = ys.some((y) => y < 0) && ys.some((y) => y > 0);
@@ -243,7 +249,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
                 ticks={xTicks}
                 niceTicks={xTicks ? undefined : "snap125"}
                 // A sized dot at the end of the range would spill past the axis by up to its radius.
-                padding={largest > 0 ? { left: MAX_RADIUS, right: MAX_RADIUS } : undefined}
+                padding={reach > 0 ? { left: reach, right: reach } : undefined}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -257,7 +263,10 @@ export function ScatterChartCard<T extends ScatterPoint>({
                 dataKey="y"
                 domain={[yTicks[0] ?? "auto", yTicks.at(-1) ?? "auto"]}
                 ticks={yTicks}
-                padding={largest > 0 ? { top: MAX_RADIUS, bottom: MAX_RADIUS } : undefined}
+                padding={{
+                  top: band(Boolean(names?.topLeft || names?.topRight)),
+                  bottom: band(Boolean(names?.bottomLeft || names?.bottomRight)),
+                }}
                 tickLine={false}
                 axisLine={false}
                 width="auto"
@@ -271,11 +280,11 @@ export function ScatterChartCard<T extends ScatterPoint>({
                   className: AXIS_TITLE,
                 }}
               />
-              {quadrants ? (
+              {split ? (
                 <>
-                  <ReferenceLine x={quadrants.x} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
-                  <ReferenceLine y={quadrants.y} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
-                  <QuadrantNames quadrants={quadrants} />
+                  <ReferenceLine x={split.x} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+                  <ReferenceLine y={split.y} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+                  <QuadrantNames quadrants={split} />
                 </>
               ) : (
                 crossesZero && <ReferenceLine y={0} stroke="var(--border)" />
@@ -293,11 +302,11 @@ export function ScatterChartCard<T extends ScatterPoint>({
                     onSelect={onSelect}
                     onKeyDown={onKeyDown}
                     radiusOf={radiusOf}
-                    sized={largest > 0}
+                    sized={sized}
                   />
                 }
               />
-              <PointLabels points={drawn} limit={labels} radiusOf={radiusOf} quadrants={quadrants} />
+              <PointLabels points={drawn} limit={labels} radiusOf={radiusOf} quadrants={split} />
             </ScatterChart>
           </ChartContainer>
         </div>
@@ -368,11 +377,12 @@ function Dot<T extends ScatterPoint>({
   if (cx === undefined || cy === undefined || !payload) return null;
   const key = keyOf(payload);
   const isSelected = key === selectedKey;
-  return (
+  const r = radiusOf(payload) + (isSelected ? 2 : 0);
+  const dot = (
     <circle
       cx={cx}
       cy={cy}
-      r={radiusOf(payload) + (isSelected ? 2 : 0)}
+      r={r}
       fill="var(--chart-1)"
       fillOpacity={sized ? SIZED_FILL : 1}
       stroke={isSelected ? "var(--foreground)" : sized ? "var(--chart-1)" : "var(--card)"}
@@ -395,6 +405,13 @@ function Dot<T extends ScatterPoint>({
         onSelect(isSelected ? null : payload);
       }}
     />
+  );
+  if (!sized) return dot;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={r + EDGE / 2 + RING / 2} fill="none" stroke="var(--card)" strokeWidth={RING} />
+      {dot}
+    </g>
   );
 }
 
@@ -422,44 +439,6 @@ function labelType(): LabelType {
 }
 
 /** The leading points' names, placed from the axes' scales once the chart has laid them out. */
-type QuadrantLabels = ScatterQuadrants["labels"];
-
-/** Words broken into lines no wider than `width`; a word wider than that keeps a line of its own. */
-function wrap(text: string, width: number, measure: LabelType["measure"]): string[] {
-  const lines: string[] = [];
-  for (const word of text.split(" ")) {
-    const last = lines.at(-1);
-    if (last !== undefined && measure(`${last} ${word}`) <= width) lines[lines.length - 1] = `${last} ${word}`;
-    else lines.push(word);
-  }
-  return lines;
-}
-
-/**
- * Each corner's name in the plot's corner, wrapped to its own quadrant's width so two names on one edge never meet:
- * where its lines are drawn, and the box they take.
- */
-function corners(plot: Box, names: QuadrantLabels, split: { x: number; y: number } | null, type: LabelType) {
-  if (!names || !split) return [];
-  const line = (type.size * 4) / 3;
-  const inset = 6;
-  const spots = [
-    [names.topLeft, "left", "top"],
-    [names.topRight, "right", "top"],
-    [names.bottomLeft, "left", "bottom"],
-    [names.bottomRight, "right", "bottom"],
-  ] as const;
-  return spots.flatMap(([text, side, edge]) => {
-    if (!text) return [];
-    const room = (side === "left" ? split.x - plot.x : plot.x + plot.width - split.x) - inset * 2;
-    const lines = wrap(text, Math.max(room, 0), type.measure);
-    const width = Math.max(...lines.map(type.measure));
-    const height = lines.length * line;
-    const x = side === "left" ? plot.x + inset : plot.x + plot.width - inset - width;
-    const top = edge === "top" ? plot.y + inset : plot.y + plot.height - inset - height;
-    return [{ key: `${side}-${edge}`, lines, x, y: top + type.size, line, box: { x, y: top, width, height } }];
-  });
-}
 
 /** Where the quadrants' split lines cross, in pixels, once the axes are laid out. */
 function useSplit(quadrants: ScatterQuadrants | undefined) {
