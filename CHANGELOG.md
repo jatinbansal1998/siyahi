@@ -62,6 +62,9 @@
 - `StatusHeatmap` draws a healthy day at 30% grey (was 40%), so a degraded
   day's amber reaches 3:1 against it in light mode (was 2.7:1). The contrast
   check now covers degraded and critical days against a healthy one.
+  Hovering, highlighting or focusing a day outlines it (the text colour, or
+  the focus ring's for the keyboard) instead of fading it, which had dropped a
+  degraded day under 3:1; a focused day's ring now draws at all.
 - `Delta` sits on the text's baseline again: its icon had lifted the line and
   made table rows taller. A button rendered as a popover or menu trigger keeps
   the faint button edge in dark mode instead of the field edge.

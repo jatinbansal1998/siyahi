@@ -11,6 +11,10 @@
 // ring in the text colour and announced as pressed, as a Treemap tile is.
 // Siyahi edit: a healthy day is 30% grey (was 40%), so a light degraded day's
 // amber reaches 3:1 against it; contrast.mjs checks both status colours on it.
+// Siyahi edit: hover, `highlighted` and keyboard focus draw an outline (the
+// text colour, or the focus ring's) and never fade the day's colour: a 70%
+// hover or 60% highlight dropped a degraded day under 3:1 against the card,
+// and the ring a focused SVG cell was given never drew.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -131,15 +135,6 @@ const resolveStatusLabel = (
   }
 };
 
-const getStatusFill = (
-  value: StatusValue,
-  colors?: StatusColorConfig,
-  highlighted = false,
-): string => {
-  const base = resolveColor(value, colors);
-  if (!highlighted) return base;
-  return `color-mix(in oklch, ${base} 60%, transparent)`;
-};
 
 const EMPTY_STYLE: CSSProperties = {};
 const PADDING = 3;
@@ -379,9 +374,10 @@ export const StatusHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
-        "motion-safe:transition-opacity motion-safe:hover:opacity-70",
+        "hover:stroke-foreground hover:stroke-1",
+        highlighted && "stroke-foreground stroke-1",
         onCellClick &&
-          "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
         className,
       )}
       data-value={activity.value}
@@ -395,7 +391,7 @@ export const StatusHeatmapBlock = ({
       x={xPosition}
       y={0}
       style={{
-        fill: getStatusFill(activity.value, colors, highlighted),
+        fill: resolveColor(activity.value, colors),
         // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
         ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
@@ -645,7 +641,7 @@ export const StatusHeatmapLegend = ({
                 rx={blockRadius}
                 ry={blockRadius}
                 width={LEGEND_SWATCH}
-                style={{ fill: getStatusFill(status.value, colors) }}
+                style={{ fill: resolveColor(status.value, colors) }}
               />
             </svg>
             <span className="font-medium text-muted-foreground text-xs">
