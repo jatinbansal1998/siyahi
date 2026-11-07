@@ -298,7 +298,7 @@ export const data: Page = {
           name: "steps",
           type: "WaterfallStep[]",
           purpose:
-            '{ kind: "change", label, value, key? } moves the running total; { kind: "total", label, value?, key? } draws it from zero.',
+            '{ kind: "change", label, value } moves the running total; { kind: "total", label, value? } draws it from zero. Labels may repeat.',
         },
         {
           name: "steps[].value (total)",
@@ -342,6 +342,7 @@ export const data: Page = {
         "A rise is green and a fall red, each a tint inside a full-colour edge; a total is solid --chart-1. Use it where up is good, such as profit or revenue; for costs, show the saving as the change.",
         "A dashed line carries each level across the gap to the next bar, so the eye follows the running total.",
         "A total with a value that differs from the running total starts a new level, and no line joins it to the bar before.",
+        "A step whose value is not a number (NaN) leaves every later balance unknown, so the card names that step instead of drawing.",
         "Changes that share no running total, such as each team's growth, are a BarChartCard with negativeColor.",
       ],
       examples: [

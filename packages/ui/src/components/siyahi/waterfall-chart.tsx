@@ -6,14 +6,16 @@ import type { ChartColor, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
 /**
  * One bar of a waterfall. A change moves the running total by its value. A total draws the running total from zero;
- * give it a value to set the total instead, as an opening balance does.
+ * give it a value to set the total instead, as an opening balance does. Labels may repeat, such as "Balance" at
+ * both ends: each bar is placed by its position.
  */
 export type WaterfallStep =
-  | { kind: "change"; label: string; value: number; key?: string }
-  | { kind: "total"; label: string; value?: number; key?: string };
+  | { kind: "change"; label: string; value: number }
+  | { kind: "total"; label: string; value?: number };
 
 /** A step as drawn: the running total after it, and the span its bar covers. */
 export interface WaterfallBar {
+  /** The step's position, as text: the category the bar is placed by. */
   key: string;
   label: string;
   kind: "rise" | "fall" | "total";
@@ -21,27 +23,37 @@ export interface WaterfallBar {
   change: number;
   /** The running total after the step. */
   level: number;
+  /** The bar's low and high ends, low first whichever way the step moved: Recharts reads a range that way. */
   span: [number, number];
   /** The bar picks up at the level the one before left, so a dashed line joins them. */
   continues: boolean;
 }
 
+const span = (a: number, b: number): [number, number] => [Math.min(a, b), Math.max(a, b)];
+
 /** Walks the steps in order, keeping the running total. */
 export function waterfallBars(steps: readonly WaterfallStep[]): WaterfallBar[] {
   let level = 0;
-  return steps.map((step) => {
+  return steps.map((step, index) => {
     const before = level;
-    const key = step.key ?? step.label;
+    const key = String(index);
     if (step.kind === "total") {
       level = step.value ?? level;
       const continues = level === before;
-      return { key, label: step.label, kind: "total", change: level - before, level, span: [0, level], continues };
+      return { key, label: step.label, kind: "total", change: level - before, level, span: span(0, level), continues };
     }
     level += step.value;
     const kind = step.value < 0 ? "fall" : "rise";
-    return { key, label: step.label, kind, change: step.value, level, span: [before, level], continues: true };
+    return { key, label: step.label, kind, change: step.value, level, span: span(before, level), continues: true };
   });
 }
+
+/**
+ * The first step whose figure is not a number. Every bar after it stands on the running total, so a missing change
+ * cannot be skipped without drawing wrong balances; the card says which step is missing instead.
+ */
+const unknownStep = (steps: readonly WaterfallStep[]) =>
+  steps.find((step) => step.value !== undefined && !Number.isFinite(step.value));
 
 export interface WaterfallChartCardProps extends Pick<
   SeriesChartProps<WaterfallBar, "key">,
@@ -103,10 +115,19 @@ export function WaterfallChartCard({ steps, horizontal = false, labels = LABELS,
   const format = props.valueFormatter ?? new Intl.NumberFormat(numberLocale).format;
   const signed = (value: number) => `${value > 0 ? "+" : value < 0 ? MINUS : ""}${format(Math.abs(value))}`;
   const names = new Map(bars.map((bar) => [bar.key, bar.label]));
+  const unknown = unknownStep(steps);
   return (
     <ChartFrame
       chart={BarChart}
       {...props}
+      placeholder={
+        props.placeholder ??
+        (unknown && (
+          <p className="text-sm text-muted-foreground">
+            {unknown.label} has no figure, so the running total after it is unknown.
+          </p>
+        ))
+      }
       horizontal={horizontal}
       data={bars}
       xKey="key"
