@@ -133,9 +133,34 @@ export function SlopeChart({
             return (
               <g key={item.key ?? item.name} data-slot="slope-chart-item" data-highlighted={strong || undefined}>
                 <title>{`${item.name}: ${format(item.from)} to ${format(item.to)}`}</title>
+                {/* A card-coloured halo under a highlighted line keeps the grey lines it crosses from touching it:
+                    the accent and the grey are under 2:1 apart, each 3:1 or more from the card. */}
+                {strong && (
+                  <line
+                    x1={left + GAP}
+                    y1={a}
+                    x2={right - GAP}
+                    y2={b}
+                    stroke="var(--card)"
+                    strokeWidth={6.5}
+                    strokeLinecap="round"
+                  />
+                )}
                 <line x1={left + GAP} y1={a} x2={right - GAP} y2={b} stroke={ink} strokeWidth={strong ? 2.5 : 1.5} />
-                <circle cx={left + GAP} cy={a} r={3} fill={ink} />
-                <circle cx={right - GAP} cy={b} r={3} fill={ink} />
+                {[
+                  [left + GAP, a],
+                  [right - GAP, b],
+                ].map(([cx, cy]) => (
+                  <circle
+                    key={cx}
+                    cx={cx}
+                    cy={cy}
+                    r={strong ? 4 : 3}
+                    fill={ink}
+                    stroke={strong ? "var(--card)" : undefined}
+                    strokeWidth={strong ? 2 : undefined}
+                  />
+                ))}
                 <text
                   x={left - 4}
                   y={lefts[index]}

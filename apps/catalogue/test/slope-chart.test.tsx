@@ -53,4 +53,20 @@ describe("SlopeChart layout", { timeout: 60_000 }, () => {
       expect(outside).toEqual([]);
     });
   }
+
+  it("lays a card-coloured halo under each highlighted line, so grey lines it crosses never touch it", async () => {
+    const chart = page.locator('[data-slot="slope-chart"]').first();
+    const strokes = await chart
+      .locator('[data-slot="slope-chart-item"][data-highlighted] line')
+      .evaluateAll((lines) =>
+        lines.map((line) => [line.getAttribute("stroke"), Number(line.getAttribute("stroke-width"))]),
+      );
+    // Two highlighted channels, each a wide card stroke under a narrower accent one.
+    expect(strokes).toEqual([
+      ["var(--card)", 6.5],
+      ["var(--chart-1)", 2.5],
+      ["var(--card)", 6.5],
+      ["var(--chart-1)", 2.5],
+    ]);
+  });
 });
