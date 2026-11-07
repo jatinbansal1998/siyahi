@@ -357,6 +357,55 @@ export const data: Page = {
       ],
     },
     {
+      id: "drawdown-chart",
+      title: "Drawdown",
+      lead: "DrawdownChartCard shows how far a level sits below the highest it had reached, over time: a fund's or a cash balance's fall from its peak.",
+      imports: ["DrawdownChartCard"],
+      props: [
+        {
+          name: "data, xKey",
+          type: "T[], keyof T",
+          purpose: "One row per point in time, in order, and the field the x axis reads.",
+        },
+        {
+          name: "levelKey",
+          type: "keyof T",
+          purpose: "The field holding the level, such as the week's cash balance. Levels must be above zero.",
+        },
+        {
+          name: "levelFormatter",
+          type: "(value: number) => string",
+          default: "useFormat().money",
+          purpose: "Writes the level and the peak in the tooltip.",
+        },
+        {
+          name: "label",
+          type: "string",
+          default: '"Below peak"',
+          purpose: "Names the fall in the legend and tooltip.",
+        },
+        {
+          name: "title, description, action, height, xFormatter, xTooltipFormatter, xTicks, placeholder, footer",
+          type: "as AreaChartCard",
+          default: "—",
+          purpose: "As on the other chart cards.",
+        },
+      ],
+      rules: [
+        "Give it the levels, not the falls: the card keeps the running peak and works out each fall as a share of it.",
+        "The area hangs from zero in the loss colour; a dashed line names the deepest fall.",
+        "A level that is null or NaN leaves a gap and does not move the peak.",
+        "For the level itself over time, use AreaChartCard or PriceChart; put this under it when how deep and how long the falls were is the question.",
+      ],
+      examples: [
+        {
+          name: "drawdown-chart",
+          caption:
+            "A year of a bakery's weekly cash balance as its fall from the best so far, with the deepest fall marked.",
+        },
+      ],
+    },
+    {
       id: "data-table",
       title: "Data table",
       lead: "niko-table on TanStack Table: faceted filters, sorting and a pinned first column, inside a card.",
