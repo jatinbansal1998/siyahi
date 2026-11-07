@@ -13,10 +13,13 @@ import {
 } from "@siyahi/ui";
 
 // One cell per day for the last 60 days, as a status the heatmap colours:
-// 3 healthy (quiet grey), 2 degraded (--warning), 1 critical (--destructive).
+// 3 healthy (quiet grey), 2 degraded (a half bar in --warning), 1 critical (a full bar in --destructive),
+// 0 no data (a hollow outline).
 const data = Array.from({ length: 60 }, (_, i) => {
   const day = new Date(Date.UTC(2026, 7, 22 + i));
-  return { date: day.toISOString().slice(0, 10), value: i % 17 === 5 ? 1 : i % 11 === 3 ? 2 : 3 };
+  // Two days in September the monitor itself was down, so there is no reading: 0.
+  const value = i === 30 || i === 31 ? 0 : i % 17 === 5 ? 1 : i % 11 === 3 ? 2 : 3;
+  return { date: day.toISOString().slice(0, 10), value };
 });
 
 export default function HeatmapStatusExample() {
@@ -30,7 +33,7 @@ export default function HeatmapStatusExample() {
         <CardDescription>Daily health: healthy, degraded or critical</CardDescription>
       </CardHeader>
       <CardContent>
-        <StatusHeatmap data={data} statusValues={[3, 2, 1]}>
+        <StatusHeatmap data={data} statusValues={[3, 2, 1, 0]}>
           <StatusHeatmapBody>
             {({ activity, dayIndex }) => (
               <StatusHeatmapBlock
@@ -48,7 +51,6 @@ export default function HeatmapStatusExample() {
                   ? `${picked.date}: ${["unknown", "critical", "degraded", "healthy"][picked.value] ?? "unknown"}`
                   : "Select a day for its health. Use arrow keys to move between days."}
               </p>
-              {/* No day lacks data, so the legend leaves out "No Data". */}
               <StatusHeatmapLegend />
             </div>
           </StatusHeatmapFooter>

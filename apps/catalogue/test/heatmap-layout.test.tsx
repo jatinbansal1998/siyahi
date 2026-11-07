@@ -47,9 +47,22 @@ describe("heatmap layout", () => {
     const legend = (slot: string) => page.locator(`[data-slot="${slot}-legend"]`).first();
     await expect.poll(() => legend("calendar-heatmap").textContent()).toMatch(/0 deploys.*5 deploys/);
     expect(await legend("weekday-heatmap").textContent()).toMatch(/0 tickets.*13 tickets an hour/);
-    expect(await legend("status-heatmap").textContent()).toBe("HealthyDegradedCritical");
+    expect(await legend("status-heatmap").textContent()).toBe("HealthyDegradedCriticalNo Data");
     for (const slot of ["calendar-heatmap", "weekday-heatmap", "status-heatmap"]) {
       expect(await legend(slot).isVisible()).toBe(true);
     }
+  });
+
+  it("wraps the status legend inside its card on a narrow phone", async () => {
+    const { page } = catalogue;
+    await page.setViewportSize({ width: 320, height: 800 });
+    const legend = page.locator('[data-slot="status-heatmap-legend"]').first();
+    const card = page.locator('[data-slot="card"]', { has: legend });
+    await expect.poll(() => legend.locator("> div").count()).toBe(4);
+    const frame = (await card.boundingBox())!;
+    const entries = await legend
+      .locator("> div")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    expect(entries.filter((box) => box.left < frame.x || box.right > frame.x + frame.width)).toEqual([]);
   });
 });

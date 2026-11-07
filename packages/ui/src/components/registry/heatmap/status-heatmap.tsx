@@ -16,10 +16,21 @@
 // hover or 60% highlight dropped a degraded day under 3:1 against the card,
 // and the ring a focused SVG cell was given never drew. The picked cell's
 // ring is a class too, so focus outranks it.
+// Siyahi edit: a degraded day fills only the lower half of its bar, over the
+// healthy grey, in the strip and the legend alike, so it differs from a
+// critical day in shape as well as hue (amber and red are about 1.4:1 apart).
+// The bar keeps its full height, so its tap target does not shrink.
+// Siyahi edit: a day with no data is hollow, an outline in the field-edge
+// colour (3:1 on the card), unless the page gives it a colour: its old grey
+// fill was 1.4:1 from a healthy day and 1.1:1 from the card.
+// Siyahi edit: a healthy day's faint grey sits inside a solid field-edge
+// outline, 3:1 on the card where the grey alone is 1.5:1, and a no-data day's
+// outline is dashed, so the two differ by more than a faint fill. The legend
+// wraps, so four states fit a narrow phone.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
-import { createContext, Fragment, use, useMemo } from "react";
+import { createContext, Fragment, use, useId, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 // Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
 import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
@@ -35,6 +46,8 @@ export type StatusActivity = {
 };
 
 type StatusHeatmapContextType = {
+  /** The id of the half-filled gradient a degraded day is painted with. */
+  degradedId: string;
   data: StatusActivity[];
   dates: string[];
   blockMargin: number;
@@ -137,6 +150,41 @@ const resolveStatusLabel = (
 };
 
 
+const DEGRADED = 2;
+
+/** A degraded day's paint: amber in the lower half of the bar, the healthy grey above it. */
+const DegradedGradient = ({
+  id,
+  colors,
+  healthyValue,
+}: {
+  id: string;
+  colors?: StatusColorConfig;
+  healthyValue: StatusValue;
+}) => (
+  <defs>
+    <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0.5" style={{ stopColor: resolveColor(healthyValue, colors) }} />
+      <stop offset="0.5" style={{ stopColor: resolveColor(DEGRADED, colors) }} />
+    </linearGradient>
+  </defs>
+);
+
+const NO_DATA = 0;
+
+/** A no-data day is drawn hollow unless the page gave that state a colour of its own. */
+const isHollow = (value: StatusValue, colors?: StatusColorConfig) =>
+  value === NO_DATA && colors?.[NO_DATA] === undefined && colors?.noData === undefined;
+
+/** The outline a day carries in the field-edge colour: solid round a healthy day, dashed round a day with no data. */
+const edgeOf = (value: StatusValue, healthyValue: StatusValue, colors?: StatusColorConfig) =>
+  isHollow(value, colors) ? "dashed" : value === healthyValue ? "solid" : null;
+
+const blockPaint = (value: StatusValue, degradedId: string, colors?: StatusColorConfig): CSSProperties =>
+  value === DEGRADED
+    ? { fill: `url(#${degradedId})` }
+    : { fill: isHollow(value, colors) ? "transparent" : resolveColor(value, colors) };
+
 const EMPTY_STYLE: CSSProperties = {};
 const PADDING = 3;
 const LEGEND_SWATCH = 10;
@@ -228,6 +276,8 @@ export const StatusHeatmap = ({
   ...props
 }: StatusHeatmapProps) => {
   const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
+  // React's ids carry characters a url(#…) reference would have to escape.
+  const degradedId = `status-degraded-${useId().replace(/[^\w-]/g, "")}`;
   const labels = useMemo<StatusHeatmapLabels>(
     () => ({
       statuses: {
@@ -266,6 +316,7 @@ export const StatusHeatmap = ({
 
   const contextValue = useMemo<StatusHeatmapContextType>(
     () => ({
+      degradedId,
       data,
       dates,
       blockMargin,
@@ -284,6 +335,7 @@ export const StatusHeatmap = ({
       colors,
     }),
     [
+      degradedId,
       data,
       dates,
       blockMargin,
@@ -355,8 +407,9 @@ export const StatusHeatmapBlock = ({
 }: StatusHeatmapBlockProps & {
   ref?: React.RefObject<SVGRectElement | null>;
 }) => {
-  const { blockSize, blockWidth, blockMargin, blockRadius, labels, colors } =
+  const { blockSize, blockWidth, blockMargin, blockRadius, labels, colors, degradedId, healthyValue } =
     useStatusHeatmap();
+  const edge = edgeOf(activity.value, healthyValue, colors);
 
   const statusText = resolveStatusLabel(activity.value, labels.statuses);
 
@@ -375,6 +428,7 @@ export const StatusHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
+        edge && "stroke-input stroke-1",
         "hover:stroke-foreground hover:stroke-1",
         highlighted && "stroke-foreground stroke-1",
         // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level. A class,
@@ -392,10 +446,12 @@ export const StatusHeatmapBlock = ({
       rx={blockRadius}
       ry={blockRadius}
       width={blockWidth}
+      // An attribute, not a class, so hover and focus outlines restyle the line but keep its dashes off.
+      strokeDasharray={edge === "dashed" ? "2 2" : undefined}
       x={xPosition}
       y={0}
       style={{
-        fill: resolveColor(activity.value, colors),
+        ...blockPaint(activity.value, degradedId, colors),
         ...styleProp,
       }}
       onClick={(event) => {
@@ -457,6 +513,9 @@ export const StatusHeatmapBody = ({
     dateFormat,
     locale,
     labels,
+    colors,
+    degradedId,
+    healthyValue,
   } = useStatusHeatmap();
 
   const activityMap = useMemo(() => {
@@ -498,6 +557,7 @@ export const StatusHeatmapBody = ({
         viewBox={`${-PADDING} ${-PADDING} ${width + PADDING * 2} ${height + labelHeight + PADDING * 2}`}
         width={width + PADDING * 2}
       >
+        <DegradedGradient id={degradedId} colors={colors} healthyValue={healthyValue} />
         {!hideDateLabels && (
           <g className={cn("fill-current font-mono", labelClassName)}>
             {dates.map((date, dayIndex) => {
@@ -612,7 +672,7 @@ export const StatusHeatmapLegend = ({
   children,
   ...props
 }: StatusHeatmapLegendProps) => {
-  const { labels, statusValues, blockRadius, colors } = useStatusHeatmap();
+  const { labels, statusValues, blockRadius, colors, degradedId, healthyValue } = useStatusHeatmap();
 
   const statuses = statusValues.map((value) => ({
     value,
@@ -623,7 +683,7 @@ export const StatusHeatmapLegend = ({
     <fieldset
       data-slot="status-heatmap-legend"
       aria-label={labels.legendLabel ?? "Status legend"}
-      className={cn("ml-auto flex items-center gap-3", className)}
+      className={cn("ml-auto flex flex-wrap items-center gap-x-3 gap-y-1", className)}
       {...props}
     >
       {statuses.map((status) =>
@@ -637,13 +697,25 @@ export const StatusHeatmapLegend = ({
             className="flex items-center gap-1"
           >
             <svg aria-hidden="true" height={LEGEND_SWATCH} width={LEGEND_SWATCH}>
+              {status.value === DEGRADED && (
+                <DegradedGradient id={`${degradedId}-legend`} colors={colors} healthyValue={healthyValue} />
+              )}
               <rect
                 data-value={status.value}
-                height={LEGEND_SWATCH}
+                // An outlined swatch sits half a pixel in, so its whole outline draws inside the swatch.
+                {...(edgeOf(status.value, healthyValue, colors)
+                  ? {
+                      x: 0.5,
+                      y: 0.5,
+                      height: LEGEND_SWATCH - 1,
+                      width: LEGEND_SWATCH - 1,
+                      className: "stroke-input",
+                      strokeDasharray: edgeOf(status.value, healthyValue, colors) === "dashed" ? "2 1" : undefined,
+                    }
+                  : { height: LEGEND_SWATCH, width: LEGEND_SWATCH })}
                 rx={blockRadius}
                 ry={blockRadius}
-                width={LEGEND_SWATCH}
-                style={{ fill: resolveColor(status.value, colors) }}
+                style={blockPaint(status.value, `${degradedId}-legend`, colors)}
               />
             </svg>
             <span className="font-medium text-muted-foreground text-xs">
