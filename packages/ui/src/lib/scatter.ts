@@ -38,7 +38,7 @@ export function linearTicks(min: number, max: number, count = 5): number[] {
   return Array.from({ length: last - first + 1 }, (_, i) => clean((first + i) * step));
 }
 
-interface Box {
+export interface Box {
   x: number;
   y: number;
   width: number;
@@ -51,6 +51,8 @@ export interface LabelCandidate {
   /** The dot's centre, in pixels. */
   cx: number;
   cy: number;
+  /** The dot's radius, its edge included: a sized dot keeps names off all of itself. */
+  r: number;
 }
 
 export interface PlacedLabel {
@@ -77,24 +79,25 @@ const overlaps = (a: Box, b: Box) =>
 
 /**
  * Names beside dots, in the candidates' order, up to `limit`: each tries the right of its dot, then the left, above,
- * below and the four corners, and takes the first spot inside the plot that covers no other label and no other dot.
- * A name that finds no spot is left to the tooltip, so labels never sit on top of each other.
+ * below and the four corners, and takes the first spot inside the plot that covers no other label, no other dot and
+ * nothing `reserved` (such as a quadrant's name). A name that finds no spot is left to the tooltip, so labels never sit
+ * on top of each other.
  */
 export function placeLabels(
   candidates: readonly LabelCandidate[],
   plot: Box,
   limit: number,
-  radius: number,
   { size, measure }: LabelType,
+  reserved: readonly Box[] = [],
 ): PlacedLabel[] {
   const line = (size * 4) / 3;
-  const dots = candidates.map(({ key, cx, cy }) => ({
+  const dots = candidates.map(({ key, cx, cy, r }) => ({
     key,
-    box: { x: cx - radius, y: cy - radius, width: radius * 2, height: radius * 2 },
+    box: { x: cx - r, y: cy - r, width: r * 2, height: r * 2 },
   }));
-  const taken: Box[] = [];
+  const taken: Box[] = [...reserved];
   const placed: PlacedLabel[] = [];
-  for (const { key, text, cx, cy } of candidates) {
+  for (const { key, text, cx, cy, r: radius } of candidates) {
     if (placed.length >= limit) break;
     const width = measure(text) + HALO * 2;
     const spots: Box[] = [

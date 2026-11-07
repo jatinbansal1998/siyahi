@@ -34,24 +34,24 @@ describe("linearTicks", () => {
   });
 });
 
-const dot = (key: string, cx: number, cy: number): LabelCandidate => ({ key, text: key, cx, cy });
+const dot = (key: string, cx: number, cy: number, r = 5): LabelCandidate => ({ key, text: key, cx, cy, r });
 
 describe("placeLabels", () => {
   it("puts a name right of its dot when there is room", () => {
-    expect(placeLabels([dot("Kochi", 100, 100)], plot, 12, 5, type)).toEqual([
+    expect(placeLabels([dot("Kochi", 100, 100)], plot, 12, type)).toEqual([
       { key: "Kochi", text: "Kochi", x: 111, y: 104 },
     ]);
   });
 
   it("moves a name left of its dot at the plot's right edge", () => {
-    const [label] = placeLabels([dot("Kochi", 395, 100)], plot, 12, 5, type);
+    const [label] = placeLabels([dot("Kochi", 395, 100)], plot, 12, type);
     expect(label?.x).toBeLessThan(395);
   });
 
   it("never lets two names overlap: a crowded dot's name goes elsewhere or is left out", () => {
     // A column of dots 14px apart: one line of type is 16px, so names right of each dot would overlap their neighbours.
     const column = Array.from({ length: 10 }, (_, i) => dot(`Store ${i}`, 200, 60 + i * 14));
-    const placed = placeLabels(column, plot, 10, 5, type);
+    const placed = placeLabels(column, plot, 10, type);
     const boxes = placed.map((l) => ({ x: l.x, y: l.y - 12, right: l.x + measure(l.text), bottom: l.y + 4 }));
     expect(placed.length).toBeGreaterThan(3);
     for (const [i, a] of boxes.entries())
@@ -61,12 +61,23 @@ describe("placeLabels", () => {
 
   it("keeps a name off another dot", () => {
     // A dot just right of Kochi takes the right-hand spot, so the name goes left.
-    const [label] = placeLabels([dot("Kochi", 100, 100), dot("x", 130, 100)], plot, 1, 5, type);
+    const [label] = placeLabels([dot("Kochi", 100, 100), dot("x", 130, 100)], plot, 1, type);
     expect(label?.x).toBeLessThan(100);
   });
 
   it("labels the earliest points first, up to the limit", () => {
     const points = [dot("A", 50, 50), dot("B", 50, 150), dot("C", 50, 250)];
-    expect(placeLabels(points, plot, 2, 5, type).map((l) => l.key)).toEqual(["A", "B"]);
+    expect(placeLabels(points, plot, 2, type).map((l) => l.key)).toEqual(["A", "B"]);
+  });
+
+  it("keeps a name clear of a big neighbour's whole dot, not just a small dot's worth of it", () => {
+    // B's 30px dot reaches left to x 130; A's name, right of A from x 59, would run into it there.
+    const [label] = placeLabels([dot("Alpha store", 50, 100), dot("B", 160, 100, 30)], plot, 1, type);
+    expect(label?.x).toBeLessThan(50);
+  });
+
+  it("keeps names off a reserved box, such as a quadrant's name", () => {
+    const [label] = placeLabels([dot("Kochi", 100, 100)], plot, 1, type, [{ x: 100, y: 80, width: 200, height: 40 }]);
+    expect(label?.x).toBeLessThan(100);
   });
 });

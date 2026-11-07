@@ -2,6 +2,11 @@
 
 ## 0.1.9
 
+- `ScatterChartCard` takes a `size` per point, which sets the dot's area (the
+  largest drawn first, as a faint tint inside a full edge, so overlaps show
+  through), and `quadrants`, dashed lines at an x and a y value with a name in
+  each corner. Names beside dots now keep clear of a big dot's whole area and of
+  the corner names.
 - `ScatterChartCard`: each item as a dot by two measures, such as size against
   growth, for many items where a treemap's boxes get too small to name. Every
   dot takes one colour, since categories stay neutral. An x axis can be log,

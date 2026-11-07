@@ -686,13 +686,32 @@ export const data: Page = {
       id: "scatter-chart",
       title: "Scatter chart",
       lead: "ScatterChartCard plots each item as a dot by two measures, such as size against growth, with the leading names beside their dots.",
-      imports: ["ScatterChartCard", "type ScatterPoint", "type ScatterDetail"],
+      imports: ["ScatterChartCard", "type ScatterPoint", "type ScatterDetail", "type ScatterQuadrants"],
       props: [
         {
           name: "points",
           type: "ScatterPoint[]",
           purpose:
-            "{ name, x, y, key? } per dot, most important first; y is null when unknown and the dot is not drawn.",
+            "{ name, x, y, key?, size? } per dot, most important first; y is null when unknown and the dot is not drawn.",
+        },
+        {
+          name: "points[].size",
+          type: "number",
+          default: "—",
+          purpose: "A weight, such as revenue: the dot's area follows it. Give every point a size, or none.",
+        },
+        {
+          name: "quadrants",
+          type: "{ x, y, labels? }",
+          default: "—",
+          purpose:
+            "Dashed lines at x and y split the plot into four; labels names the corners: { topLeft, topRight, bottomLeft, bottomRight }.",
+        },
+        {
+          name: "sizeLabel, sizeFormatter",
+          type: "string, (value: number) => string",
+          default: '"Size", locale numbers',
+          purpose: "The size's row in the tooltip.",
         },
         { name: "height", type: "number", purpose: "Fixed height of the plot in pixels." },
         { name: "xLabel, yLabel", type: "string", purpose: "What each axis measures, written along it." },
@@ -741,12 +760,19 @@ export const data: Page = {
         "Every dot takes one colour: a category such as a region stays neutral (DESIGN.md). Put it in details, and let a filter on the page pick one.",
         "A name goes beside its dot only where it covers no other name and no other dot; the rest are in the tooltip, so names never pile up.",
         "A point with a null y, or at or under zero on a log axis, is not drawn: say on the page how many are left out.",
+        "Sized dots are a faint tint inside a full edge, the largest drawn first, so overlapping dots show through and a small one is never hidden. Area, not radius, follows size.",
+        'Split at a value that means something to the reader, usually zero for two changes, and name each corner for what it means, not its sign: "Dearer, selling less".',
         "A phone has no hover, so a tap selects a dot. With onSelect, Tab reaches the dots and the arrow keys walk them left to right. The selection is the page's state, so a filter that drops the point drops its ring too.",
       ],
       examples: [
         {
           name: "scatter-chart",
           caption: "Stores by share of sales and growth, with a tap to select and one store left out.",
+        },
+        {
+          name: "scatter-chart-quadrants",
+          caption:
+            "A grocer's products by change in price and in units sold, split at zero into four named corners, each dot sized by revenue.",
         },
       ],
     },

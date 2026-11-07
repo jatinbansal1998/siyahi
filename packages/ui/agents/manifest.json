@@ -176,6 +176,13 @@
       ]
     },
     {
+      "need": "Items sorted into four groups by two signed changes, weighted by size, such as products by price change and sales change, sized by revenue",
+      "guidance": "`ScatterChartCard` with `quadrants` and each point's `size`",
+      "components": [
+        "ScatterChartCard"
+      ]
+    },
+    {
       "need": "Activity by day, by weekday and hour, or a status over time",
       "guidance": "`CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`",
       "components": [
@@ -954,6 +961,13 @@
         "DataList",
         "DataListItem",
         "RangePosition",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/scatter-chart-quadrants.tsx",
+      "components": [
+        "ScatterChartCard",
         "useFormat"
       ]
     },

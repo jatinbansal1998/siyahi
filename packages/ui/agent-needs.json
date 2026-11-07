@@ -88,6 +88,10 @@
     "guidance": "`ScatterChartCard`"
   },
   {
+    "need": "Items sorted into four groups by two signed changes, weighted by size, such as products by price change and sales change, sized by revenue",
+    "guidance": "`ScatterChartCard` with `quadrants` and each point's `size`"
+  },
+  {
     "need": "Activity by day, by weekday and hour, or a status over time",
     "guidance": "`CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`"
   },
