@@ -10,6 +10,12 @@
   tooltip lists the page's rows, which a screen reader also hears. A tap, Enter
   or Space rings a dot (`selected`, `onSelect`), and the arrow keys walk the
   dots. A point with a null y is not drawn.
+- New: `ChangeGrid` lays out signed changes rows by columns, such as sales
+  growth by month and year or profit by store and quarter: every cell writes
+  its figure with its sign on the Treemap's heat tint, `null` months are muted
+  `—`, an optional total column, and row labels that stay in view while a phone
+  scrolls. The heat scale moves from `lib/treemap.ts` to `lib/heat.ts`; the
+  contrast check adds text on a muted (no change) cell.
 - New: `WaterfallChartCard` bridges a running total step by step, such as a
   year's profit month by month or revenue from last year to this by store.
   Rises and falls are tinted green and red inside a full edge, totals are solid

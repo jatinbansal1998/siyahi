@@ -32,6 +32,10 @@
     "guidance": "`WaterfallChartCard`; `horizontal` for long names"
   },
   {
+    "need": "Signed changes by two categories, such as returns or profit by month and year, or by store and quarter",
+    "guidance": "`ChangeGrid` in a `Card`, with each row's `total` worked out by the page"
+  },
+  {
     "need": "Ranked counts or amounts by category (a name, a bar and a figure)",
     "guidance": "`BarList`; give two lists one `max` to share a scale"
   },

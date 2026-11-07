@@ -112,8 +112,10 @@ const PAIRS = [
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "muted/40", min: MARK, surface: "card" })),
   // A chart card's footer text, on the footer's muted wash.
   { fg: "foreground", bg: "muted/50", min: TEXT },
-  // Treemap labels on every heat step (lib/treemap.ts heatFill): 12% to 60% of
-  // the meaning colour in the card in light, 25% to 60% in dark.
+  // Treemap and ChangeGrid labels on every heat step (lib/heat.ts heatFill): 12% to 60% of
+  // the meaning colour in the card in light, 25% to 60% in dark. A ChangeGrid
+  // cell with no change is muted, with its figure in the text colour.
+  { fg: "foreground", bg: "muted", min: TEXT },
   ...heatLabels("light", [12, 24, 36, 48, 60]),
   ...heatLabels("dark", [25, 33.75, 42.5, 51.25, 60]),
 ];

@@ -1,7 +1,8 @@
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { useFormat } from "@siyahi/ui/lib/format";
 import { cn } from "cn";
-import { HEAT_STEPS, heat, heatFill, heatRange, layout } from "@siyahi/ui/lib/treemap";
+import { HEAT_STEPS, heat, heatFill, heatRange } from "@siyahi/ui/lib/heat";
+import { layout } from "@siyahi/ui/lib/treemap";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 export interface TreemapItem {

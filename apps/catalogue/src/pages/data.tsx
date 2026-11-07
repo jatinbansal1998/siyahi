@@ -508,6 +508,58 @@ export const data: Page = {
       ],
     },
     {
+      id: "change-grid",
+      title: "Change grid",
+      lead: "ChangeGrid lays out signed changes rows by columns, such as each month of each year, every cell tinted by its sign and size and written with its sign.",
+      imports: ["ChangeGrid", "type ChangeGridRow"],
+      props: [
+        { name: "columns", type: "string[]", purpose: "The column heads, such as the months of a financial year." },
+        {
+          name: "rows",
+          type: "ChangeGridRow[]",
+          purpose: "{ label, values, total?, key? } per row; values follow columns, null where there is no figure.",
+        },
+        {
+          name: "rows[].total",
+          type: "number | null",
+          default: "—",
+          purpose: "The row's total as the page works it out: returns compound, so the grid never adds them up.",
+        },
+        {
+          name: "format",
+          type: '"pct" | "money"',
+          default: '"pct"',
+          purpose: "pct takes fractions, 0.025 is 2.5%; money writes amounts short, in one unit for the grid.",
+        },
+        {
+          name: "range",
+          type: "number",
+          default: "the grid's largest",
+          purpose: "The size that takes the deepest tint; give grids that sit together the same range.",
+        },
+        { name: "totalLabel", type: "string", default: '"Total"', purpose: "Heads the total column." },
+        { name: "label", type: "string", purpose: "Names the table for a screen reader." },
+      ],
+      rules: [
+        "Every cell writes its figure with its + or −; the tint is the Treemap's five steps of --positive and --negative, so the eye finds the big months without reading colour as the only cue.",
+        "A month with no figure is a muted cell marked —; a month with no change is muted and writes 0.",
+        "Totals are untinted: a year is on a different scale from its months.",
+        "Put it in a Card: the cells mix into the card colour. On a phone the grid scrolls sideways and the row labels stay put.",
+        "One value per category with no second axis is a BarList or a BarChartCard.",
+      ],
+      examples: [
+        {
+          name: "change-grid",
+          caption:
+            "Sales growth by month for three financial years, the current one part done, with each year's total.",
+        },
+        {
+          name: "change-grid-money",
+          caption: "Profit and loss by store and quarter, in one money unit, with the year's sum.",
+        },
+      ],
+    },
+    {
       id: "price-chart",
       title: "PriceChart",
       lead: "TradingView Lightweight Charts in theme colours, for a long daily series such as a price or an order value.",
