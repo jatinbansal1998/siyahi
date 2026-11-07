@@ -60,4 +60,17 @@ describe("StatusHeatmap", () => {
     expect(block).toMatch(/class="[^"]*\bstroke-foreground stroke-1\b/);
     expect(block).toContain('style="fill:var(--destructive)"');
   });
+
+  it("draws a day with no data hollow, in the field-edge colour", () => {
+    const empty = renderToStaticMarkup(
+      <StatusHeatmap data={[{ date: "2026-10-01", value: 0 }]}>
+        <StatusHeatmapBody>
+          {({ activity, dayIndex }) => <StatusHeatmapBlock activity={activity} dayIndex={dayIndex} />}
+        </StatusHeatmapBody>
+      </StatusHeatmap>,
+    );
+    const block = /<rect[^>]*data-slot="status-heatmap-block"[^>]*>/.exec(empty)?.[0] ?? "";
+    expect(block).toMatch(/class="[^"]*\bstroke-input stroke-1\b/);
+    expect(block).toContain('style="fill:transparent"');
+  });
 });

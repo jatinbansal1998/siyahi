@@ -63,6 +63,8 @@
   over the healthy grey, in the strip and the legend, so degraded and critical
   days differ by shape and not only by hue (amber and red are about 1.4:1
   apart). The bar keeps its full height and tap target.
+  A day with no data is hollow, an outline at 3:1, unless the page colours
+  that state (its grey fill was 1.4:1 from a healthy day).
 - `StatusHeatmap` draws a healthy day at 30% grey (was 40%), so a degraded
   day's amber reaches 3:1 against it in light mode (was 2.7:1). The contrast
   check now covers degraded and critical days against a healthy one.

@@ -20,6 +20,9 @@
 // healthy grey, in the strip and the legend alike, so it differs from a
 // critical day in shape as well as hue (amber and red are about 1.4:1 apart).
 // The bar keeps its full height, so its tap target does not shrink.
+// Siyahi edit: a day with no data is hollow, an outline in the field-edge
+// colour (3:1 on the card), unless the page gives it a colour: its old grey
+// fill was 1.4:1 from a healthy day and 1.1:1 from the card.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -163,8 +166,16 @@ const DegradedGradient = ({
   </defs>
 );
 
+const NO_DATA = 0;
+
+/** A no-data day is drawn hollow unless the page gave that state a colour of its own. */
+const isHollow = (value: StatusValue, colors?: StatusColorConfig) =>
+  value === NO_DATA && colors?.[NO_DATA] === undefined && colors?.noData === undefined;
+
 const blockPaint = (value: StatusValue, degradedId: string, colors?: StatusColorConfig): CSSProperties =>
-  value === DEGRADED ? { fill: `url(#${degradedId})` } : { fill: resolveColor(value, colors) };
+  value === DEGRADED
+    ? { fill: `url(#${degradedId})` }
+    : { fill: isHollow(value, colors) ? "transparent" : resolveColor(value, colors) };
 
 const EMPTY_STYLE: CSSProperties = {};
 const PADDING = 3;
@@ -408,6 +419,7 @@ export const StatusHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
+        isHollow(activity.value, colors) && "stroke-input stroke-1",
         "hover:stroke-foreground hover:stroke-1",
         highlighted && "stroke-foreground stroke-1",
         // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level. A class,
@@ -679,10 +691,12 @@ export const StatusHeatmapLegend = ({
               )}
               <rect
                 data-value={status.value}
-                height={LEGEND_SWATCH}
+                // A hollow swatch sits half a pixel in, so its whole outline draws inside the swatch.
+                {...(isHollow(status.value, colors)
+                  ? { x: 0.5, y: 0.5, height: LEGEND_SWATCH - 1, width: LEGEND_SWATCH - 1, className: "stroke-input" }
+                  : { height: LEGEND_SWATCH, width: LEGEND_SWATCH })}
                 rx={blockRadius}
                 ry={blockRadius}
-                width={LEGEND_SWATCH}
                 style={blockPaint(status.value, `${degradedId}-legend`, colors)}
               />
             </svg>
