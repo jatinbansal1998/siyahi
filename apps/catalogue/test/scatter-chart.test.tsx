@@ -10,10 +10,18 @@ let page: Page;
 beforeAll(async () => {
   catalogue = await openCatalogue("data/scatter-chart");
   page = catalogue.page;
-  await page.locator('[data-slot="scatter-labels"] text').first().waitFor();
+  await page
+    .locator('[data-slot="scatter-chart"]')
+    .first()
+    .locator('[data-slot="scatter-labels"] text')
+    .first()
+    .waitFor();
 }, 60_000);
 
 afterAll(async () => catalogue?.close());
+
+// The stores example: the page shows a second scatter chart after it.
+const stores = () => page.locator('[data-slot="scatter-chart"]').first();
 
 interface Rect {
   name: string;
@@ -25,18 +33,22 @@ interface Rect {
 
 /** Every name's box and every dot's box, as the browser laid them out. */
 const layout = async () => ({
-  labels: await page.$$eval('[data-slot="scatter-labels"] text', (els) =>
-    els.map((el) => {
-      const { left, top, right, bottom } = el.getBoundingClientRect();
-      return { name: el.textContent ?? "", left, top, right, bottom };
-    }),
-  ),
-  dots: await page.$$eval('[data-slot="scatter-point"]', (els) =>
-    els.map((el) => {
-      const { left, top, right, bottom } = el.getBoundingClientRect();
-      return { name: el.getAttribute("aria-label") ?? "", left, top, right, bottom };
-    }),
-  ),
+  labels: await stores()
+    .locator('[data-slot="scatter-labels"] text')
+    .evaluateAll((els) =>
+      els.map((el) => {
+        const { left, top, right, bottom } = el.getBoundingClientRect();
+        return { name: el.textContent ?? "", left, top, right, bottom };
+      }),
+    ),
+  dots: await stores()
+    .locator('[data-slot="scatter-point"]')
+    .evaluateAll((els) =>
+      els.map((el) => {
+        const { left, top, right, bottom } = el.getBoundingClientRect();
+        return { name: el.getAttribute("aria-label") ?? "", left, top, right, bottom };
+      }),
+    ),
 });
 
 /** Waits until the chart has re-laid itself out after a resize: two reads in a row agree. */
@@ -73,8 +85,8 @@ describe("ScatterChartCard", () => {
   }
 
   it("draws the names above the dots", async () => {
-    const order = await page.evaluate(() =>
-      [...document.querySelectorAll('[data-slot="scatter-point"], [data-slot="scatter-labels"]')].map(
+    const order = await stores().evaluate((chart) =>
+      [...chart.querySelectorAll('[data-slot="scatter-point"], [data-slot="scatter-labels"]')].map(
         (el) => el.getAttribute("data-slot") ?? "",
       ),
     );
@@ -90,11 +102,11 @@ describe("ScatterChartCard", () => {
   it("shows a hovered dot's name and figures", async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await settled();
-    const kochi = page.locator('[data-slot="scatter-point"][data-key="Kochi"]');
+    const kochi = stores().locator('[data-slot="scatter-point"][data-key="Kochi"]');
     const box = await kochi.boundingBox();
     if (!box) throw new Error("Kochi is not laid out");
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    const tooltip = page.locator('[data-slot="scatter-chart"] .recharts-tooltip-wrapper');
+    const tooltip = stores().locator(".recharts-tooltip-wrapper");
     await expect.poll(() => tooltip.innerText()).toContain("Kochi");
     expect((await tooltip.innerText()).split("\n").filter(Boolean)).toEqual([
       "Kochi",
@@ -108,15 +120,15 @@ describe("ScatterChartCard", () => {
   });
 
   it("rings a tapped dot and prints its figures, and a second tap or a tap on the plot clears it", async () => {
-    const kochi = page.locator('[data-slot="scatter-point"][data-key="Kochi"]');
-    const selection = page.locator('[data-slot="scatter-selection"]');
+    const kochi = stores().locator('[data-slot="scatter-point"][data-key="Kochi"]');
+    const selection = page.locator('[data-slot="scatter-selection"]').first();
     await kochi.click();
     await expect.poll(() => kochi.getAttribute("data-selected")).toBe("true");
     expect(await selection.innerText()).toContain("Kochi");
     await kochi.click();
     await expect.poll(() => kochi.getAttribute("data-selected")).toBe(null);
     await kochi.click();
-    const plot = await page.locator('[data-slot="scatter-chart"] .recharts-cartesian-grid').boundingBox();
+    const plot = await stores().locator(".recharts-cartesian-grid").boundingBox();
     if (!plot) throw new Error("no plot");
     await page.mouse.click(plot.x + 8, plot.y + plot.height - 8);
     await expect.poll(() => kochi.getAttribute("data-selected")).toBe(null);
@@ -125,7 +137,7 @@ describe("ScatterChartCard", () => {
   it("walks the dots with the arrow keys, left to right, and selects with Enter and clears with Escape", async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await settled();
-    const first = page.locator('[data-slot="scatter-point"][tabindex="0"]');
+    const first = stores().locator('[data-slot="scatter-point"][tabindex="0"]');
     await first.focus();
     // Home goes to Shillong, the smallest share of sales; Nagpur is next to the right.
     await page.keyboard.press("Home");
@@ -137,20 +149,20 @@ describe("ScatterChartCard", () => {
     await page.keyboard.press("ArrowRight");
     expect(await focused()).toBe("Nagpur");
     await page.keyboard.press("Enter");
-    const nagpur = page.locator('[data-slot="scatter-point"][data-key="Nagpur"]');
+    const nagpur = stores().locator('[data-slot="scatter-point"][data-key="Nagpur"]');
     await expect.poll(() => nagpur.getAttribute("aria-pressed")).toBe("true");
-    expect(await page.locator('[data-slot="scatter-selection"]').innerText()).toContain("Nagpur");
+    expect(await page.locator('[data-slot="scatter-selection"]').first().innerText()).toContain("Nagpur");
     await page.keyboard.press("Escape");
     await expect.poll(() => nagpur.getAttribute("aria-pressed")).toBe("false");
   });
 
   it("moves the tooltip to the dot under a finger as it drags", async () => {
     const at = async (name: string) => {
-      const box = await page.locator(`[data-slot="scatter-point"][aria-label^="${name},"]`).boundingBox();
+      const box = await stores().locator(`[data-slot="scatter-point"][aria-label^="${name},"]`).boundingBox();
       if (!box) throw new Error(`${name} is not laid out`);
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
     };
-    const tooltip = page.locator('[data-slot="scatter-chart"] .recharts-tooltip-wrapper');
+    const tooltip = stores().locator(".recharts-tooltip-wrapper");
     // Not Kochi: Escape in the test before dismissed the tooltip, and Recharts keeps it dismissed on the same dot.
     const surat = await at("Surat");
     await page.mouse.move(0, 0);

@@ -24,7 +24,17 @@ import {
   CardTitle,
 } from "@siyahi/ui/components/ui/card";
 import { ChartContainer } from "@siyahi/ui/components/ui/chart";
-import { linearTicks, logTicks, placeLabels, type LabelType } from "@siyahi/ui/lib/scatter";
+import {
+  MAX_RADIUS,
+  corners,
+  dotSizes,
+  linearTicks,
+  logTicks,
+  placeLabels,
+  quadrantSplit,
+  type LabelType,
+  type ScatterQuadrants,
+} from "@siyahi/ui/lib/scatter";
 
 export interface ScatterPoint {
   name: string;
@@ -34,7 +44,14 @@ export interface ScatterPoint {
   y: number | null;
   /** Unique key when names repeat, such as one product sold in two regions. Defaults to `name`. */
   key?: string;
+  /**
+   * A weight, such as a holding's value: the dot's area follows it. Give every point a size, or none. A size that is
+   * not a positive number draws the smallest dot and leaves the others' sizes as they are.
+   */
+  size?: number;
 }
+
+export type { ScatterQuadrants };
 
 /** One tooltip row: a label and its figure, such as ["Sales", "₹9.8L"]. */
 export type ScatterDetail = readonly [label: string, value: string];
@@ -68,11 +85,22 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
   onSelect?: (point: T | null) => void;
   /** Lines under the chart, such as a caption or how many points are not drawn. */
   footer?: ReactNode;
+  /** Dashed lines at a value on each axis, splitting the plot into four, and the corners' names. */
+  quadrants?: ScatterQuadrants;
+  /** Names the size in the tooltip, such as "Value". Defaults to "Size". */
+  sizeLabel?: string;
+  /** The tooltip's size figure. Defaults to the locale's numbers. */
+  sizeFormatter?: (value: number) => string;
 }
 
 const RADIUS = 5;
-// A dot's collision box includes its 1.5px edge.
-const DOT_BOX = RADIUS + 1.5;
+const EDGE = 1.5;
+// A sized dot is a tint inside its full-colour edge, so overlapping dots show through each other, and a card-coloured
+// ring outside the edge keeps each dot's outline whole where it crosses another.
+const SIZED_FILL = 0.3;
+const RING = 3;
+// The band above and below the data where the corner names sit: two lines of text-xs and the gaps around them.
+const NAME_BAND = 6 + 32 + 4;
 const TICK = { className: "fill-muted-foreground font-mono" };
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 const keyOf = (point: ScatterPoint) => point.key ?? point.name;
@@ -94,6 +122,9 @@ export function ScatterChartCard<T extends ScatterPoint>({
   selected = null,
   onSelect,
   footer,
+  quadrants,
+  sizeLabel = "Size",
+  sizeFormatter,
 }: ScatterChartCardProps<T>) {
   const { numberLocale } = useLocale();
   const plotRef = useRef<HTMLDivElement>(null);
@@ -120,6 +151,10 @@ export function ScatterChartCard<T extends ScatterPoint>({
   };
   const formatX = useMemo(() => xFormatter ?? new Intl.NumberFormat(numberLocale).format, [xFormatter, numberLocale]);
   const formatY = useMemo(() => yFormatter ?? new Intl.NumberFormat(numberLocale).format, [yFormatter, numberLocale]);
+  const formatSize = useMemo(
+    () => sizeFormatter ?? new Intl.NumberFormat(numberLocale).format,
+    [sizeFormatter, numberLocale],
+  );
   const drawn = useMemo(
     () =>
       points.filter(
@@ -129,8 +164,17 @@ export function ScatterChartCard<T extends ScatterPoint>({
   );
   // Arrow keys walk the dots left to right, as the eye reads the plot.
   const order = useMemo(() => drawn.toSorted((a, b) => a.x - b.x || (a.y ?? 0) - (b.y ?? 0)), [drawn]);
-  const xs = drawn.map((p) => p.x);
-  const ys = drawn.map((p) => p.y ?? 0);
+  const { radiusOf, sized } = dotSizes(drawn, RADIUS);
+  // The largest dots draw first, so a small one is never hidden under a big one.
+  const painted = sized ? drawn.toSorted((a, b) => radiusOf(b) - radiusOf(a)) : drawn;
+  const split = quadrantSplit(quadrants, xScale);
+  // The axes reach the split even when every point sits on one side of it.
+  const xs = [...drawn.map((p) => p.x), ...(split ? [split.x] : [])];
+  const ys = [...drawn.map((p) => p.y ?? 0), ...(split ? [split.y] : [])];
+  // Room past the data for the largest dot, and above or below it for the corner names, so no dot reaches a name.
+  const reach = sized ? MAX_RADIUS + RING : 0;
+  const names = split?.labels;
+  const band = (named: boolean) => (named ? NAME_BAND + Math.max(reach, RADIUS + EDGE) : reach);
   const xTicks = xScale === "log" ? logTicks(Math.min(...xs), Math.max(...xs)) : undefined;
   const yTicks = linearTicks(Math.min(...ys), Math.max(...ys));
   const crossesZero = ys.some((y) => y < 0) && ys.some((y) => y > 0);
@@ -140,6 +184,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
     ((p: T): ScatterDetail[] => [
       [xLabel, formatX(p.x)],
       [yLabel, p.y === null ? "—" : formatY(p.y)],
+      ...(p.size === undefined ? [] : [[sizeLabel, formatSize(p.size)] as const]),
     ]);
   const first = order[0];
   const focusKey = order.some((p) => keyOf(p) === focusedKey)
@@ -196,9 +241,15 @@ export function ScatterChartCard<T extends ScatterPoint>({
                 type="number"
                 dataKey="x"
                 scale={xScale}
-                domain={xTicks ? [xTicks[0] ?? "auto", xTicks.at(-1) ?? "auto"] : ["auto", "auto"]}
+                domain={
+                  xTicks
+                    ? [xTicks[0] ?? "auto", xTicks.at(-1) ?? "auto"]
+                    : [(low: number) => Math.min(low, ...xs), (high: number) => Math.max(high, ...xs)]
+                }
                 ticks={xTicks}
                 niceTicks={xTicks ? undefined : "snap125"}
+                // A sized dot at the end of the range would spill past the axis by up to its radius.
+                padding={reach > 0 ? { left: reach, right: reach } : undefined}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -212,6 +263,10 @@ export function ScatterChartCard<T extends ScatterPoint>({
                 dataKey="y"
                 domain={[yTicks[0] ?? "auto", yTicks.at(-1) ?? "auto"]}
                 ticks={yTicks}
+                padding={{
+                  top: band(Boolean(names?.topLeft || names?.topRight)),
+                  bottom: band(Boolean(names?.bottomLeft || names?.bottomRight)),
+                }}
                 tickLine={false}
                 axisLine={false}
                 width="auto"
@@ -225,10 +280,18 @@ export function ScatterChartCard<T extends ScatterPoint>({
                   className: AXIS_TITLE,
                 }}
               />
-              {crossesZero && <ReferenceLine y={0} stroke="var(--border)" />}
+              {split ? (
+                <>
+                  <ReferenceLine x={split.x} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+                  <ReferenceLine y={split.y} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+                  <QuadrantNames quadrants={split} />
+                </>
+              ) : (
+                crossesZero && <ReferenceLine y={0} stroke="var(--border)" />
+              )}
               <Tooltip cursor={false} isAnimationActive={false} content={<PointTooltip details={rows} />} />
               <Scatter
-                data={drawn}
+                data={painted}
                 fill="var(--chart-1)"
                 isAnimationActive={false}
                 shape={
@@ -238,10 +301,12 @@ export function ScatterChartCard<T extends ScatterPoint>({
                     describe={(p: T) => [p.name, ...rows(p).map(([label, value]) => `${label} ${value}`)].join(", ")}
                     onSelect={onSelect}
                     onKeyDown={onKeyDown}
+                    radiusOf={radiusOf}
+                    sized={sized}
                   />
                 }
               />
-              <PointLabels points={drawn} limit={labels} />
+              <PointLabels points={drawn} limit={labels} radiusOf={radiusOf} quadrants={split} />
             </ScatterChart>
           </ChartContainer>
         </div>
@@ -289,6 +354,9 @@ interface DotProps<T extends ScatterPoint> {
   describe: (point: T) => string;
   onSelect: ((point: T | null) => void) | undefined;
   onKeyDown: (event: KeyboardEvent, point: T) => void;
+  radiusOf: (point: T) => number;
+  /** Dots drawn by size are a tint inside a full edge, so overlaps show through. */
+  sized: boolean;
 }
 
 /** One point's dot. A ring marks the selected one; with onSelect it is a button Tab and the arrow keys reach. */
@@ -303,18 +371,22 @@ function Dot<T extends ScatterPoint>({
   describe,
   onSelect,
   onKeyDown,
+  radiusOf,
+  sized,
 }: DotProps<T>) {
   if (cx === undefined || cy === undefined || !payload) return null;
   const key = keyOf(payload);
   const isSelected = key === selectedKey;
-  return (
+  const r = radiusOf(payload) + (isSelected ? 2 : 0);
+  const dot = (
     <circle
       cx={cx}
       cy={cy}
-      r={isSelected ? RADIUS + 2 : RADIUS}
+      r={r}
       fill="var(--chart-1)"
-      stroke={isSelected ? "var(--foreground)" : "var(--card)"}
-      strokeWidth={isSelected ? 2 : 1.5}
+      fillOpacity={sized ? SIZED_FILL : 1}
+      stroke={isSelected ? "var(--foreground)" : sized ? "var(--chart-1)" : "var(--card)"}
+      strokeWidth={isSelected ? 2 : EDGE}
       data-slot="scatter-point"
       data-key={key}
       data-selected={isSelected || undefined}
@@ -333,6 +405,13 @@ function Dot<T extends ScatterPoint>({
         onSelect(isSelected ? null : payload);
       }}
     />
+  );
+  if (!sized) return dot;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={r + EDGE / 2 + RING / 2} fill="none" stroke="var(--card)" strokeWidth={RING} />
+      {dot}
+    </g>
   );
 }
 
@@ -360,17 +439,80 @@ function labelType(): LabelType {
 }
 
 /** The leading points' names, placed from the axes' scales once the chart has laid them out. */
-function PointLabels({ points, limit }: { points: readonly ScatterPoint[]; limit: number }) {
+
+/** Where the quadrants' split lines cross, in pixels, once the axes are laid out. */
+function useSplit(quadrants: ScatterQuadrants | undefined) {
+  const x = useXAxisScale();
+  const y = useYAxisScale();
+  return quadrants && x && y ? { x: Number(x(quadrants.x)), y: Number(y(quadrants.y)) } : null;
+}
+
+/** The quadrants' names, muted, in the plot's corners. */
+function QuadrantNames({ quadrants }: { quadrants: ScatterQuadrants }) {
+  const plot = usePlotArea();
+  const split = useSplit(quadrants);
+  if (!plot) return null;
+  // Above the dots, as the points' names are: a big dot in a corner would otherwise hide the corner's name.
+  return (
+    <ZIndexLayer zIndex={DefaultZIndexes.label}>
+      <g data-slot="scatter-quadrant-names" pointerEvents="none">
+        {corners(plot, quadrants.labels, split, labelType()).map(({ key, lines, x, y, line }) => (
+          <text
+            key={key}
+            x={x}
+            y={y}
+            className="fill-muted-foreground stroke-card text-xs font-medium"
+            style={{ paintOrder: "stroke" }}
+            strokeWidth={3}
+            strokeLinejoin="round"
+          >
+            {lines.map((text, index) => (
+              <tspan key={text} x={x} dy={index === 0 ? 0 : line}>
+                {text}
+              </tspan>
+            ))}
+          </text>
+        ))}
+      </g>
+    </ZIndexLayer>
+  );
+}
+
+function PointLabels({
+  points,
+  limit,
+  radiusOf,
+  quadrants,
+}: {
+  points: readonly ScatterPoint[];
+  limit: number;
+  radiusOf: (point: ScatterPoint) => number;
+  quadrants: ScatterQuadrants | undefined;
+}) {
   const x = useXAxisScale();
   const y = useYAxisScale();
   const plot = usePlotArea();
+  const split = useSplit(quadrants);
   if (!x || !y || !plot || limit <= 0) return null;
-  const candidates = points.map((p) => ({ key: keyOf(p), text: p.name, cx: Number(x(p.x)), cy: Number(y(p.y)) }));
+  const type = labelType();
+  const candidates = points.map((p) => ({
+    key: keyOf(p),
+    text: p.name,
+    cx: Number(x(p.x)),
+    cy: Number(y(p.y)),
+    r: radiusOf(p) + EDGE,
+  }));
   // Recharts draws dots in a layer of their own; the names go in the label layer above it.
   return (
     <ZIndexLayer zIndex={DefaultZIndexes.label}>
       <g data-slot="scatter-labels" pointerEvents="none">
-        {placeLabels(candidates, plot, limit, DOT_BOX, labelType()).map((label) => (
+        {placeLabels(
+          candidates,
+          plot,
+          limit,
+          type,
+          corners(plot, quadrants?.labels, split, type).map(({ box }) => box),
+        ).map((label) => (
           <text
             key={label.key}
             x={label.x}
