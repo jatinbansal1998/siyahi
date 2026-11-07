@@ -80,6 +80,14 @@
       ]
     },
     {
+      "need": "Each item's value at two points or against a benchmark, such as share of sales last year and this, or our mix against the market's",
+      "guidance": "`SlopeChart` in a `Card`, with the few lines that matter `highlighted`",
+      "components": [
+        "SlopeChart",
+        "Card"
+      ]
+    },
+    {
       "need": "Ranked counts or amounts by category (a name, a bar and a figure)",
       "guidance": "`BarList`; give two lists one `max` to share a scale",
       "components": [
@@ -1028,6 +1036,28 @@
       "file": "agents/examples/slider.tsx",
       "components": [
         "Slider"
+      ]
+    },
+    {
+      "file": "agents/examples/slope-chart-market.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "SlopeChart"
+      ]
+    },
+    {
+      "file": "agents/examples/slope-chart.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "SlopeChart"
       ]
     },
     {
