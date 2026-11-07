@@ -11,6 +11,10 @@
 // Siyahi edit: legend swatches keep one size however large the cells grow.
 // Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
 // ring in the text colour and announced as pressed, as a Treemap tile is.
+// Siyahi edit: hover, `highlighted` and keyboard focus draw an outline (the
+// text colour, or the focus ring's) and never fade the cell's colour, as
+// CalendarHeatmap and StatusHeatmap do; the ring a focused SVG cell was given
+// never drew. The picked cell's ring is a class, so focus outranks it.
 import type { Locale, Day as WeekDay } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -145,7 +149,6 @@ const getLevelFill = (
   level: number,
   levels: number,
   isNormalized: boolean,
-  highlighted = false,
   colors?: ColorConfig,
 ): string => {
   const emptyColor = colors?.empty ?? "var(--color-secondary)";
@@ -155,8 +158,7 @@ const getLevelFill = (
   const steps = colorStepCount(levels, isNormalized);
   const opacity =
     steps === 1 ? 100 : Math.round(20 + ((level - 1) * 80) / (steps - 1));
-  const finalOpacity = highlighted ? Math.round(opacity * 0.6) : opacity;
-  return `color-mix(in oklch, ${scaleColor} ${finalOpacity}%, transparent)`;
+  return `color-mix(in oklch, ${scaleColor} ${opacity}%, transparent)`;
 };
 
 const DEFAULT_HOUR_LABELS = Array.from({ length: 24 }, (_, i) =>
@@ -572,9 +574,12 @@ export const WeekdayHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
-        "motion-safe:transition-opacity motion-safe:hover:opacity-70",
+        "hover:stroke-foreground hover:stroke-1",
+        highlighted && "stroke-foreground stroke-1",
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
+        selected && "stroke-foreground stroke-2 hover:stroke-2",
         onCellClick &&
-          "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
         className,
       )}
       data-value={activity.value}
@@ -590,9 +595,7 @@ export const WeekdayHeatmapBlock = ({
       x={xPosition}
       y={yPosition}
       style={{
-        fill: getLevelFill(level, levels, isNormalized, highlighted, colors),
-        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
-        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
+        fill: getLevelFill(level, levels, isNormalized, colors),
         ...styleProp,
       }}
       onClick={(event) => {
@@ -1010,7 +1013,7 @@ export const WeekdayHeatmapLegend = ({
               ry={blockRadius}
               width={LEGEND_SWATCH}
               style={{
-                fill: getLevelFill(level, levels, isNormalized, false, colors),
+                fill: getLevelFill(level, levels, isNormalized, colors),
               }}
             />
           </svg>
