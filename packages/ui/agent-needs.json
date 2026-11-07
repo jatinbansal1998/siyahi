@@ -92,6 +92,10 @@
     "guidance": "`ScatterChartCard` with `quadrants` and each point's `size`"
   },
   {
+    "need": "A gain or loss for every day, such as daily profit or a portfolio's daily change",
+    "guidance": "`CalendarHeatmap` with `signed`"
+  },
+  {
     "need": "Activity by day, by weekday and hour, or a status over time",
     "guidance": "`CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`"
   },

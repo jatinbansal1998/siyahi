@@ -30,7 +30,11 @@ describe("heatmap layout", () => {
   });
 
   it("draws the last 12 months as one strip, the year a tick at January", async () => {
-    const svgs = catalogue.page.locator('[data-slot="calendar-heatmap-body"] svg');
+    // The deploys calendar; the signed calendar after it is a second one on the page.
+    const svgs = catalogue.page
+      .locator('[data-slot="calendar-heatmap"]')
+      .first()
+      .locator('[data-slot="calendar-heatmap-body"] svg');
     expect(await svgs.count()).toBe(1);
     const ticks = await svgs.locator("text").allTextContents();
     expect(ticks).toContain("2026");

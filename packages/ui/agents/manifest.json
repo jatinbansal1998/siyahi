@@ -183,6 +183,13 @@
       ]
     },
     {
+      "need": "A gain or loss for every day, such as daily profit or a portfolio's daily change",
+      "guidance": "`CalendarHeatmap` with `signed`",
+      "components": [
+        "CalendarHeatmap"
+      ]
+    },
+    {
       "need": "Activity by day, by weekday and hour, or a status over time",
       "guidance": "`CalendarHeatmap`, `WeekdayHeatmap`, `StatusHeatmap`",
       "components": [
@@ -786,6 +793,22 @@
         "TableHead",
         "TableHeader",
         "TableRow",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/heatmap-calendar-signed.tsx",
+      "components": [
+        "CalendarHeatmap",
+        "CalendarHeatmapBlock",
+        "CalendarHeatmapBody",
+        "CalendarHeatmapFooter",
+        "CalendarHeatmapLegend",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
         "useFormat"
       ]
     },

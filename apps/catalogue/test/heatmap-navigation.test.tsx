@@ -21,7 +21,8 @@ describe("heatmap interactions", () => {
   it("lets touch and keyboard readers inspect heatmap values through one tab entry", async () => {
     const { page } = catalogue;
     for (const kind of ["calendar", "weekday", "status"]) {
-      const heatmap = page.locator(`[data-slot="${kind}-heatmap"]`);
+      // The first of each kind: the page shows a second, signed calendar too.
+      const heatmap = page.locator(`[data-slot="${kind}-heatmap"]`).first();
       const buttons = heatmap.locator('rect[role="button"]');
       expect(await buttons.count()).toBeGreaterThan(0);
       await expect.poll(() => heatmap.locator('rect[role="button"][tabindex="0"]').count()).toBe(1);
@@ -46,7 +47,8 @@ describe("heatmap interactions", () => {
   it("rings the tapped cell on every heatmap, one at a time, and clears it on a second tap", async () => {
     const { page } = catalogue;
     for (const kind of ["calendar", "weekday", "status"]) {
-      const heatmap = page.locator(`[data-slot="${kind}-heatmap"]`);
+      // The first of each kind: the page shows a second, signed calendar too.
+      const heatmap = page.locator(`[data-slot="${kind}-heatmap"]`).first();
       const buttons = heatmap.locator('rect[role="button"]');
       const pressed = heatmap.locator('rect[aria-pressed="true"]');
       await buttons.nth(2).tap();

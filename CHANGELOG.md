@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- `CalendarHeatmap` takes `signed` (and `range`): each day is green or red by
+  its sign, deeper the larger it is, on the same heat steps as Treemap and
+  ChangeGrid, and the legend shows the loss and gain steps. For a daily profit
+  or loss.
 - `ScatterChartCard` takes a `size` per point, which sets the dot's area (the
   largest drawn first, as a faint tint inside a full edge, so overlaps show
   through), and `quadrants`, dashed lines at an x and a y value with a name in
