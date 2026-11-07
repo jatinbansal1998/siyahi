@@ -2,6 +2,11 @@
 
 ## 0.1.9
 
+- The heat steps are theme tokens, `--heat-1` to `--heat-5`, light and dark
+  apart, read by Treemap, ChangeGrid, a signed CalendarHeatmap and the
+  contrast check alike (they were typed into `lib/heat.ts` and the checker
+  separately). The Foundations page draws them from the tokens, so it shows
+  dark mode's own steps. CONTRIBUTING has a "Changing the palette" section.
 - New: `HistogramChartCard` counts raw values in buckets of one round width,
   such as response times by 50 ms, and marks the median or a high percentile
   (`marks`), with each exact value written under the chart; marks that share a

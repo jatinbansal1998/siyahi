@@ -30,6 +30,11 @@
   --negative-foreground: oklch(0.985 0 0);
   --warning: oklch(0.555 0.149 48.998);
   --warning-foreground: oklch(0.985 0 0);
+  --heat-1: 12%;
+  --heat-2: 24%;
+  --heat-3: 36%;
+  --heat-4: 48%;
+  --heat-5: 60%;
   --link: oklch(0.51 0.2 275);
   --chart-1: oklch(0.4 0.17 275);
   --chart-2: oklch(0.66 0.13 70);
@@ -72,6 +77,10 @@
     --negative-foreground: oklch(0.145 0 0);
     --warning: oklch(0.828 0.169 84.429);
     --warning-foreground: oklch(0.145 0 0);
+    --heat-1: 25%;
+    --heat-2: 33.75%;
+    --heat-3: 42.5%;
+    --heat-4: 51.25%;
     --link: oklch(0.75 0.128 275);
     --chart-1: oklch(0.58 0.2 275);
     --chart-2: oklch(0.88 0.08 75);

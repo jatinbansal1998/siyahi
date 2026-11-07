@@ -136,9 +136,9 @@ describe("Treemap", () => {
     expect(slim?.querySelector("text")).toBeNull();
   });
 
-  it("starts dark mode's heat at a quarter tint, so the first step does not read as the card", async () => {
+  it("paints the smallest change at the first heat step, whose share each scheme sets", async () => {
     await render({ height: 300, items: [{ name: "INFY", weight: 100, change: 0.001 }] });
-    expect(fill("INFY")).toMatch(/^light-dark\(.*var\(--positive\) 12%.*, .*var\(--positive\) 25%.*\)$/);
+    expect(fill("INFY")).toBe("color-mix(in oklab, var(--positive) var(--heat-1), var(--card))");
   });
 
   it("keys tiles by key, so one name at two brokers draws two tiles", async () => {
@@ -166,14 +166,14 @@ describe("Treemap", () => {
       { name: "PAST", weight: 100, change: -0.9 },
     ];
     await render({ height: 300, items, range: 0.6 });
-    expect(fill("HALF")).toContain("var(--positive) 36%");
-    expect(fill("PAST")).toContain("var(--negative) 60%");
+    expect(fill("HALF")).toContain("var(--positive) var(--heat-3)");
+    expect(fill("PAST")).toContain("var(--negative) var(--heat-5)");
   });
 
   it("falls back to ±5% when range is not a positive number", async () => {
     for (const range of [0, -0.05, Number.NaN, Number.POSITIVE_INFINITY]) {
       await render({ height: 300, items: [{ name: "INFY", weight: 100, change: 0.03 }], range });
-      expect(fill("INFY")).toContain("var(--positive) 36%");
+      expect(fill("INFY")).toContain("var(--positive) var(--heat-3)");
       await act(async () => root?.unmount());
     }
   });

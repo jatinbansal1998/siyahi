@@ -81,6 +81,31 @@ its icons to the text colour with a selector that outranks a plain
 Registry add-ons are not formatted or style-linted, but `pnpm lint:registry`
 runs the colour rules on them, so an add-on default must name a token.
 
+## Changing the palette
+
+A new palette is an edit to `packages/ui/styles/siyahi.css` alone, as long as
+it keeps the same roles. Set every value in both blocks, as `oklch()`.
+
+- **The accent** is five tokens that move together: `--link`, `--ring`,
+  `--sidebar-ring`, `--sidebar-accent-foreground` and `--chart-1`. `--accent`
+  is shadcn's neutral hover fill, not the brand colour; leave it grey.
+- **Chart slots** keep their order and their lightness pattern: each reaches
+  3:1 against the page and the slot next to it, so a new hue usually needs its
+  lightness tuned, not just its hue swapped.
+- **Heat steps** are `--heat-1` to `--heat-5`, the share of `--positive` or
+  `--negative` each step mixes into the card, light and dark apart. Treemap,
+  ChangeGrid, a signed CalendarHeatmap and the contrast check all read them.
+- **Tints that stay in components** (a signed bar's 35% interior, Callout and
+  StatusAlert washes in `lib/tone.ts`) are shares, not colours, so they follow
+  a new palette; a change to one of those shares also needs its pair in
+  `packages/tools/contrast.mjs` updated.
+
+Then run `pnpm check`: a failing pair names both colours and its ratio, and
+the fix is the value, never the bar. Run `pnpm generate` for `report.css`.
+Update the hue names in `DESIGN.md`, the catalogue's Foundations page and
+`skills/siyahi/SKILL.md`, release, and rebuild the apps. A static report already
+sent keeps the stylesheet it was built with.
+
 ## Before a pull request
 
 The public agent skill is owned here, at `skills/siyahi/SKILL.md`. Keep workflow

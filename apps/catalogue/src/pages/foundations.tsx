@@ -46,7 +46,7 @@ const SPACING = [
   { name: "12", bar: "w-12", px: 48 },
 ];
 const RADII = ["rounded-sm", "rounded-md", "rounded-lg", "rounded-xl"];
-const HEAT_STEPS = [12, 24, 36, 48, 60];
+const HEAT_STEPS = [1, 2, 3, 4, 5];
 
 function onSchemeChange(callback: () => void): () => void {
   const scheme = matchMedia("(prefers-color-scheme: dark)");
@@ -61,6 +61,19 @@ function onSchemeChange(callback: () => void): () => void {
 function useTokenValue(name: string): string {
   return useSyncExternalStore(onSchemeChange, () =>
     getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim(),
+  );
+}
+
+/** One heat step as the components paint it, labelled with its share in the current scheme. */
+function HeatStep({ token, step }: { token: string; step: number }) {
+  const share = useTokenValue(`heat-${step}`);
+  return (
+    <div
+      className="flex h-8 flex-1 items-center justify-center rounded-sm text-xs"
+      style={{ backgroundColor: `color-mix(in oklab, var(${token}) var(--heat-${step}), var(--card))` }}
+    >
+      {share}
+    </div>
   );
 }
 
@@ -130,7 +143,7 @@ export const foundations: Page = {
         "Each slot reaches 3:1 against the card and against the slots next to it, which only lightness can give, so indigo, plum and teal are the deep members and amber and sky the pale ones, in both schemes.",
         "Slots two apart share a lightness and are told apart by hue, so series take slots in order.",
         "In charts, amber (chart-2) carries no warning meaning; warning amber is for alerts and badges only.",
-        "Ordered buckets (largest 5 / #6–10 / rest) use chart-1 heat steps (100% / 60% / 30%), not separate hues.",
+        "Ordered buckets (largest 5 / #6–10 / rest) use three steps of --chart-1 (100% / 60% / 30%), not separate hues.",
         "Every value is inside sRGB.",
       ],
       body: (
@@ -145,22 +158,20 @@ export const foundations: Page = {
     {
       id: "heat",
       title: "Heat steps",
-      lead: "Signed scales mix --positive or --negative toward the card colour in five steps; unsigned scales use steps of --chart-1.",
+      lead: "Treemap, ChangeGrid and a signed CalendarHeatmap mix --positive or --negative into the card in five steps, each the share its --heat-N token sets.",
+      rules: [
+        "The shares live in siyahi.css as --heat-1 to --heat-5, light and dark apart: a 12% tint of a dark card reads as the card itself, so dark starts at 25%. The contrast check reads them from there.",
+        "A count heatmap (CalendarHeatmap, WeekdayHeatmap) fades --chart-1 from 20% to full instead; a count has no sign.",
+      ],
       body: (
         <Card>
           <CardContent>
             <div className="flex flex-col gap-2">
-              {["--negative", "--positive", "--chart-1"].map((token) => (
+              {["--negative", "--positive"].map((token) => (
                 <div key={token} className="flex items-center gap-2">
                   <span className="w-24 font-mono text-xs">{token}</span>
                   {HEAT_STEPS.map((step) => (
-                    <div
-                      key={step}
-                      className="flex h-8 flex-1 items-center justify-center rounded-sm text-xs"
-                      style={{ backgroundColor: `color-mix(in oklab, var(${token}) ${step}%, var(--card))` }}
-                    >
-                      {step}%
-                    </div>
+                    <HeatStep key={step} token={token} step={step} />
                   ))}
                 </div>
               ))}

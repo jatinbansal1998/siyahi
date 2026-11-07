@@ -73,6 +73,17 @@ describe("contrast check", () => {
     expect(named(broken)).toContain("light --negative on --negative 35% in --card");
   });
 
+  it("starts dark mode's heat at a quarter tint, so the first step does not read as the card", () => {
+    // Moved from the treemap test when the shares became theme tokens.
+    expect(readTheme(themeCss).dark["heat-1"]).toBe("25%");
+    expect(readTheme(themeCss).light["heat-1"]).toBe("12%");
+  });
+
+  it("reads each heat step's share from the theme, so a deeper dark step fails its label", () => {
+    const broken = setVar(themeCss, "dark", "heat-5", "75%");
+    expect(named(broken)).toContain("dark --foreground on --positive 75% in --card");
+  });
+
   it("fails a treemap label on its deepest heat step", () => {
     const broken = setVar(themeCss, "dark", "positive", "oklch(0.74 0.16 151.711)");
     expect(named(broken)).toEqual(["dark --foreground on --positive 60% in --card"]);
