@@ -6,17 +6,12 @@ export const HEAT_STEPS = 5;
 export const heatRange = (range = DEFAULT_RANGE): number =>
   Number.isFinite(range) && range > 0 ? range : DEFAULT_RANGE;
 
-// Step 1 to 5: 12% to 60% of --positive or --negative mixed into the card, and
-// 25% to 60% in dark, where a 12% tint of a dark card reads as the card itself.
+// Step 1 to 5 mixes the theme's --heat-1 to --heat-5 share of --positive or
+// --negative into the card, so each scheme sets its own steps in siyahi.css.
 // oklab, not oklch: the card is achromatic, and an oklch mix would swing green
 // through orange on its way to it.
-const DARK_FLOOR = 25;
-const TOP = HEAT_STEPS * 12;
-export const heatFill = (side: "positive" | "negative", step: number): string => {
-  const mix = (share: number) => `color-mix(in oklab, var(--${side}) ${share}%, var(--card))`;
-  const dark = DARK_FLOOR + ((step - 1) * (TOP - DARK_FLOOR)) / (HEAT_STEPS - 1);
-  return `light-dark(${mix(step * 12)}, ${mix(dark)})`;
-};
+export const heatFill = (side: "positive" | "negative", step: number): string =>
+  `color-mix(in oklab, var(--${side}) var(--heat-${step}), var(--card))`;
 
 // Five equal steps across ±range. A range that is not a positive number falls
 // back to the default rather than painting every tile at one end of the scale.

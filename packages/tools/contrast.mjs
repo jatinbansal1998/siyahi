@@ -23,7 +23,7 @@ import { readTheme } from "./theme.mjs";
  * What a component paints, written as Tailwind writes it:
  * `muted` is the token, `muted/50` the token at 50% over what lies under it,
  * and `positive@60` is `color-mix(in oklab, var(--positive) 60%, var(--card))`,
- * a treemap tile.
+ * a treemap tile; `positive@heat-5` takes the share from the theme's --heat-5.
  * @typedef {string} Paint
  */
 /**
@@ -38,14 +38,12 @@ const SURFACES = ["background", "card"];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
 
 /**
- * The light label on each treemap heat step, both sides.
- * @param {Scheme} scheme @param {number[]} shares
- * @returns {Pair[]}
+ * The label on each heat step, both sides, at the shares the theme's --heat-1 to --heat-5 set.
+ * @type {Pair[]}
  */
-const heatLabels = (scheme, shares) =>
-  ["positive", "negative"].flatMap((side) =>
-    shares.map((share) => ({ fg: "foreground", bg: `${side}@${share}`, min: TEXT, scheme })),
-  );
+const HEAT_LABELS = ["positive", "negative"].flatMap((side) =>
+  [1, 2, 3, 4, 5].map((step) => ({ fg: "foreground", bg: `${side}@heat-${step}`, min: TEXT })),
+);
 
 /** @type {Pair[]} */
 const PAIRS = [
@@ -112,12 +110,11 @@ const PAIRS = [
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "muted/40", min: MARK, surface: "card" })),
   // A chart card's footer text, on the footer's muted wash.
   { fg: "foreground", bg: "muted/50", min: TEXT },
-  // Treemap and ChangeGrid labels on every heat step (lib/heat.ts heatFill): 12% to 60% of
-  // the meaning colour in the card in light, 25% to 60% in dark. A ChangeGrid
+  // Treemap, ChangeGrid and signed-calendar labels on every heat step
+  // (lib/heat.ts heatFill), at the theme's own --heat-N shares. A ChangeGrid
   // cell with no change is muted, with its figure in the text colour.
   { fg: "foreground", bg: "muted", min: TEXT },
-  ...heatLabels("light", [12, 24, 36, 48, 60]),
-  ...heatLabels("dark", [25, 33.75, 42.5, 51.25, 60]),
+  ...HEAT_LABELS,
 ];
 
 /**
@@ -128,6 +125,12 @@ export function checkContrast(theme) {
   /** @type {Map<string, Check>} */
   const checks = new Map();
   for (const scheme of /** @type {const} */ (["light", "dark"])) {
+    const percentage = (/** @type {string} */ name) => {
+      const value = theme[scheme][name];
+      const match = value === undefined ? null : /^([\d.]+)%$/.exec(value);
+      if (!match) throw new Error(`${scheme}: --${name} is "${value}", not a percentage`);
+      return Number(match[1]);
+    };
     const token = (/** @type {string} */ name) => {
       const value = theme[scheme][name];
       if (value === undefined) throw new Error(`${scheme}: --${name} is not set in the ${scheme} block`);
@@ -140,11 +143,13 @@ export function checkContrast(theme) {
      * @param {Paint} paint @param {{ rgb: [number, number, number], name: string }} under
      */
     const paintOver = (paint, under) => {
-      const [, name = "", sep, amount] = /^([\w-]+)(?:([/@])([\d.]+))?$/.exec(paint) ?? [];
+      const [, name = "", sep, amount = ""] = /^([\w-]+)(?:([/@])([\w.-]+))?$/.exec(paint) ?? [];
       const base = token(name);
       if (sep === "@") {
-        const rgb = oklchToSrgb(mixOklab(base, token("card"), Number(amount) / 100));
-        return { rgb, name: `--${name} ${amount}% in --card` };
+        // A share is a number, or the name of a theme token holding a percentage, such as heat-5.
+        const share = /^[\d.]+$/.test(amount) ? Number(amount) : percentage(amount);
+        const rgb = oklchToSrgb(mixOklab(base, token("card"), share / 100));
+        return { rgb, name: `--${name} ${share}% in --card` };
       }
       const alpha = base.alpha * (sep === "/" ? Number(amount) / 100 : 1);
       if (alpha === 1) return { rgb: oklchToSrgb(base), name: `--${paint}` };
