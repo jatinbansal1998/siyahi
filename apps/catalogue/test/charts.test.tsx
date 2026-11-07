@@ -746,4 +746,17 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await expect.poll(() => cursor.count()).toBe(1);
     expect(await cursor.evaluate((el) => getComputedStyle(el).fillOpacity)).toBe("0.4");
   });
+
+  it("wraps a five-series legend on a phone instead of running it past the card", async () => {
+    await show("bar-chart");
+    await page.setViewportSize({ width: 390, height: 900 });
+    const chart = card("Revenue by channel and quarter");
+    await chart.scrollIntoViewIfNeeded();
+    const items = chart.locator(".recharts-legend-wrapper > div > div");
+    await expect.poll(() => items.count()).toBe(5);
+    const frame = (await chart.boundingBox())!;
+    const boxes = await items.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    expect(boxes.filter((box) => box.left < frame.x || box.right > frame.x + frame.width)).toEqual([]);
+    await page.setViewportSize({ width: 1280, height: 900 });
+  });
 });

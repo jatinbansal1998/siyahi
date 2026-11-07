@@ -46,7 +46,8 @@ const AXIS_TITLE = "fill-muted-foreground text-xs";
 // muted-tick rule no longer reaches, so they would keep Recharts' #666 in both schemes.
 const TICK = { className: "fill-muted-foreground font-mono" };
 const NO_LINES: readonly ChartReferenceLine[] = [];
-const SERIES_LEGEND = <ChartLegendContent />;
+// Five series' names do not fit one line on a phone; they wrap rather than run past the card.
+const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
 
 interface ChartFrameProps<T extends object, K extends keyof T>
   extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps {

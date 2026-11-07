@@ -16,6 +16,8 @@
   `--chart-1`, and a dashed line carries each level to the next bar.
   The band behind a hovered category on every chart card is now 40% `--muted`
   (light `--chart-2` and `--chart-4` bars were 2.9:1 against the full band).
+  A chart card's legend wraps on a phone instead of running five series' names
+  past the card.
   `horizontal` lays it sideways for long names.
 - `Delta` sits on the text's baseline again: its icon had lifted the line and
   made table rows taller. A button rendered as a popover or menu trigger keeps
