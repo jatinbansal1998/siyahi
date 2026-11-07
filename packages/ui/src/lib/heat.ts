@@ -20,8 +20,9 @@ export const heatFill = (side: "positive" | "negative", step: number): string =>
 
 // Five equal steps across ±range. A range that is not a positive number falls
 // back to the default rather than painting every tile at one end of the scale.
+// A change that is not a finite number (NaN, ±Infinity, such as a division by zero) is no figure, never the deepest.
 export function heat(change: number | null, range?: number): string {
-  if (!change) return "var(--muted)";
+  if (!change || !Number.isFinite(change)) return "var(--muted)";
   const step = Math.min(HEAT_STEPS, Math.ceil((Math.abs(change) / heatRange(range)) * HEAT_STEPS));
   return heatFill(change > 0 ? "positive" : "negative", step);
 }

@@ -15,7 +15,13 @@
 // Siyahi edit: `signed` colours each day by its sign and size on the Treemap
 // and ChangeGrid heat scale (lib/heat.ts), deepest at `range` or the largest
 // day, and the legend shows its loss and gain steps: a daily profit or loss
-// has no single direction for one hue's fade to follow.
+// has no single direction for one hue's fade to follow. A signed day carries a
+// full-colour edge (3:1 on the card, which its faint tint is not), a loss is
+// round and a gain square so the sign never rests on colour alone, and a day
+// with no change or no figure is muted inside the field-edge colour.
+// Siyahi edit: hover, `highlighted` and keyboard focus draw an outline (the
+// text colour, or the focus ring's) and never fade the day's colour; the ring
+// a focused SVG cell was given never drew.
 import type { Locale, Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
@@ -83,7 +89,6 @@ const getLevelFill = (
   level: number,
   levels: number,
   isNormalized: boolean,
-  highlighted = false,
   colors?: ColorConfig,
 ): string => {
   const emptyColor = colors?.empty ?? "var(--color-secondary)";
@@ -93,8 +98,7 @@ const getLevelFill = (
   const steps = colorStepCount(levels, isNormalized);
   const opacity =
     steps === 1 ? 100 : Math.round(20 + ((level - 1) * 80) / (steps - 1));
-  const finalOpacity = highlighted ? Math.round(opacity * 0.6) : opacity;
-  return `color-mix(in oklch, ${scaleColor} ${finalOpacity}%, transparent)`;
+  return `color-mix(in oklch, ${scaleColor} ${opacity}%, transparent)`;
 };
 
 const calculateLevel = (
@@ -157,6 +161,13 @@ type CalendarHeatmapContextType = {
   colors?: ColorConfig;
   /** The change that takes the deepest step when the heatmap is signed; null when it fades one hue. */
   signedRange: number | null;
+};
+
+/** How a signed day is drawn: its heat tint, the edge that carries its sign's colour, and whether it is round. */
+const signedMark = (value: number) => {
+  const known = Number.isFinite(value) ? value : 0;
+  const side = known > 0 ? "var(--positive)" : known < 0 ? "var(--negative)" : "var(--input)";
+  return { stroke: side, round: known < 0 };
 };
 
 const EMPTY_STYLE: CSSProperties = {};
@@ -706,6 +717,8 @@ export const CalendarHeatmapBlock = ({
     Math.min(colorStepCount(levels, isNormalized), activity.level),
   );
 
+  const mark = signedRange === null ? null : signedMark(activity.value);
+
   const ariaLabel = (labels.cellLabel ?? "{{date}}: {{value}} contributions")
     .replace("{{date}}", activity.date)
     .replace("{{value}}", String(activity.value));
@@ -719,9 +732,10 @@ export const CalendarHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
-        "motion-safe:transition-opacity motion-safe:hover:opacity-70",
+        "hover:stroke-foreground hover:stroke-1",
+        highlighted && "stroke-foreground stroke-1",
         onCellClick &&
-          "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
         className,
       )}
       data-value={activity.value}
@@ -730,15 +744,19 @@ export const CalendarHeatmapBlock = ({
       data-highlighted={highlighted || undefined}
       data-selected={selected || undefined}
       height={blockSize}
-      rx={blockRadius}
-      ry={blockRadius}
+      rx={mark?.round ? blockSize / 2 : blockRadius}
+      ry={mark?.round ? blockSize / 2 : blockRadius}
       width={blockWidth}
+      // A signed day's edge is an attribute, not a style, so hover and focus outlines (classes) still win over it.
+      stroke={mark?.stroke}
+      strokeWidth={mark ? 1 : undefined}
       x={(blockWidth + blockMargin) * weekIndex}
       y={labelHeight + (blockSize + blockMargin) * dayIndex}
       style={{
-        ...(signedRange === null
-          ? { fill: getLevelFill(level, levels, isNormalized, highlighted, colors) }
-          : { fill: heat(activity.value, signedRange), fillOpacity: highlighted ? 0.6 : 1 }),
+        fill:
+          signedRange === null
+            ? getLevelFill(level, levels, isNormalized, colors)
+            : heat(activity.value, signedRange),
         // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
         ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
         ...styleProp,
@@ -1022,11 +1040,14 @@ export type CalendarHeatmapLegendProps = Omit<
   "children"
 > & {
   labels?: { less?: string; more?: string };
+  /** A signed heatmap's figures in the legend's scale line, such as useFormat().money. */
+  valueFormatter?: (value: number) => string;
   children?: (props: { level: number }) => ReactNode;
 };
 
 export const CalendarHeatmapLegend = ({
   labels: labelsProp,
+  valueFormatter,
   className,
   children,
   ...props
@@ -1040,7 +1061,9 @@ export const CalendarHeatmapLegend = ({
     signedRange,
   } = useCalendarHeatmap();
 
-  if (signedRange !== null) return <SignedLegend labels={labelsProp} className={className} {...props} />;
+  if (signedRange !== null) {
+    return <SignedLegend labels={labelsProp} valueFormatter={valueFormatter} className={className} {...props} />;
+  }
 
   const lessLabel = labelsProp?.less ?? "Less";
   const moreLabel = labelsProp?.more ?? "More";
@@ -1082,7 +1105,7 @@ export const CalendarHeatmapLegend = ({
               ry={blockRadius}
               width={LEGEND_SWATCH}
               style={{
-                fill: getLevelFill(level, levels, isNormalized, false, colors),
+                fill: getLevelFill(level, levels, isNormalized, colors),
               }}
             />
           </svg>
@@ -1093,31 +1116,50 @@ export const CalendarHeatmapLegend = ({
   );
 };
 
-/** A signed heatmap's scale: the loss steps deepest first, no change, then the gain steps. */
+/** A signed heatmap's scale: round loss steps deepest first, no change, square gain steps, and what they span. */
 const SignedLegend = ({
   labels: labelsProp,
+  valueFormatter = String,
   className,
   ...props
 }: Omit<CalendarHeatmapLegendProps, "children">) => {
-  const { blockRadius, labels } = useCalendarHeatmap();
+  const { blockRadius, labels, signedRange } = useCalendarHeatmap();
   const steps = Array.from({ length: HEAT_STEPS }, (_, i) => i + 1);
-  const swatch = (key: string, fill: string) => (
-    <svg aria-hidden="true" key={key} height={LEGEND_SWATCH} width={LEGEND_SWATCH}>
-      <rect height={LEGEND_SWATCH} rx={blockRadius} ry={blockRadius} width={LEGEND_SWATCH} style={{ fill }} />
-    </svg>
-  );
+  const swatch = (key: string, fill: string, value: number) => {
+    const { stroke, round } = signedMark(value);
+    const corner = round ? (LEGEND_SWATCH - 1) / 2 : blockRadius;
+    return (
+      <svg aria-hidden="true" key={key} height={LEGEND_SWATCH} width={LEGEND_SWATCH}>
+        <rect
+          x={0.5}
+          y={0.5}
+          height={LEGEND_SWATCH - 1}
+          width={LEGEND_SWATCH - 1}
+          rx={corner}
+          ry={corner}
+          stroke={stroke}
+          style={{ fill }}
+        />
+      </svg>
+    );
+  };
   return (
     <fieldset
       data-slot="calendar-heatmap-legend"
       aria-label={labels.legendLabel ?? "Activity intensity legend"}
-      className={cn("ml-auto flex items-center gap-1 text-muted-foreground", className)}
+      className={cn("ml-auto flex flex-col items-end gap-1 text-muted-foreground", className)}
       {...props}
     >
-      <span className="mr-1 font-medium text-xs">{labelsProp?.less ?? "Loss"}</span>
-      {steps.toReversed().map((step) => swatch(`loss-${step}`, heatFill("negative", step)))}
-      {swatch("none", heat(null))}
-      {steps.map((step) => swatch(`gain-${step}`, heatFill("positive", step)))}
-      <span className="ml-1 font-medium text-xs">{labelsProp?.more ?? "Gain"}</span>
+      <div className="flex items-center gap-1">
+        <span className="mr-1 font-medium text-xs">{labelsProp?.less ?? "Loss"}</span>
+        {steps.toReversed().map((step) => swatch(`loss-${step}`, heatFill("negative", step), -1))}
+        {swatch("none", heat(null), 0)}
+        {steps.map((step) => swatch(`gain-${step}`, heatFill("positive", step), 1))}
+        <span className="ml-1 font-medium text-xs">{labelsProp?.more ?? "Gain"}</span>
+      </div>
+      <p data-slot="calendar-heatmap-legend-scale" className="text-xs">
+        Deepest at ±{valueFormatter(signedRange ?? 0)}. Round days lost, square days gained; grey days had no change.
+      </p>
     </fieldset>
   );
 };

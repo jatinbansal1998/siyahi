@@ -30,7 +30,9 @@ export default function HeatmapCalendarSignedExample() {
     <Card>
       <CardHeader>
         <CardTitle>Profit by day</CardTitle>
-        <CardDescription>May to October. Green days made money and red days lost it; deeper is more.</CardDescription>
+        <CardDescription>
+          May to October. Square green days made money and round red days lost it; deeper is more.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <CalendarHeatmap
@@ -55,7 +57,7 @@ export default function HeatmapCalendarSignedExample() {
               <p aria-live="polite" className="text-sm tabular-nums">
                 {picked ? `${picked.date}: ${signed(picked.value)}` : "Select a day for its profit or loss."}
               </p>
-              <CalendarHeatmapLegend labels={{ less: "Loss", more: "Profit" }} />
+              <CalendarHeatmapLegend labels={{ less: "Loss", more: "Profit" }} valueFormatter={money} />
             </div>
           </CalendarHeatmapFooter>
         </CalendarHeatmap>

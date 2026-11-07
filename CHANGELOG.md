@@ -4,8 +4,12 @@
 
 - `CalendarHeatmap` takes `signed` (and `range`): each day is green or red by
   its sign, deeper the larger it is, on the same heat steps as Treemap and
-  ChangeGrid, and the legend shows the loss and gain steps. For a daily profit
-  or loss.
+  ChangeGrid, inside a full-colour edge, a loss round and a gain square, so
+  the sign never rests on colour alone; the legend shows those shapes and,
+  given a `valueFormatter`, where the deepest step sits. For a daily profit or
+  loss. Hovering, highlighting or focusing a day outlines it instead of fading
+  it, and a focused day's ring now draws. Every heat scale treats NaN and
+  Infinity as no figure.
 - `ScatterChartCard` takes a `size` per point, which sets the dot's area (the
   largest drawn first, as a faint tint inside a full edge, so overlaps show
   through), and `quadrants`, dashed lines at an x and a y value with a name in

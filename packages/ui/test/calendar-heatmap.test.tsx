@@ -16,9 +16,12 @@ const render = (data: { date: string; value: number }[], range?: number) =>
           <CalendarHeatmapBlock activity={activity} dayIndex={dayIndex} weekIndex={weekIndex} />
         )}
       </CalendarHeatmapBody>
-      <CalendarHeatmapLegend />
+      <CalendarHeatmapLegend valueFormatter={(value) => `₹${value}`} />
     </CalendarHeatmap>,
   );
+
+/** The day with this date, as rendered. */
+const day = (html: string, date: string) => new RegExp(`<rect[^>]*data-date="${date}"[^>]*>`).exec(html)?.[0] ?? "";
 
 /** The fill of the day with this date. */
 const fill = (html: string, date: string) =>
@@ -41,6 +44,25 @@ describe("CalendarHeatmap signed", () => {
 
   it("takes the deepest step at a given range instead of the largest day", () => {
     expect(fill(render(days, 18_000), "2026-05-04")).toBe(heatFill("positive", 3));
+  });
+
+  it("marks a day's sign by its shape and edge as well as its colour: a loss round, a gain square", () => {
+    const html = render(days);
+    const [gain, loss, none] = ["2026-05-04", "2026-05-05", "2026-05-06"].map((date) => day(html, date));
+    expect(gain).toContain('stroke="var(--positive)"');
+    expect(loss).toContain('stroke="var(--negative)"');
+    expect(none).toContain('stroke="var(--input)"');
+    expect(Number(/ rx="([\d.]+)"/.exec(loss)?.[1])).toBeGreaterThan(Number(/ rx="([\d.]+)"/.exec(gain)?.[1]));
+  });
+
+  it("treats an infinite day as no figure, never the deepest gain or loss", () => {
+    const html = render([...days, { date: "2026-05-07", value: Number.POSITIVE_INFINITY }]);
+    expect(fill(html, "2026-05-07")).toBe(heat(null));
+    expect(fill(html, "2026-05-04")).toBe(heatFill("positive", 5));
+  });
+
+  it("says in the legend where the deepest step sits, in the page's format", () => {
+    expect(render(days)).toContain("Deepest at ±₹9000. Round days lost, square days gained; grey days had no change.");
   });
 
   it("shows the loss steps deepest first, no change, then the gain steps in the legend", () => {
