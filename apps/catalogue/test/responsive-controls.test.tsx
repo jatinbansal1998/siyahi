@@ -32,6 +32,9 @@ describe("touch controls", { timeout: 60_000 }, () => {
   it("keeps composed sheet controls finger-sized when their slot changes", async () => {
     const { page } = catalogue;
     await page.goto(`${new URL(page.url()).origin}/#/inputs/sheet`);
+    // The page before, the data table at phone width, has a Filters sheet of its own and stays up until the route
+    // swaps; a click on its button opened that sheet, which the swap then took away. Wait for the Sheet page itself.
+    await page.getByRole("heading", { level: 1, name: "Sheet", exact: true }).waitFor();
     const filters = page.getByRole("button", { name: "Filters", exact: true });
     await filters.waitFor({ state: "visible" });
     await expect.poll(() => filters.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);

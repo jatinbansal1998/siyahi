@@ -2,6 +2,9 @@
 
 ## 0.1.9
 
+- `WeekdayHeatmap` outlines a hovered, highlighted or keyboard-focused cell
+  instead of fading it, as CalendarHeatmap and StatusHeatmap do, and a
+  focused cell's ring now draws, also on the picked cell.
 - The heat steps are theme tokens, `--heat-1` to `--heat-5`, light and dark
   apart, read by Treemap, ChangeGrid, a signed CalendarHeatmap and the
   contrast check alike (they were typed into `lib/heat.ts` and the checker
