@@ -9,6 +9,13 @@
 // Siyahi edit: legend entries sit gap-3 apart, so each label stays with its own swatch.
 // Siyahi edit: a Block takes `selected`, the page's picked cell, drawn with a
 // ring in the text colour and announced as pressed, as a Treemap tile is.
+// Siyahi edit: a healthy day is 30% grey (was 40%), so a light degraded day's
+// amber reaches 3:1 against it; contrast.mjs checks both status colours on it.
+// Siyahi edit: hover, `highlighted` and keyboard focus draw an outline (the
+// text colour, or the focus ring's) and never fade the day's colour: a 70%
+// hover or 60% highlight dropped a degraded day under 3:1 against the card,
+// and the ring a focused SVG cell was given never drew. The picked cell's
+// ring is a class too, so focus outranks it.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -73,7 +80,7 @@ const DEFAULT_COLORS: Record<number, string> = {
   0: "var(--color-secondary)",
   1: "var(--destructive)", // critical
   2: "var(--warning)", // degraded
-  3: "color-mix(in oklab, var(--muted-foreground) 40%, transparent)", // healthy
+  3: "color-mix(in oklab, var(--muted-foreground) 30%, transparent)", // healthy
 };
 
 const SEMANTIC_KEYS: Record<
@@ -129,15 +136,6 @@ const resolveStatusLabel = (
   }
 };
 
-const getStatusFill = (
-  value: StatusValue,
-  colors?: StatusColorConfig,
-  highlighted = false,
-): string => {
-  const base = resolveColor(value, colors);
-  if (!highlighted) return base;
-  return `color-mix(in oklch, ${base} 60%, transparent)`;
-};
 
 const EMPTY_STYLE: CSSProperties = {};
 const PADDING = 3;
@@ -377,9 +375,13 @@ export const StatusHeatmapBlock = ({
       tabIndex={onCellClick ? 0 : -1}
       aria-label={ariaLabel}
       className={cn(
-        "motion-safe:transition-opacity motion-safe:hover:opacity-70",
+        "hover:stroke-foreground hover:stroke-1",
+        highlighted && "stroke-foreground stroke-1",
+        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level. A class,
+        // not an inline style, so keyboard focus on the picked cell still draws its own ring over it.
+        selected && "stroke-foreground stroke-2 hover:stroke-2",
         onCellClick &&
-          "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
         className,
       )}
       data-value={activity.value}
@@ -393,9 +395,7 @@ export const StatusHeatmapBlock = ({
       x={xPosition}
       y={0}
       style={{
-        fill: getStatusFill(activity.value, colors, highlighted),
-        // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
-        ...(selected ? { stroke: "var(--foreground)", strokeWidth: 2 } : {}),
+        fill: resolveColor(activity.value, colors),
         ...styleProp,
       }}
       onClick={(event) => {
@@ -643,7 +643,7 @@ export const StatusHeatmapLegend = ({
                 rx={blockRadius}
                 ry={blockRadius}
                 width={LEGEND_SWATCH}
-                style={{ fill: getStatusFill(status.value, colors) }}
+                style={{ fill: resolveColor(status.value, colors) }}
               />
             </svg>
             <span className="font-medium text-muted-foreground text-xs">

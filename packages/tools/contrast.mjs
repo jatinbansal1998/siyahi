@@ -97,6 +97,9 @@ const PAIRS = [
     ["positive", "positive/8"],
     ["negative", "negative/8"],
   ].map(([fg = "", bg = ""]) => ({ fg, bg, min: MARK })),
+  // A StatusHeatmap's degraded and critical days against a healthy one, its
+  // default 30% grey, so a bad day stands out of a run of good ones.
+  ...["warning", "destructive"].map((fg) => ({ fg, bg: "muted-foreground/30", min: MARK })),
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A dimmed bar keeps its full colour

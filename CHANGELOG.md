@@ -55,11 +55,16 @@
   year's profit month by month or revenue from last year to this by store.
   Rises and falls are tinted green and red inside a full edge, totals are solid
   `--chart-1`, and a dashed line carries each level to the next bar.
-  The band behind a hovered category on every chart card is now 40% `--muted`
-  (light `--chart-2` and `--chart-4` bars were 2.9:1 against the full band).
-  A chart card's legend wraps on a phone instead of running five series' names
-  past the card.
-  `horizontal` lays it sideways for long names.
+  `horizontal` lays it sideways for long names. The band behind a hovered
+  category on every chart card is now 40% `--muted` (light `--chart-2` and
+  `--chart-4` bars were 2.9:1 against the full band), and a chart card's legend
+  wraps on a phone instead of running five series' names past the card.
+- `StatusHeatmap` draws a healthy day at 30% grey (was 40%), so a degraded
+  day's amber reaches 3:1 against it in light mode (was 2.7:1). The contrast
+  check now covers degraded and critical days against a healthy one.
+  Hovering, highlighting or focusing a day outlines it (the text colour, or
+  the focus ring's for the keyboard) instead of fading it, which had dropped a
+  degraded day under 3:1; a focused day's ring now draws at all.
 - `Delta` sits on the text's baseline again: its icon had lifted the line and
   made table rows taller. A button rendered as a popover or menu trigger keeps
   the faint button edge in dark mode instead of the field edge.
