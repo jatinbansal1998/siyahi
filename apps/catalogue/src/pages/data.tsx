@@ -514,6 +514,74 @@ export const data: Page = {
       ],
     },
     {
+      id: "scatter-chart",
+      title: "Scatter chart",
+      lead: "ScatterChartCard plots each item as a dot by two measures, such as size against growth, with the leading names beside their dots.",
+      imports: ["ScatterChartCard", "type ScatterPoint", "type ScatterDetail"],
+      props: [
+        {
+          name: "points",
+          type: "ScatterPoint[]",
+          purpose:
+            "{ name, x, y, key? } per dot, most important first; y is null when unknown and the dot is not drawn.",
+        },
+        { name: "height", type: "number", purpose: "Fixed height of the plot in pixels." },
+        { name: "xLabel, yLabel", type: "string", purpose: "What each axis measures, written along it." },
+        {
+          name: "xScale",
+          type: '"linear" | "log"',
+          default: '"linear"',
+          purpose: "log spreads sizes that run from tiny to large across powers of ten, ticked at 1, 2 and 5.",
+        },
+        {
+          name: "xFormatter, yFormatter",
+          type: "(value: number) => string",
+          default: "locale numbers",
+          purpose: "The ticks and the tooltip's figures.",
+        },
+        {
+          name: "labels",
+          type: "number",
+          default: "12",
+          purpose: "How many points get their name beside the dot, at most.",
+        },
+        {
+          name: "details",
+          type: "(point: T) => ScatterDetail[]",
+          default: "the two figures",
+          purpose:
+            'The tooltip\'s rows under the name, each [label, figure], such as ["Sales", "₹9.8L"]; a screen reader hears them too.',
+        },
+        {
+          name: "selected, onSelect",
+          type: "T | null, (point: T | null) => void",
+          default: "—",
+          purpose:
+            "The ringed point, matched by key. A tap, Enter or Space selects; a second one, Escape or a tap on the plot clears.",
+        },
+        {
+          name: "title, description, action, footer",
+          type: "ReactNode",
+          default: "—",
+          purpose: "As on the other chart cards.",
+        },
+      ],
+      rules: [
+        "Use it when the question is how two measures relate across many items, such as 80 stores' size and growth; a few items read better as a bar list.",
+        "Give points most important first: labels go to the earliest points that have room.",
+        "Every dot takes one colour: a category such as a region stays neutral (DESIGN.md). Put it in details, and let a filter on the page pick one.",
+        "A name goes beside its dot only where it covers no other name and no other dot; the rest are in the tooltip, so names never pile up.",
+        "A point with a null y, or at or under zero on a log axis, is not drawn: say on the page how many are left out.",
+        "A phone has no hover, so a tap selects a dot. With onSelect, Tab reaches the dots and the arrow keys walk them left to right. The selection is the page's state, so a filter that drops the point drops its ring too.",
+      ],
+      examples: [
+        {
+          name: "scatter-chart",
+          caption: "Stores by share of sales and growth, with a tap to select and one store left out.",
+        },
+      ],
+    },
+    {
       id: "heatmaps",
       title: "Heatmaps",
       lead: "Calendar, weekday by hour and status timeline heatmaps from the @heatmap registry.",
