@@ -2,6 +2,9 @@
 
 ## 0.1.9
 
+- New: `HistogramChartCard` counts raw values in buckets of one round width,
+  such as response times by 50 ms, and marks the median or a high percentile
+  (`marks`), with each exact value written under the chart.
 - New: `DrawdownChartCard` shows how far a level sits below the highest it had
   reached, such as a fund's or a cash balance's fall from its peak: the area
   hangs from zero in the loss colour and a dashed line names the deepest fall.

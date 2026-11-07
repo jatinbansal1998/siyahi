@@ -162,6 +162,13 @@
       ]
     },
     {
+      "need": "How many values fall in each range, such as response times or each trade's return, with the median or p95 marked",
+      "guidance": "`HistogramChartCard` with the raw `values` and `marks`",
+      "components": [
+        "HistogramChartCard"
+      ]
+    },
+    {
       "need": "A long daily series, such as a price or an order value",
       "guidance": "`PriceChart`",
       "components": [
@@ -870,6 +877,13 @@
         "WeekdayHeatmapBlock",
         "WeekdayHeatmapBody",
         "WeekdayHeatmapLegend"
+      ]
+    },
+    {
+      "file": "agents/examples/histogram-chart.tsx",
+      "components": [
+        "HistogramChartCard",
+        "useFormat"
       ]
     },
     {
