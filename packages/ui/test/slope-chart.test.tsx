@@ -24,4 +24,19 @@ describe("SlopeChart", () => {
     );
     expect(html).toContain("<li>Online: 2025 18.0%, 2026 27.0%</li>");
   });
+
+  it("leaves out an item without both values, and keeps the rest", () => {
+    const html = renderToStaticMarkup(
+      <SlopeChart
+        items={[
+          { name: "Online", from: 0.18, to: 0.27 },
+          { name: "Kiosk", from: Number.NaN, to: 0.3 },
+        ]}
+        fromLabel="2025"
+        toLabel="2026"
+      />,
+    );
+    expect(html).toContain("<li>Online: 2025 18.0%, 2026 27.0%</li>");
+    expect(html).not.toContain("Kiosk");
+  });
 });

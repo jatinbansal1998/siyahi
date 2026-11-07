@@ -14,6 +14,7 @@ export interface SlopeItem {
 }
 
 export interface SlopeChartProps {
+  /** An item whose from or to is not a finite number is not drawn: say on the page how many are left out. */
   items: readonly SlopeItem[];
   /** Heads the left side, such as "Nifty 50" or "2025". */
   fromLabel: string;
@@ -29,7 +30,6 @@ export interface SlopeChartProps {
 const ROW = 18;
 const TOP = 32;
 const BOTTOM = 8;
-const VALUE_WIDTH = 64;
 const GAP = 12;
 const NONE: readonly string[] = [];
 
@@ -60,7 +60,7 @@ export function spread(ys: readonly number[], gap: number, min: number, max: num
  * the page picks the few to draw in the accent; names sit on the left, values at both ends, nudged apart when close.
  */
 export function SlopeChart({
-  items,
+  items: given,
   fromLabel,
   toLabel,
   highlighted = NONE,
@@ -70,6 +70,8 @@ export function SlopeChart({
   const [ref, width] = useElementWidth<HTMLDivElement>();
   const { pct } = useFormat();
   const format = valueFormatter ?? ((value: number) => pct(value));
+  // An item without both values has no line to draw, and a NaN would throw every other line off the scale.
+  const items = given.filter(({ from, to }) => Number.isFinite(from) && Number.isFinite(to));
   // Room for about one and a half label rows per item, so labels can sit beside their own ends.
   const height = TOP + Math.max(items.length * ROW * 1.5, 180) + BOTTOM;
   const values = items.flatMap(({ from, to }) => [from, to]);
@@ -79,10 +81,13 @@ export function SlopeChart({
     high === low
       ? (TOP + height - BOTTOM) / 2
       : TOP + ((high - value) / (high - low)) * (height - TOP - BOTTOM - ROW) + ROW / 2;
-  // Names and the left values take what the lines and the right values leave, up to 240px; the lines keep at least
+  // The right column fits its widest value or heading, measured roughly (a medium weight runs about 10% wider);
+  // names and the left values take what the lines and that column leave, up to 240px, and the lines keep at least
   // 96px, so a phone gives the names most of its width.
-  const left = Math.min(Math.max(Math.round(width * 0.45), width - VALUE_WIDTH - 96), 240);
-  const right = width - VALUE_WIDTH;
+  const rightTexts = [toLabel, ...items.map(({ to }) => format(to))];
+  const column = Math.min(Math.ceil(Math.max(...rightTexts.map(textWidth)) * 1.1) + 8, Math.round(width * 0.4));
+  const left = Math.min(Math.max(Math.round(width * 0.45), width - column - 96), 240);
+  const right = width - column;
   const lefts = spread(
     items.map(({ from }) => y(from)),
     ROW,
@@ -112,10 +117,10 @@ export function SlopeChart({
           className="text-xs"
         >
           <text x={left} y={14} textAnchor="end" className="fill-muted-foreground font-medium">
-            {fromLabel}
+            {fit(fromLabel, left)}
           </text>
           <text x={right} y={14} className="fill-muted-foreground font-medium">
-            {toLabel}
+            {fit(toLabel, column)}
           </text>
           {[left, right].map((x) => (
             <line key={x} x1={x} x2={x} y1={TOP - 6} y2={height - BOTTOM} className="stroke-border" />

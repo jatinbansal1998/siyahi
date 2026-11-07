@@ -30,7 +30,7 @@ const overlap = (a: DOMRect, b: DOMRect) =>
 
 describe("SlopeChart layout", { timeout: 60_000 }, () => {
   for (const width of [1920, 390]) {
-    it(`keeps every label clear of the others at ${width} wide`, async () => {
+    it(`keeps every label clear of the others and inside the drawing at ${width} wide`, async () => {
       await page.setViewportSize({ width, height: 1000 });
       await expect.poll(async () => (await labels()).length).toBe(18);
       const boxes = await labels();
@@ -41,6 +41,16 @@ describe("SlopeChart layout", { timeout: 60_000 }, () => {
           .map((b) => [a, b]),
       );
       expect(clashes).toEqual([]);
+      // Every heading and value stays inside the drawing, the long "This store, this year" heading included.
+      const chart = page.locator('[data-slot="slope-chart"]').nth(1);
+      const frame = (await chart.locator("svg").boundingBox())!;
+      const texts = await chart
+        .locator("svg text")
+        .evaluateAll((els) =>
+          els.map((el) => ({ text: el.textContent, box: el.getBoundingClientRect().toJSON() as DOMRect })),
+        );
+      const outside = texts.filter(({ box }) => box.left < frame.x - 0.5 || box.right > frame.x + frame.width + 0.5);
+      expect(outside).toEqual([]);
     });
   }
 });

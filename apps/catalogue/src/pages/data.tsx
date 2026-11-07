@@ -592,6 +592,7 @@ export const data: Page = {
         "Lines are grey; pick the two or three the page is about with highlighted, such as the ones furthest from the benchmark. Up is not a gain here, so never colour lines green and red.",
         "Names sit on the left with the left value, the right value on the right; labels that would touch are nudged apart, and each line still starts and ends at its true value.",
         "Put the comparison (last year, the benchmark) on the left and the figure the page is about on the right.",
+        "An item without both values (null or NaN) is not drawn and not read out: say on the page how many are left out.",
         "The height follows the number of items. Past about fifteen lines, show the ones that moved most and list the rest in a table.",
         "A change for each item with no shared before and after is a BarList or a ChangeBar column.",
       ],

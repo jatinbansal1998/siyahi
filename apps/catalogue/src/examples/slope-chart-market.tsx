@@ -26,7 +26,7 @@ export default function SlopeChartMarketExample() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <SlopeChart items={items} fromLabel="Region" toLabel="This store" highlighted={apart} />
+        <SlopeChart items={items} fromLabel="Region" toLabel="This store, this year" highlighted={apart} />
       </CardContent>
     </Card>
   );
