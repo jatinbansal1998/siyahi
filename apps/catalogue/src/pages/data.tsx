@@ -924,7 +924,7 @@ export const data: Page = {
         {
           name: "heatmap-status",
           caption:
-            "Sixty days of an API's status: healthy in quiet grey, healthy in quiet grey inside an outline, degraded as a half bar in --warning, critical as a full bar in --destructive, days with no reading hollow and dashed.",
+            "Sixty days of an API's status: healthy in quiet grey inside an outline, degraded as a half bar in --warning, critical as a full bar in --destructive, days with no reading hollow and dashed.",
         },
       ],
     },

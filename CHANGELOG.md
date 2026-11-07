@@ -66,6 +66,7 @@
   A healthy day's faint grey sits inside a solid outline in the field-edge
   colour (3:1 on the card, where the grey alone is 1.5:1), and a day with no
   data is hollow inside a dashed one, unless the page colours that state.
+  The legend wraps, so its four states fit a 320 px phone.
 - `StatusHeatmap` draws a healthy day at 30% grey (was 40%), so a degraded
   day's amber reaches 3:1 against it in light mode (was 2.7:1). The contrast
   check now covers degraded and critical days against a healthy one.

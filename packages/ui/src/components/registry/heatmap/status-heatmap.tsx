@@ -25,7 +25,8 @@
 // fill was 1.4:1 from a healthy day and 1.1:1 from the card.
 // Siyahi edit: a healthy day's faint grey sits inside a solid field-edge
 // outline, 3:1 on the card where the grey alone is 1.5:1, and a no-data day's
-// outline is dashed, so the two differ by more than a faint fill.
+// outline is dashed, so the two differ by more than a faint fill. The legend
+// wraps, so four states fit a narrow phone.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -682,7 +683,7 @@ export const StatusHeatmapLegend = ({
     <fieldset
       data-slot="status-heatmap-legend"
       aria-label={labels.legendLabel ?? "Status legend"}
-      className={cn("ml-auto flex items-center gap-3", className)}
+      className={cn("ml-auto flex flex-wrap items-center gap-x-3 gap-y-1", className)}
       {...props}
     >
       {statuses.map((status) =>

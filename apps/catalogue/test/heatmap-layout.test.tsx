@@ -52,4 +52,17 @@ describe("heatmap layout", () => {
       expect(await legend(slot).isVisible()).toBe(true);
     }
   });
+
+  it("wraps the status legend inside its card on a narrow phone", async () => {
+    const { page } = catalogue;
+    await page.setViewportSize({ width: 320, height: 800 });
+    const legend = page.locator('[data-slot="status-heatmap-legend"]').first();
+    const card = page.locator('[data-slot="card"]', { has: legend });
+    await expect.poll(() => legend.locator("> div").count()).toBe(4);
+    const frame = (await card.boundingBox())!;
+    const entries = await legend
+      .locator("> div")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    expect(entries.filter((box) => box.left < frame.x || box.right > frame.x + frame.width)).toEqual([]);
+  });
 });

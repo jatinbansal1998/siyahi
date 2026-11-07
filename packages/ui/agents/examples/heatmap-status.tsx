@@ -51,7 +51,6 @@ export default function HeatmapStatusExample() {
                   ? `${picked.date}: ${["unknown", "critical", "degraded", "healthy"][picked.value] ?? "unknown"}`
                   : "Select a day for its health. Use arrow keys to move between days."}
               </p>
-              {/* No day lacks data, so the legend leaves out "No Data". */}
               <StatusHeatmapLegend />
             </div>
           </StatusHeatmapFooter>
