@@ -59,6 +59,10 @@
   category on every chart card is now 40% `--muted` (light `--chart-2` and
   `--chart-4` bars were 2.9:1 against the full band), and a chart card's legend
   wraps on a phone instead of running five series' names past the card.
+- `StatusHeatmap` fills a degraded day only in the lower half of its bar,
+  over the healthy grey, in the strip and the legend, so degraded and critical
+  days differ by shape and not only by hue (amber and red are about 1.4:1
+  apart). The bar keeps its full height and tap target.
 - `StatusHeatmap` draws a healthy day at 30% grey (was 40%), so a degraded
   day's amber reaches 3:1 against it in light mode (was 2.7:1). The contrast
   check now covers degraded and critical days against a healthy one.
