@@ -38,7 +38,7 @@ describe("HistogramChartCard", { timeout: 60_000 }, () => {
       .toBe(true);
     const bars = await boxes();
     const lines = await chart
-      .locator(".recharts-reference-line line")
+      .locator(".recharts-reference-line-line")
       .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().x));
     // 273 ms is in the 200–300 bucket, the third; 904 ms in the 900–1,000 bucket, the tenth.
     expect(lines).toHaveLength(2);
@@ -46,5 +46,18 @@ describe("HistogramChartCard", { timeout: 60_000 }, () => {
     expect(lines[0]).toBeLessThan(bars[2]!.right);
     expect(lines[1]).toBeGreaterThan(bars[9]!.left);
     expect(lines[1]).toBeLessThan(bars[9]!.right);
+  });
+
+  it("lays each mark line over a card-coloured band, so it stays traceable across the dark bars", async () => {
+    const chart = page.locator('[data-slot="card"]', { hasText: "Checkout response times" });
+    const pairs = await chart
+      .locator(".recharts-reference-line")
+      .evaluateAll((groups) =>
+        groups.map((group) => [...group.querySelectorAll("line")].map((line) => line.getAttribute("stroke"))),
+      );
+    expect(pairs).toEqual([
+      ["var(--card)", "var(--foreground)"],
+      ["var(--card)", "var(--foreground)"],
+    ]);
   });
 });

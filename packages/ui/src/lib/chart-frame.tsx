@@ -1,4 +1,4 @@
-import { useMemo, type ComponentProps, type ReactElement, type ReactNode } from "react";
+import { useMemo, type ComponentProps, type ReactElement, type ReactNode, type SVGProps } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 import {
   AreaChart,
@@ -48,6 +48,28 @@ const TICK = { className: "fill-muted-foreground font-mono" };
 const NO_LINES: readonly ChartReferenceLine[] = [];
 // Five series' names do not fit one line on a phone; they wrap rather than run past the card.
 const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
+
+/**
+ * A reference line over a card-coloured band, so it stays traceable where it crosses a bar or an area: the text
+ * colour on --chart-1 is only 2:1, but each against the card is well over 3:1.
+ */
+function haloLine({ x1, y1, x2, y2, stroke, strokeDasharray }: SVGProps<SVGLineElement>) {
+  return (
+    <g>
+      <line data-slot="reference-line-halo" x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--card)" strokeWidth={4} />
+      <line
+        className="recharts-reference-line-line"
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke={stroke}
+        strokeDasharray={strokeDasharray}
+        strokeWidth={1}
+      />
+    </g>
+  );
+}
 
 interface ChartFrameProps<T extends object, K extends keyof T>
   extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps {
@@ -443,6 +465,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   // Sideways, a value level runs down the plot and a category mark across it.
                   {...(horizontal ? { x: at.y, y: at.x } : at)}
                   stroke={emphasis === "strong" ? "var(--foreground)" : "var(--muted-foreground)"}
+                  shape={haloLine}
                   strokeDasharray={at.y === undefined ? undefined : "4 4"}
                   label={
                     label === undefined

@@ -20,12 +20,27 @@ export interface HistogramBin {
 export function histogram(values: readonly number[], target = 12): HistogramBin[] {
   const known = values.filter(Number.isFinite);
   if (known.length === 0) return [];
-  const edges = linearTicks(Math.min(...known), Math.max(...known), target + 1);
-  if (edges.length < 2) return [{ key: "0", from: known[0]!, to: known[0]!, count: known.length }];
-  const step = edges[1]! - edges[0]!;
+  // A loop, not Math.min(...known): a spread of 200,000 timings overflows the call stack.
+  let low = known[0]!;
+  let high = low;
+  for (const value of known) {
+    low = Math.min(low, value);
+    high = Math.max(high, value);
+  }
+  const edges = linearTicks(low, high, target + 1);
+  if (edges.length < 2) return [{ key: "0", from: low, to: high, count: known.length }];
   const bins = edges.slice(0, -1).map((from, i) => ({ key: String(i), from, to: edges[i + 1]!, count: 0 }));
-  for (const value of known) bins[Math.min(bins.length - 1, Math.floor((value - edges[0]!) / step))]!.count += 1;
+  for (const value of known) bins[bucketOf(bins, value)]!.count += 1;
   return bins;
+}
+
+/**
+ * The bucket a value falls in, read against the buckets' own edges: dividing by the width instead put 0.3 in the
+ * 0.2–0.3 bucket, as 0.3 / 0.1 is 2.9999999999999996. A value past the last edge belongs to the last bucket.
+ */
+export function bucketOf(bins: readonly HistogramBin[], value: number): number {
+  const index = bins.findIndex((bin) => value < bin.to);
+  return index === -1 ? bins.length - 1 : index;
 }
 
 /** The value below which `share` of the values fall, interpolating between the two nearest, as spreadsheets do. */
@@ -39,6 +54,25 @@ export function percentile(values: readonly number[], share: number): number | n
 
 const MARKS = { median: 0.5, p90: 0.9, p95: 0.95, p99: 0.99 } as const;
 export type HistogramMark = keyof typeof MARKS;
+
+/**
+ * One line per bucket that holds a mark, named by its marks: marks that share a bucket share a line and a name,
+ * "median, p90", rather than drawing over each other.
+ */
+export function markLines(
+  bins: readonly HistogramBin[],
+  marked: readonly { mark: HistogramMark; value: number }[],
+): ChartReferenceLine[] {
+  return [...Map.groupBy(marked, ({ value }) => bucketOf(bins, value))].flatMap(([index, group]) => {
+    const bin = bins[index];
+    if (!bin) return [];
+    // A mark in the right half puts its name left of its line, so the name stays on the plot. The line carries only
+    // the name, which fits beside it on a phone; the figure is written under the chart.
+    const right = index >= bins.length / 2;
+    const label = group.map(({ mark }) => mark).join(", ");
+    return [{ x: bin.key, label, emphasis: "strong", labelPosition: right ? "insideTopRight" : "insideTopLeft" }];
+  });
+}
 
 export interface HistogramChartCardProps extends Pick<
   SeriesChartProps<HistogramBin, "key">,
@@ -82,14 +116,7 @@ export function HistogramChartCard({
     const value = percentile(values, MARKS[mark]);
     return value === null ? [] : [{ mark, value }];
   });
-  const lines = marked.flatMap(({ mark, value }): ChartReferenceLine[] => {
-    const bin = bins.find((b) => value < b.to) ?? bins.at(-1);
-    if (!bin) return [];
-    // A mark in the right half puts its name left of its line, so the name stays on the plot. The line carries only
-    // the name, which fits beside it on a phone; the figure is written under the chart.
-    const right = Number(bin.key) >= bins.length / 2;
-    return [{ x: bin.key, label: mark, emphasis: "strong", labelPosition: right ? "insideTopRight" : "insideTopLeft" }];
-  });
+  const lines = markLines(bins, marked);
   return (
     <ChartFrame
       chart={BarChart}
