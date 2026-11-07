@@ -28,4 +28,22 @@ describe("DrawdownChartCard", { timeout: 60_000 }, () => {
       .evaluate((path) => Math.max(...[...path.getAttribute("d")!.matchAll(/,([\d.]+)/g)].map(([, y]) => Number(y))));
     expect(lineY).toBeCloseTo(lowest, 0);
   });
+
+  it("lays a card-coloured halo under the label, so it reads over the red area too", async () => {
+    const chart = page.locator('[data-slot="card"]', { hasText: "Cash below its best" });
+    const label = chart.getByText("Deepest −20.9%").locator("xpath=ancestor-or-self::*[local-name()='text'][1]");
+    const halo = await label.evaluate((text) => {
+      const style = getComputedStyle(text);
+      return { paintOrder: style.paintOrder, width: style.strokeWidth, stroke: style.stroke };
+    });
+    const card = await page.evaluate(() => {
+      const probe = document.createElement("div");
+      probe.style.color = "var(--card)";
+      document.body.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    });
+    expect(halo).toEqual({ paintOrder: "stroke", width: "3px", stroke: card });
+  });
 });
