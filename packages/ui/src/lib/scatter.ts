@@ -160,9 +160,12 @@ const weight = (p: { size?: number }) => (p.size !== undefined && Number.isFinit
  */
 export function dotSizes(points: readonly { size?: number }[], plain: number) {
   const largest = points.reduce((most, p) => Math.max(most, weight(p)), 0);
-  const sized = largest > 0 && points.some((p) => p.size !== undefined);
-  const radiusOf = (p: { size?: number }) =>
-    !sized || p.size === undefined ? plain : Math.max(MIN_RADIUS, MAX_RADIUS * Math.sqrt(weight(p) / largest));
+  const sized = points.some((p) => p.size !== undefined);
+  const radiusOf = (p: { size?: number }) => {
+    if (!sized || p.size === undefined) return plain;
+    // Every size bad leaves nothing to scale against: each dot is the smallest.
+    return largest > 0 ? Math.max(MIN_RADIUS, MAX_RADIUS * Math.sqrt(weight(p) / largest)) : MIN_RADIUS;
+  };
   return { radiusOf, sized };
 }
 

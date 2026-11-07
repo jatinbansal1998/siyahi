@@ -100,6 +100,14 @@ describe("dotSizes", () => {
   });
 });
 
+describe("dotSizes when every size is bad", () => {
+  it("draws every dot at the smallest size, not the plain one", () => {
+    const { radiusOf, sized } = dotSizes([{ size: 0 }, { size: Number.NaN }, { size: -4 }], 5);
+    expect(sized).toBe(true);
+    expect([0, Number.NaN, -4].map((size) => radiusOf({ size }))).toEqual([3, 3, 3]);
+  });
+});
+
 describe("quadrantSplit", () => {
   it("draws no split a log axis cannot place", () => {
     expect(quadrantSplit({ x: 0, y: 0 }, "log")).toBeUndefined();
