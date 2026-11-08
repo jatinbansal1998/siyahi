@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { Treemap, TreemapLegend, type TreemapItem, type TreemapProps } from "@siyahi/ui";
+import { Treemap, TreemapLegend, type TreemapItem, type TreemapProps } from "../src/components/siyahi/treemap";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";

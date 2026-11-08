@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { CopyButton } from "@siyahi/ui";
+import { CopyButton } from "../src/components/registry/minidev/copy-button";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
