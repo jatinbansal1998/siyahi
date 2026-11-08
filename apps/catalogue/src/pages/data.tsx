@@ -105,7 +105,7 @@ const VALUE_SCALE_PROPS: PropRow[] = [
   },
 ];
 const VALUE_SCALE_RULE =
-  "Offer Log for values that run from tiny to large and are all above zero, such as users or a price. With a value at or below zero, or a yDomain reaching zero, the axis stays linear and Log is disabled, saying why. Bars always start at zero and take no scale.";
+  "Offer Log for values that run from tiny to large and are all above zero, such as users or a price. With a value at or below zero, or a yDomain reaching zero, the axis stays linear and Log is disabled, with the reason beside it. A yDomain stays the axis' ends on log. Bars always start at zero and take no scale.";
 const CURVE: PropRow = {
   name: "curve",
   type: '"monotone" | "linear"',
@@ -869,7 +869,7 @@ export const data: Page = {
           type: "boolean",
           default: "false",
           purpose:
-            'Linear and Log buttons for that axis in the header, after action, named "<axis label> scale" for a screen reader.',
+            'Linear and Log buttons for that axis in the header, after action, named "<axis label> scale" for a screen reader. With both, each pair shows its axis label.',
         },
         {
           name: "xFormatter, yFormatter",
@@ -910,7 +910,7 @@ export const data: Page = {
         "Every dot takes one colour: a category such as a region stays neutral (DESIGN.md). Put it in details, and let a filter on the page pick one.",
         "A name goes beside its dot only where it covers no other name and no other dot; the rest are in the tooltip, so names never pile up.",
         "A point with a null y is not drawn: say on the page how many are left out.",
-        "Log draws an axis only when every value on it is above zero; otherwise the axis is linear and its Log button is disabled, saying why. A share or a size is positive, so its axis can switch; a growth that goes below zero cannot.",
+        "Log draws an axis only when every value on it is above zero; otherwise the axis is linear and its Log button is disabled, with the reason beside it. A share or a size is positive, so its axis can switch; a growth that goes below zero cannot.",
         "Sized dots are a faint tint inside a full edge with a card-coloured ring outside it, the largest drawn first, so overlapping dots keep their outlines and a small one is never hidden. Area, not radius, follows size; a size that is not a positive number draws the smallest dot.",
         "Corner names sit in a band the axis keeps above and below the data, so no dot covers them; a name that cannot fit its quadrant in two lines is left out. On a log axis a split at or below zero draws nothing. Ticks, the split, the names and the zero line follow a switch of scale.",
         'Split at a value that means something to the reader, usually zero for two changes, and name each corner for what it means, not its sign: "Dearer, sells less".',
@@ -926,6 +926,11 @@ export const data: Page = {
           name: "scatter-chart-quadrants",
           caption:
             "A grocer's products by change in price and in units sold, split at zero into four named corners, each dot sized by revenue.",
+        },
+        {
+          name: "scatter-chart-scales",
+          caption:
+            "Products by units sold and price, both axes on log first with a named pair of Linear and Log buttons each, split into named corners.",
         },
       ],
     },

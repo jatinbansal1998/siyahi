@@ -36,7 +36,10 @@ describe("value axis scale", () => {
     );
     expect(html).toMatch(/<button[^>]*aria-pressed="true"[^>]*>Linear<\/button>/);
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Log<\/button>/);
-    expect(html).toContain("Log needs every value above zero");
+    // In view beside the buttons, not a hover title or a screen-reader-only note: a phone has neither.
+    expect(html).toMatch(
+      /<span id="[^"]+" class="text-xs text-muted-foreground">Log needs every value above zero<\/span>/,
+    );
   });
 
   it("disables Log on stacked areas, which add up from zero", () => {

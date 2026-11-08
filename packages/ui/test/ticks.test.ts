@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { fitsLog, linearTicks, logTicks, ticksFor } from "../src/lib/ticks";
+import { fitsLog, linearTicks, logAxis, logTicks, ticksFor } from "../src/lib/ticks";
 
 describe("logTicks", () => {
   it("runs 1, 2, 5 from the largest at or under the smallest value to the smallest at or over the largest", () => {
@@ -46,5 +46,15 @@ describe("fitsLog", () => {
     expect(fitsLog([0, 0.147])).toBe(false);
     expect(fitsLog([-0.02, 0.147])).toBe(false);
     expect(fitsLog([])).toBe(false);
+  });
+});
+
+describe("logAxis", () => {
+  it("keeps a page's fixed range as its ends, with the ticks inside it", () => {
+    expect(logAxis([12, 75], [3, 90])).toEqual({ domain: [3, 90], ticks: [5, 10, 20, 50] });
+  });
+
+  it("ends on the ticks that just cover the values without a fixed range", () => {
+    expect(logAxis([12, 75])).toEqual({ domain: [10, 100], ticks: [10, 20, 50, 100] });
   });
 });

@@ -104,7 +104,7 @@ export interface ValueScaleProps {
   /**
    * "log" spreads values across powers of ten, for values that run from tiny to large; the first selection when
    * yScaleToggle is set. Log draws only when every value, and yDomain, is above zero; otherwise the axis is linear.
-   * On log the axis ticks at 1, 2 and 5 and yTicks is not used.
+   * On log the axis ticks at 1, 2 and 5 inside yDomain, if given, and yTicks is not used.
    */
   yScale?: AxisScale;
   /** Linear and Log buttons for the value axis in the header, after the action, so a reader can switch. */

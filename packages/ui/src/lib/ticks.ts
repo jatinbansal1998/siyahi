@@ -47,3 +47,21 @@ export const ticksFor = (scale: AxisScale, min: number, max: number): number[] =
 
 /** A log axis has no place for zero or below, so it can draw a set of values only when every one is above zero. */
 export const fitsLog = (values: readonly number[]): boolean => values.length > 0 && values.every((value) => value > 0);
+
+/**
+ * A log axis' ends and ticks: a page's fixed range when it gives one, with the 1, 2 and 5 ticks inside it, or else the
+ * ticks that just cover the values and their outer two as the ends.
+ */
+export function logAxis(
+  values: readonly number[],
+  range?: readonly [number, number],
+): { domain: [number, number]; ticks: number[] } {
+  if (range) {
+    const [low, high] = range;
+    return { domain: [low, high], ticks: logTicks(low, high).filter((tick) => tick >= low && tick <= high) };
+  }
+  const low = Math.min(...values);
+  const high = Math.max(...values);
+  const ticks = logTicks(low, high);
+  return { domain: [ticks[0] ?? low, ticks.at(-1) ?? high], ticks };
+}

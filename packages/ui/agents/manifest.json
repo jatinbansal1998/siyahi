@@ -1040,6 +1040,13 @@
       ]
     },
     {
+      "file": "agents/examples/scatter-chart-scales.tsx",
+      "components": [
+        "ScatterChartCard",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/scatter-chart.tsx",
       "components": [
         "Badge",

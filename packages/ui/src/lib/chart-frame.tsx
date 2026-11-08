@@ -42,7 +42,7 @@ import type {
   SeriesChartProps,
   ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series";
-import { fitsLog, logTicks } from "@siyahi/ui/lib/ticks";
+import { fitsLog, logAxis } from "@siyahi/ui/lib/ticks";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 // Recharts 3.8 draws tick labels in a layer of their own, which the core chart's
@@ -153,6 +153,8 @@ interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
   /** The axis that carries the values: y, or x when the bars run sideways. */
   axis: "x" | "y";
   formatter: (value: number, scale: number) => string;
+  /** Each tick in its own unit, as on a log axis, whose ticks run across powers of ten: ₹20,000, ₹1L, ₹5Cr. */
+  ownUnit?: boolean;
 }
 
 /**
@@ -160,12 +162,12 @@ interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
  * never ₹80,000 halfway up. Recharts' tickFormatter sees one value at a time; the axis' ticks come from its hooks.
  * The rest of Recharts' tick props pass on as its own tick does, including the class it measures an auto width by.
  */
-function ValueTick({ payload, axis, formatter, ...tick }: ValueTickProps) {
+function ValueTick({ payload, axis, formatter, ownUnit = false, ...tick }: ValueTickProps) {
   const xTicks = useXAxisTicks();
   const yTicks = useYAxisTicks();
   const value = Number(payload?.value);
   const ticks = (axis === "x" ? xTicks : yTicks) ?? [];
-  const scale = Math.max(Math.abs(value), ...ticks.map((t) => Math.abs(Number(t.value))));
+  const scale = ownUnit ? Math.abs(value) : Math.max(Math.abs(value), ...ticks.map((t) => Math.abs(Number(t.value))));
   return <Text {...tick}>{formatter(value, scale)}</Text>;
 }
 
@@ -332,18 +334,19 @@ export function ChartFrame<T extends object, K extends keyof T>({
   );
   const config: ChartConfig = Object.fromEntries(series.map(({ key, label, color }) => [key, { label, color }]));
   const crossesZero = data.some((row) => series.some(({ key }) => Number(row[key as keyof T]) < 0));
+  const [low, high] = Array.isArray(yDomain) ? yDomain : [];
+  const range = typeof low === "number" && typeof high === "number" ? ([low, high] as const) : undefined;
   // A page's fixed range must fit the log axis too, so its ends count as values.
-  const values = [
-    ...data.flatMap((row) => series.map(({ key }) => row[key as keyof T])),
-    ...(Array.isArray(yDomain) ? yDomain : []),
-  ].filter((value): value is number => typeof value === "number" && Number.isFinite(value));
-  const valueAxis = useAxisScale(
-    yScale,
-    yScaleToggle,
-    yLabel ? `${yLabel} scale` : "Value axis scale",
-    logBlocked ?? (fitsLog(values) ? undefined : LOG_BLOCKED),
+  const values = [...data.flatMap((row) => series.map(({ key }) => row[key as keyof T])), ...(range ?? [])].filter(
+    (value): value is number => typeof value === "number" && Number.isFinite(value),
   );
-  const logValueTicks = valueAxis.scale === "log" ? logTicks(Math.min(...values), Math.max(...values)) : undefined;
+  const valueAxis = useAxisScale({
+    initial: yScale,
+    toggle: yScaleToggle,
+    label: yLabel ? `${yLabel} scale` : "Value axis scale",
+    logBlocked: logBlocked ?? (fitsLog(values) ? undefined : LOG_BLOCKED),
+  });
+  const log = valueAxis.scale === "log" ? logAxis(values, range) : undefined;
   // Narrow panels need extra row space for complete quantitative details.
   const detailedRows = horizontal && xTickDetail !== undefined;
   const rowCount = (xTicks ?? data).length;
@@ -453,12 +456,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   {/* Value ticks step by 1, 2, 2.5 or 5 × 10ⁿ: ₹0.5L, ₹1L, ₹1.5L, never ₹0.95L. */}
                   <YAxis
                     scale={valueAxis.scale}
-                    niceTicks={logValueTicks ? undefined : "snap125"}
+                    niceTicks={log ? undefined : "snap125"}
                     tickLine={false}
                     axisLine={false}
                     width="auto"
-                    domain={logValueTicks ? [logValueTicks[0] ?? "auto", logValueTicks.at(-1) ?? "auto"] : yDomain}
-                    ticks={logValueTicks ?? (yTicks as number[] | undefined)}
+                    domain={log?.domain ?? yDomain}
+                    ticks={log?.ticks ?? (yTicks as number[] | undefined)}
                     label={
                       yLabel
                         ? {
@@ -474,7 +477,13 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     // read a second parameter of its own, such as pct's decimals, so it gets the value alone.
                     // A page's formatter gets the axis' scale only when it asks for one: valueFormatter may read a second
                     // parameter of its own, such as pct's decimals.
-                    tick={yTickFormatter ? <ValueTick axis="y" formatter={yTickFormatter} {...TICK} /> : TICK}
+                    tick={
+                      yTickFormatter ? (
+                        <ValueTick axis="y" formatter={yTickFormatter} ownUnit={log !== undefined} {...TICK} />
+                      ) : (
+                        TICK
+                      )
+                    }
                     tickFormatter={yTickFormatter ? undefined : (value: number) => formatValue(value)}
                   />
                 </>
