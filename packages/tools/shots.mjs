@@ -7,13 +7,15 @@
 //
 //   siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist]
 //                [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report]
-//                [--widths 1920,390] [--script probe.mjs] [--select <selector>]
+//                [--widths 1920,390] [--script probe.mjs]
 //
 // --script names a module whose default export, async (page, mode) => data,
-// runs in every mode once the page is ready: it clicks, hovers or types with
-// Playwright's page, and whatever it returns is printed as JSON. The checks
-// and the shot then see the page as it left it. --select shoots only the
-// first element matching the selector, such as one card, not the whole page.
+// runs in every mode once the page is ready, at the mode's screen size: it
+// clicks, hovers or types with Playwright's page, and whatever it returns is
+// printed as JSON. The checks then measure the page as the script left it. The
+// full-page shot comes after the viewport grows to the page's height, which can
+// undo a hover, so a script takes its own picture of an interaction, in the
+// state it made: await card.screenshot({ path: `hover-${mode.name}.png` }).
 // A page error or console error fails the mode, with or without a script.
 //
 // Measures only once --wait-for (by default the page's h1) is visible, two
@@ -64,12 +66,11 @@ const { values, positionals } = parseArgs({
     report: { type: "boolean", default: false },
     widths: { type: "string", default: "1920,390" },
     script: { type: "string" },
-    select: { type: "string" },
   },
 });
 if (positionals.length === 0) {
   console.error(
-    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390] [--script probe.mjs] [--select <selector>]",
+    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390] [--script probe.mjs]",
   );
   process.exit(2);
 }
@@ -213,23 +214,6 @@ function clearShots(base) {
 }
 
 /**
- * Grows the viewport to the page's height and waits for charts to redraw at it. Called before --script and again
- * after it, so nothing resizes or scrolls once the script has run: a hover or tooltip it leaves stays in the shot.
- * The viewport never shrinks, as that would move a fixed bar out from under the pointer.
- * @param {import("playwright").Page} page
- * @param {Mode} mode
- * @returns {Promise<number>} the viewport's height
- */
-async function fitToPage(page, mode) {
-  const current = page.viewportSize()?.height ?? mode.height;
-  const height = Math.max(await page.evaluate(() => document.documentElement.scrollHeight), current);
-  if (height > current) await page.setViewportSize({ width: mode.width, height });
-  await page.waitForTimeout(1500);
-  await page.evaluate(SETTLE);
-  return height;
-}
-
-/**
  * @param {import("playwright").Browser} browser
  * @param {string} url
  * @param {Mode} mode
@@ -256,34 +240,24 @@ async function shoot(browser, url, mode) {
     },
   );
   await page.evaluate(SETTLE);
-  let height = await fitToPage(page, mode);
   const data = act && (await act(page, mode));
-  if (act) height = await fitToPage(page, mode);
+  if (act) await page.evaluate(SETTLE);
   /** @type {Probe} */
   const probe = await page.evaluate(PROBE);
+  const height = Math.max(probe.docHeight, mode.height);
+  await page.setViewportSize({ width: mode.width, height });
+  await page.waitForTimeout(1500);
+  await page.evaluate(SETTLE);
   const base = `${slugOf(url)}-${mode.name}`;
   clearShots(base);
+  const count = Math.ceil(height / SEGMENT_MAX);
+  const segment = Math.ceil(height / count);
   const files = [];
-  if (values.select) {
-    // A clip of the full-height page: a locator's own screenshot scrolls the element into place first.
-    await page.locator(values.select).first().waitFor({ timeout: WAIT_FOR_TIMEOUT });
-    const box = await page.locator(values.select).first().boundingBox();
-    if (!box) throw new Error(`--select ${values.select} matched an element that is not drawn`);
-    const file = path.join(outDir, `${base}.png`);
-    await page.screenshot({ path: file, clip: box });
+  for (let i = 0; i < count; i++) {
+    const file = path.join(outDir, count === 1 ? `${base}.png` : `${base}-${i + 1}.png`);
+    const y = i * segment;
+    await page.screenshot({ path: file, clip: { x: 0, y, width: mode.width, height: Math.min(segment, height - y) } });
     files.push(file);
-  } else {
-    const count = Math.ceil(height / SEGMENT_MAX);
-    const segment = Math.ceil(height / count);
-    for (let i = 0; i < count; i++) {
-      const file = path.join(outDir, count === 1 ? `${base}.png` : `${base}-${i + 1}.png`);
-      const y = i * segment;
-      await page.screenshot({
-        path: file,
-        clip: { x: 0, y, width: mode.width, height: Math.min(segment, height - y) },
-      });
-      files.push(file);
-    }
   }
   await context.close();
   return { probe, ready, height, files, data, browserErrors };
