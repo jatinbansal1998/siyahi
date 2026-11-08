@@ -28,6 +28,8 @@ export function ScaleToggle({ label, caption, value, onValueChange, logBlocked }
         onValueChange={([next]) => next && onValueChange(next === "log" ? "log" : "linear")}
         variant="outline"
         size="sm"
+        // Joined into one segmented pair, so it reads apart from a range toggle beside it.
+        spacing={0}
         aria-label={label}
         aria-describedby={logBlocked ? reason : undefined}
       >
