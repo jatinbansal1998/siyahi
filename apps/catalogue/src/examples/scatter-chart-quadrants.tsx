@@ -52,10 +52,10 @@ export default function ScatterChartQuadrantsExample() {
         x: 0,
         y: 0,
         labels: {
-          topLeft: "Cheaper, selling more",
-          topRight: "Dearer, still selling more",
-          bottomLeft: "Cheaper, selling less",
-          bottomRight: "Dearer, selling less",
+          topLeft: "Cheaper, sells more",
+          topRight: "Dearer, still sells more",
+          bottomLeft: "Cheaper, sells less",
+          bottomRight: "Dearer, sells less",
         },
       }}
     />

@@ -874,7 +874,7 @@ export const data: Page = {
         "A point with a null y, or at or under zero on a log axis, is not drawn: say on the page how many are left out.",
         "Sized dots are a faint tint inside a full edge with a card-coloured ring outside it, the largest drawn first, so overlapping dots keep their outlines and a small one is never hidden. Area, not radius, follows size; a size that is not a positive number draws the smallest dot.",
         "Corner names sit in a band the axis keeps above and below the data, so no dot covers them; a name that cannot fit its quadrant in two lines is left out. On a log axis a split at or below zero draws nothing.",
-        'Split at a value that means something to the reader, usually zero for two changes, and name each corner for what it means, not its sign: "Dearer, selling less".',
+        'Split at a value that means something to the reader, usually zero for two changes, and name each corner for what it means, not its sign: "Dearer, sells less".',
         "A phone has no hover, so a tap selects a dot. With onSelect, Tab reaches the dots and the arrow keys walk them left to right. The selection is the page's state, so a filter that drops the point drops its ring too.",
       ],
       examples: [
