@@ -3,6 +3,7 @@ import { chromium, type Browser, type BrowserContextOptions, type Page } from "p
 /** The catalogue in Chromium, for what happy-dom cannot do: layout, hover and the theme's CSS. */
 export interface Catalogue {
   page: Page;
+  /** Closes the browser, then fails if the page threw or logged a console error while it was open. */
   close(): Promise<void>;
 }
 
@@ -11,9 +12,17 @@ export async function openCatalogue(route: string, options: BrowserContextOption
   const url = process.env.SIYAHI_CATALOGUE_URL;
   if (!url) throw new Error("no catalogue server: the run's globalSetup (serve-catalogue.ts) did not start");
   const browser: Browser = await chromium.launch();
-  const close = () => browser.close();
+  const errors: string[] = [];
+  const close = async () => {
+    await browser.close();
+    if (errors.length) throw new Error(`#/${route} had browser errors:\n${errors.join("\n")}`);
+  };
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, ...options });
+    page.on("pageerror", (error) => errors.push(`page error: ${error.message}`));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(`console error: ${message.text()}`);
+    });
     await page.goto(`${url}#/${route}`);
     await page.getByRole("heading", { level: 1 }).waitFor();
     // The title shows before the examples; a suite starts once the page's examples have loaded.

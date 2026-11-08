@@ -136,9 +136,16 @@ looks for unused code, fails on stale generated files, builds (with the
 contrast check), typechecks and tests. While you work, run the tests you are
 changing (`pnpm test packages/ui/test/format.test.ts`) and `pnpm check:static`,
 which is every check but the tests; run the full `pnpm check` once before the
-pull request. Tests under `packages/` start no catalogue server, so one of them
-runs in seconds. The catalogue suites open the catalogue in a browser, so no
-tool can tell which of them a source change reaches: the full run is the proof. Put the shots
+pull request. It takes about four minutes: start it as a background job and let
+your host tell you when it ends, rather than polling it with `sleep`.
+
+Tests under `packages/` start no catalogue server, so one of them runs in
+seconds. A component test that needs no real browser belongs there, in
+happy-dom, and imports the component's own file, not `@siyahi/ui`: the barrel
+loads every component, which costs each run several seconds
+(`barrel.test.ts` checks the public exports). The catalogue suites open the
+catalogue in a browser and fail on any page or console error; no tool can tell
+which of them a source change reaches, so the full run is the proof. Put the shots
 for every page you changed in the pull request, light and dark, 1920 and 390.
 
 ## Releases

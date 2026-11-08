@@ -15,6 +15,21 @@ it("opens a page from the shared catalogue server", async () => {
   }
 }, 60_000);
 
+it("fails on close when the page threw or logged a console error", async () => {
+  const catalogue = await openCatalogue("overview");
+  const thrown = catalogue.page.waitForEvent("pageerror");
+  await catalogue.page.evaluate(() => {
+    console.error("no rows for the chart");
+    setTimeout(() => {
+      throw new Error("chart failed to load");
+    });
+  });
+  await thrown;
+  const closing = catalogue.close();
+  await expect(closing).rejects.toThrow("console error: no rows for the chart");
+  await expect(closing).rejects.toThrow("page error: chart failed to load");
+}, 60_000);
+
 it("closes the browser when navigation fails", async () => {
   const launch = chromium.launch.bind(chromium);
   let browser: Browser | undefined;

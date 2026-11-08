@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { DistributionBar, type DistributionSegment } from "@siyahi/ui";
+import { DistributionBar, type DistributionSegment } from "../src/components/registry/dashboardcn/distribution-bar";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";

@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
-import { Card, SectionCards } from "@siyahi/ui";
+import { Card } from "../src/components/ui/card";
+import { SectionCards } from "../src/components/registry/dashboard-01/section-cards";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";

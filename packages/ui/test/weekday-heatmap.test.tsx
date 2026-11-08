@@ -1,5 +1,9 @@
 // @vitest-environment happy-dom
-import { WeekdayHeatmap, WeekdayHeatmapBlock, WeekdayHeatmapBody } from "@siyahi/ui";
+import {
+  WeekdayHeatmap,
+  WeekdayHeatmapBlock,
+  WeekdayHeatmapBody,
+} from "../src/components/registry/heatmap/weekday-heatmap";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";

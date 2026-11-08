@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
-import { BarList, Delta } from "@siyahi/ui";
+import { BarList } from "../src/components/registry/dashboardcn/bar-list";
+import { Delta } from "../src/components/siyahi/delta";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
