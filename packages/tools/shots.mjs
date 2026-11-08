@@ -35,9 +35,8 @@
 // default is only the shadcn sidebar, flush to the edge by design. The font
 // default is Siyahi's; other pages pass their own family.
 //
-// The capture first grows the viewport to the page's height and waits until
-// the page's height and every SVG mark have stopped changing (at most 1.5s),
-// so charts that redraw on resize settle before the picture is taken; a
+// The capture first grows the viewport to the page's height and waits, so
+// charts that redraw on resize settle before the picture is taken; a
 // stitched full-page capture catches them mid-animation. Segments are cut
 // from that one full-height render, so sticky and fixed parts sit where they
 // would in a single shot.
@@ -208,23 +207,6 @@ const PROBE = `((chrome) => {
   };
 })(${JSON.stringify(values.chrome)})`;
 
-// Runs in the page after the resize: resolves once the page's height and the
-// geometry of every SVG mark (bars, lines, axes, a chart's clip paths) read the
-// same three times 100ms apart, or after 1.5s, the fixed wait this replaces.
-const STILL = `(async () => {
-  const geometry = ["d", "x", "y", "width", "height", "points", "transform", "style", "stroke-dasharray", "stroke-dashoffset"];
-  const shape = () => document.documentElement.scrollHeight + "|" +
-    [...document.querySelectorAll("svg *")].map((el) => geometry.map((name) => el.getAttribute(name)).join(",")).join(";");
-  const end = performance.now() + 1500;
-  let last = shape();
-  for (let same = 0; same < 2 && performance.now() < end; ) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const now = shape();
-    same = now === last ? same + 1 : 0;
-    last = now;
-  }
-})()`;
-
 const SETTLE = `(async () => {
   await document.fonts.ready;
   await Promise.all([...document.images].map((image) => image.decode().catch(() => {})));
@@ -275,7 +257,7 @@ async function shoot(browser, url, mode) {
   const probe = await page.evaluate(PROBE);
   const height = Math.max(probe.docHeight, mode.height);
   await page.setViewportSize({ width: mode.width, height });
-  await page.evaluate(STILL);
+  await page.waitForTimeout(1500);
   await page.evaluate(SETTLE);
   const base = `${slugOf(url)}-${mode.name}`;
   clearShots(base);

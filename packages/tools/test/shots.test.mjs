@@ -5,7 +5,6 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { inflateSync } from "node:zlib";
 import { describe, expect, it } from "vite-plus/test";
 
 const shots = fileURLToPath(new URL("../shots.mjs", import.meta.url));
@@ -37,22 +36,6 @@ const card = (columns) => `<main style="padding: 16px"><h1>Card</h1>
   </div></main>`;
 
 /**
- * The RGB of a PNG's top-left pixel. Every PNG filter stores the first pixel of
- * the first row unchanged, so inflating the image data is all it takes.
- * @param {Buffer} png
- */
-function topLeftPixel(png) {
-  const data = [];
-  for (let at = 8; at < png.length;) {
-    const length = png.readUInt32BE(at);
-    if (png.toString("latin1", at + 4, at + 8) === "IDAT") data.push(png.subarray(at + 8, at + 8 + length));
-    at += length + 12;
-  }
-  const [, r, g, b] = inflateSync(Buffer.concat(data));
-  return [r, g, b];
-}
-
-/**
  * Writes a page with the given body, in Geist unless `style` says otherwise,
  * runs siyahi-shots on it, and returns the run with the width and height of
  * each PNG it wrote per mode.
@@ -80,12 +63,7 @@ async function shoot(body, style = GEIST_PAGE, flags = []) {
         const png = readFileSync(path.join(out, name));
         return { width: png.readUInt32BE(16), height: png.readUInt32BE(20) };
       });
-  /** @param {string} mode */
-  const topLeftOf = (mode) => {
-    const name = pngs.find((file) => file.includes(`-${mode}`));
-    return name && topLeftPixel(readFileSync(path.join(out, name)));
-  };
-  return { status: run.status, output: run.stdout + run.stderr, sizesOf, topLeftOf };
+  return { status: run.status, output: run.stdout + run.stderr, sizesOf };
 }
 
 /**
@@ -232,31 +210,6 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     );
     expect(run.status, run.output).toBe(1);
     expect(run.output).toContain("left gutter is 8px");
-  });
-
-  it("shoots a chart that redraws on the resize only once its marks stop moving", async () => {
-    // As a chart does when the capture grows the viewport: a bar animates for a second, then the page turns green.
-    const run = await shoot(
-      `<main style="box-sizing: border-box; height: 3000px; padding: 16px"><h1>Chart</h1>
-        <svg width="300" height="40"><rect id="bar" height="40" width="0"></rect></svg></main>
-        <script>
-          addEventListener("resize", () => {
-            let start;
-            const grow = (now) => {
-              start ??= now;
-              const t = Math.min((now - start) / 1000, 1);
-              document.getElementById("bar").setAttribute("width", String(300 * t));
-              if (t < 1) requestAnimationFrame(grow);
-              else document.body.style.background = "rgb(0, 128, 0)";
-            };
-            requestAnimationFrame(grow);
-          }, { once: true });
-        </script>`,
-      `${GEIST_PAGE} body { background: rgb(255, 0, 0); }`,
-      ["--widths", "390"],
-    );
-    expect(run.status, run.output).toBe(0);
-    expect(run.topLeftOf("390-light")).toEqual([0, 128, 0]);
   });
 
   it("fails a page that throws or logs a console error", async () => {

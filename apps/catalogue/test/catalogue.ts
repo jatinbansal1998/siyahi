@@ -29,7 +29,8 @@ export async function openCatalogue(route: string, options: BrowserContextOption
     await page.getByRole("status").filter({ hasText: "Loading examples" }).waitFor({ state: "detached" });
     return { page, close };
   } catch (error) {
-    await close();
+    // The failure that stopped the page matters more than anything it logged on the way.
+    await browser.close();
     throw error;
   }
 }

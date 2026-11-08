@@ -352,10 +352,6 @@ Page parts that dash and The Book built for themselves. Published as
   (`await card.screenshot(…)`), since the full-page shot grows the viewport
   and can undo a hover. A page error or console error now fails the mode, with
   or without a script: a page that logs a failed request no longer passes.
-- `siyahi-shots` no longer waits a fixed 1.5 seconds per mode after growing
-  the viewport: it shoots once the page's height and every SVG mark have held
-  still for 200 ms, still waiting at most 1.5 seconds for a chart that keeps
-  animating.
 
 ## 0.1.8
 
