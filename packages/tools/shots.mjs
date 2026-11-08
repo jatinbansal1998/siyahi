@@ -90,12 +90,23 @@ const MODES = [...new Set(widths)].flatMap((width) =>
   })),
 );
 const minGutter = Number(values.gutter);
-/** @type {((page: import("playwright").Page, mode: Mode) => Promise<unknown>) | undefined} */
-const act = values.script && (await import(pathToFileURL(path.resolve(values.script)).href)).default;
-if (values.script && typeof act !== "function") {
-  console.error(`--script ${values.script} must export a default async function (page, mode)`);
-  process.exit(2);
+/**
+ * Loads --script's default export, or exits 2 before any browser starts, as for any other bad argument.
+ * @param {string} file
+ * @returns {Promise<(page: import("playwright").Page, mode: Mode) => Promise<unknown>>}
+ */
+async function loadScript(file) {
+  const module = await import(pathToFileURL(path.resolve(file)).href).catch((/** @type {Error} */ error) => {
+    console.error(`--script ${file} did not load: ${error.message}`);
+    process.exit(2);
+  });
+  if (typeof module.default !== "function") {
+    console.error(`--script ${file} must export a default async function (page, mode)`);
+    process.exit(2);
+  }
+  return module.default;
 }
+const act = values.script ? await loadScript(values.script) : undefined;
 const waitFor = values["wait-for"];
 mkdirSync(outDir, { recursive: true });
 

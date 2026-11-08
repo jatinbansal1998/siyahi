@@ -191,6 +191,16 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.sizesOf("1920-light")).toEqual([{ width: 1920, height: 3000 }]);
   });
 
+  it("exits 2 when --script is missing or does not parse, as for any other bad argument", async () => {
+    const broken = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-shots-script-")), "broken.mjs");
+    writeFileSync(broken, "export default async (page => {");
+    for (const file of [path.join(tmpdir(), "no-such-script.mjs"), broken]) {
+      const run = await shoot('<main style="padding: 16px"><h1>Page</h1></main>', GEIST_PAGE, ["--script", file]);
+      expect(run.status, run.output).toBe(2);
+      expect(run.output).toContain(`--script ${file} did not load`);
+    }
+  });
+
   it("measures a page --script ran on at the mode's screen height, not the page's", async () => {
     // The side padding shrinks with the screen's height: 8px on an 844px phone, 30px on a screen 3000px tall.
     const run = await shoot(
