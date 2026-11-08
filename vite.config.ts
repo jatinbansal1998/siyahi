@@ -33,9 +33,28 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ["packages/*/test/**/*.test.{ts,tsx,mjs}", "apps/*/test/**/*.test.tsx"],
-    // One catalogue server for every browser suite (apps/catalogue/test/serve-catalogue.ts).
-    globalSetup: ["apps/catalogue/test/serve-catalogue.ts"],
+    // `vp test --changed` follows imports. These tests run the tools as child processes or read the theme from disk,
+    // so a change to them reruns the whole suite.
+    forceRerunTriggers: [
+      "**/package.json",
+      "**/{vitest,vite}.config.*",
+      "**/packages/tools/*.mjs",
+      "**/packages/tools/lint/**",
+      "**/packages/ui/styles/**",
+    ],
+    projects: [
+      // Package tests never open the catalogue, so running one of them skips the server's start and warm-up.
+      { extends: true, test: { name: "packages", include: ["packages/*/test/**/*.test.{ts,tsx,mjs}"] } },
+      {
+        extends: true,
+        test: {
+          name: "catalogue",
+          include: ["apps/*/test/**/*.test.tsx"],
+          // One catalogue server for every browser suite (apps/catalogue/test/serve-catalogue.ts).
+          globalSetup: ["apps/catalogue/test/serve-catalogue.ts"],
+        },
+      },
+    ],
   },
   fmt: {
     printWidth: 120,
