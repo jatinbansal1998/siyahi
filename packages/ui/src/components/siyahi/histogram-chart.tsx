@@ -3,7 +3,7 @@ import { Bar, BarChart } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import { ChartFrame } from "@siyahi/ui/lib/chart-frame";
 import type { ChartReferenceLine, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
-import { linearTicks } from "@siyahi/ui/lib/scatter";
+import { linearTicks } from "@siyahi/ui/lib/ticks";
 
 /** One bucket: the values from `from` up to, not including, `to`; the last bucket takes its upper edge too. */
 export interface HistogramBin {

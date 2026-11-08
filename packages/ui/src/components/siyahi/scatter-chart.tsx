@@ -28,13 +28,12 @@ import {
   MAX_RADIUS,
   corners,
   dotSizes,
-  linearTicks,
-  logTicks,
   placeLabels,
   quadrantSplit,
   type LabelType,
   type ScatterQuadrants,
 } from "@siyahi/ui/lib/scatter";
+import { linearTicks, ticksFor, type AxisScale } from "@siyahi/ui/lib/ticks";
 
 export interface ScatterPoint {
   name: string;
@@ -70,7 +69,7 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
   /** What the y axis measures, beside it, such as "Growth on last year". */
   yLabel: string;
   /** "log" spreads values across powers of ten, for sizes that run from tiny to large. */
-  xScale?: "linear" | "log";
+  xScale?: AxisScale;
   /** The x ticks and the tooltip's x figure. Defaults to the locale's numbers. */
   xFormatter?: (value: number) => string;
   /** The y ticks and the tooltip's y figure. Defaults to the locale's numbers. */
@@ -175,7 +174,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
   const reach = sized ? MAX_RADIUS + RING : 0;
   const names = split?.labels;
   const band = (named: boolean) => (named ? NAME_BAND + Math.max(reach, RADIUS + EDGE) : reach);
-  const xTicks = xScale === "log" ? logTicks(Math.min(...xs), Math.max(...xs)) : undefined;
+  const xTicks = ticksFor(xScale, Math.min(...xs), Math.max(...xs));
   const yTicks = linearTicks(Math.min(...ys), Math.max(...ys));
   const crossesZero = ys.some((y) => y < 0) && ys.some((y) => y > 0);
   const selectedKey = selected ? keyOf(selected) : null;
@@ -242,12 +241,12 @@ export function ScatterChartCard<T extends ScatterPoint>({
                 dataKey="x"
                 scale={xScale}
                 domain={
-                  xTicks
+                  xTicks.length > 0
                     ? [xTicks[0] ?? "auto", xTicks.at(-1) ?? "auto"]
                     : [(low: number) => Math.min(low, ...xs), (high: number) => Math.max(high, ...xs)]
                 }
-                ticks={xTicks}
-                niceTicks={xTicks ? undefined : "snap125"}
+                ticks={xTicks.length > 0 ? xTicks : undefined}
+                niceTicks={xTicks.length > 0 ? undefined : "snap125"}
                 // A sized dot at the end of the range would spill past the axis by up to its radius.
                 padding={reach > 0 ? { left: reach, right: reach } : undefined}
                 tickLine={false}

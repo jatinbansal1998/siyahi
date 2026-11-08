@@ -2,6 +2,9 @@
 
 ## 0.1.9
 
+- `ScatterChartCard`: a linear x axis ticks in round steps of 1, 2, 2.5 or 5,
+  as the y axis does, from the step at or below the smallest value. Shares of
+  0.4% to 14.7% read 0%, 5%, 10%, 15% (were 0.5%, 5.5%, 10.5%, 14.7%).
 - `WeekdayHeatmap` outlines a hovered, highlighted or keyboard-focused cell
   instead of fading it, as CalendarHeatmap and StatusHeatmap do, and a
   focused cell's ring now draws, also on the picked cell.
