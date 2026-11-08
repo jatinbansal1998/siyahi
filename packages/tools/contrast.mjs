@@ -90,6 +90,9 @@ const PAIRS = [
   ...["", "muted", "muted/50"].map((bg) => ({ fg: "input", bg, min: MARK })),
   { fg: "input", bg: "input/30", min: MARK, scheme: "dark" },
   ...["ring", "destructive"].map((fg) => ({ fg, bg: "", min: MARK })),
+  // A toggle's focus ring also meets the button it rings: a selected one's
+  // foreground fill, or a hovered one's muted fill.
+  ...["foreground", "muted"].map((bg) => ({ fg: "ring", bg, min: MARK })),
   // A tone's icon or StatusBadge dot against the tone's own wash (lib/tone.ts).
   ...[
     ["link", "chart-1/8"],

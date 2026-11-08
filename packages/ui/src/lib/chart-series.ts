@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { AxisScale } from "@siyahi/ui/lib/ticks";
 
 /**
  * The colours a series may take: the five chart slots, muted for an "Other" past five, and the two meaning
@@ -96,6 +97,18 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
 export interface NumericXProps {
   /** The x axis runs over this range of the xKey field, which must hold numbers; without it the axis is one slot per row. */
   xDomain?: [number, number];
+}
+
+/** A value axis that may run on a log scale: lines and areas, which need not start at zero as bars must. */
+export interface ValueScaleProps {
+  /**
+   * "log" spreads values across powers of ten, for values that run from tiny to large; the first selection when
+   * yScaleToggle is set. Log draws only when every value, and yDomain, is above zero; otherwise the axis is linear.
+   * On log the axis ticks at 1, 2 and 5 inside yDomain, if given, and yTicks is not used.
+   */
+  yScale?: AxisScale;
+  /** Linear and Log buttons for the value axis in the header, after the action, so a reader can switch. */
+  yScaleToggle?: boolean;
 }
 
 /**

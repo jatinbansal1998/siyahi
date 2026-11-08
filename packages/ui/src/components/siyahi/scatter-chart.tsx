@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "@siyahi/ui/components/ui/card";
 import { ChartContainer } from "@siyahi/ui/components/ui/chart";
+import { LOG_BLOCKED, useAxisScale } from "@siyahi/ui/components/siyahi/scale-toggle";
 import {
   MAX_RADIUS,
   corners,
@@ -33,11 +34,11 @@ import {
   type LabelType,
   type ScatterQuadrants,
 } from "@siyahi/ui/lib/scatter";
-import { linearTicks, ticksFor, type AxisScale } from "@siyahi/ui/lib/ticks";
+import { fitsLog, ticksFor, type AxisScale } from "@siyahi/ui/lib/ticks";
 
 export interface ScatterPoint {
   name: string;
-  /** Across. On a log axis a point at or under zero is not drawn. */
+  /** Across. */
   x: number;
   /** Up. `null` when unknown: the point is not drawn, so say on the page how many are missing. */
   y: number | null;
@@ -58,7 +59,7 @@ export type ScatterDetail = readonly [label: string, value: string];
 export interface ScatterChartCardProps<T extends ScatterPoint> {
   title: ReactNode;
   description?: ReactNode;
-  /** A scope badge or a toggle, top right of the card. */
+  /** A scope badge or a toggle, top right of the card, before any scale buttons. */
   action?: ReactNode;
   /** Most important first: earlier points take the labels. */
   points: T[];
@@ -68,8 +69,17 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
   xLabel: string;
   /** What the y axis measures, beside it, such as "Growth on last year". */
   yLabel: string;
-  /** "log" spreads values across powers of ten, for sizes that run from tiny to large. */
+  /**
+   * "log" spreads values across powers of ten, for sizes that run from tiny to large. With xScaleToggle it is the
+   * first selection. Log draws only when every x is above zero; otherwise the axis is linear.
+   */
   xScale?: AxisScale;
+  /** Linear and Log buttons for the x axis in the header, so a reader can switch. */
+  xScaleToggle?: boolean;
+  /** As xScale, for the y axis: log draws only when every y is above zero. */
+  yScale?: AxisScale;
+  /** Linear and Log buttons for the y axis in the header. */
+  yScaleToggle?: boolean;
   /** The x ticks and the tooltip's x figure. Defaults to the locale's numbers. */
   xFormatter?: (value: number) => string;
   /** The y ticks and the tooltip's y figure. Defaults to the locale's numbers. */
@@ -103,6 +113,8 @@ const NAME_BAND = 6 + 32 + 4;
 const TICK = { className: "fill-muted-foreground font-mono" };
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 const keyOf = (point: ScatterPoint) => point.key ?? point.name;
+// At the ticks' 12px, Geist Mono is about 7.2px a character.
+const MONO_WIDTH = 7.2;
 
 /** Two measures per item as dots, such as size against growth, with the leading names beside their dots. */
 export function ScatterChartCard<T extends ScatterPoint>({
@@ -114,6 +126,9 @@ export function ScatterChartCard<T extends ScatterPoint>({
   xLabel,
   yLabel,
   xScale = "linear",
+  xScaleToggle = false,
+  yScale = "linear",
+  yScaleToggle = false,
   xFormatter,
   yFormatter,
   labels = 12,
@@ -155,18 +170,31 @@ export function ScatterChartCard<T extends ScatterPoint>({
     [sizeFormatter, numberLocale],
   );
   const drawn = useMemo(
-    () =>
-      points.filter(
-        (p) => p.y !== null && Number.isFinite(p.y) && Number.isFinite(p.x) && (xScale === "linear" || p.x > 0),
-      ),
-    [points, xScale],
+    () => points.filter((p) => p.y !== null && Number.isFinite(p.y) && Number.isFinite(p.x)),
+    [points],
   );
+  // With a toggle on each axis, each pair of buttons shows its axis' name, so the two are told apart.
+  const both = xScaleToggle && yScaleToggle;
+  const across = useAxisScale({
+    initial: xScale,
+    toggle: xScaleToggle,
+    label: `${xLabel} scale`,
+    caption: both ? xLabel : undefined,
+    logBlocked: fitsLog(drawn.map((p) => p.x)) ? undefined : LOG_BLOCKED,
+  });
+  const up = useAxisScale({
+    initial: yScale,
+    toggle: yScaleToggle,
+    label: `${yLabel} scale`,
+    caption: both ? yLabel : undefined,
+    logBlocked: fitsLog(drawn.map((p) => p.y ?? 0)) ? undefined : LOG_BLOCKED,
+  });
   // Arrow keys walk the dots left to right, as the eye reads the plot.
   const order = useMemo(() => drawn.toSorted((a, b) => a.x - b.x || (a.y ?? 0) - (b.y ?? 0)), [drawn]);
   const { radiusOf, sized } = dotSizes(drawn, RADIUS);
   // The largest dots draw first, so a small one is never hidden under a big one.
   const painted = sized ? drawn.toSorted((a, b) => radiusOf(b) - radiusOf(a)) : drawn;
-  const split = quadrantSplit(quadrants, xScale);
+  const split = quadrantSplit(quadrants, across.scale, up.scale);
   // The axes reach the split even when every point sits on one side of it.
   const xs = [...drawn.map((p) => p.x), ...(split ? [split.x] : [])];
   const ys = [...drawn.map((p) => p.y ?? 0), ...(split ? [split.y] : [])];
@@ -174,8 +202,15 @@ export function ScatterChartCard<T extends ScatterPoint>({
   const reach = sized ? MAX_RADIUS + RING : 0;
   const names = split?.labels;
   const band = (named: boolean) => (named ? NAME_BAND + Math.max(reach, RADIUS + EDGE) : reach);
-  const xTicks = ticksFor(xScale, Math.min(...xs), Math.max(...xs));
-  const yTicks = linearTicks(Math.min(...ys), Math.max(...ys));
+  const xTicks = ticksFor(across.scale, Math.min(...xs), Math.max(...xs));
+  const yTicks = ticksFor(up.scale, Math.min(...ys), Math.max(...ys));
+  const lastX = xTicks.at(-1);
+  // The last x label centres on the last tick; the half past it must fit beside the plot, inside the padding a sized
+  // dot already keeps, as 50,000 did not in 16px.
+  const endRoom = Math.max(
+    16,
+    lastX === undefined ? 0 : Math.ceil((formatX(lastX).length * MONO_WIDTH) / 2) + 4 - reach,
+  );
   const crossesZero = ys.some((y) => y < 0) && ys.some((y) => y > 0);
   const selectedKey = selected ? keyOf(selected) : null;
   const rows =
@@ -221,7 +256,13 @@ export function ScatterChartCard<T extends ScatterPoint>({
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
-        {action && <CardAction>{action}</CardAction>}
+        {(action || across.buttons || up.buttons) && (
+          <CardAction className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            {action}
+            {across.buttons}
+            {up.buttons}
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent>
         {/* A tap on a dot is handled by the dot, which stops it here; any other tap on the plot clears. */}
@@ -234,12 +275,12 @@ export function ScatterChartCard<T extends ScatterPoint>({
           onBlur={onBlur}
         >
           <ChartContainer config={{}} className="aspect-auto w-full" style={{ height }}>
-            <ScatterChart margin={{ top: 12, right: 16, left: 0 }} accessibilityLayer={false}>
+            <ScatterChart margin={{ top: 12, right: endRoom, left: 0 }} accessibilityLayer={false}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 type="number"
                 dataKey="x"
-                scale={xScale}
+                scale={across.scale}
                 domain={
                   xTicks.length > 0
                     ? [xTicks[0] ?? "auto", xTicks.at(-1) ?? "auto"]
@@ -260,6 +301,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
               <YAxis
                 type="number"
                 dataKey="y"
+                scale={up.scale}
                 domain={[yTicks[0] ?? "auto", yTicks.at(-1) ?? "auto"]}
                 ticks={yTicks}
                 padding={{

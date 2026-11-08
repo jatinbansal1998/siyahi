@@ -523,6 +523,15 @@
       ]
     },
     {
+      "file": "agents/examples/chart-area-log.tsx",
+      "components": [
+        "AreaChartCard",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/chart-area.tsx",
       "components": [
         "AreaChartCard",
@@ -588,6 +597,14 @@
       "file": "agents/examples/chart-line-events.tsx",
       "components": [
         "LineChartCard"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-line-log.tsx",
+      "components": [
+        "Badge",
+        "LineChartCard",
+        "useFormat"
       ]
     },
     {
@@ -1023,8 +1040,16 @@
       ]
     },
     {
+      "file": "agents/examples/scatter-chart-scales.tsx",
+      "components": [
+        "ScatterChartCard",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/scatter-chart.tsx",
       "components": [
+        "Badge",
         "ScatterChartCard",
         "useFormat"
       ]

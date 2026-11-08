@@ -2,6 +2,22 @@
 
 ## 0.1.9
 
+- Charts offer their own Linear and Log buttons. `xScaleToggle` and
+  `yScaleToggle` on `ScatterChartCard`, and `yScaleToggle` on `LineChartCard`
+  and `AreaChartCard`, put a small outline toggle in the card's header after
+  any `action`, named "<axis label> scale". `xScale` and the new `yScale` set
+  which is selected first; the reader's pick then holds. With a toggle on
+  both scatter axes, each pair shows its axis label. Ticks, the quadrant
+  split, the names beside the dots and the zero line follow a switch; on log a
+  value axis ticks at 1, 2 and 5, each in its own unit (₹20,000, ₹1L, ₹5Cr),
+  inside a fixed `yDomain` when one is given. `BarChartCard` has no scale:
+  bars start at zero.
+- Log draws an axis only when every value on it, and a fixed `yDomain`, is
+  above zero. Otherwise the axis is linear and Log is disabled with the
+  reason shown beside it; stacked areas, which add up from zero, never take
+  Log. On
+  `ScatterChartCard` a point at or under zero with `xScale="log"` used to be
+  left out; the axis is now linear and the point drawn.
 - `ScatterChartCard`: a linear x axis ticks in round steps of 1, 2, 2.5 or 5,
   as the y axis does, from the step at or below the smallest value. Shares of
   0.4% to 14.7% read 0%, 5%, 10%, 15% (were 0.5%, 5.5%, 10.5%, 14.7%).

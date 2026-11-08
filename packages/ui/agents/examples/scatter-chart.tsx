@@ -1,4 +1,4 @@
-import { ScatterChartCard, useFormat, type ScatterPoint } from "@siyahi/ui";
+import { Badge, ScatterChartCard, useFormat, type ScatterPoint } from "@siyahi/ui";
 import { useState } from "react";
 
 interface Store extends ScatterPoint {
@@ -40,12 +40,15 @@ export default function ScatterChartExample() {
   return (
     <ScatterChartCard
       title="Stores by size and growth"
-      description="Across is the store's share of sales (log scale), up its growth on last year. Hover or tap a dot."
+      description="Across is the store's share of sales, up its growth on last year. Log spreads out the small stores; Linear shows how far ahead the largest are."
+      action={<Badge variant="outline">This month</Badge>}
       points={stores}
       height={360}
       xLabel="Share of sales"
       yLabel="Growth"
+      // Log is selected first; the buttons in the header let the reader switch.
       xScale="log"
+      xScaleToggle
       xFormatter={(x) => pct(x)}
       yFormatter={(y) => growth(y)}
       details={(s) => [

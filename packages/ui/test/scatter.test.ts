@@ -74,9 +74,10 @@ describe("dotSizes when every size is bad", () => {
 
 describe("quadrantSplit", () => {
   it("draws no split a log axis cannot place", () => {
-    expect(quadrantSplit({ x: 0, y: 0 }, "log")).toBeUndefined();
-    expect(quadrantSplit({ x: 1, y: 0 }, "log")).toEqual({ x: 1, y: 0 });
-    expect(quadrantSplit({ x: Number.NaN, y: 0 }, "linear")).toBeUndefined();
+    expect(quadrantSplit({ x: 0, y: 0 }, "log", "linear")).toBeUndefined();
+    expect(quadrantSplit({ x: 1, y: 0 }, "log", "linear")).toEqual({ x: 1, y: 0 });
+    expect(quadrantSplit({ x: 1, y: 0 }, "log", "log")).toBeUndefined();
+    expect(quadrantSplit({ x: Number.NaN, y: 0 }, "linear", "linear")).toBeUndefined();
   });
 });
 
