@@ -16,8 +16,7 @@
     "lint:registry": "vp lint -c .oxlintrc.registry.json packages/ui/src/components/registry",
     "shots": "node packages/tools/shots.mjs",
     "test": "vp test",
-    "typecheck": "vp run -r typecheck",
-    "verify": "vp run check:static && vp test --changed origin/main"
+    "typecheck": "vp run -r typecheck"
   },
   "devDependencies": {
     "@siyahi/tools": "workspace:*",

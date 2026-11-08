@@ -33,15 +33,6 @@ export default defineConfig({
     ],
   },
   test: {
-    // `vp test --changed` follows imports. These tests run the tools as child processes or read the theme from disk,
-    // so a change to them reruns the whole suite.
-    forceRerunTriggers: [
-      "**/package.json",
-      "**/{vitest,vite}.config.*",
-      "**/packages/tools/*.mjs",
-      "**/packages/tools/lint/**",
-      "**/packages/ui/styles/**",
-    ],
     projects: [
       // Package tests never open the catalogue, so running one of them skips the server's start and warm-up.
       { extends: true, test: { name: "packages", include: ["packages/*/test/**/*.test.{ts,tsx,mjs}"] } },
