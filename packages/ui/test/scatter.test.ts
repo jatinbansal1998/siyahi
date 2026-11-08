@@ -1,46 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
-import {
-  corners,
-  dotSizes,
-  linearTicks,
-  logTicks,
-  placeLabels,
-  quadrantSplit,
-  type LabelCandidate,
-} from "../src/lib/scatter";
+import { corners, dotSizes, placeLabels, quadrantSplit, type LabelCandidate } from "../src/lib/scatter";
 
 const plot = { x: 0, y: 0, width: 400, height: 300 };
 // A fixed 7px a character stands in for the canvas, which happy-dom does not have.
 const measure = (text: string) => text.length * 7;
 const type = { size: 12, measure };
-
-describe("logTicks", () => {
-  it("runs 1, 2, 5 from the largest at or under the smallest value to the smallest at or over the largest", () => {
-    expect(logTicks(0.004, 0.112)).toEqual([0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2]);
-  });
-
-  it("starts on a value that is itself a tick", () => {
-    expect(logTicks(0.01, 0.05)).toEqual([0.01, 0.02, 0.05]);
-  });
-});
-
-describe("linearTicks", () => {
-  it("covers the data in a 1, 2, 2.5 or 5 step instead of overshooting it", () => {
-    expect(linearTicks(-0.33, 0.58)).toEqual([-0.5, -0.25, 0, 0.25, 0.5, 0.75]);
-  });
-
-  it("starts and ends on the data's own values when they fall on a step", () => {
-    expect(linearTicks(0.3, 0.4)).toEqual([0.3, 0.325, 0.35, 0.375, 0.4]);
-  });
-
-  it("stops at the data's end instead of adding a near-zero tick past it", () => {
-    expect(linearTicks(-0.5, -0.1)).toEqual([-0.5, -0.4, -0.3, -0.2, -0.1]);
-  });
-
-  it("gives values that differ only by float noise one tick, and returns", () => {
-    expect(linearTicks(0.3, 0.30000000000000004)).toEqual([0.3]);
-  });
-});
 
 const dot = (key: string, cx: number, cy: number, r = 5): LabelCandidate => ({ key, text: key, cx, cy, r });
 

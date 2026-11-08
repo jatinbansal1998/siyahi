@@ -3,7 +3,7 @@ import { Area, AreaChart } from "recharts";
 import { ChartFrame } from "@siyahi/ui/lib/chart-frame";
 import type { NumericKey, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 import { useFormat } from "@siyahi/ui/lib/format";
-import { linearTicks } from "@siyahi/ui/lib/scatter";
+import { linearTicks } from "@siyahi/ui/lib/ticks";
 
 /** One point as drawn: how far the level sits below the highest it had reached, and that high. */
 export interface DrawdownPoint<X> {
