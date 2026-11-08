@@ -129,7 +129,12 @@ pnpm shots http://localhost:4173/#/data   # in another shell
 
 `pnpm check` formats, lints (including the colour pass over the add-ons),
 looks for unused code, fails on stale generated files, builds (with the
-contrast check), typechecks and tests. Put the shots
+contrast check), typechecks and tests. While you work, run the tests you are
+changing (`pnpm test packages/ui/test/format.test.ts`) and `pnpm check:static`,
+which is every check but the tests; run the full `pnpm check` once before the
+pull request. Tests under `packages/` start no catalogue server, so one of them
+runs in seconds. The catalogue suites open the catalogue in a browser, so no
+tool can tell which of them a source change reaches: the full run is the proof. Put the shots
 for every page you changed in the pull request, light and dark, 1920 and 390.
 
 ## Releases

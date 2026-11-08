@@ -33,9 +33,19 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ["packages/*/test/**/*.test.{ts,tsx,mjs}", "apps/*/test/**/*.test.tsx"],
-    // One catalogue server for every browser suite (apps/catalogue/test/serve-catalogue.ts).
-    globalSetup: ["apps/catalogue/test/serve-catalogue.ts"],
+    projects: [
+      // Package tests never open the catalogue, so running one of them skips the server's start and warm-up.
+      { extends: true, test: { name: "packages", include: ["packages/*/test/**/*.test.{ts,tsx,mjs}"] } },
+      {
+        extends: true,
+        test: {
+          name: "catalogue",
+          include: ["apps/*/test/**/*.test.tsx"],
+          // One catalogue server for every browser suite (apps/catalogue/test/serve-catalogue.ts).
+          globalSetup: ["apps/catalogue/test/serve-catalogue.ts"],
+        },
+      },
+    ],
   },
   fmt: {
     printWidth: 120,

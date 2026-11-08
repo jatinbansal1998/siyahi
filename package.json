@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "vp run -r build",
-    "check": "vp check && vp run lint:registry && vp run knip:check && vp run generate:check && vp run -r build && vp run -r typecheck && vp test",
+    "check": "vp run check:static && vp test",
+    "check:static": "vp check && vp run lint:registry && vp run knip:check && vp run generate:check && vp run -r build && vp run -r typecheck",
     "deploy:catalogue": "vp run -r build && vp run --filter @siyahi/catalogue deploy",
     "dev": "vp run --filter @siyahi/catalogue dev",
     "fmt": "vp fmt",
