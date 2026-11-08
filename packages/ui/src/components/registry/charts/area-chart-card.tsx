@@ -18,6 +18,9 @@
 // Siyahi edit: xDomain and xTicks make the x axis numeric, so a mark can sit
 // between two samples, as the Dell page's events do between 15 s samples.
 // Siyahi edit: curve picks monotone or straight edges (chart-area-linear).
+// Siyahi edit: yScale and yScaleToggle put the value axis on a log scale, with
+// Linear and Log buttons in the header (lib/chart-frame), for values that run
+// from tiny to large. Stacked areas add up from zero, so their Log is off.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
@@ -29,11 +32,13 @@ import type {
   ChartCurve,
   NumericXProps,
   SeriesChartProps,
+  ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series"
 
 export interface AreaChartCardProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K>,
-    NumericXProps {
+    NumericXProps,
+    ValueScaleProps {
   /** Stack the series into a total instead of overlapping them. */
   stacked?: boolean
   curve?: ChartCurve
@@ -47,7 +52,12 @@ export function AreaChartCard<T extends object, K extends keyof T>({
 }: AreaChartCardProps<T, K>) {
   const id = useId()
   return (
-    <ChartFrame chart={AreaChart} {...props}>
+    <ChartFrame
+      chart={AreaChart}
+      // A stack's layers add up from zero, which a log axis has no place for.
+      logBlocked={stacked ? "Log cannot show stacked areas" : undefined}
+      {...props}
+    >
       <defs>
         {props.series.map(({ key, color }, index) => (
           <linearGradient key={key} id={`${id}-${index}`} x1="0" y1="0" x2="0" y2="1">

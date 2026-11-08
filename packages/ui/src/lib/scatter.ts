@@ -90,7 +90,7 @@ export function placeLabels(
 
 /**
  * Splits the plot into four at a value on each axis, such as zero, with an optional name in each corner. On a log
- * axis x must be above zero, or no split is drawn. A name that does not fit its quadrant in two lines is left out.
+ * axis that value must be above zero, or no split is drawn. A name that does not fit its quadrant in two lines is left out.
  */
 export interface ScatterQuadrants {
   x: number;
@@ -100,13 +100,16 @@ export interface ScatterQuadrants {
 
 export type QuadrantLabels = ScatterQuadrants["labels"];
 
+const fits = (scale: AxisScale, at: number) => scale === "linear" || at > 0;
+
 /** A split a log axis cannot place, at or below zero, or one that is not a number, is no split at all. */
 export function quadrantSplit(
   quadrants: ScatterQuadrants | undefined,
   xScale: AxisScale,
+  yScale: AxisScale,
 ): ScatterQuadrants | undefined {
   if (!quadrants || !Number.isFinite(quadrants.x) || !Number.isFinite(quadrants.y)) return undefined;
-  return xScale === "linear" || quadrants.x > 0 ? quadrants : undefined;
+  return fits(xScale, quadrants.x) && fits(yScale, quadrants.y) ? quadrants : undefined;
 }
 
 /** The largest sized dot; the smallest stays big enough to see and to tap. */

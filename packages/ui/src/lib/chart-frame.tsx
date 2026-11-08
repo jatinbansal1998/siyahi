@@ -14,6 +14,7 @@ import {
   useYAxisTicks,
   type YAxisProps,
 } from "recharts";
+import { LOG_BLOCKED, useAxisScale } from "@siyahi/ui/components/siyahi/scale-toggle";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import {
   Card,
@@ -39,7 +40,9 @@ import type {
   ChartSeriesItem,
   NumericXProps,
   SeriesChartProps,
+  ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series";
+import { fitsLog, logTicks } from "@siyahi/ui/lib/ticks";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 // Recharts 3.8 draws tick labels in a layer of their own, which the core chart's
@@ -72,7 +75,7 @@ function haloLine({ x1, y1, x2, y2, stroke, strokeDasharray }: SVGProps<SVGLineE
 }
 
 interface ChartFrameProps<T extends object, K extends keyof T>
-  extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps {
+  extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps, ValueScaleProps {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
   /** The value axis' range: a page's fixed one, or a card's rule such as bars reaching zero. */
   yDomain?: YAxisProps["domain"];
@@ -91,6 +94,8 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   tooltipRow?: ComponentProps<typeof ChartTooltipContent>["formatter"];
   /** The legend under the plot; by default one chip per series. */
   legend?: ReactElement;
+  /** Why this chart cannot go on a log scale whatever its values, such as stacked areas adding up from zero. */
+  logBlocked?: string;
 }
 
 /**
@@ -316,6 +321,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
   footer,
   xDomain,
   xTicks,
+  yScale = "linear",
+  yScaleToggle = false,
+  logBlocked,
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
   const formatValue = useMemo(
@@ -324,6 +332,18 @@ export function ChartFrame<T extends object, K extends keyof T>({
   );
   const config: ChartConfig = Object.fromEntries(series.map(({ key, label, color }) => [key, { label, color }]));
   const crossesZero = data.some((row) => series.some(({ key }) => Number(row[key as keyof T]) < 0));
+  // A page's fixed range must fit the log axis too, so its ends count as values.
+  const values = [
+    ...data.flatMap((row) => series.map(({ key }) => row[key as keyof T])),
+    ...(Array.isArray(yDomain) ? yDomain : []),
+  ].filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const valueAxis = useAxisScale(
+    yScale,
+    yScaleToggle,
+    yLabel ? `${yLabel} scale` : "Value axis scale",
+    logBlocked ?? (fitsLog(values) ? undefined : LOG_BLOCKED),
+  );
+  const logValueTicks = valueAxis.scale === "log" ? logTicks(Math.min(...values), Math.max(...values)) : undefined;
   // Narrow panels need extra row space for complete quantitative details.
   const detailedRows = horizontal && xTickDetail !== undefined;
   const rowCount = (xTicks ?? data).length;
@@ -346,7 +366,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
-        {action && <CardAction>{action}</CardAction>}
+        {(action || valueAxis.buttons) && (
+          <CardAction className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            {action}
+            {valueAxis.buttons}
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent
         className="@container/chart overflow-x-auto"
@@ -427,12 +452,13 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   />
                   {/* Value ticks step by 1, 2, 2.5 or 5 × 10ⁿ: ₹0.5L, ₹1L, ₹1.5L, never ₹0.95L. */}
                   <YAxis
-                    niceTicks="snap125"
+                    scale={valueAxis.scale}
+                    niceTicks={logValueTicks ? undefined : "snap125"}
                     tickLine={false}
                     axisLine={false}
                     width="auto"
-                    domain={yDomain}
-                    ticks={yTicks as number[] | undefined}
+                    domain={logValueTicks ? [logValueTicks[0] ?? "auto", logValueTicks.at(-1) ?? "auto"] : yDomain}
+                    ticks={logValueTicks ?? (yTicks as number[] | undefined)}
                     label={
                       yLabel
                         ? {

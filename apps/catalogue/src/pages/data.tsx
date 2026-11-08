@@ -89,6 +89,23 @@ const X_DOMAIN: PropRow = {
   default: "one slot per row",
   purpose: "Makes the x axis numeric over this range, so a tick or event can sit between samples.",
 };
+const VALUE_SCALE_PROPS: PropRow[] = [
+  {
+    name: "yScale",
+    type: '"linear" | "log"',
+    default: '"linear"',
+    purpose:
+      "log spreads values that run from tiny to large across powers of ten, ticked at 1, 2 and 5. With yScaleToggle, the first selection.",
+  },
+  {
+    name: "yScaleToggle",
+    type: "boolean",
+    default: "false",
+    purpose: 'Linear and Log buttons for the value axis in the header, after action, named "<yLabel> scale".',
+  },
+];
+const VALUE_SCALE_RULE =
+  "Offer Log for values that run from tiny to large and are all above zero, such as users or a price. With a value at or below zero, or a yDomain reaching zero, the axis stays linear and Log is disabled, saying why. Bars always start at zero and take no scale.";
 const CURVE: PropRow = {
   name: "curve",
   type: '"monotone" | "linear"',
@@ -118,16 +135,24 @@ export const data: Page = {
           purpose: "Adds the series into a total; by default areas overlap.",
         },
         CURVE,
+        ...VALUE_SCALE_PROPS,
       ],
       rules: [
         "The card draws the axes, the dashed grid, Geist Mono ticks, a tooltip with each series' formatted value at the hovered point, and the legend below.",
         "A range toggle goes in action, top right.",
+        VALUE_SCALE_RULE,
+        "Stacked areas add up from zero, so their Log button is disabled.",
         "Ranked counts by category, with no order between the rows, are a BarList (Ranked list), not an area chart.",
       ],
       examples: [
         {
           name: "chart-area",
           caption: "Monthly revenue filled, its target drawn as a line over it, with a range toggle.",
+        },
+        {
+          name: "chart-area-log",
+          caption:
+            "Money managed since launch, from ₹2L to ₹3.1Cr, linear first, with Linear and Log buttons beside a range toggle.",
         },
       ],
     },
@@ -193,9 +218,10 @@ export const data: Page = {
       title: "Line chart",
       lead: "LineChartCard draws values over an ordered axis as lines, for comparing series such as a store against its category.",
       imports: ["LineChartCard", "type ChartSeries"],
-      props: [...SERIES_PROPS, X_DOMAIN, CURVE],
+      props: [...SERIES_PROPS, X_DOMAIN, CURVE, ...VALUE_SCALE_PROPS],
       rules: [
         "A zero line draws by itself whenever a value goes below zero.",
+        VALUE_SCALE_RULE,
         "A mode toggle sits top right; on a card narrower than about 430px it drops under the title and description, left-aligned, so a long label is never cut off.",
         "Ranked categories are a BarList, not a line chart.",
       ],
@@ -204,6 +230,10 @@ export const data: Page = {
           name: "chart-line",
           caption:
             "Sales growth against the category, with valueFormatter for the tooltip and yTickFormatter for the axis.",
+        },
+        {
+          name: "chart-line-log",
+          caption: "A year of user growth on a log axis first, with Linear and Log buttons beside a scope badge.",
         },
       ],
     },
@@ -828,10 +858,18 @@ export const data: Page = {
         { name: "height", type: "number", purpose: "Fixed height of the plot in pixels." },
         { name: "xLabel, yLabel", type: "string", purpose: "What each axis measures, written along it." },
         {
-          name: "xScale",
+          name: "xScale, yScale",
           type: '"linear" | "log"',
           default: '"linear"',
-          purpose: "log spreads sizes that run from tiny to large across powers of ten, ticked at 1, 2 and 5.",
+          purpose:
+            "log spreads values that run from tiny to large across powers of ten, ticked at 1, 2 and 5; linear ticks in round steps. With a toggle, the first selection.",
+        },
+        {
+          name: "xScaleToggle, yScaleToggle",
+          type: "boolean",
+          default: "false",
+          purpose:
+            'Linear and Log buttons for that axis in the header, after action, named "<axis label> scale" for a screen reader.',
         },
         {
           name: "xFormatter, yFormatter",
@@ -871,16 +909,18 @@ export const data: Page = {
         "Give points most important first: labels go to the earliest points that have room.",
         "Every dot takes one colour: a category such as a region stays neutral (DESIGN.md). Put it in details, and let a filter on the page pick one.",
         "A name goes beside its dot only where it covers no other name and no other dot; the rest are in the tooltip, so names never pile up.",
-        "A point with a null y, or at or under zero on a log axis, is not drawn: say on the page how many are left out.",
+        "A point with a null y is not drawn: say on the page how many are left out.",
+        "Log draws an axis only when every value on it is above zero; otherwise the axis is linear and its Log button is disabled, saying why. A share or a size is positive, so its axis can switch; a growth that goes below zero cannot.",
         "Sized dots are a faint tint inside a full edge with a card-coloured ring outside it, the largest drawn first, so overlapping dots keep their outlines and a small one is never hidden. Area, not radius, follows size; a size that is not a positive number draws the smallest dot.",
-        "Corner names sit in a band the axis keeps above and below the data, so no dot covers them; a name that cannot fit its quadrant in two lines is left out. On a log axis a split at or below zero draws nothing.",
+        "Corner names sit in a band the axis keeps above and below the data, so no dot covers them; a name that cannot fit its quadrant in two lines is left out. On a log axis a split at or below zero draws nothing. Ticks, the split, the names and the zero line follow a switch of scale.",
         'Split at a value that means something to the reader, usually zero for two changes, and name each corner for what it means, not its sign: "Dearer, sells less".',
         "A phone has no hover, so a tap selects a dot. With onSelect, Tab reaches the dots and the arrow keys walk them left to right. The selection is the page's state, so a filter that drops the point drops its ring too.",
       ],
       examples: [
         {
           name: "scatter-chart",
-          caption: "Stores by share of sales and growth, with a tap to select and one store left out.",
+          caption:
+            "Stores by share of sales and growth, the size axis on log first with Linear and Log buttons beside a scope badge, a tap to select and one store left out.",
         },
         {
           name: "scatter-chart-quadrants",

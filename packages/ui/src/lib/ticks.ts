@@ -44,3 +44,6 @@ export type AxisScale = "linear" | "log";
 /** An axis' ticks for its scale: round steps either way, so a linear axis starting at 0.4% reads 0%, 5%, 10%. */
 export const ticksFor = (scale: AxisScale, min: number, max: number): number[] =>
   scale === "log" ? logTicks(min, max) : linearTicks(min, max);
+
+/** A log axis has no place for zero or below, so it can draw a set of values only when every one is above zero. */
+export const fitsLog = (values: readonly number[]): boolean => values.length > 0 && values.every((value) => value > 0);

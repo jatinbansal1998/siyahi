@@ -12,6 +12,9 @@
 // Siyahi edit: curve picks the block's monotone or straight segments
 // (chart-line-linear), since the Dell page draws measured samples as linear.
 // Siyahi edit: each line ends in a dot on its latest point.
+// Siyahi edit: yScale and yScaleToggle put the value axis on a log scale, with
+// Linear and Log buttons in the header (lib/chart-frame), for values that run
+// from tiny to large.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
@@ -22,11 +25,13 @@ import type {
   ChartCurve,
   NumericXProps,
   SeriesChartProps,
+  ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series"
 
 export interface LineChartCardProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K>,
-    NumericXProps {
+    NumericXProps,
+    ValueScaleProps {
   curve?: ChartCurve
 }
 

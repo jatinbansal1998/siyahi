@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { linearTicks, logTicks, ticksFor } from "../src/lib/ticks";
+import { fitsLog, linearTicks, logTicks, ticksFor } from "../src/lib/ticks";
 
 describe("logTicks", () => {
   it("runs 1, 2, 5 from the largest at or under the smallest value to the smallest at or over the largest", () => {
@@ -37,5 +37,14 @@ describe("linearTicks", () => {
 
   it("gives values that differ only by float noise one tick, and returns", () => {
     expect(linearTicks(0.3, 0.30000000000000004)).toEqual([0.3]);
+  });
+});
+
+describe("fitsLog", () => {
+  it("fits only values that are all above zero", () => {
+    expect(fitsLog([0.004, 0.147])).toBe(true);
+    expect(fitsLog([0, 0.147])).toBe(false);
+    expect(fitsLog([-0.02, 0.147])).toBe(false);
+    expect(fitsLog([])).toBe(false);
   });
 });
