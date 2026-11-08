@@ -125,7 +125,11 @@ the skill and its references, then compare against the expected decisions.
 pnpm check
 pnpm --filter @siyahi/catalogue build && pnpm --filter @siyahi/catalogue preview
 pnpm shots http://localhost:4173/#/data   # in another shell
+pnpm shots http://localhost:4173/#/data/bar-chart --script hover.mjs
 ```
+
+To check a control, hover or tooltip, give `pnpm shots` a `--script` (see
+`packages/tools/README.md`) rather than writing a Playwright script.
 
 `pnpm check` formats, lints (including the colour pass over the add-ons),
 looks for unused code, fails on stale generated files, builds (with the

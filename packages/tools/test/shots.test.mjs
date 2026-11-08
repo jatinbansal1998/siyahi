@@ -66,6 +66,16 @@ async function shoot(body, style = GEIST_PAGE, flags = []) {
   return { status: run.status, output: run.stdout + run.stderr, sizesOf };
 }
 
+/**
+ * Writes a --script module whose function runs the given statements with `page` and `mode`, and returns its path.
+ * @param {string} steps
+ */
+function script(steps) {
+  const file = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-shots-script-")), "steps.mjs");
+  writeFileSync(file, `export default async (page, mode) => { ${steps} };`);
+  return file;
+}
+
 // Each case is its own siyahi-shots process, mostly waiting on the page to settle, so they run side by side.
 describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
   it("fails a table whose frozen column occupies most of its scrolling window", async () => {
@@ -162,6 +172,54 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
       </div></main>`);
     expect(run.status, run.output).toBe(1);
     expect(run.output).toContain('span "Beats the index" by 64px is cut off by an overflow: clip box');
+  });
+
+  it("runs --script in every mode, prints what it returns and measures the page as the script left it", async () => {
+    const run = await shoot(
+      `<main style="padding: 16px"><h1>Details</h1>
+        <button onclick="document.querySelector('section').hidden = false">Show details</button>
+        <section hidden style="position: absolute; top: 0; height: 3000px"><p>Opened by the script</p></section></main>`,
+      GEIST_PAGE,
+      [
+        "--script",
+        script(`await page.getByRole("button", { name: "Show details" }).click();
+          return { mode: mode.name, text: await page.locator("p").innerText() };`),
+      ],
+    );
+    expect(run.status, run.output).toBe(0);
+    expect(run.output).toContain('data={"mode":"390-dark","text":"Opened by the script"}');
+    expect(run.sizesOf("1920-light")).toEqual([{ width: 1920, height: 3000 }]);
+  });
+
+  it("exits 2 when --script is missing or does not parse, as for any other bad argument", async () => {
+    const broken = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-shots-script-")), "broken.mjs");
+    writeFileSync(broken, "export default async (page => {");
+    for (const file of [path.join(tmpdir(), "no-such-script.mjs"), broken]) {
+      const run = await shoot('<main style="padding: 16px"><h1>Page</h1></main>', GEIST_PAGE, ["--script", file]);
+      expect(run.status, run.output).toBe(2);
+      expect(run.output).toContain(`--script ${file} did not load`);
+    }
+  });
+
+  it("measures a page --script ran on at the mode's screen height, not the page's", async () => {
+    // The side padding shrinks with the screen's height: 8px on an 844px phone, 30px on a screen 3000px tall.
+    const run = await shoot(
+      `<main style="box-sizing: border-box; height: 3000px; padding: 16px calc(30px - (3000px - 100vh) / 100)"><h1>Tall</h1><p>Body text</p></main>`,
+      GEIST_PAGE,
+      ["--script", script(""), "--widths", "390"],
+    );
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain("left gutter is 8px");
+  });
+
+  it("fails a page that throws or logs a console error", async () => {
+    const run = await shoot(
+      `<main style="padding: 16px"><h1>Broken</h1></main>
+        <script>console.error("no rows for the chart"); throw new Error("chart failed to load");</script>`,
+    );
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain("page error: chart failed to load");
+    expect(run.output).toContain("console error: no rows for the chart");
   });
 
   // A page that names Geist and loads no font file: an app whose font CSS

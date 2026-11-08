@@ -85,8 +85,10 @@ components or capabilities, not to an original arrangement of existing parts.
 Read the installed `@siyahi/tools/README.md` for lint configuration and command
 flags. Run the consuming project's checks, then `npx --no-install siyahi-shots` against its
 built page. Open every generated image, including page segments, in light and
-dark at laptop and phone widths. Screenshots prove layout, not interactions;
-exercise changed controls and tooltips too.
+dark at laptop and phone widths. Screenshots prove layout, not interactions:
+exercise changed controls and tooltips with `siyahi-shots --script`, which runs
+your Playwright steps in every mode, prints what they return and lets them take
+the interaction's picture, instead of a one-off Playwright script.
 
 After changing fonts, loading state or content above the fold, run
 `npx --no-install siyahi-cls` against the build or deployed page, not a development server.

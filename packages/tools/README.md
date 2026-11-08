@@ -97,7 +97,7 @@ counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx p
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390]
+npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390] [--script probe.mjs]
 ```
 
 Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
@@ -129,9 +129,33 @@ for other pages. Run `npx playwright install chromium` once.
 
 Pass `--widths 320,390,768,1366,1920` to include small phones, tablets and laptops;
 each width runs in light and dark. The check also rejects a scrolling table whose
-frozen columns occupy more than half its available width. These captures
-complement interaction checks for scrolling, state retention, keyboard navigation
-and touch readouts.
+frozen columns occupy more than half its available width.
+
+A page error or a console error, such as a failed request, fails the mode and is
+printed under it.
+
+To check a control, hover or tooltip, pass `--script` a module whose default
+export takes Playwright's `page` and the mode (`{ name, width, height, dark }`).
+It runs in every mode once the page is ready, at the mode's screen size; whatever
+it returns is printed as `data=<JSON>` under the mode, and the checks measure the
+page as the script left it. The full-page shot is taken after the viewport grows
+to the page's height, which can undo a hover or close a tooltip, so take the
+picture of an interaction inside the script, in the state it made. A locator's
+`screenshot` gives just the card:
+
+```js
+// hover.mjs: the tooltip of a chart's first bar, as text and as a picture
+export default async (page, mode) => {
+  const card = page.locator('[data-slot="card"]', { hasText: "Revenue by channel" });
+  await card.locator(".recharts-bar-rectangle").first().hover();
+  await card.screenshot({ path: `shots/hover-${mode.name}.png` });
+  return (await card.locator(".recharts-tooltip-wrapper").innerText()).split("\n");
+};
+```
+
+```sh
+npx siyahi-shots http://localhost:4173/#/data/bar-chart --script hover.mjs
+```
 
 ## siyahi-contrast
 
