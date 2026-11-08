@@ -164,6 +164,47 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.output).toContain('span "Beats the index" by 64px is cut off by an overflow: clip box');
   });
 
+  it("runs --script in every mode, prints what it returns and shoots the page as the script left it", async () => {
+    const script = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-shots-script-")), "open.mjs");
+    writeFileSync(
+      script,
+      `export default async (page, mode) => {
+        await page.getByRole("button", { name: "Show details" }).click();
+        return { mode: mode.name, text: await page.locator("p").innerText() };
+      };`,
+    );
+    const run = await shoot(
+      `<main style="padding: 16px"><h1>Details</h1>
+        <button onclick="document.querySelector('section').hidden = false">Show details</button>
+        <section hidden style="position: absolute; top: 0; height: 3000px"><p>Opened by the script</p></section></main>`,
+      GEIST_PAGE,
+      ["--script", script],
+    );
+    expect(run.status, run.output).toBe(0);
+    expect(run.output).toContain('data={"mode":"390-dark","text":"Opened by the script"}');
+    expect(run.sizesOf("1920-light")).toEqual([{ width: 1920, height: 3000 }]);
+  });
+
+  it("fails a page that throws or logs a console error", async () => {
+    const run = await shoot(
+      `<main style="padding: 16px"><h1>Broken</h1></main>
+        <script>console.error("no rows for the chart"); throw new Error("chart failed to load");</script>`,
+    );
+    expect(run.status, run.output).toBe(1);
+    expect(run.output).toContain("page error: chart failed to load");
+    expect(run.output).toContain("console error: no rows for the chart");
+  });
+
+  it("shoots only the element --select names", async () => {
+    const run = await shoot(
+      `<main style="padding: 16px"><h1>Card</h1><div id="card" style="position: absolute; top: 200px; width: 200px; height: 120px">Card</div></main>`,
+      GEIST_PAGE,
+      ["--select", "#card", "--widths", "390"],
+    );
+    expect(run.status, run.output).toBe(0);
+    expect(run.sizesOf("390-light")).toEqual([{ width: 200, height: 120 }]);
+  });
+
   // A page that names Geist and loads no font file: an app whose font CSS
   // never arrived, or a static report on report.css.
   const UNLOADED = `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`;

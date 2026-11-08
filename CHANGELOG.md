@@ -345,6 +345,12 @@ Page parts that dash and The Book built for themselves. Published as
 - Both packages publish through npm trusted publishing, with provenance: npm
   shows which commit and workflow run built each version. No npm token is
   stored anywhere.
+- `siyahi-shots --script probe.mjs` runs your Playwright steps (click, hover,
+  type) in every mode once the page is ready, prints what the script returns
+  as `data=<JSON>`, and checks and shoots the page as the script left it.
+  `--select <selector>` shoots one element, such as a card, instead of the
+  whole page. A page error or console error now fails the mode, with or
+  without a script: a page that logs a failed request no longer passes.
 
 ## 0.1.8
 

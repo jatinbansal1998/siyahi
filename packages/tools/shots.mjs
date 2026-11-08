@@ -7,6 +7,14 @@
 //
 //   siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist]
 //                [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report]
+//                [--widths 1920,390] [--script probe.mjs] [--select <selector>]
+//
+// --script names a module whose default export, async (page, mode) => data,
+// runs in every mode once the page is ready: it clicks, hovers or types with
+// Playwright's page, and whatever it returns is printed as JSON. The checks
+// and the shot then see the page as it left it. --select shoots only the
+// first element matching the selector, such as one card, not the whole page.
+// A page error or console error fails the mode, with or without a script.
 //
 // Measures only once --wait-for (by default the page's h1) is visible, two
 // animation frames have passed and the fonts are ready: a page that renders
@@ -33,6 +41,7 @@
 import { mkdirSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { chromium, errors } from "playwright";
 
@@ -54,11 +63,13 @@ const { values, positionals } = parseArgs({
     "wait-for": { type: "string", default: "h1" },
     report: { type: "boolean", default: false },
     widths: { type: "string", default: "1920,390" },
+    script: { type: "string" },
+    select: { type: "string" },
   },
 });
 if (positionals.length === 0) {
   console.error(
-    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390]",
+    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390] [--script probe.mjs] [--select <selector>]",
   );
   process.exit(2);
 }
@@ -78,6 +89,12 @@ const MODES = [...new Set(widths)].flatMap((width) =>
   })),
 );
 const minGutter = Number(values.gutter);
+/** @type {((page: import("playwright").Page, mode: Mode) => Promise<unknown>) | undefined} */
+const act = values.script && (await import(pathToFileURL(path.resolve(values.script)).href)).default;
+if (values.script && typeof act !== "function") {
+  console.error(`--script ${values.script} must export a default async function (page, mode)`);
+  process.exit(2);
+}
 const waitFor = values["wait-for"];
 mkdirSync(outDir, { recursive: true });
 
@@ -199,7 +216,7 @@ function clearShots(base) {
  * @param {import("playwright").Browser} browser
  * @param {string} url
  * @param {Mode} mode
- * @returns {Promise<{ probe: Probe, ready: boolean, height: number, files: string[] }>}
+ * @returns {Promise<{ probe: Probe, ready: boolean, height: number, files: string[], data: unknown, browserErrors: string[] }>}
  */
 async function shoot(browser, url, mode) {
   const context = await browser.newContext({
@@ -207,6 +224,12 @@ async function shoot(browser, url, mode) {
     colorScheme: mode.dark ? "dark" : "light",
   });
   const page = await context.newPage();
+  /** @type {string[]} */
+  const browserErrors = [];
+  page.on("pageerror", (error) => browserErrors.push(`page error: ${error.message}`));
+  page.on("console", (message) => {
+    if (message.type() === "error") browserErrors.push(`console error: ${message.text()} (${message.location().url})`);
+  });
   await page.goto(url, { waitUntil: "networkidle" });
   const ready = await page.waitForSelector(waitFor, { timeout: WAIT_FOR_TIMEOUT }).then(
     () => true,
@@ -216,34 +239,47 @@ async function shoot(browser, url, mode) {
     },
   );
   await page.evaluate(SETTLE);
+  const data = act && (await act(page, mode));
+  if (act) await page.evaluate(SETTLE);
   /** @type {Probe} */
   const probe = await page.evaluate(PROBE);
   const height = Math.max(probe.docHeight, mode.height);
-  await page.setViewportSize({ width: mode.width, height });
-  await page.waitForTimeout(1500);
-  await page.evaluate(SETTLE);
   const base = `${slugOf(url)}-${mode.name}`;
   clearShots(base);
-  const count = Math.ceil(height / SEGMENT_MAX);
-  const segment = Math.ceil(height / count);
   const files = [];
-  for (let i = 0; i < count; i++) {
-    const file = path.join(outDir, count === 1 ? `${base}.png` : `${base}-${i + 1}.png`);
-    const y = i * segment;
-    await page.screenshot({ path: file, clip: { x: 0, y, width: mode.width, height: Math.min(segment, height - y) } });
+  // One element needs no full-height viewport; the wait still lets charts finish animating in.
+  if (!values.select) await page.setViewportSize({ width: mode.width, height });
+  await page.waitForTimeout(1500);
+  await page.evaluate(SETTLE);
+  if (values.select) {
+    const file = path.join(outDir, `${base}.png`);
+    await page.locator(values.select).first().screenshot({ path: file, timeout: WAIT_FOR_TIMEOUT });
     files.push(file);
+  } else {
+    const count = Math.ceil(height / SEGMENT_MAX);
+    const segment = Math.ceil(height / count);
+    for (let i = 0; i < count; i++) {
+      const file = path.join(outDir, count === 1 ? `${base}.png` : `${base}-${i + 1}.png`);
+      const y = i * segment;
+      await page.screenshot({
+        path: file,
+        clip: { x: 0, y, width: mode.width, height: Math.min(segment, height - y) },
+      });
+      files.push(file);
+    }
   }
   await context.close();
-  return { probe, ready, height, files };
+  return { probe, ready, height, files, data, browserErrors };
 }
 
 /**
  * @param {Probe} p
  * @param {boolean} ready whether --wait-for appeared
+ * @param {string[]} browserErrors
  * @returns {string[]}
  */
-function problemsOf(p, ready) {
-  const problems = [];
+function problemsOf(p, ready, browserErrors) {
+  const problems = [...browserErrors];
   if (!ready) problems.push(`nothing matching ${waitFor} appeared within ${WAIT_FOR_TIMEOUT / 1000}s (--wait-for)`);
   if (p.gutterLeft !== null && p.gutterLeft < minGutter)
     problems.push(`left gutter is ${p.gutterLeft}px, under ${minGutter}px`);
@@ -264,8 +300,8 @@ const browser = await chromium.launch();
 let failed = false;
 for (const url of positionals) {
   for (const mode of MODES) {
-    const { probe, ready, height, files } = await shoot(browser, url, mode);
-    const problems = problemsOf(probe, ready);
+    const { probe, ready, height, files, data, browserErrors } = await shoot(browser, url, mode);
+    const problems = problemsOf(probe, ready, browserErrors);
     failed ||= problems.length > 0;
     const font = values.report && !probe.fontLoaded ? `${probe.font} (report, system fallback allowed)` : probe.font;
     console.log(
@@ -273,6 +309,7 @@ for (const url of positionals) {
         `overflow=${probe.overflow}/${probe.overflowWithScrollbar} clipped=${probe.clipped.length} font=${font} h1=${JSON.stringify(probe.h1)} ` +
         `height=${height} ${files.join(" ")}`,
     );
+    if (data !== undefined) console.log(`     data=${JSON.stringify(data)}`);
     for (const problem of problems) console.log(`     ${problem}`);
   }
 }
