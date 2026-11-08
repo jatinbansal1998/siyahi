@@ -89,12 +89,12 @@ async function shoot(body, style = GEIST_PAGE, flags = []) {
 }
 
 /**
- * Writes a --script module whose function runs the given statements with `page`, and returns its path.
+ * Writes a --script module whose function runs the given statements with `page` and `mode`, and returns its path.
  * @param {string} steps
  */
 function script(steps) {
   const file = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-shots-script-")), "steps.mjs");
-  writeFileSync(file, `export default async (page) => { ${steps} };`);
+  writeFileSync(file, `export default async (page, mode) => { ${steps} };`);
   return file;
 }
 
@@ -197,20 +197,16 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
   });
 
   it("runs --script in every mode, prints what it returns and shoots the page as the script left it", async () => {
-    const script = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-shots-script-")), "open.mjs");
-    writeFileSync(
-      script,
-      `export default async (page, mode) => {
-        await page.getByRole("button", { name: "Show details" }).click();
-        return { mode: mode.name, text: await page.locator("p").innerText() };
-      };`,
-    );
     const run = await shoot(
       `<main style="padding: 16px"><h1>Details</h1>
         <button onclick="document.querySelector('section').hidden = false">Show details</button>
         <section hidden style="position: absolute; top: 0; height: 3000px"><p>Opened by the script</p></section></main>`,
       GEIST_PAGE,
-      ["--script", script],
+      [
+        "--script",
+        script(`await page.getByRole("button", { name: "Show details" }).click();
+          return { mode: mode.name, text: await page.locator("p").innerText() };`),
+      ],
     );
     expect(run.status, run.output).toBe(0);
     expect(run.output).toContain('data={"mode":"390-dark","text":"Opened by the script"}');
