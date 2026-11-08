@@ -213,6 +213,23 @@ function clearShots(base) {
 }
 
 /**
+ * Grows the viewport to the page's height and waits for charts to redraw at it. Called before --script and again
+ * after it, so nothing resizes or scrolls once the script has run: a hover or tooltip it leaves stays in the shot.
+ * The viewport never shrinks, as that would move a fixed bar out from under the pointer.
+ * @param {import("playwright").Page} page
+ * @param {Mode} mode
+ * @returns {Promise<number>} the viewport's height
+ */
+async function fitToPage(page, mode) {
+  const current = page.viewportSize()?.height ?? mode.height;
+  const height = Math.max(await page.evaluate(() => document.documentElement.scrollHeight), current);
+  if (height > current) await page.setViewportSize({ width: mode.width, height });
+  await page.waitForTimeout(1500);
+  await page.evaluate(SETTLE);
+  return height;
+}
+
+/**
  * @param {import("playwright").Browser} browser
  * @param {string} url
  * @param {Mode} mode
@@ -239,21 +256,21 @@ async function shoot(browser, url, mode) {
     },
   );
   await page.evaluate(SETTLE);
+  let height = await fitToPage(page, mode);
   const data = act && (await act(page, mode));
-  if (act) await page.evaluate(SETTLE);
+  if (act) height = await fitToPage(page, mode);
   /** @type {Probe} */
   const probe = await page.evaluate(PROBE);
-  const height = Math.max(probe.docHeight, mode.height);
   const base = `${slugOf(url)}-${mode.name}`;
   clearShots(base);
   const files = [];
-  // One element needs no full-height viewport; the wait still lets charts finish animating in.
-  if (!values.select) await page.setViewportSize({ width: mode.width, height });
-  await page.waitForTimeout(1500);
-  await page.evaluate(SETTLE);
   if (values.select) {
+    // A clip of the full-height page: a locator's own screenshot scrolls the element into place first.
+    await page.locator(values.select).first().waitFor({ timeout: WAIT_FOR_TIMEOUT });
+    const box = await page.locator(values.select).first().boundingBox();
+    if (!box) throw new Error(`--select ${values.select} matched an element that is not drawn`);
     const file = path.join(outDir, `${base}.png`);
-    await page.locator(values.select).first().screenshot({ path: file, timeout: WAIT_FOR_TIMEOUT });
+    await page.screenshot({ path: file, clip: box });
     files.push(file);
   } else {
     const count = Math.ceil(height / SEGMENT_MAX);
