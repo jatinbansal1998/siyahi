@@ -204,7 +204,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
       "var(--positive)",
       "var(--negative)",
     ]);
-    expect(await bars.nth(2).getAttribute("fill")).toBe("color-mix(in oklab, var(--negative) 35%, var(--card))");
+    expect(await bars.nth(2).getAttribute("fill")).toBe("color-mix(in oklab, var(--negative) 25%, var(--card))");
     const { x, y } = await center(bars.nth(2));
     await tooltipAt(chart, x, y, "FY24");
     const swatch = chart.locator(".recharts-tooltip-wrapper span").first();
@@ -219,7 +219,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     // A faded bar's interior mixes further toward the card; its outline stays at full colour, so it keeps 3:1.
     const faded = async () => {
       await settled(bars);
-      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("fill") ?? "").includes(" 15%")));
+      return bars.evaluateAll((els) => els.map((el) => (el.getAttribute("fill") ?? "").includes(" 10%")));
     };
     const none = [false, false, false, false, false];
     expect(await faded()).toEqual(none);
@@ -247,7 +247,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await expect.poll(() => chart.locator('[data-slot="card-description"]').innerText()).toContain("FY24 picked");
     await page.mouse.click(x, grid.y + 2);
     await expect
-      .poll(() => bars.evaluateAll((els) => els.some((el) => (el.getAttribute("fill") ?? "").includes(" 15%"))))
+      .poll(() => bars.evaluateAll((els) => els.some((el) => (el.getAttribute("fill") ?? "").includes(" 10%"))))
       .toBe(false);
   });
 });
