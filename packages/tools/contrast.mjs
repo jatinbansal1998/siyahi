@@ -104,23 +104,25 @@ const PAIRS = [
   // A StatusHeatmap's degraded and critical days against a healthy one, its
   // default 30% grey, so a bad day stands out of a run of good ones.
   ...["warning", "destructive"].map((fg) => ({ fg, bg: "muted-foreground/30", min: MARK })),
-  // An exception the page marks (lib: siyahi.css, --wash). A stat tile mixes
-  // its tone into the card, opaque (`@wash`): its label, figure and muted
-  // lines, its footer band over the wash, its badge's Delta icon and its
-  // Sparkline (chart-1, or positive or negative for a run of gains or losses,
-  // as the SectionCards rule says). A table row lays its tone over what is under
-  // it (`/wash`): its text, a Delta icon, a DataBar and a StatusBadge's dot on
-  // its own wash.
-  ...["negative", "warning"].flatMap((tone) => [
-    ...[`${tone}@wash`, `${tone}/wash`].flatMap((wash) => [
-      { fg: "foreground", bg: wash, min: TEXT },
-      { fg: "muted-foreground", bg: wash, min: TEXT },
-      { fg: "positive", bg: wash, min: MARK },
-      { fg: "negative", bg: wash, min: MARK },
-      { fg: "chart-1", bg: wash, min: MARK },
-    ]),
-    { fg: "muted-foreground", bg: [`${tone}@wash`, "muted/50"], min: TEXT },
+  // An exception the page marks, washed in its tone at the theme's --wash. A
+  // stat tile mixes the tone into the card, opaque (`@wash`); a table row lays
+  // it over what is under it (`/wash`). On either: text, muted lines, a Delta
+  // icon and --chart-1 (a tile's Sparkline, a row's DataBar; a run of gains or
+  // losses takes --positive or --negative, as the SectionCards rule says). A
+  // tile's footer band sits over its wash, and a StatusBadge's dot on its own
+  // wash over a row's.
+  ...["negative@wash", "negative/wash", "warning@wash", "warning/wash"].flatMap((wash) => [
+    { fg: "foreground", bg: wash, min: TEXT },
+    { fg: "muted-foreground", bg: wash, min: TEXT },
+    { fg: "positive", bg: wash, min: MARK },
+    { fg: "negative", bg: wash, min: MARK },
+    { fg: "chart-1", bg: wash, min: MARK },
   ]),
+  ...["negative", "warning"].map((tone) => ({
+    fg: "muted-foreground",
+    bg: [`${tone}@wash`, "muted/50"],
+    min: TEXT,
+  })),
   ...[
     ["negative", ["negative/wash", "negative/8"]],
     ["warning", ["warning/wash", "warning/10"]],

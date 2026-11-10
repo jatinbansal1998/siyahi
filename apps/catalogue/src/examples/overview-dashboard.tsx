@@ -83,8 +83,8 @@ function Holdings({ rows }: { rows: Holding[] }) {
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-muted-foreground">
-                  No holding matches the search.
+                <TableCell colSpan={4}>
+                  <span className="text-muted-foreground">No holding matches the search.</span>
                 </TableCell>
               </TableRow>
             )}

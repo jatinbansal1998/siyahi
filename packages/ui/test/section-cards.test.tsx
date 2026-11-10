@@ -26,17 +26,17 @@ describe("SectionCards", () => {
   // The theme washes a card by its data-tone; a falling figure alone must not mark it, only the page's tone.
   it("sets tiles 8px apart on a card surface and 16px apart on an open one", async () => {
     const gaps: Record<string, string | undefined> = {};
-    for (const surface of ["card", "open"] satisfies Surface[]) {
+    for (const pick of ["card", "open"] satisfies Surface[]) {
       root = createRoot(document.body.appendChild(document.createElement("div")));
       await act(async () =>
         root?.render(
-          <SiyahiProvider surface={surface}>
+          <SiyahiProvider surface={pick}>
             <SectionCards items={[{ label: "Invested", value: "₹40,25,000" }]} />
           </SiyahiProvider>,
         ),
       );
       const grid = document.querySelector('[data-slot="section-card"]')?.parentElement;
-      gaps[surface] = grid?.className.split(/\s+/).find((token) => token.startsWith("gap-"));
+      gaps[pick] = grid?.className.split(/\s+/).find((token) => token.startsWith("gap-"));
       await act(async () => root?.unmount());
       document.body.replaceChildren();
     }
