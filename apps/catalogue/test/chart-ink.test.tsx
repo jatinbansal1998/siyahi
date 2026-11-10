@@ -28,12 +28,16 @@ const open = async (route: string, title: string): Promise<Locator> => {
 const card = (scope: Locator, title: string): Locator =>
   scope.locator('[data-slot="card"]', { has: page.locator('[data-slot="card-title"]', { hasText: title }) });
 
-const names = (chart: Locator): Promise<string[]> => chart.locator('[data-slot="end-labels"] text').allTextContents();
+const endNames = (chart: Locator): Promise<string[]> =>
+  chart.locator('[data-slot="end-labels"] text').allTextContents();
+
+/** An element's fade-in: its animation's name and delay. */
+const timing = (el: Element): string[] => [getComputedStyle(el).animationName, getComputedStyle(el).animationDelay];
 
 describe("chart ink", { timeout: 60_000 }, () => {
   it("names each line at its end in a gutter, spread 14px apart where ends crowd, with no legend", async () => {
     const funds = card(await open("data/chart-panels", "Chart panels"), "Growth by fund");
-    await expect.poll(() => names(funds)).toEqual(["Gold", "Nifty 50", "Flexi cap", "Debt", "Small cap"]);
+    await expect.poll(() => endNames(funds)).toEqual(["Gold", "Nifty 50", "Flexi cap", "Debt", "Small cap"]);
     expect(await funds.locator(".recharts-legend-wrapper").count()).toBe(0);
     const ys = await funds
       .locator('[data-slot="end-labels"] text')
@@ -58,7 +62,7 @@ describe("chart ink", { timeout: 60_000 }, () => {
 
   it("draws quiet series first in grey and gives them one shared name", async () => {
     const funds = card(await open("data/many-series", "Many series"), "Growth by fund");
-    await expect.poll(() => names(funds)).toEqual(["Gold", "Nifty 50", "6 other funds"]);
+    await expect.poll(() => endNames(funds)).toEqual(["Gold", "Nifty 50", "6 other funds"]);
     const strokes = await funds
       .locator(".recharts-line:not(.chart-forecast) .recharts-line-curve")
       .evaluateAll((paths) => paths.map((path) => path.getAttribute("stroke")));
@@ -67,7 +71,8 @@ describe("chart ink", { timeout: 60_000 }, () => {
 
   it("dashes a forecast after its point over a hatched band, hollows its end dots and rules today in the link colour", async () => {
     const chart = card(await open("data/forecast-and-today", "Forecast and today"), "Growth against plan");
-    const forecast = chart.locator(".recharts-line.chart-forecast .recharts-line-curve");
+    // The dashed copies; each sits on a card-coloured halo copy of its own.
+    const forecast = chart.locator('.recharts-line.chart-forecast .recharts-line-curve:not([stroke="var(--card)"])');
     await expect.poll(() => forecast.count()).toBe(2);
     // Recharts animates the dash while a line draws in; once drawn, the forecast copy keeps its own.
     await expect.poll(() => forecast.first().getAttribute("stroke-dasharray")).toMatch(/^5(px)?,? 4(px)?/);
@@ -110,7 +115,7 @@ describe("chart ink", { timeout: 60_000 }, () => {
       path.getAttribute("stroke-width"),
     ]);
     expect([fill, stroke, width]).toEqual([
-      "color-mix(in oklab, var(--chart-1) 35%, var(--card))",
+      "color-mix(in oklab, var(--chart-1) 25%, var(--card))",
       "var(--chart-1)",
       "1",
     ]);
@@ -120,6 +125,42 @@ describe("chart ink", { timeout: 60_000 }, () => {
         .first()
         .evaluate((g) => getComputedStyle(g).animationName),
     ).toBe("chart-fade-in");
+  });
+
+  it("fades a line chart's names in after its lines draw, bars at once, and nothing under reduced motion", async () => {
+    const panels = await open("data/chart-panels", "Chart panels");
+    const names = card(panels, "Growth by fund").locator('[data-slot="end-labels"]');
+    await names.waitFor();
+    expect(await names.evaluate(timing)).toEqual(["chart-fade-in", "1.1s"]);
+    const bars = card(panels, "Money added by kind and quarter").first().locator(".recharts-bar-rectangles").first();
+    expect(await bars.evaluate(timing)).toEqual(["chart-fade-in", "0s"]);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    try {
+      expect((await names.evaluate(timing))[0]).toBe("none");
+      expect((await bars.evaluate(timing))[0]).toBe("none");
+    } finally {
+      await page.emulateMedia({ reducedMotion: null });
+    }
+  });
+
+  it("lays a forecast's dashed lines and its labels on card-coloured halos over the hatching", async () => {
+    const chart = card(await open("data/forecast-and-today", "Forecast and today"), "Growth against plan");
+    const halos = chart.locator('.recharts-line.chart-forecast .recharts-line-curve[stroke="var(--card)"]');
+    await expect.poll(() => halos.count()).toBe(2);
+    const labels = await chart
+      .locator('[data-slot="time-marks"] text')
+      .evaluateAll((texts) => texts.map((text) => [getComputedStyle(text).paintOrder, getComputedStyle(text).stroke]));
+    const cardColor = await chart.evaluate(() => {
+      const probe = document.body.appendChild(document.createElement("div"));
+      probe.style.color = "var(--card)";
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    });
+    expect(labels).toEqual([
+      ["stroke", cardColor],
+      ["stroke", cardColor],
+    ]);
   });
 
   it("greys a block the page marks stale and says since when", async () => {

@@ -1,6 +1,8 @@
 import {
+  useEffect,
   useId,
   useMemo,
+  useState,
   type ComponentProps,
   type CSSProperties,
   type ReactElement,
@@ -52,7 +54,15 @@ import type {
   SeriesChartProps,
   ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series";
-import { EndLabels, QUIET, TimeMarks, endLabelRoom, othersName } from "@siyahi/ui/lib/chart-marks";
+import {
+  EndLabels,
+  QUIET,
+  TimeMarks,
+  endLabelRoom,
+  endLabelsFit,
+  endNames,
+  othersName,
+} from "@siyahi/ui/lib/chart-marks";
 import { fitsLog, logAxis } from "@siyahi/ui/lib/ticks";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
@@ -63,15 +73,26 @@ const TICK = { className: "fill-muted-foreground font-mono" };
 const NO_LINES: readonly ChartReferenceLine[] = [];
 // Five series' names do not fit one line on a phone; they wrap rather than run past the card.
 const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
-// Below this width the names at the line ends would take too much of the plot, so a legend goes under it instead.
-const END_LABELS_MIN_WIDTH = 400;
 
 /**
  * A bar's fill: a tint of its colour, inside a 1px edge of the full colour the bar is drawn with. A selection dims
  * the bars it leaves out to a fainter tint; their edges stay, so they keep 3:1 against the card.
  */
 export function barFill(color: string, dim = false): string {
-  return `color-mix(in oklab, ${color} ${dim ? 15 : 35}%, var(--card))`;
+  return `color-mix(in oklab, ${color} ${dim ? 10 : 25}%, var(--card))`;
+}
+
+/** Renders the component again once the page's fonts load, so text measured on a canvas is measured in Geist. */
+function useRenderWhenFontsLoad(): void {
+  const [loaded, setLoaded] = useState(() => typeof document === "undefined" || document.fonts?.status === "loaded");
+  useEffect(() => {
+    if (loaded || !document.fonts) return;
+    let live = true;
+    void document.fonts.ready.then(() => live && setLoaded(true));
+    return () => {
+      live = false;
+    };
+  }, [loaded]);
 }
 
 /** The legend when some series are quiet: the named ones, then one muted name for the rest, "6 other funds". */
@@ -382,8 +403,13 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const { numberLocale } = useLocale();
   const clipId = useId();
   const [contentRef, contentWidth] = useElementWidth<HTMLDivElement>();
-  const labelRoom = endLabels ? endLabelRoom(series, othersLabel) : 0;
-  const ends = endLabels && contentWidth >= END_LABELS_MIN_WIDTH && labelRoom <= contentWidth * 0.3;
+  // The names are measured as drawn, again once Geist has loaded: the fallback's widths are not Geist's.
+  useRenderWhenFontsLoad();
+  const names = endLabels ? endNames(series, othersLabel) : [];
+  const labelRoom = endLabels ? endLabelRoom(names) : 0;
+  // The plot's height under the card's top margin and the x axis: the names must fit it 14px apart.
+  const plotHeight = height - 12 - (xTickDetail ? 40 : 30) - (xLabel ? 18 : 0);
+  const ends = endLabels && endLabelsFit(names, contentWidth, plotHeight);
   const quiet = series.some(({ color }) => color === QUIET);
   const formatValue = useMemo(
     () => valueFormatter ?? new Intl.NumberFormat(numberLocale).format,

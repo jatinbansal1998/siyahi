@@ -58,7 +58,10 @@ export function AreaChartCard<T extends object, K extends keyof T>({
   curve = "monotone",
   ...props
 }: AreaChartCardProps<T, K>) {
-  const forecast = !stacked && props.forecastFrom !== undefined
+  // Past forecastFrom the end is a forecast: its dot is hollow. Only overlapping series also dash, over a card
+  // halo; a stack keeps solid edges, since a dashed copy of a band would stack twice.
+  const forecastEnd = props.forecastFrom !== undefined
+  const forecast = !stacked && forecastEnd
   const count = props.data.length
   return (
     <ChartFrame
@@ -80,11 +83,27 @@ export function AreaChartCard<T extends object, K extends keyof T>({
               stroke={color}
               strokeWidth={2}
               // With a forecast the end is a forecast: only the dashed copy marks it, hollow.
-              dot={quiet || forecast ? false : endDot(color, count)}
+              dot={quiet || forecast ? false : endDot(color, count, forecastEnd)}
               stackId={stacked ? "stack" : undefined}
               className={forecast ? "chart-actual" : undefined}
               animationDuration={1300}
             />
+            {forecast && (
+              // A card-coloured halo under the dashed line, so the forecast's hatching never runs beside it.
+              <Area
+                dataKey={key}
+                type={curve}
+                fill="none"
+                stroke="var(--card)"
+                strokeWidth={6}
+                dot={false}
+                activeDot={false}
+                tooltipType="none"
+                legendType="none"
+                className="chart-forecast"
+                animationDuration={1300}
+              />
+            )}
             {forecast && (
               <Area
                 dataKey={key}

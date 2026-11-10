@@ -125,12 +125,13 @@ the actions at the right, and a hairline under it. One per page; no hero card.
   hatches the stretch faintly, labels it FORECAST and hollows the end dots;
   `today` is a 1px rule in the link colour, labelled TODAY.
 - Gridlines are solid hairlines. Lines draw in left to right over 1.3s on
-  first draw, then bars, dots and names fade in; reduced motion shows them at
-  once.
+  first draw, then the names and a stack's fills fade in, and each end dot as
+  its line finishes; bars fade in rather than grow. Reduced motion shows them
+  at once.
 - **Stale data is marked by the page**: `stale` on a chart card or a
-  `SectionCards` tile, with since when ("3 Nov"). The block greys, its marks
-  fade, a tile's figure and badge turn muted, and a small "Stale · 3 Nov" note
-  says so. Text keeps its contrast. Never infer it from dates.
+  `SectionCards` tile, with since when ("3 Nov"). The block greys, a tile's figure and badge turn muted, and a small "Stale · 3
+  Nov" note says so. Marks and text keep their contrast: the marks lose their
+  colour, not their lightness. Never infer it from dates.
 
 ## Tables
 

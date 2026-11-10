@@ -69,8 +69,9 @@ describe("contrast check", () => {
   });
 
   it("fails a waterfall bar whose loss edge no longer stands out from its own tint", () => {
-    const broken = setVar(themeCss, "light", "negative", "oklch(0.6 0.2 27)");
-    expect(named(broken)).toContain("light --negative on --negative 35% in --card");
+    // A paler loss red, whose 25% tint comes too close to the edge drawn round it.
+    const broken = setVar(themeCss, "light", "negative", "oklch(0.66 0.18 27)");
+    expect(named(broken)).toContain("light --negative on --negative 25% in --card");
   });
 
   it("starts dark mode's heat at a quarter tint, so the first step does not read as the card", () => {
@@ -178,7 +179,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 302\/302 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 292\/292 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

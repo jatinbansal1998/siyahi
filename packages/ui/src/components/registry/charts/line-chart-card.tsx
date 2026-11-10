@@ -18,7 +18,8 @@
 // Siyahi edit: each series is named at its line's end instead of in a legend
 // (lib/chart-marks), where the card is wide enough; quiet series (muted) draw
 // first and share one name. A forecast stretch (forecastFrom) dashes each line
-// after it, with a hollow end dot; today gets a rule. Lines draw in over 1.3s.
+// after it over a card-coloured halo, with a hollow end dot; today gets a
+// rule. Lines draw in over 1.3s.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 "use client"
 
@@ -67,6 +68,21 @@ export function LineChartCard<T extends object, K extends keyof T>({
               className={forecast ? "chart-actual" : undefined}
               animationDuration={1300}
             />
+            {forecast && (
+              // A card-coloured halo under the dashed line, so the forecast's hatching never runs beside it.
+              <Line
+                dataKey={key}
+                type={curve}
+                stroke="var(--card)"
+                strokeWidth={6}
+                dot={false}
+                activeDot={false}
+                tooltipType="none"
+                legendType="none"
+                className="chart-forecast"
+                animationDuration={1300}
+              />
+            )}
             {forecast && (
               <Line
                 dataKey={key}

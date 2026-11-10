@@ -10,10 +10,12 @@
   with hollow end dots; new `today` draws a 1px rule in the link colour.
   Overlapping areas have no fill (they had a gradient on the first series); a
   stack's bands are a flat 25% tint. Gridlines are solid. Every bar,
-  `HistogramChart`'s and `WaterfallChart`'s totals included, is a 35% tint
+  `HistogramChart`'s and `WaterfallChart`'s totals included, is a 25% tint
   inside a 1px edge of its colour, square, fading in rather than growing; a
-  selection dims the others to a 15% tint (was a 55% mix). Lines draw in over
-  1.3s, then dots and names fade in.
+  selection dims the others to a 10% tint (was a 55% mix). Lines draw in over
+  1.3s, then the names and a stack's fills fade in; reduced motion shows all
+  at once. A forecast's dashed lines and its labels sit on card-coloured
+  halos over the hatching.
 - Stale data: `stale` (since when, such as "3 Nov") on any chart card and on a
   `SectionCards` item greys the block, mutes a tile's figure
   and badge, and shows a boxed "Stale · 3 Nov" note; `StaleNote` is exported for

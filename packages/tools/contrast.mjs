@@ -136,12 +136,11 @@ const PAIRS = [
     ["negative", ["negative/wash", "negative/8"]],
     ["warning", ["warning/wash", "warning/10"]],
   ].map(([fg, bg]) => ({ fg: String(fg), bg: /** @type {Paint[]} */ (bg), min: MARK })),
-  // A chart's forecast stretch is hatched with 1px lines of the text colour at
-  // 16%, 7px apart (lib/chart-marks): about a seventh of the band, so on
-  // average a 2.3% wash. Its FORECAST label and the dashed lines that cross
-  // it, against that wash.
-  { fg: "muted-foreground", bg: "foreground/2.3", min: TEXT, surface: "card" },
-  ...[...CHARTS, "muted-foreground"].map((fg) => ({ fg, bg: "foreground/2.3", min: MARK, surface: "card" })),
+  // A chart's forecast stretch is hatched with 1px stripes of the text colour
+  // at 16% (lib/chart-marks). Its dashed lines and its FORECAST and TODAY
+  // labels sit on card-coloured halos, so no stripe runs beside them; the
+  // today rule in the link colour does meet the stripes.
+  { fg: "link", bg: "foreground/16", min: MARK, surface: "card" },
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A dimmed bar keeps its full colour
@@ -151,7 +150,7 @@ const PAIRS = [
   // A waterfall's rise and fall: the full-colour edge against the tint it
   // encloses, on the bar and its legend chip; and every bar colour against the
   // 40% muted band a chart card lays behind a hovered category (lib/chart-frame).
-  ...["positive", "negative"].map((side) => ({ fg: side, bg: `${side}@35`, min: MARK })),
+  ...["positive", "negative"].map((side) => ({ fg: side, bg: `${side}@25`, min: MARK })),
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "muted/40", min: MARK, surface: "card" })),
   // A chart card's footer text, on the footer's muted wash.
   { fg: "foreground", bg: "muted/50", min: TEXT },
