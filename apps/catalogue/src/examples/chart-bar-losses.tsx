@@ -17,7 +17,7 @@ export default function ChartBarLossesExample() {
   return (
     <BarChartCard
       title="Operating loss by financial year"
-      description="A loss every year, so every bar runs down from zero"
+      description="Financial years end in March. A loss every year, so every bar runs down from zero."
       data={data}
       xKey="fy"
       series={series}

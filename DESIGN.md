@@ -105,8 +105,10 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 A page is read by someone who acts on its figures. Its words are plain English,
 in sentence case, and explain themselves: a reader needs no other page to know
 what a figure is, where it came from and what to do next. These rules bind what
-a page's reader sees; the catalogue's own notes (a family's lead, rules and
-captions) teach the package and may name its components. Each rule's example is
+a page's reader sees. The catalogue's own notes (a family's lead, rules and
+captions) and the demos of a single component's variants or states (a button's
+variants, a disabled field) teach the package and are exempt; an example built
+as a page, a card or a dashboard is bound like any app. Each rule's example is
 from the catalogue.
 
 - **A title states the finding** when the block makes one point: "Search is
@@ -118,8 +120,9 @@ from the catalogue.
 - **A description says what the figures are**: the measure, its scope and
   period, how it was counted, whatever the title left out. A single fragment
   takes no full stop: "Each month's revenue against its target". Once there are
-  two parts, each ends with one: "April to March, before tax. Click a year to
-  pick it." Page copy never names a component, a token or a prop.
+  two parts, each ends with one: "Each week's balance against the highest it
+  had been so far. At zero the bakery was at a new high." Page copy never names
+  a component, a token or a prop.
 - **Explain what the reader cannot guess.** Say how to read a mark that is not
   obvious ("Money in above the line, money out below it"), and define a term
   on first use, in the description, a tooltip or a popover: "Churn counts
@@ -150,8 +153,9 @@ from the catalogue.
   day before month: "20 Oct 2026, 14:30 IST". Every block says its time zone
   once, on its axis title, its description or each time: "Hour of day (IST)". A
   period is in words, "Last 30 days", "April to March"; a financial year is
-  "FY26", with the block saying when its year runs. A tooltip's heading says
-  more than the tick under it: "Week ending 1 Nov 2026" against "Nov".
+  "FY26", with the block saying when it ends: "FY26 ends in March 2026". A
+  tooltip's heading says more than the tick under it: "Week ending 1 Nov 2026"
+  against "Nov".
 - **A status names a state, not a task**, in a few words that match its tone:
   "Paid", "Out for delivery", "Needs review".
 - **The components write the chart and staleness notes**: FORECAST, TODAY and

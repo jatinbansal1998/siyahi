@@ -31,7 +31,8 @@ export default function ChangeGridExample() {
       <CardHeader>
         <CardTitle>Sales growth by month</CardTitle>
         <CardDescription>
-          Each month against the one before. Deeper tints are larger changes; the year compounds its months.
+          Each month against the one before, by financial year; FY26 ends in March 2026. Deeper tints are larger
+          changes; the year compounds its months.
         </CardDescription>
       </CardHeader>
       <CardContent>
