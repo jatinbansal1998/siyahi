@@ -55,13 +55,18 @@ a meaning:
 `SiyahiProvider`'s `surface` sets how a data block sits on the page. The page
 and card colours are fixed: never tint the canvas.
 
-- **`card`** (the default): tight square cards. Each block is filled with the
-  card colour inside a hairline ring, with no shadow, 8px from the next in a
-  `PanelGrid` or a row of `SectionCards`.
-- **`ruled`**: ruled on white. The blocks of a `PanelGrid` and the tiles of a
-  `SectionCards` row are filled with the card colour and parted by hairlines,
+- **`ruled`** (the default, with or without a provider): ruled on white. The
+  blocks of a `PanelGrid`, the tiles of a `SectionCards` row and the figures
+  of a `MetricStrip` are filled with the card colour and parted by hairlines,
   with a rule above and below the group and none on its left and right edges.
-  A stat tile keeps its footer's top rule and faint band.
+  A card standing alone (a `MetricStrip`, a table's card) takes the same rules
+  above and below itself. A short last row ends in a blank cell, ruled off
+  like the rest. A stat tile keeps its footer's top rule and faint band. Set
+  nothing to get it.
+- **`card`**: tight square cards, for a page of separate blocks, such as an
+  index of links. Each block is filled with the card colour inside a hairline
+  ring, with no shadow, 8px from the next in a `PanelGrid` or a row of
+  `SectionCards`. Ask for it with `surface="card"`.
 - **`open`**: no fill, no lines and no padding, so a block sits level with the
   page's text, for pages read top to bottom.
 

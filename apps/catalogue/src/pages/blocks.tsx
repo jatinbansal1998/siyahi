@@ -69,7 +69,7 @@ export const blocks: Page = {
         { name: "section-cards", caption: "Five headline figures, each with a Delta badge and two footer lines." },
         {
           name: "section-cards-select",
-          caption: "Tiles as a picker of sales channels on a ruled surface; an empty channel is disabled.",
+          caption: "Tiles as a picker of sales channels; an empty channel is disabled.",
         },
         {
           name: "section-cards-trend",

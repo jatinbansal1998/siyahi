@@ -4,12 +4,16 @@
 
 - Siyahi's own look replaces stock shadcn's. Every corner is square
   (`--radius` is 0) and hairlines are a step firmer (`--border` is the text
-  colour at 18% in light, white at 20% in dark). `surface="card"` is tight
-  square cards: filled, a hairline ring, no shadow, 8px apart in `PanelGrid`
-  and `SectionCards`. `surface="ruled"` is ruled on white: blocks and tiles
-  are filled with the card colour and parted by hairlines, with rules above and
-  below and none on the sides, and a stat tile keeps its footer's rule and
-  band. The rounded, shadowed card and the unfilled ruled page are gone.
+  colour at 18% in light, white at 20% in dark). `surface="ruled"` is the
+  default again (it was `card`), and is ruled on white: blocks, tiles and a
+  `MetricStrip`'s figures are filled with the card colour and parted by
+  hairlines, with rules above and below each group and none on the sides; a
+  card standing alone takes the same rules above and below itself; a short
+  last row ends in a blank cell ruled off like the rest; and a stat tile keeps
+  its footer's rule and band. `surface="card"` is tight square cards, for a
+  page of separate blocks: filled, a hairline ring, no shadow, 8px apart in
+  `PanelGrid` and `SectionCards`. The rounded, shadowed card and the unfilled
+  ruled page are gone.
 - Labels over figures are small monospaced capitals: `SectionCards` labels and
   footer lines, `MetricStrip` labels and every table's column heads (a new
   `text-2xs` size, 11px). A `TableFooter` total sits between a rule and a

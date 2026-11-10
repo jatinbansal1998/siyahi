@@ -450,10 +450,11 @@
 }
 
 /*
- * A data table inside a card drops its own border, so there is one frame,
- * not two.
+ * A data table inside a card drops its own border: the card's ring or the
+ * ruled page's hairlines already frame it. On an open page, with no frame,
+ * it keeps its border.
  */
-@scope (:root, [data-surface="card"]) to ([data-surface="ruled"], [data-surface="open"]) {
+@scope (:root, [data-surface="ruled"], [data-surface="card"]) to ([data-surface="open"]) {
   [data-slot="card"] [data-slot="table-container"] {
     border-color: transparent;
   }
@@ -527,15 +528,17 @@
 }
 
 /*
- * Surfaces, from SiyahiProvider's surface prop. Card, the default, is a
- * filled square card with a hairline ring and no shadow, 8px from the next.
- * Ruled keeps every card's fill and drops its ring: PanelGrid and SectionCards
- * fill their panels with the card colour and draw hairlines between them,
- * with a rule above and below the group and none on its left and right edges.
- * Open takes the box off every core Card: no fill, no ring, no tinted footer
- * band, and no padding, so a block's content sits level with the page's text.
- * Each scope stops at a provider that says otherwise. Unlayered, like the
- * rules above, to outrank the core components' utility classes; a picked
+ * Surfaces, from SiyahiProvider's surface prop. Ruled, the default, keeps
+ * every card's fill and drops its ring: PanelGrid and SectionCards fill their
+ * grid with the card colour and draw hairlines between the blocks, with a rule
+ * above and below the group and none on its left and right edges, and a card
+ * that stands alone, such as a MetricStrip or a table's card, takes those
+ * rules above and below itself. Card is a filled square card with a hairline
+ * ring and no shadow, 8px from the next, for a page of separate blocks. Open
+ * takes the box off every core Card: no fill, no ring, no tinted footer band,
+ * and no padding, so a block's content sits level with the page's text. Each
+ * scope stops at a provider that says otherwise. Unlayered, like the rules
+ * above, to outrank the core components' utility classes; a picked
  * SectionCards tile keeps its ring, which is important, and an exception
  * keeps its outline, which is more specific.
  */
@@ -543,9 +546,13 @@
   --tw-ring-color: var(--border);
 }
 
-@scope ([data-surface="ruled"]) to ([data-surface="card"], [data-surface="open"]) {
+@scope (:root, [data-surface="ruled"]) to ([data-surface="card"], [data-surface="open"]) {
   [data-slot="card"] {
     --tw-ring-color: transparent;
+  }
+  /* A card inside a panel or a tile's cell, or nested in another card, is ruled by what holds it. */
+  [data-slot="card"]:not(:is([data-slot="panel"], [data-slot="section-card"], [data-slot="card"]) [data-slot="card"]) {
+    border-block: 1px solid var(--border);
   }
 }
 

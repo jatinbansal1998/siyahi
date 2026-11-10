@@ -1,4 +1,4 @@
-import { Delta, SectionCards, SiyahiProvider, useFormat, type SectionCard } from "@siyahi/ui";
+import { Delta, SectionCards, useFormat, type SectionCard } from "@siyahi/ui";
 import { useState } from "react";
 
 // Each sales channel's profit this quarter and its orders; made-up figures.
@@ -20,12 +20,9 @@ export default function SectionCardsSelectExample() {
     disabled: c.orders === 0,
   }));
   return (
-    // On a ruled surface the tiles part with hairlines, as on a dense operations screen, instead of sitting as cards.
-    <SiyahiProvider surface="ruled">
-      <div className="flex flex-col gap-3">
-        <SectionCards items={items} selected={scope} onSelect={setScope} />
-        <p className="text-sm text-muted-foreground">Showing {scope}</p>
-      </div>
-    </SiyahiProvider>
+    <div className="flex flex-col gap-3">
+      <SectionCards items={items} selected={scope} onSelect={setScope} />
+      <p className="text-sm text-muted-foreground">Showing {scope}</p>
+    </div>
   );
 }

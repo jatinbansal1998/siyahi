@@ -230,13 +230,13 @@ export const foundations: Page = {
         {
           name: "surface",
           type: '"card" | "ruled" | "open"',
-          default: '"card"',
+          default: '"ruled"',
           purpose: "Set on a nested provider for one part of a page; left out, a provider keeps the surface around it.",
         },
       ],
       rules: [
-        "card, the default, is tight square cards: each block filled with the card colour inside a hairline, 8px from the next, with no shadow.",
-        "ruled is ruled on white: the blocks of a PanelGrid or a row of SectionCards are filled with the card colour and parted by hairlines, with a rule above and below the group and none on its left and right edges. No boxes, no wasted gaps, and the data still stands off the page.",
+        "ruled, the default with or without a provider, is ruled on white: the blocks of a PanelGrid, a row of SectionCards and a MetricStrip's figures are filled with the card colour and parted by hairlines, with a rule above and below the group and none on its left and right edges; a card standing alone takes the same rules. No boxes, no wasted gaps, and the data still stands off the page.",
+        "card is tight square cards, for a page of separate blocks such as an index of links: each block filled with the card colour inside a hairline, 8px from the next, with no shadow.",
         "open drops the fill and the lines, and the card's padding, so a block's content sits level with the page's text, for pages read top to bottom.",
         "Every PanelGrid numbers its blocks' titles 01, 02 in the mono face and the link colour, on every surface.",
         "A picked SectionCards tile keeps its ring on every surface.",
@@ -244,7 +244,8 @@ export const foundations: Page = {
       examples: [
         {
           name: "surfaces",
-          caption: "A toggle switching one set of figures, a chart and a table between card, ruled and open.",
+          caption:
+            "A toggle switching one set of figures, a chart and a table between ruled (the default), card and open.",
         },
       ],
     },

@@ -100,10 +100,17 @@ and support one keyboard entry with arrow navigation. `WeekdayHeatmap` accepts
 
 `SiyahiProvider` sets how data blocks sit on the page:
 
-- `surface="card"` (default, even outside a provider): each block is a card
-  lifted off a faintly tinted canvas.
-- `surface="ruled"`: unboxed blocks; `PanelGrid` draws hairlines between them.
-- `surface="open"`: no boxes or rules; card padding is removed.
+- `surface="ruled"` (default, even outside a provider): ruled on white.
+  `PanelGrid`, `SectionCards` and `MetricStrip` fill their blocks with the card
+  colour and part them with hairlines, with a rule above and below each group
+  and none on the sides; a card standing alone takes the rules above and below
+  itself.
+- `surface="card"`: tight square cards, each filled inside a hairline, 8px
+  apart, no shadow, for a page of separate blocks.
+- `surface="open"`: no fill, boxes or rules; card padding is removed.
+
+`DESIGN.md` has the rest of the look: square corners, mono capital labels,
+ledger totals, the masthead and exception tones.
 
 Nest a provider to change one section. Stack `PageSection` blocks with
 `flex flex-col gap-6`; use `PanelGrid` for blocks side by side. Categories use

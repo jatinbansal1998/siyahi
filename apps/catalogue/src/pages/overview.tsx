@@ -5,7 +5,7 @@ import PageHeroExample from "../examples/page-hero";
 import type { Page } from "../page";
 
 const RULES = [
-  "A panel holds data, prose sits on the page. By default a data block is a square card filled with the card colour, 8px from the next; a ruled surface fills the blocks of a PanelGrid and parts them with hairlines instead. Every corner is square. One level of panel.",
+  "A panel holds data, prose sits on the page. By default a page is ruled on white: data blocks are filled with the card colour and parted by hairlines, with a rule above and below each group; a page of separate blocks asks for square cards, 8px apart, by setting surface to card. Every corner is square. One level of panel.",
   "A page opens on its masthead, PageHero: eyebrow, title, one muted line, actions at the right, a hairline under it.",
   "A stat tile is SectionCards from shadcn's dashboard block: label in small mono capitals, outline badge, value, footer lines. Many figures of equal weight go in one MetricStrip instead. The page marks the tile or table row that needs a look with a tone; colour marks exceptions only.",
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws the dashed horizontal grid, the tooltip and the legend below; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
@@ -79,7 +79,7 @@ export const overview: Page = {
     {
       id: "at-a-glance",
       title: "At a glance",
-      lead: "An app page built from the package on a ruled surface: masthead, stat tiles, a chart and a table with its total, all live.",
+      lead: "An app page built from the package, on the default ruled surface: masthead, stat tiles, a chart and a table with its total, all live.",
       examples: [
         {
           name: "overview-dashboard",

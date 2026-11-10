@@ -17,8 +17,9 @@
 // with an 80px sparkline beside the figure.
 // Siyahi edit: tiles wrap onto rows, the column steps following the tile
 // count as SectionCards' do, with a rule between tiles across and down. The
-// rules sit on each tile's left and top edge, and the strip clips the ones on
-// its own edges, so they stay right on every row whatever the count.
+// rules sit on each tile's bottom and end edge, and the strip clips the ones
+// on its own edges, so they stay right on every row whatever the count and a
+// short last row ends in a blank cell ruled off like the rest.
 // Siyahi edit: the title is optional, for a strip of figures heading a page.
 // Siyahi edit: each figure's label is small monospaced capitals, as a
 // SectionCards tile's is.
@@ -106,12 +107,12 @@ function MetricStrip({
       )}
       <CardContent>
         <div data-slot="metric-strip" className="@container/strip -mx-4 -my-3 overflow-hidden">
-          <div className="-mt-px -ml-px flex flex-wrap">
+          <div className="-me-px -mb-px flex flex-wrap">
             {items.map((item) => (
               <div
                 key={item.label}
                 data-slot="metric-strip-item"
-                className={cn("flex min-w-0 flex-col gap-1.5 border-t border-l px-4 py-4", columns)}
+                className={cn("flex min-w-0 flex-col gap-1.5 border-e border-b px-4 py-4", columns)}
               >
                 <div className="truncate font-mono text-2xs tracking-wider text-muted-foreground uppercase">{item.label}</div>
                 <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">

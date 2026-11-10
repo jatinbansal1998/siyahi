@@ -11,7 +11,6 @@ import {
   Input,
   PageHero,
   PanelGrid,
-  SiyahiProvider,
   StatusBadge,
   Table,
   TableBody,
@@ -120,63 +119,62 @@ function Holdings({ rows }: { rows: Holding[] }) {
   );
 }
 
-// An app page on a ruled surface: masthead, controls, stat tiles, a chart and a table in a PanelGrid, and the takeaway.
+// An app page on the default, ruled surface: masthead, controls, stat tiles, a chart and a table in a PanelGrid, and
+// the takeaway. It sets no surface: ruled on white is what a page gets.
 export default function OverviewDashboard() {
   const [query, setQuery] = useState("");
   const shown = holdings.filter((row) => row.name.toLowerCase().includes(query.trim().toLowerCase()));
   return (
-    <SiyahiProvider surface="ruled">
-      <div className="flex flex-col gap-6">
-        <PageHero
-          mark={<InkDrop />}
-          eyebrow="The Book"
-          title="Holdings"
-          lead="What you own, what it is worth today, and how each part has moved."
-          detail="Prices as of the last market close."
-          actions={
-            <>
-              <Button>
-                <PlusIcon />
-                Add a holding
-              </Button>
-              <Button variant="outline">
-                <DownloadIcon />
-                Export
-              </Button>
-            </>
-          }
+    <div className="flex flex-col gap-6">
+      <PageHero
+        mark={<InkDrop />}
+        eyebrow="The Book"
+        title="Holdings"
+        lead="What you own, what it is worth today, and how each part has moved."
+        detail="Prices as of the last market close."
+        actions={
+          <>
+            <Button>
+              <PlusIcon />
+              Add a holding
+            </Button>
+            <Button variant="outline">
+              <DownloadIcon />
+              Export
+            </Button>
+          </>
+        }
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <ToggleGroup defaultValue={["1y"]} variant="outline" aria-label="Period">
+          <ToggleGroupItem value="1m">1 month</ToggleGroupItem>
+          <ToggleGroupItem value="1y">1 year</ToggleGroupItem>
+          <ToggleGroupItem value="all">All</ToggleGroupItem>
+        </ToggleGroup>
+        <Input
+          className="w-56"
+          type="search"
+          placeholder="Search holdings"
+          aria-label="Search holdings"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
         />
-        <div className="flex flex-wrap items-center gap-3">
-          <ToggleGroup defaultValue={["1y"]} variant="outline" aria-label="Period">
-            <ToggleGroupItem value="1m">1 month</ToggleGroupItem>
-            <ToggleGroupItem value="1y">1 year</ToggleGroupItem>
-            <ToggleGroupItem value="all">All</ToggleGroupItem>
-          </ToggleGroup>
-          <Input
-            className="w-56"
-            type="search"
-            placeholder="Search holdings"
-            aria-label="Search holdings"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <p className="text-sm text-muted-foreground">
-            Five holdings in three kinds.{" "}
-            <a className="text-link underline underline-offset-4" href="#/data">
-              How value is worked out
-            </a>
-          </p>
-        </div>
-        <SectionCardsTrend />
-        <PanelGrid>
-          <ChartArea />
-          <Holdings rows={shown} />
-        </PanelGrid>
-        <Callout tone="accent" icon={<LightbulbIcon />} title="The takeaway">
-          Equity is <strong>74%</strong> of the book against a plan of 65%. The small cap fund is the only holding below
-          plan.
-        </Callout>
+        <p className="text-sm text-muted-foreground">
+          Five holdings in three kinds.{" "}
+          <a className="text-link underline underline-offset-4" href="#/data">
+            How value is worked out
+          </a>
+        </p>
       </div>
-    </SiyahiProvider>
+      <SectionCardsTrend />
+      <PanelGrid>
+        <ChartArea />
+        <Holdings rows={shown} />
+      </PanelGrid>
+      <Callout tone="accent" icon={<LightbulbIcon />} title="The takeaway">
+        Equity is <strong>74%</strong> of the book against a plan of 65%. The small cap fund is the only holding below
+        plan.
+      </Callout>
+    </div>
   );
 }
