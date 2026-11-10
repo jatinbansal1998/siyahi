@@ -300,6 +300,59 @@
 }
 
 /*
+ * A component that lifts a part of itself with a z-index is a stacking context
+ * of its own: SectionCards' picker button, an avatar's badge, a calendar's
+ * days, a focused toggle, a code block's buttons, a price chart's layers. The
+ * lifted part then ranks only against the rest of its component, and can never
+ * sit over, or take a tap from, a page's sticky header or section strip (also
+ * z-10, where the later element in the page won the tie). In a group, the
+ * group is the context, so a badge still sits over the next, overlapping
+ * avatar. The data table's scroll container isolates itself.
+ */
+:is(
+  [data-slot="card"],
+  [data-slot="avatar-group"],
+  [data-slot="avatar"]:not([data-slot="avatar-group"] > *),
+  [data-slot="calendar"],
+  [data-slot="toggle-group"],
+  [data-slot="code-block"],
+  [data-slot="price-chart"]
+) {
+  isolation: isolate;
+}
+
+/*
+ * A copy button sits in a row above the code, never over it. Core floats a
+ * CodeBlockActions written straight in the block over the code's top right
+ * (z-10, shown on hover), where it covers the end of a line and painted over
+ * the page's sticky section strip; here it takes a row of its own, as in a
+ * CodeBlockHeader, always shown, with the header's plain button.
+ */
+[data-slot="code-block"] > [data-slot="code-block-actions"] {
+  position: static;
+  align-self: flex-end;
+  margin: 0.5rem 0.5rem 0;
+  opacity: 1;
+}
+/*
+ * Core's floating fill and faint resting ring go. Its fill outranks the ghost
+ * button's own hover fill, so that is set again here, as a header's button
+ * shows it; the focus ring is left alone.
+ */
+[data-slot="code-block"] > [data-slot="code-block-actions"] > button {
+  background-color: transparent;
+  &:hover {
+    background-color: var(--muted);
+    @variant dark {
+      background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+    }
+  }
+  &:not(:focus-visible) {
+    --tw-ring-shadow: 0 0 #0000;
+  }
+}
+
+/*
  * --input is the edge of a field, where the reader types or picks. A button,
  * a toggle and a code block are framed by their label or their content, so
  * their outline stays the faint divider colour; scoping the variable keeps

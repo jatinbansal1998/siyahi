@@ -268,10 +268,12 @@
     },
     {
       "need": "A command or file to copy, wrapped or scrolling",
-      "guidance": "`CodeBlock` with `CodeBlockCopyButton`",
+      "guidance": "`CodeBlock` with `CodeBlockCopyButton` in `CodeBlockActions` inside a `CodeBlockHeader`, never floating over the code",
       "components": [
         "CodeBlock",
-        "CodeBlockCopyButton"
+        "CodeBlockCopyButton",
+        "CodeBlockActions",
+        "CodeBlockHeader"
       ]
     },
     {
@@ -388,7 +390,9 @@
       "file": "agents/examples/avatar.tsx",
       "components": [
         "Avatar",
-        "AvatarFallback"
+        "AvatarBadge",
+        "AvatarFallback",
+        "AvatarGroup"
       ]
     },
     {

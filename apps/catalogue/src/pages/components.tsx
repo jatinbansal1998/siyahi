@@ -103,10 +103,11 @@ const display: Entry[] = [
       },
     ],
     rules: [
-      "A copy button goes in CodeBlockActions: in a CodeBlockHeader beside a title, or on its own, where it shows on hover (always on a touch screen).",
+      "A copy button goes in CodeBlockActions inside a CodeBlockHeader, beside a title or alone: a row of its own above the code, never floating over it, where it would cover the end of a line.",
       "A max-h class on CodeBlockContent makes a long log scroll inside the block.",
     ],
-    caption: "A titled, wrapped command with its copy button, and a small log that scrolls inside the block.",
+    caption:
+      "A titled, wrapped command with its copy button, and a small log, untitled, that scrolls under its copy button's row.",
   },
   {
     id: "copy-button",
@@ -211,8 +212,8 @@ const display: Entry[] = [
     id: "avatar",
     title: "Avatar",
     lead: "A person or an account, by initials.",
-    imports: ["Avatar", "AvatarFallback"],
-    caption: "Two accounts by their initials.",
+    imports: ["Avatar", "AvatarFallback", "AvatarGroup", "AvatarBadge"],
+    caption: "An account by its initials, and a group of three, the first with an online badge.",
   },
   {
     id: "collapsible",
