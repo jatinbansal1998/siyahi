@@ -23,6 +23,8 @@ a meaning:
   `negative`); a quotation is `Quote`. Each takes a faint wash of its colour
   inside a 1px border of the same colour all round. Large marks follow the same
   rule: every bar is a tint inside a 1px full-colour edge, not a solid slab.
+  A bar is read by its edge, which reaches 3:1 against the card; the tint is a
+  fill carried by that edge.
 - **Never a stripe down one side.** Do not mark a notice, card, row or quote
   with a left (or any single-side) coloured border; tint the box or add an
   icon. 1px neutral dividers between columns are separators, not accents, and
@@ -137,9 +139,11 @@ the actions at the right, and a hairline under it. One per page; no hero card.
   each end dot as its line finishes; bars fade in rather than grow. Reduced
   motion shows them at once.
 - **Stale data is marked by the page**: `stale` on a chart card or a
-  `SectionCards` tile, with since when ("3 Nov"). The block greys, a tile's figure and badge turn muted, and a small "Stale · 3
-  Nov" note says so. Marks and text keep their contrast: the marks lose their
-  colour, not their lightness. Never infer it from dates.
+  `SectionCards` tile, with since when ("3 Nov"). The block greys and its
+  chart or sparkline draws at about 65% strength, a tile's figure and badge
+  turn muted, and a small "Stale · 3 Nov" note says so. A stale block is meant
+  to be harder to read, so its marks are exempt from the 3:1 mark bar; the
+  note and the figure keep their text contrast. Never infer it from dates.
 
 ## Tables
 

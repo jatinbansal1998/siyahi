@@ -658,12 +658,17 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 /*
  * A block the page marks stale (stale on a chart card or a SectionCards tile)
  * loses its colour: its chart, sparkline and badge turn grey, and a tile's
- * figure and badge turn muted. The marks keep their lightness, so each still
- * reaches 3:1 against the card; a fade would take the paler slots under it. A
- * small "Stale · 3 Nov" note under the title says since when.
+ * figure and badge turn muted. The chart and sparkline also draw at 65%, so a
+ * dark slot's line does not read heavier than a fresh one: a stale block is
+ * meant to be harder to read, so its marks are exempt from the 3:1 mark bar.
+ * The small "Stale · 3 Nov" note under the title and the figure keep their
+ * text contrast.
  */
 [data-slot="card"][data-stale] :is([data-slot="chart"], [data-slot="sparkline"], [data-slot="badge"]) {
   filter: grayscale(1);
+}
+[data-slot="card"][data-stale] :is([data-slot="chart"], [data-slot="sparkline"]) {
+  opacity: 0.65;
 }
 [data-slot="section-card"] [data-slot="card"][data-stale] :is([data-slot="card-title"], [data-slot="badge"]) {
   color: var(--muted-foreground);

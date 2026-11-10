@@ -78,7 +78,7 @@ const SERIES_PROPS: PropRow[] = [
     type: "ReactNode",
     default: "—",
     purpose:
-      'Marks the data as old, with since when ("3 Nov"): the chart greys out and a "Stale · 3 Nov" note sits under the title.',
+      'Marks the data as old, with since when ("3 Nov"): the chart greys out and fades to about 65%, and a "Stale · 3 Nov" note sits under the title.',
   },
   {
     name: "yLabel",
@@ -305,7 +305,7 @@ export const data: Page = {
       ],
       rules: [
         "The page decides what is stale, as it decides a tone; nothing is inferred from dates.",
-        "A stale block's colours turn grey and a tile's figure muted; marks and text keep their contrast. Another kind of block can show StaleNote on its own.",
+        "A stale block's colours turn grey, its chart or sparkline draws at about 65%, and a tile's figure turns muted: stale is meant to read faintly, so its marks are exempt from the 3:1 mark bar, while the note and figure keep their text contrast. Another kind of block can show StaleNote on its own.",
       ],
       examples: [
         {

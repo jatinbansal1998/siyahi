@@ -233,15 +233,17 @@ describe("chart ink", { timeout: 60_000 }, () => {
     expect(await fresh.locator('[data-slot="stale-note"]').count()).toBe(0);
     const chart = card(stale, "Value by kind");
     expect(await chart.locator('[data-slot="stale-note"]').textContent()).toBe("Stale · 3 Nov");
-    expect(await chart.locator('[data-slot="chart"]').evaluate((el) => getComputedStyle(el).filter)).toBe(
-      "grayscale(1)",
-    );
-    // Grey, not faded: the marks keep the lightness that gives them 3:1 against the card.
+    // Grey and faded to 65%: stale reads faintly, so no dark slot's line draws heavier than a fresh one.
     expect(
       await chart
-        .locator(".recharts-area")
-        .first()
-        .evaluate((el) => getComputedStyle(el).opacity),
-    ).toBe("1");
+        .locator('[data-slot="chart"]')
+        .evaluate((el) => [getComputedStyle(el).filter, getComputedStyle(el).opacity]),
+    ).toEqual(["grayscale(1)", "0.65"]);
+    // The note keeps its text contrast: it sits outside the faded chart, at full strength.
+    expect(
+      await chart
+        .locator('[data-slot="stale-note"]')
+        .evaluate((el) => [el.closest('[data-slot="chart"]'), getComputedStyle(el).opacity]),
+    ).toEqual([null, "1"]);
   });
 });

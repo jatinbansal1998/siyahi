@@ -143,8 +143,10 @@ const PAIRS = [
   { fg: "link", bg: "foreground/16", min: MARK, surface: "card" },
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
-  // Chart marks on the canvas and the card. A dimmed bar keeps its full colour
-  // as its outline, so these are the outlines too.
+  // Chart marks on the canvas and the card. A bar is read by its full-colour
+  // edge, so these are the edges too; the tint inside is carried by the edge and
+  // has no pair of its own, nor has a dimmed bar's fainter tint. A stale
+  // block's marks (greyed, at 65%) are exempt: stale is meant to read faintly.
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "", min: MARK })),
   ...CHARTS.slice(0, -1).map((fg, i) => ({ fg, bg: CHARTS[i + 1] ?? "", min: MARK })),
   // A waterfall's rise and fall: the full-colour edge against the tint it

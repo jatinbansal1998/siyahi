@@ -20,8 +20,8 @@
   the plot's right edge; otherwise the legend stays. A forecast's dashed lines and its labels sit on card-coloured
   halos over the hatching.
 - Stale data: `stale` (since when, such as "3 Nov") on any chart card and on a
-  `SectionCards` item greys the block, mutes a tile's figure
-  and badge, and shows a boxed "Stale · 3 Nov" note; `StaleNote` is exported for
+  `SectionCards` item greys the block and draws its chart or sparkline at 65%,
+  mutes a tile's figure and badge, and shows a boxed "Stale · 3 Nov" note; `StaleNote` is exported for
   other blocks.
 
 - Tables are dense: compact rows, a 1px rule in the text colour under the

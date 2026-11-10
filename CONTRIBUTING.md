@@ -86,6 +86,12 @@ degraded and critical days against a healthy one. Every colour must
 sit inside sRGB. When a component paints a token on a new fill, add the pair to
 `PAIRS` there. When a check fails, change the value, never the bar.
 
+A bar is read by its edge: its 1px full-colour edge must reach 3:1 against the
+card, and its tint is a fill carried by that edge, so the tint inside needs no
+pair against the edge. Marks in a block the page marks stale are exempt from
+the 3:1 mark bar, since a stale block is meant to be harder to read; its
+"Stale" note and its figures keep their text contrast.
+
 An icon in an `Alert` takes its meaning colour with Tailwind's important
 modifier: `<TriangleAlertIcon className="text-warning!" />`. `alert.tsx` sets
 its icons to the text colour with a selector that outranks a plain
