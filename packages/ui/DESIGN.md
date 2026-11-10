@@ -105,10 +105,12 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 A page is read by someone who acts on its figures. Its words are plain English,
 in sentence case, and explain themselves: a reader needs no other page to know
 what a figure is, where it came from and what to do next. These rules bind what
-a page's reader sees. The catalogue's own notes (a family's lead, rules and
-captions) and the demos of a single component's variants or states (a button's
-variants, a disabled field) teach the package and are exempt; an example built
-as a page, a card or a dashboard is bound like any app. Each rule's example is
+a page's reader sees. The catalogue's own notes (the text that introduces a
+component, its rules and its captions) teach the package and are exempt from
+them, and so are the words in a demo that only name a component's variant or API
+("Ghost", "moneyCompact") or show a bare state (a field disabled with no reason
+given). Everything else in an example is bound like any app's copy, including
+the error, empty, loading and busy text of a state demo. Each rule's example is
 from the catalogue.
 
 - **A title states the finding** when the block makes one point: "Search is

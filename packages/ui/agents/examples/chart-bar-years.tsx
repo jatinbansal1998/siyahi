@@ -25,7 +25,7 @@ export default function ChartBarYearsExample() {
       title="Profit by financial year"
       description={
         year
-          ? `${year} picked; click it again for every year`
+          ? `${year} picked (April to March, before tax). Click it again for every year.`
           : "April to March, before tax; FY26 ends in March 2026. Click a year to pick it."
       }
       data={data}
