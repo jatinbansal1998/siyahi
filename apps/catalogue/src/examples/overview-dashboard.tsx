@@ -76,7 +76,7 @@ function Holdings({ rows }: { rows: Holding[] }) {
               <TableHead>Holding</TableHead>
               <TableHead>Status</TableHead>
               <TableHead data-numeric>Value</TableHead>
-              <TableHead data-numeric>12 months</TableHead>
+              <TableHead data-numeric>Change over 12 months</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
