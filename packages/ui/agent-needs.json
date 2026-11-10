@@ -152,6 +152,18 @@
     "guidance": "`SiyahiProvider` with `surface=\"card\"` or `surface=\"open\"`"
   },
   {
+    "need": "A forecast stretch after the latest actual figure, or a marker for today",
+    "guidance": "`LineChartCard` or `AreaChartCard` with `forecastFrom` and `today` set to x values"
+  },
+  {
+    "need": "More than five lines on one chart",
+    "guidance": "chart colours for the few the page is about, `var(--muted-foreground)` for the rest, and `othersLabel` for their shared name"
+  },
+  {
+    "need": "A chart or stat tile whose data is old",
+    "guidance": "`stale` on the chart card or the `SectionCards` item, with since when (\"3 Nov\"); `StaleNote` for another kind of block"
+  },
+  {
     "need": "A form field with its label, a hint or an error",
     "guidance": "`Field` with `FieldLabel`, the control, then `FieldDescription` or `FieldError`; `aria-invalid` on an invalid control"
   },

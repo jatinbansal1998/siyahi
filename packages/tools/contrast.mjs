@@ -136,6 +136,12 @@ const PAIRS = [
     ["negative", ["negative/wash", "negative/8"]],
     ["warning", ["warning/wash", "warning/10"]],
   ].map(([fg, bg]) => ({ fg: String(fg), bg: /** @type {Paint[]} */ (bg), min: MARK })),
+  // A chart's forecast stretch is hatched with 1px lines of the text colour at
+  // 16%, 7px apart (lib/chart-marks): about a seventh of the band, so on
+  // average a 2.3% wash. Its FORECAST label and the dashed lines that cross
+  // it, against that wash.
+  { fg: "muted-foreground", bg: "foreground/2.3", min: TEXT, surface: "card" },
+  ...[...CHARTS, "muted-foreground"].map((fg) => ({ fg, bg: "foreground/2.3", min: MARK, surface: "card" })),
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A dimmed bar keeps its full colour

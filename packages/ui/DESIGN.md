@@ -11,7 +11,7 @@ Colour is placed, not spread. A page is neutral greys plus colour that carries
 a meaning:
 
 - **Ink indigo** is the accent: links, the selected sidebar item, the first
-  chart series and an `accent` `Callout`. Buttons, badges, toggles and focus
+  chart series, a chart's "today" rule and an `accent` `Callout`. Buttons, badges, toggles and focus
   stay monochrome.
 - **Green and red** mean a gain and a loss. A signed figure is `Delta`: the figure in the text colour with its
   `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
@@ -22,8 +22,7 @@ a meaning:
   apart is `Callout` (`neutral`, `accent`, `warning`, `positive`,
   `negative`); a quotation is `Quote`. Each takes a faint wash of its colour
   inside a 1px border of the same colour all round. Large marks follow the same
-  rule: gain and loss bars are a tint inside a full-colour edge, not solid
-  slabs.
+  rule: every bar is a tint inside a 1px full-colour edge, not a solid slab.
 - **Never a stripe down one side.** Do not mark a notice, card, row or quote
   with a left (or any single-side) coloured border; tint the box or add an
   icon. 1px neutral dividers between columns are separators, not accents, and
@@ -108,6 +107,30 @@ the actions at the right, and a hairline under it. One per page; no hero card.
   never set a figure or a title in it.
 - **A total row reads as a ledger's**: in `TableFooter`, one rule above it and
   a double rule under it in the text colour, no band.
+
+## Charts
+
+- **Names at the line ends.** A line chart and overlapping areas name each
+  series at its line's end, in the text colour beside a square of its colour,
+  in a gutter after the last point; ends that crowd are spread 14px apart with
+  a short leader. On a card under 400px wide (a phone), or where the names
+  would take more than 30% of it, a legend goes below instead. Bars and stacks
+  keep a legend.
+- **Five colours, then grey.** Past five series, the page names the few it is
+  about in chart colours and gives the rest `var(--muted-foreground)`: they
+  draw first, in grey, and share one name, "6 other funds" (`othersLabel`).
+- **No fill under overlapping areas**: from three series on, fills bury each
+  other. A stack fills each band with a flat tint, never a gradient.
+- **Forecast and today.** `forecastFrom` dashes every line from that point,
+  hatches the stretch faintly, labels it FORECAST and hollows the end dots;
+  `today` is a 1px rule in the link colour, labelled TODAY.
+- Gridlines are solid hairlines. Lines draw in left to right over 1.3s on
+  first draw, then bars, dots and names fade in; reduced motion shows them at
+  once.
+- **Stale data is marked by the page**: `stale` on a chart card or a
+  `SectionCards` tile, with since when ("3 Nov"). The block greys, its marks
+  fade, a tile's figure and badge turn muted, and a small "Stale · 3 Nov" note
+  says so. Text keeps its contrast. Never infer it from dates.
 
 ## Tables
 

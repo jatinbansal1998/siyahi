@@ -2,6 +2,23 @@
 
 ## 0.1.9
 
+- Charts: `LineChartCard` and overlapping `AreaChartCard` series are named at
+  their line ends (a legend below on a card under 400px wide or where names
+  would take over 30% of it). Series in `var(--muted-foreground)` draw first in
+  grey and share one name, built from the new `othersLabel` ("6 other funds").
+  New `forecastFrom` dashes the lines from a point over a hatched FORECAST band
+  with hollow end dots; new `today` draws a 1px rule in the link colour.
+  Overlapping areas have no fill (they had a gradient on the first series); a
+  stack's bands are a flat 25% tint. Gridlines are solid. Every bar,
+  `HistogramChart`'s and `WaterfallChart`'s totals included, is a 35% tint
+  inside a 1px edge of its colour, square, fading in rather than growing; a
+  selection dims the others to a 15% tint (was a 55% mix). Lines draw in over
+  1.3s, then dots and names fade in.
+- Stale data: `stale` (since when, such as "3 Nov") on any chart card and on a
+  `SectionCards` item greys the block, mutes a tile's figure
+  and badge, and shows a boxed "Stale · 3 Nov" note; `StaleNote` is exported for
+  other blocks.
+
 - Tables are dense: compact rows, a 1px rule in the text colour under the
   column heads (on a data table's sticky header too), the first column in
   medium weight, and figures (a cell marked `data-numeric`, and a `Delta` in a

@@ -617,8 +617,48 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * Chart gridlines take the full border colour: stock shadcn draws them at half
- * of it, which all but vanishes on a dark card (5% white).
+ * A series in a forecast is drawn twice (LineChartCard, AreaChartCard): solid
+ * up to forecastFrom and dashed after it, each copy clipped to its side by the
+ * clip paths lib/chart-marks draws. The chart sets the two clip paths' urls.
+ */
+[data-slot="chart"] .chart-actual {
+  clip-path: var(--chart-actual);
+}
+[data-slot="chart"] .chart-forecast {
+  clip-path: var(--chart-forecast);
+}
+
+/*
+ * Pen-stroke motion: a chart's lines draw in left to right over 1.3s (Recharts'
+ * own animation, which reduced motion turns off), then its bars, dots and line
+ * names fade in. The reduced-motion reset above zeroes the fades.
+ */
+@keyframes chart-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+[data-slot="chart"] :is(.recharts-bar-rectangles, .recharts-line-dots, .recharts-area-dots, [data-slot="end-labels"]) {
+  animation: chart-fade-in 0.9s ease-out 0.5s backwards;
+}
+
+/*
+ * A block the page marks stale (stale on a chart card or a SectionCards tile)
+ * loses its colour: its chart, sparkline and badge turn grey, and a tile's
+ * figure and badge turn muted. The marks keep their lightness, so each still
+ * reaches 3:1 against the card; a fade would take the paler slots under it. A
+ * small "Stale · 3 Nov" note under the title says since when.
+ */
+[data-slot="card"][data-stale] :is([data-slot="chart"], [data-slot="sparkline"], [data-slot="badge"]) {
+  filter: grayscale(1);
+}
+[data-slot="section-card"] [data-slot="card"][data-stale] :is([data-slot="card-title"], [data-slot="badge"]) {
+  color: var(--muted-foreground);
+}
+
+/*
+ * Chart gridlines take the full border colour, solid: stock shadcn draws them
+ * dashed at half of it, which all but vanishes on a dark card (5% white).
  */
 [data-slot="chart"] .recharts-cartesian-grid line {
   stroke: var(--border);

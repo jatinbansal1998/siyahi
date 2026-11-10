@@ -51,6 +51,9 @@
 // Siyahi edit: `tone` marks a tile as an exception (a loss, a figure behind
 // plan): the theme washes it in the tone and outlines it. The page sets it;
 // a negative change alone is not an exception (a falling cost is good news).
+// Siyahi edit: `stale` marks a tile's data as old, with since when: the theme
+// greys the tile and a small "Stale · 3 Nov" note sits under its label. The
+// page sets it, as it sets a tone.
 "use client"
 
 import * as React from "react"
@@ -67,6 +70,7 @@ import {
 } from "@siyahi/ui/components/ui/card"
 import { cn } from "@siyahi/ui/lib/utils"
 import { useSurface } from "@siyahi/ui/components/siyahi/siyahi-provider"
+import { StaleNote } from "@siyahi/ui/components/siyahi/stale-note"
 
 export interface SectionCard {
   /** Muted label above the value. */
@@ -84,6 +88,8 @@ export interface SectionCard {
   disabled?: boolean
   /** Marks the tile as the exception on the page: a faint wash of the colour and an outline of it. */
   tone?: "negative" | "warning"
+  /** Marks the tile's data as old, with since when, such as "3 Nov": the tile greys out and says so. */
+  stale?: React.ReactNode
 }
 
 // Tailwind finds classes by scanning source, so each step is written out whole.
@@ -113,6 +119,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
           <div key={item.label} data-slot="section-card" className={cn("min-w-0", ruled && "border-e border-b")}>
             <Card
               data-tone={item.tone}
+              data-stale={item.stale ? "" : undefined}
               className={cn(
                 "@container/card h-full [--card-spacing:--spacing(3)]",
                 onSelect && "relative",
@@ -134,6 +141,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
               )}
               <CardHeader>
                 <CardDescription className="font-mono text-2xs tracking-wider uppercase">{item.label}</CardDescription>
+                {item.stale && <StaleNote since={item.stale} />}
                 <CardTitle className="text-2xl font-semibold tabular-nums">
                   {item.value}
                 </CardTitle>

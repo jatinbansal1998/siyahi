@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { Bar, BarChart } from "recharts";
+import { Bar, BarChart, Cell } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
-import { ChartFrame } from "@siyahi/ui/lib/chart-frame";
+import { ChartFrame, barFill } from "@siyahi/ui/lib/chart-frame";
 import type { ChartReferenceLine, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 import { linearTicks } from "@siyahi/ui/lib/ticks";
 
@@ -146,7 +146,12 @@ export function HistogramChartCard({
         ) : undefined
       }
     >
-      <Bar dataKey="count" name={countLabel} fill="var(--chart-1)" radius={[2, 2, 0, 0]} />
+      {/* The Bar's own fill is the full colour, which its legend chip shows; each bar draws as a tint in a Cell. */}
+      <Bar dataKey="count" name={countLabel} fill="var(--chart-1)" isAnimationActive={false}>
+        {bins.map((bin) => (
+          <Cell key={bin.key} fill={barFill("var(--chart-1)")} stroke="var(--chart-1)" strokeWidth={1} />
+        ))}
+      </Bar>
     </ChartFrame>
   );
 }

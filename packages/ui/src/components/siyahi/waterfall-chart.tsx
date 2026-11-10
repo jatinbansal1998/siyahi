@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Bar, BarChart, Cell, ReferenceLine } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
-import { ChartFrame } from "@siyahi/ui/lib/chart-frame";
+import { ChartFrame, barFill } from "@siyahi/ui/lib/chart-frame";
 import type { ChartColor, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
 /**
@@ -84,10 +84,8 @@ const COLOR: Record<WaterfallBar["kind"], ChartColor> = {
 const LABELS = { rise: "Increase", fall: "Decrease", total: "Total" };
 const MINUS = "−";
 
-// A rise or fall is a tint inside a full-strength edge, as BarChartCard draws a signed series; a total is solid,
-// so the levels the bridge starts and ends on stand out from the steps between them.
-const fill = (kind: WaterfallBar["kind"]) =>
-  kind === "total" ? COLOR.total : `color-mix(in oklab, ${COLOR[kind]} 35%, var(--card))`;
+// Every bar is a tint inside a full-colour edge, as every chart's bars are; a total stands out by its colour.
+const fill = (kind: WaterfallBar["kind"]) => barFill(COLOR[kind]);
 
 function Legend({ labels }: { labels: typeof LABELS }) {
   return (
@@ -167,9 +165,9 @@ export function WaterfallChartCard({ steps, horizontal = false, labels = LABELS,
           />
         );
       })}
-      <Bar dataKey="span" name={labels.total} maxBarSize={horizontal ? 24 : 48} radius={2}>
+      <Bar dataKey="span" name={labels.total} maxBarSize={horizontal ? 24 : 48} isAnimationActive={false}>
         {bars.map((bar) => (
-          <Cell key={bar.key} fill={fill(bar.kind)} stroke={COLOR[bar.kind]} strokeWidth={1.5} />
+          <Cell key={bar.key} fill={fill(bar.kind)} stroke={COLOR[bar.kind]} strokeWidth={1} />
         ))}
       </Bar>
     </ChartFrame>

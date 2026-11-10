@@ -4,11 +4,11 @@
 // Copied: 2026-10-21, sha256 46fbdcf8c66b0def3836211e4e186eb3777b3daaca3b09dc6f94eb82ccc86309
 // Siyahi edit: the sample data, config and footer are replaced by props, so a
 // page passes rows and series and never puts Recharts parts together itself.
-// Siyahi edit: the card, axes, dashed grid, tooltip and legend come from
+// Siyahi edit: the card, axes, solid grid, tooltip and legend come from
 // lib/chart-frame, shared with AreaChartCard and LineChartCard. The axes keep
 // Recharts' default ids, which a page can no longer change (dash#88).
-// Siyahi edit: bars are grouped, or stacked with `stacked`; a stack rounds
-// only its top, so the series meet flush.
+// Siyahi edit: bars are grouped, or stacked with `stacked`; square, so a
+// stack's series meet flush.
 // Siyahi edit: a series' negativeColor colours its bars below zero, with one
 // Cell per row as shadcn's chart-bar-negative does.
 // Siyahi edit: selected and onSelect pick a category;
@@ -16,15 +16,16 @@
 // Siyahi edit: the entire tooltip category selects, including empty space around a bar.
 // Siyahi edit: horizontal lays the bars sideways, categories down the left,
 // as shadcn's chart-bar-horizontal does, for long names such as product categories.
-// Siyahi edit: a signed series (negativeColor) fills its bars with a tint of
-// the meaning colour inside a full-strength 1.5px edge.
+// Siyahi edit: every bar is a tint of its colour inside a 1px full-colour
+// edge (lib/chart-frame barFill), a gain or a loss in its meaning colour;
+// solid slabs were the loudest thing on the page.
 // Siyahi edit: a stack runs negative values down from zero and positive ones
 // up, so money out sits below the line rather than hanging from money in.
-// Siyahi edit: an unselected bar mixes 55% toward the card rather than fading
-// to 35% opacity, so it stays readable on a dark card.
-// Siyahi edit: while a category is selected every bar keeps a full-colour
-// 1.5px outline and only the interior dims, so an unselected bar still meets
-// 3:1 against the card (a 55% mix fell to 1.8:1).
+// Siyahi edit: while a category is selected every bar keeps its full-colour
+// outline and only its tint dims, so an unselected bar still meets 3:1
+// against the card.
+// Siyahi edit: bars fade in after a chart's lines draw (siyahi.css) rather
+// than growing from the axis.
 // Siyahi edit: a series whose bars are all below zero takes its negativeColor
 // as the Bar's fill, so its legend chip matches the bars; each Bar is named
 // after its series, so no bar path carries name="undefined".
@@ -36,7 +37,7 @@
 
 import { Bar, BarChart, Cell, type YAxisProps } from "recharts"
 
-import { ChartFrame, seriesFill } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame, barFill, seriesFill } from "@siyahi/ui/lib/chart-frame"
 import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 
 export interface BarChartCardProps<T extends object, K extends keyof T>
@@ -57,18 +58,6 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
 const DOWN_FROM_ZERO: YAxisProps["domain"] = ["auto", 0]
 
 /** Values over an ordered axis as bars: one series, or several grouped or stacked. */
-// An unselected bar's interior mixes toward the card instead of turning
-// see-through: at low opacity a mid-lightness colour all but vanishes on a dark
-// card. Its outline stays at full colour, so the bar keeps 3:1.
-const dimUnselected = (color: string, isSelected: boolean) =>
-  isSelected ? color : `color-mix(in oklab, ${color} 55%, var(--card))`
-
-// A gain or a loss fills its bar with a tint of the meaning colour inside a
-// full-strength edge: solid green and red slabs were the loudest thing on a
-// page whose other meaning colours sit on text and dots.
-const signedFill = (color: string, isSelected: boolean) =>
-  `color-mix(in oklab, ${color} ${isSelected ? 35 : 15}%, var(--card))`
-
 export function BarChartCard<T extends object, K extends keyof T>({
   stacked = false,
   selected = null,
@@ -96,9 +85,10 @@ export function BarChartCard<T extends object, K extends keyof T>({
           : undefined
       }
     >
-      {props.series.map((item, index) => {
+      {props.series.map((item) => {
         const { key, label, color, negativeColor } = item
         return (
+          // The Bar's own fill is the full colour, which its legend chip shows; each bar draws as a tint in a Cell.
           <Bar
             key={key}
             dataKey={key}
@@ -106,40 +96,16 @@ export function BarChartCard<T extends object, K extends keyof T>({
             fill={seriesFill(item, props.data)}
             maxBarSize={props.horizontal ? 24 : undefined}
             stackId={stacked ? "stack" : undefined}
-            radius={
-              !stacked
-                ? 2
-                : index === props.series.length - 1
-                  ? props.horizontal
-                    ? [0, 2, 2, 0]
-                    : [2, 2, 0, 0]
-                  : 0
-            }
+            isAnimationActive={false}
           >
-            {(negativeColor || selected !== null) &&
-              props.data.map((row, i) => {
-                const isSelected =
-                  selected === null || row[props.xKey] === selected
-                const tone =
-                  negativeColor && Number(row[key as keyof T]) < 0
-                    ? negativeColor
-                    : color
-                return negativeColor ? (
-                  <Cell
-                    key={i}
-                    fill={signedFill(tone, isSelected)}
-                    stroke={tone}
-                    strokeWidth={1.5}
-                  />
-                ) : (
-                  <Cell
-                    key={i}
-                    fill={dimUnselected(tone, isSelected)}
-                    stroke={tone}
-                    strokeWidth={1.5}
-                  />
-                )
-              })}
+            {props.data.map((row, i) => {
+              const tone =
+                negativeColor && Number(row[key as keyof T]) < 0
+                  ? negativeColor
+                  : color
+              const dim = selected !== null && row[props.xKey] !== selected
+              return <Cell key={i} fill={barFill(tone, dim)} stroke={tone} strokeWidth={1} />
+            })}
           </Bar>
         )
       })}

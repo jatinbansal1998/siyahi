@@ -2,6 +2,36 @@ import { ChartAreaIcon } from "lucide-react";
 import type { Page, PropRow } from "../page";
 
 // The props every chart card shares; each family adds its own after them.
+// What LineChartCard and AreaChartCard take beyond SERIES_PROPS: a forecast stretch, today, and quiet series.
+const LINE_MARKS_PROPS: PropRow[] = [
+  {
+    name: "forecastFrom",
+    type: "T[K]",
+    default: "—",
+    purpose:
+      "The x value from which the data is a forecast: the lines dash, a hatched band labelled FORECAST covers the stretch, and end dots are hollow.",
+  },
+  {
+    name: "today",
+    type: "T[K]",
+    default: "—",
+    purpose: "The x value of today: a 1px rule in the link colour, labelled TODAY.",
+  },
+  {
+    name: "othersLabel",
+    type: "string",
+    default: '"others"',
+    purpose:
+      'Past five series, the ones in var(--muted-foreground) draw first in grey and share one name: "6 other funds".',
+  },
+];
+
+const LINE_RULES = [
+  "Each series is named at its line's end, in the text colour beside a square of its colour, in a gutter after the last point; ends that crowd are spread 14px apart with a short leader. On a card under 400px wide (a phone), or where the names would take more than 30% of it, they go in a legend below instead.",
+  'The palette has five colours. Past five series, name the few the page is about in colour and give the rest var(--muted-foreground): they draw first, in grey, and share one name ("6 other funds").',
+  "Lines draw in left to right over 1.3s on first draw, then the dots and names fade in; reduced motion shows them at once.",
+];
+
 const SERIES_PROPS: PropRow[] = [
   { name: "data", type: "T[]", purpose: "One row per point on the axis, in axis order." },
   {
@@ -49,6 +79,13 @@ const SERIES_PROPS: PropRow[] = [
     purpose: "The categories to label, or tick positions with xDomain. Every named tick is drawn.",
   },
   { name: "xLabel", type: "string", default: "—", purpose: "A title under the x axis. Not drawn on sideways bars." },
+  {
+    name: "stale",
+    type: "ReactNode",
+    default: "—",
+    purpose:
+      'Marks the data as old, with since when ("3 Nov"): the chart greys out and a "Stale · 3 Nov" note sits under the title.',
+  },
   {
     name: "yLabel",
     type: "string",
@@ -123,22 +160,26 @@ export const data: Page = {
     {
       id: "area-chart",
       title: "Area chart",
-      lead: "AreaChartCard draws values over an ordered axis (months, days, hours) as filled areas.",
+      lead: "AreaChartCard draws values over an ordered axis (months, days, hours): overlapping series as lines, or stacked into a total.",
       imports: ["AreaChartCard", "type ChartSeries"],
       props: [
         ...SERIES_PROPS,
+        ...LINE_MARKS_PROPS,
         X_DOMAIN,
         {
           name: "stacked",
           type: "boolean",
           default: "false",
-          purpose: "Adds the series into a total; by default areas overlap.",
+          purpose:
+            "Adds the series into a total, each band a flat tint of its colour; by default areas overlap, unfilled.",
         },
         CURVE,
         ...VALUE_SCALE_PROPS,
       ],
       rules: [
-        "The card draws the axes, the dashed grid, Geist Mono ticks, a tooltip with each series' formatted value at the hovered point, and the legend below.",
+        "The card draws the axes, a solid hairline grid, Geist Mono ticks, and a tooltip with each series' formatted value at the hovered point.",
+        "Overlapping areas have no fill: from three series on, fills bury each other. A stack fills each band with a flat tint, keeps solid edges through a forecast and names its series in a legend below.",
+        ...LINE_RULES,
         "A range toggle goes in action, top right.",
         VALUE_SCALE_RULE,
         "Stacked areas add up from zero, so their Log button is disabled.",
@@ -179,7 +220,7 @@ export const data: Page = {
           name: "selected",
           type: "T[K] | null",
           default: "null",
-          purpose: "The picked category: its bars stay solid and the rest fade.",
+          purpose: "The picked category: its bars keep their tint and the rest fade to a fainter one, edges kept.",
         },
         {
           name: "onSelect",
@@ -193,6 +234,7 @@ export const data: Page = {
         'Series take --chart-1 to --chart-5 in order and never skip a slot: each reaches 3:1 against the card and its neighbours, and slots two apart share a lightness and differ by hue. Past five, fold the rest into "Other" in --muted-foreground.',
         "A gain and a loss take var(--positive) and var(--negative): give the series color and negativeColor, and each bar takes the one its sign calls for.",
         "The value axis always includes zero, so a series of losses runs down from it.",
+        "Every bar is a tint of its colour inside a 1px full-colour edge, square; bars fade in rather than grow.",
         "The page owns the pick: hold selected in its state and set it from onSelect.",
       ],
       examples: [
@@ -214,12 +256,87 @@ export const data: Page = {
       ],
     },
     {
+      id: "chart-panels",
+      title: "Chart panels",
+      lead: "Line, area and bar cards side by side in a PanelGrid, as a page of figures uses them.",
+      imports: ["PanelGrid", "LineChartCard", "AreaChartCard", "BarChartCard"],
+      rules: [
+        "Gridlines are solid hairlines. Lines are named at their ends; bars are tints inside full-colour edges, grouped or stacked.",
+      ],
+      examples: [
+        {
+          name: "chart-panels",
+          caption:
+            "Five funds with a forecast, five kinds as lines, and money added by quarter, side by side and stacked.",
+        },
+      ],
+    },
+    {
+      id: "stale-data",
+      title: "Stale data",
+      lead: "A block whose data is old loses its colour and says since when: stale on a chart card or a SectionCards tile.",
+      imports: ["SectionCards", "AreaChartCard", "StaleNote"],
+      props: [
+        {
+          name: "stale",
+          type: "ReactNode",
+          default: "—",
+          purpose: 'Since when, as the page writes it: "3 Nov". The block greys and shows "Stale · 3 Nov".',
+        },
+      ],
+      rules: [
+        "The page decides what is stale, as it decides a tone; nothing is inferred from dates.",
+        "A stale block's colours turn grey and a tile's figure muted; marks and text keep their contrast. Another kind of block can show StaleNote on its own.",
+      ],
+      examples: [
+        {
+          name: "stale-blocks",
+          caption: "A tile and a chart whose data last came in on 3 November, beside a fresh tile.",
+        },
+      ],
+    },
+    {
+      id: "forecast-and-today",
+      title: "Forecast and today",
+      lead: "LineChartCard and AreaChartCard mark today with a rule and draw a forecast stretch dashed over a hatched band.",
+      imports: ["LineChartCard", "type ChartSeries"],
+      props: LINE_MARKS_PROPS.filter(({ name }) => name !== "othersLabel"),
+      rules: [
+        "today is a 1px rule in the link colour, labelled TODAY; forecastFrom dashes every line from that point, hatches the stretch to the last point, labels it FORECAST and hollows the end dots.",
+        "Give the forecast rows in data like any other; the page says where they start. A stacked area keeps solid edges, since a dashed copy of a band would stack twice; the band still marks the stretch.",
+      ],
+      examples: [
+        {
+          name: "chart-line-forecast",
+          caption: "Growth against plan: today marked, November and December a dashed forecast over a hatched band.",
+        },
+      ],
+    },
+    {
+      id: "many-series",
+      title: "Many series",
+      lead: "Past five series, the page names the few it is about in colour; the rest draw first in grey and share one name.",
+      imports: ["LineChartCard", "type ChartSeries"],
+      props: LINE_MARKS_PROPS.filter(({ name }) => name === "othersLabel"),
+      rules: [
+        'The palette has five colours. Give the series that matter --chart-1 onwards and the rest var(--muted-foreground): they draw first, under the named ones, and share one name at the line ends, "6 other funds", or one entry in the legend.',
+      ],
+      examples: [
+        {
+          name: "chart-line-quiet",
+          caption:
+            'Eight funds: the two being watched in colour, the other six in grey sharing one name, "6 other funds".',
+        },
+      ],
+    },
+    {
       id: "line-chart",
       title: "Line chart",
       lead: "LineChartCard draws values over an ordered axis as lines, for comparing series such as a store against its category.",
       imports: ["LineChartCard", "type ChartSeries"],
-      props: [...SERIES_PROPS, X_DOMAIN, CURVE, ...VALUE_SCALE_PROPS],
+      props: [...SERIES_PROPS, ...LINE_MARKS_PROPS, X_DOMAIN, CURVE, ...VALUE_SCALE_PROPS],
       rules: [
+        ...LINE_RULES,
         "A zero line draws by itself whenever a value goes below zero.",
         VALUE_SCALE_RULE,
         "A mode toggle sits top right; on a card narrower than about 430px it drops under the title and description, left-aligned, so a long label is never cut off.",
