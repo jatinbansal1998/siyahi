@@ -14,7 +14,10 @@ describe("page sections strip", () => {
     const { page } = catalogue;
     const strip = page.getByRole("navigation", { name: "On this page" });
     const current = () => strip.locator('[aria-current="location"]').innerText();
-    await expect.poll(current).toBe("Colours");
+    // The strip marks Colours on its first render; under a full test run one read of it can take over the poll's
+    // default second (a failing run captured the page correct, Colours marked), so this read gets the 5s the
+    // next one has.
+    await expect.poll(current, { timeout: 5000 }).toBe("Colours");
 
     await strip.getByRole("link", { name: "Type", exact: true }).click();
     await expect.poll(current, { timeout: 5000 }).toBe("Type");
