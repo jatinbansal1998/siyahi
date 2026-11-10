@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { QUIET, endLabelRoom, endLabelsFit, placeEnds, type LineEnd } from "../src/lib/chart-marks";
+import { QUIET, endLabelRoom, endLabelsFit, linesEndAtEdge, placeEnds, type LineEnd } from "../src/lib/chart-marks";
 
 const plot = { x: 40, y: 12, width: 400, height: 200 };
 const end = (name: string, x: number, y: number, quiet = false): LineEnd => ({
@@ -48,6 +48,51 @@ describe("placeEnds", () => {
 
   it("leaves out a point that maps to no number while a scale is replaced", () => {
     expect(placeEnds([end("A", Number.NaN, 20), end("B", 440, Number.POSITIVE_INFINITY)], plot, "others")).toEqual([]);
+  });
+});
+
+describe("linesEndAtEdge", () => {
+  const series = [
+    { key: "a", label: "Alpha", color: "var(--chart-1)" },
+    { key: "b", label: "Beta", color: "var(--chart-2)" },
+  ] as const;
+
+  it("names the ends when every line has a value in the last row", () => {
+    expect(
+      linesEndAtEdge(
+        [
+          { x: 1, a: 1, b: 2 },
+          { x: 2, a: 3, b: 4 },
+        ],
+        "x",
+        series,
+      ),
+    ).toBe(true);
+  });
+
+  it("keeps the legend for a line that stops short, a single point, or an axis running past the data", () => {
+    expect(
+      linesEndAtEdge(
+        [
+          { x: 1, a: 1, b: 2 },
+          { x: 2, a: null, b: 4 },
+        ],
+        "x",
+        series,
+      ),
+    ).toBe(false);
+    expect(linesEndAtEdge([{ x: 1, a: 1, b: 2 }], "x", series)).toBe(false);
+    expect(
+      linesEndAtEdge(
+        [
+          { x: 0, a: 1, b: 2 },
+          { x: 20, a: 3, b: 4 },
+        ],
+        "x",
+        series,
+        [0, 100],
+      ),
+    ).toBe(false);
   });
 });
 

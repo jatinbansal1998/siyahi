@@ -113,8 +113,10 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 - **Names at the line ends.** A line chart and overlapping areas name each
   series at its line's end, in the text colour beside a square of its colour,
   in a gutter after the last point; ends that crowd are spread 14px apart with
-  a short leader. On a card under 400px wide (a phone), or where the names
-  would take more than 30% of it, a legend goes below instead. Bars and stacks
+  a short leader. A legend goes below instead on a card under 400px wide (a
+  phone), where the names would take more than 30% of it or not fit the
+  plot's height, and where a line ends short of the plot's right edge (a
+  missing last reading, a single point, an x axis running past the data). Bars and stacks
   keep a legend.
 - **Five colours, then grey.** Past five series, the page names the few it is
   about in chart colours and gives the rest `var(--muted-foreground)`: they
@@ -122,12 +124,14 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 - **No fill under overlapping areas**: from three series on, fills bury each
   other. A stack fills each band with a flat tint, never a gradient.
 - **Forecast and today.** `forecastFrom` dashes every line from that point,
-  hatches the stretch faintly, labels it FORECAST and hollows the end dots;
+  hatches the stretch faintly behind lines on card-coloured halos, labels it
+  FORECAST and hollows the end dots (a stack keeps solid edges and no hatching:
+  its fills cover the stretch);
   `today` is a 1px rule in the link colour, labelled TODAY.
 - Gridlines are solid hairlines. Lines draw in left to right over 1.3s on
-  first draw, then the names and a stack's fills fade in, and each end dot as
-  its line finishes; bars fade in rather than grow. Reduced motion shows them
-  at once.
+  first draw, a stack's fills revealed with them; then the names fade in, and
+  each end dot as its line finishes; bars fade in rather than grow. Reduced
+  motion shows them at once.
 - **Stale data is marked by the page**: `stale` on a chart card or a
   `SectionCards` tile, with since when ("3 Nov"). The block greys, a tile's figure and badge turn muted, and a small "Stale · 3
   Nov" note says so. Marks and text keep their contrast: the marks lose their

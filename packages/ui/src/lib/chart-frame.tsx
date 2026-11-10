@@ -61,6 +61,7 @@ import {
   endLabelRoom,
   endLabelsFit,
   endNames,
+  linesEndAtEdge,
   othersName,
 } from "@siyahi/ui/lib/chart-marks";
 import { fitsLog, logAxis } from "@siyahi/ui/lib/ticks";
@@ -159,6 +160,8 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   logBlocked?: string;
   /** The marks are lines (a line chart, unstacked areas): name each series at its line's end, where there is room. */
   endLabels?: boolean;
+  /** Hatch a forecast stretch, behind lines that sit on card halos; a stack's fills cover it already. */
+  forecastHatch?: boolean;
 }
 
 /**
@@ -395,6 +398,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   yScaleToggle = false,
   logBlocked,
   endLabels = false,
+  forecastHatch = true,
   othersLabel = "others",
   forecastFrom,
   today,
@@ -409,7 +413,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const labelRoom = endLabels ? endLabelRoom(names) : 0;
   // The plot's height under the card's top margin and the x axis: the names must fit it 14px apart.
   const plotHeight = height - 12 - (xTickDetail ? 40 : 30) - (xLabel ? 18 : 0);
-  const ends = endLabels && endLabelsFit(names, contentWidth, plotHeight);
+  const ends =
+    endLabels && linesEndAtEdge(data, xKey, series, xDomain) && endLabelsFit(names, contentWidth, plotHeight);
   const quiet = series.some(({ color }) => color === QUIET);
   const formatValue = useMemo(
     () => valueFormatter ?? new Intl.NumberFormat(numberLocale).format,
@@ -619,7 +624,14 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 }
               />
               {(forecastFrom !== undefined || today !== undefined) && (
-                <TimeMarks data={data} xKey={xKey} forecastFrom={forecastFrom} today={today} clipId={clipId} />
+                <TimeMarks
+                  data={data}
+                  xKey={xKey}
+                  forecastFrom={forecastFrom}
+                  today={today}
+                  clipId={clipId}
+                  hatch={forecastHatch}
+                />
               )}
               {children}
               {ends ? (

@@ -59,19 +59,41 @@ export function AreaChartCard<T extends object, K extends keyof T>({
   ...props
 }: AreaChartCardProps<T, K>) {
   // Past forecastFrom the end is a forecast: its dot is hollow. Only overlapping series also dash, over a card
-  // halo; a stack keeps solid edges, since a dashed copy of a band would stack twice.
+  // halo, over a hatched band; a stack keeps solid edges and no hatching, since a dashed copy of a band would stack
+  // twice and its fills already cover the stretch.
   const forecastEnd = props.forecastFrom !== undefined
   const forecast = !stacked && forecastEnd
   const count = props.data.length
+  const series = stacked ? props.series : drawOrder(props.series)
   return (
     <ChartFrame
       chart={AreaChart}
       // A stack's layers add up from zero, which a log axis has no place for.
       logBlocked={stacked ? "Log cannot show stacked areas" : undefined}
       endLabels={!stacked}
+      forecastHatch={!stacked}
       {...props}
     >
-      {(stacked ? props.series : drawOrder(props.series)).map(({ key, color }) => {
+      {/* Every forecast's card-coloured halo first, under every line, so the hatching never runs beside a dashed
+          line and no series' halo can erase a neighbour's. */}
+      {forecast &&
+        series.map(({ key }) => (
+          <Area
+            key={`halo-${key}`}
+            dataKey={key}
+            type={curve}
+            fill="none"
+            stroke="var(--card)"
+            strokeWidth={6}
+            dot={false}
+            activeDot={false}
+            tooltipType="none"
+            legendType="none"
+            className="chart-forecast"
+            animationDuration={1300}
+          />
+        ))}
+      {series.map(({ key, color }) => {
         const quiet = color === QUIET
         return (
           <Fragment key={key}>
@@ -88,22 +110,6 @@ export function AreaChartCard<T extends object, K extends keyof T>({
               className={forecast ? "chart-actual" : undefined}
               animationDuration={1300}
             />
-            {forecast && (
-              // A card-coloured halo under the dashed line, so the forecast's hatching never runs beside it.
-              <Area
-                dataKey={key}
-                type={curve}
-                fill="none"
-                stroke="var(--card)"
-                strokeWidth={6}
-                dot={false}
-                activeDot={false}
-                tooltipType="none"
-                legendType="none"
-                className="chart-forecast"
-                animationDuration={1300}
-              />
-            )}
             {forecast && (
               <Area
                 dataKey={key}

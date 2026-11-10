@@ -47,6 +47,23 @@ export function endLabelRoom(names: readonly string[]): number {
   return Math.ceil(NAME_START + Math.max(0, ...names.map(nameWidth)) + 8);
 }
 
+/**
+ * Whether every line ends on the plot's right edge: each series has a value in the last row, there is more than one
+ * row, and a numeric x axis runs no further than the data. A line that stops short would need a long leader across
+ * the others to reach its name, so the chart keeps its legend then.
+ */
+export function linesEndAtEdge<T extends object, K extends keyof T>(
+  data: readonly T[],
+  xKey: K,
+  series: ChartSeries<T>,
+  xDomain?: readonly [number, number],
+): boolean {
+  const last = data.at(-1);
+  if (!last || data.length < 2) return false;
+  if (xDomain && Number(last[xKey]) < xDomain[1]) return false;
+  return series.every(({ key }) => Number.isFinite(last[key as keyof T]));
+}
+
 // Below this width (a phone) the names would take too much of the plot, so a legend goes under it instead.
 const END_LABELS_MIN_WIDTH = 400;
 
@@ -200,6 +217,8 @@ interface TimeMarksProps<T extends object, K extends keyof T> {
   today?: T[K];
   /** Prefix of the clip paths the series' actual and forecast copies use (`<id>-actual`, `<id>-forecast`). */
   clipId: string;
+  /** Hatch the forecast stretch; a stack's fills already cover it, so a stacked chart only labels it. */
+  hatch: boolean;
 }
 
 /**
@@ -213,6 +232,7 @@ export function TimeMarks<T extends object, K extends keyof T>({
   forecastFrom,
   today,
   clipId,
+  hatch,
 }: TimeMarksProps<T, K>) {
   const xScale = useXAxisScale();
   const plot = usePlotArea();
@@ -244,7 +264,9 @@ export function TimeMarks<T extends object, K extends keyof T>({
               <line x1={0} y1={0} x2={0} y2={7} stroke="var(--foreground)" strokeOpacity={0.16} />
             </pattern>
           </defs>
-          <rect x={cut} y={top} width={Math.max(0, end - cut)} height={plot.height} fill={`url(#${clipId}-hatch)`} />
+          {hatch && (
+            <rect x={cut} y={top} width={Math.max(0, end - cut)} height={plot.height} fill={`url(#${clipId}-hatch)`} />
+          )}
           <text
             x={end - 4}
             y={top + 12}

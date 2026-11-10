@@ -27,9 +27,10 @@ const LINE_MARKS_PROPS: PropRow[] = [
 ];
 
 const LINE_RULES = [
-  "Each series is named at its line's end, in the text colour beside a square of its colour, in a gutter after the last point; ends that crowd are spread 14px apart with a short leader. On a card under 400px wide (a phone), or where the names would take more than 30% of it, they go in a legend below instead.",
+  "Each series is named at its line's end, in the text colour beside a square of its colour, in a gutter after the last point; ends that crowd are spread 14px apart with a short leader. They go in a legend below instead on a card under 400px wide (a phone), where they would take more than 30% of it or not fit its height, and where a line ends short of the right edge.",
   'The palette has five colours. Past five series, name the few the page is about in colour and give the rest var(--muted-foreground): they draw first, in grey, and share one name ("6 other funds").',
   "Lines draw in left to right over 1.3s on first draw, then the dots and names fade in; reduced motion shows them at once.",
+  "A forecast's lines dash over a card-coloured halo, so the hatching never runs beside them; a stack keeps solid edges and no hatching.",
 ];
 
 const SERIES_PROPS: PropRow[] = [

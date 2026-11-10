@@ -131,7 +131,10 @@ describe("chart ink", { timeout: 60_000 }, () => {
     const panels = await open("data/chart-panels", "Chart panels");
     const names = card(panels, "Growth by fund").locator('[data-slot="end-labels"]');
     await names.waitFor();
-    expect(await names.evaluate(timing)).toEqual(["chart-fade-in", "1.1s"]);
+    // The names wait for the 1.3s draw; a stack's fills reveal with their lines, so no fade can blank them on an update.
+    expect(await names.evaluate(timing)).toEqual(["chart-fade-in", "1.3s"]);
+    const fill = card(panels, "Value by kind").locator(".recharts-area-area").first();
+    expect((await fill.evaluate(timing))[0]).toBe("none");
     const bars = card(panels, "Money added by kind and quarter").first().locator(".recharts-bar-rectangles").first();
     expect(await bars.evaluate(timing)).toEqual(["chart-fade-in", "0s"]);
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -147,6 +150,12 @@ describe("chart ink", { timeout: 60_000 }, () => {
     const chart = card(await open("data/forecast-and-today", "Forecast and today"), "Growth against plan");
     const halos = chart.locator('.recharts-line.chart-forecast .recharts-line-curve[stroke="var(--card)"]');
     await expect.poll(() => halos.count()).toBe(2);
+    // Every halo paints before every coloured line, so no series' halo covers a neighbour's dashes.
+    const order = await chart
+      .locator(".recharts-line-curve")
+      .evaluateAll((curves) => curves.map((curve) => curve.getAttribute("stroke") === "var(--card)"));
+    expect(order.slice(0, 2)).toEqual([true, true]);
+    expect(order.slice(2).every((halo) => !halo)).toBe(true);
     const labels = await chart
       .locator('[data-slot="time-marks"] text')
       .evaluateAll((texts) => texts.map((text) => [getComputedStyle(text).paintOrder, getComputedStyle(text).stroke]));

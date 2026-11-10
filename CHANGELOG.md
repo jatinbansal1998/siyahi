@@ -13,8 +13,9 @@
   `HistogramChart`'s and `WaterfallChart`'s totals included, is a 25% tint
   inside a 1px edge of its colour, square, fading in rather than growing; a
   selection dims the others to a 10% tint (was a 55% mix). Lines draw in over
-  1.3s, then the names and a stack's fills fade in; reduced motion shows all
-  at once. A forecast's dashed lines and its labels sit on card-coloured
+  1.3s, a stack's fills revealed with them, then the names fade in; reduced
+  motion shows all at once. Names at the line ends need every line to end on
+  the plot's right edge; otherwise the legend stays. A forecast's dashed lines and its labels sit on card-coloured
   halos over the hatching.
 - Stale data: `stale` (since when, such as "3 Nov") on any chart card and on a
   `SectionCards` item greys the block, mutes a tile's figure

@@ -51,9 +51,28 @@ export function LineChartCard<T extends object, K extends keyof T>({
 }: LineChartCardProps<T, K>) {
   const forecast = props.forecastFrom !== undefined
   const count = props.data.length
+  const series = drawOrder(props.series)
   return (
     <ChartFrame chart={LineChart} endLabels {...props}>
-      {drawOrder(props.series).map(({ key, color }) => {
+      {/* Every forecast's card-coloured halo first, under every line, so the hatching never runs beside a dashed
+          line and no series' halo can erase a neighbour's. */}
+      {forecast &&
+        series.map(({ key }) => (
+          <Line
+            key={`halo-${key}`}
+            dataKey={key}
+            type={curve}
+            stroke="var(--card)"
+            strokeWidth={6}
+            dot={false}
+            activeDot={false}
+            tooltipType="none"
+            legendType="none"
+            className="chart-forecast"
+            animationDuration={1300}
+          />
+        ))}
+      {series.map(({ key, color }) => {
         // A quiet series is background for the named ones: no end dot. With a forecast, the end is a forecast: only
         // the dashed copy marks it, hollow.
         const dot = color === QUIET || forecast ? false : endDot(color, count)
@@ -68,21 +87,6 @@ export function LineChartCard<T extends object, K extends keyof T>({
               className={forecast ? "chart-actual" : undefined}
               animationDuration={1300}
             />
-            {forecast && (
-              // A card-coloured halo under the dashed line, so the forecast's hatching never runs beside it.
-              <Line
-                dataKey={key}
-                type={curve}
-                stroke="var(--card)"
-                strokeWidth={6}
-                dot={false}
-                activeDot={false}
-                tooltipType="none"
-                legendType="none"
-                className="chart-forecast"
-                animationDuration={1300}
-              />
-            )}
             {forecast && (
               <Line
                 dataKey={key}
