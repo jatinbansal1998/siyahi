@@ -84,6 +84,16 @@
   the colour (`--wash`, 7% in light, 12% in dark) and a tile an outline of it.
   The contrast check scores text, icons and badge dots on both washes, and a
   `Pair`'s `bg` may now list fills laid one over another.
+- A data table and a `MetricStrip` take the same tones. `getRowTone` on
+  `DataTableBody` returns `"negative"`, `"warning"` or `undefined` for each
+  row, such as `(h) => (h.flag === "DEEP_LOSS" ? "negative" : undefined)`;
+  the row is washed as a `TableRow` with `data-tone` is, its pinned cell
+  included. `tone` on a `MetricStripItem` washes that figure and outlines it on
+  the hairlines around it, as a `SectionCards` tile's tone does.
+- A data table on an open surface paints its pinned cells and sticky header in
+  the page colour, not the card's, which drew a stripe down the pinned column
+  there (in dark mode most). The theme sets `--table-fill`, the colour under
+  the table, for both.
 
 - Charts offer their own Linear and Log buttons. `xScaleToggle` and
   `yScaleToggle` on `ScatterChartCard`, and `yScaleToggle` on `LineChartCard`

@@ -25,6 +25,8 @@ export default function MetricStripExample() {
       change: -61200,
       changeFormat: "money",
       trend: [14200, -3800, 9100, 2600, -18400, -61200],
+      // The one figure on the strip that needs a look, marked by the page: a falling margin alone would not be.
+      tone: "negative",
     },
     { label: "Gift cards", value: moneyCompact(38400), change: 0.18, trend: [4100, 0, 12800, 3300, 9900, 8300] },
     { label: "Products", value: count(42), note: "3 added in Oct", trend: [38, 39, 39, 40, 39, 42] },

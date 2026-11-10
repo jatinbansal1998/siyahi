@@ -555,12 +555,13 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * An exception the page marks, a stat tile (SectionCard's tone) or a table
- * row (<TableRow data-tone="negative">), takes a faint wash of its colour over
- * the card, and a tile an outline of it, so the one figure needing attention
+ * An exception the page marks, a stat tile (SectionCard's tone), a MetricStrip
+ * figure (its item's tone) or a table row (<TableRow data-tone="negative">, a
+ * DataTableBody's getRowTone), takes a faint wash of its colour over the card,
+ * and a tile or figure an outline of it, so the one figure needing attention
  * stands out of a run of neutral ones. Unlayered, to outrank a row's hover band.
  */
-:is([data-slot="card"], [data-slot="table-row"]) {
+:is([data-slot="card"], [data-slot="metric-strip-item"], [data-slot="table-row"]) {
   &[data-tone="negative"] {
     --exception: var(--negative);
   }
@@ -568,12 +569,33 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
     --exception: var(--warning);
   }
 }
-[data-slot="card"]:is([data-tone="negative"], [data-tone="warning"]) {
+:is([data-slot="card"], [data-slot="metric-strip-item"]):is([data-tone="negative"], [data-tone="warning"]) {
   background-color: color-mix(in oklab, var(--exception) var(--wash), var(--card));
+}
+[data-slot="card"]:is([data-tone="negative"], [data-tone="warning"]) {
   --tw-ring-color: color-mix(in oklab, var(--exception) var(--wash-edge), transparent);
 }
+/*
+ * A figure's outline lies on the four hairlines around it, as a tile's ring does: its neighbours' rules before and
+ * above it, and its own end and bottom rules, which sit outside the padding box the inset counts from.
+ */
+[data-slot="metric-strip-item"]:is([data-tone="negative"], [data-tone="warning"]) {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border: 1px solid color-mix(in oklab, var(--exception) var(--wash-edge), transparent);
+    pointer-events: none;
+  }
+}
+/* A pinned cell paints the card under itself (niko-table's lib/styles), so it lays the row's wash over that. */
 [data-slot="table-row"]:is([data-tone="negative"], [data-tone="warning"]) {
-  background-color: color-mix(in oklab, var(--exception) var(--wash), transparent);
+  --row-wash: color-mix(in oklab, var(--exception) var(--wash), transparent);
+  background-color: var(--row-wash);
+  & > [data-pinned] {
+    background-image: linear-gradient(var(--row-wash), var(--row-wash));
+  }
 }
 
 /*
@@ -614,6 +636,14 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
   [data-slot="card"] [data-slot="table-container"] {
     border-color: transparent;
   }
+}
+/*
+ * The opaque fill a data table's sticky header and pinned cells paint, so rows
+ * scrolling under them stay hidden: the colour under the table, the card it
+ * sits in or, on an open surface, whose cards have no fill, the page.
+ */
+[data-slot="table-container"] {
+  --table-fill: var(--card);
 }
 
 /*
@@ -804,6 +834,9 @@ div[data-slot="sidebar"]:not([data-side], [data-mobile]) {
 }
 
 @scope ([data-surface="open"]) to ([data-surface="ruled"], [data-surface="card"]) {
+  [data-slot="table-container"] {
+    --table-fill: var(--background);
+  }
   [data-slot="card"] {
     background: none;
     --tw-ring-color: transparent;

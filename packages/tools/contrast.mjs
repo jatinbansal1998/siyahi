@@ -114,8 +114,9 @@ const PAIRS = [
   // default 30% grey, so a bad day stands out of a run of good ones.
   ...["warning", "destructive"].map((fg) => ({ fg, bg: "muted-foreground/30", min: MARK })),
   // An exception the page marks, washed in its tone at the theme's --wash. A
-  // stat tile mixes the tone into the card, opaque (`@wash`); a table row lays
-  // it over what is under it (`/wash`). On either: text, muted lines, a Delta
+  // stat tile or a MetricStrip figure mixes the tone into the card, opaque
+  // (`@wash`); a table row lays it over what is under it (`/wash`), and a data
+  // table's pinned cell over its own card colour. On either: text, muted lines, a Delta
   // icon and --chart-1 (a tile's Sparkline, a row's DataBar; a run of gains or
   // losses takes --positive or --negative, as the SectionCards rule says). A
   // tile's footer band sits over its wash, and a StatusBadge's dot on its own

@@ -64,19 +64,26 @@ describe("data table surfaces", () => {
     await act(async () => root?.render(<DataTableExample />));
   });
 
-  it("paints the pinned column in the card's colour, so it shows no stripe inside a card", () => {
+  it("paints the pinned column in the colour under the table, so it shows no stripe", () => {
     const pinned = [...document.querySelectorAll<HTMLElement>('[data-col-id="product"]')];
     expect(pinned.length).toBe(productsShown + 1);
-    for (const cell of pinned) expect(cell.style.backgroundColor).toBe("var(--card)");
+    for (const cell of pinned) expect(cell.style.backgroundColor).toBe("var(--table-fill)");
   });
 
-  it("paints the sticky header in the card's colour", () => {
-    expect(document.querySelector("thead")?.classList.contains("bg-card")).toBe(true);
+  it("paints the sticky header in the colour under the table", () => {
+    expect(document.querySelector("thead")?.classList.contains("bg-(--table-fill)")).toBe(true);
   });
 
   it("rules the pinned column with a hairline at the row lines' weight", () => {
     const pinned = document.querySelector<HTMLElement>('td[data-col-id="product"]');
     expect(pinned?.getAttribute("style")).toContain("box-shadow: inset -1px 0 0 0 var(--border);");
+  });
+
+  it("marks only the row the page tones, and flags its pinned cell for the theme's wash", () => {
+    const tones = [...document.querySelectorAll("tbody tr")].map((row) => row.getAttribute("data-tone"));
+    // The example tones the one product selling under 50 units, the bookshelf.
+    expect(tones).toEqual([null, null, "warning", null, null, null]);
+    expect(document.querySelector("tbody tr[data-tone] > td[data-pinned]")?.textContent).toBe("Bookshelf");
   });
 
   // happy-dom paints nothing, so this checks that the pinned cells and the

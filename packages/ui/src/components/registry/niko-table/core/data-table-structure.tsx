@@ -4,12 +4,16 @@
 // Copied: 2026-10-20, sha256 ac49fcb1b9ca0f6df40abb9b64e0fd3fae5505e23cb56fc9256958aa7dc7753f
 // Siyahi edit: the table primitive comes from niko's own copy in ../ui/table,
 // not shadcn core's table.tsx, which has no TableComponent export.
-// Siyahi edit: the sticky header paints bg-card, not bg-background. A Siyahi
-// table sits in a card, where the page background is a darker band in dark mode.
+// Siyahi edit: the sticky header paints the theme's --table-fill, not
+// bg-background: the card a table sits in, where the page background is a
+// darker band in dark mode, or the page on an open surface.
 // Siyahi edit: a pinned cell draws its row's hover and selected tint as a flat
 // gradient over its opaque inline background, which outranks bg-* classes.
 // Siyahi edit: a number column's head and cells carry data-numeric, which the
 // theme right-aligns so figures line up by their units.
+// Siyahi edit: `getRowTone` on DataTableBody marks the row that needs a look
+// with data-tone, as a page marks a plain TableRow, and a pinned cell carries
+// data-pinned, so the theme washes it with the rest of its row.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
@@ -78,7 +82,7 @@ export const DataTableHeader = React.memo(function DataTableHeader({
   return (
     <TableHeader
       className={cn(
-        sticky && "sticky top-0 z-30 bg-card",
+        sticky && "sticky top-0 z-30 bg-(--table-fill)",
         // Ensure border is visible when sticky using pseudo-element
         sticky &&
           "after:absolute after:right-0 after:bottom-0 after:left-0 after:h-px after:bg-border",
@@ -194,6 +198,8 @@ interface BodyRowProps {
    * specific row out of having a menu.
    */
   renderRowContextMenu?: (row: unknown) => React.ReactNode
+  /** The page's exception tone for this row; the theme washes the row in it. */
+  tone: "negative" | "warning" | undefined
 }
 
 /** Fade-pulse animation applied to a flashing cell (keyframe in the provider). */
@@ -211,6 +217,7 @@ const BodyRow = React.memo(function BodyRow({
   isRowFlashing,
   flashingCellKeys,
   renderRowContextMenu,
+  tone,
 }: BodyRowProps) {
   const expandCell =
     isExpanded && expandColumnId
@@ -229,12 +236,14 @@ const BodyRow = React.memo(function BodyRow({
       data-parity={displayIndex % 2 === 0 ? "even" : "odd"}
       data-expanded={isExpanded ? "true" : undefined}
       data-state={isSelected ? "selected" : undefined}
+      data-tone={tone}
       className={cn(
         isClickable && "cursor-pointer",
         "group data-[context-menu-open]:bg-muted/50",
       )}
     >
       {visibleCells.map(cell => {
+        const pinned = !isCompact && cell.column.getIsPinned()
         const flashing =
           isRowFlashing ||
           flashingCellKeys.has(flashCellKey(row.id, cell.column.id))
@@ -252,6 +261,7 @@ const BodyRow = React.memo(function BodyRow({
             data-flash={flashing ? "true" : undefined}
             data-col-id={cell.column.id}
             data-numeric={cell.column.columnDef.meta?.variant === "number" || undefined}
+            data-pinned={pinned || undefined}
             style={cellStyle}
             className={cn(
               // Match virtualized/grid: clip overflow. `truncate` adds ellipsis
@@ -261,7 +271,7 @@ const BodyRow = React.memo(function BodyRow({
               !cell.getIsGrouped() && "truncate",
               // The opaque colour is inline (getCommonPinningStyles); the
               // tint is a gradient layer over it, so nothing shows through.
-              !isCompact && cell.column.getIsPinned() &&
+              pinned &&
                 "bg-linear-to-r group-hover:from-muted/50 group-hover:to-muted/50 group-data-[context-menu-open]:from-muted/50 group-data-[context-menu-open]:to-muted/50 group-data-[state=selected]:from-muted group-data-[state=selected]:to-muted",
             )}
           >
@@ -332,6 +342,13 @@ export interface DataTableBodyProps<TData extends RowData> {
    * Wrap the callback in `useCallback` so memoized rows don't re-render.
    */
   renderRowContextMenu?: (row: TData) => React.ReactNode
+  /**
+   * Mark the row that needs a look, such as a holding in deep loss: return
+   * `"negative"` or `"warning"` and the row takes a faint wash of that
+   * colour, as a `TableRow` with `data-tone` does; `undefined` leaves it
+   * plain. The page decides, never the sign. Mark one or two rows.
+   */
+  getRowTone?: (row: TData) => "negative" | "warning" | undefined
 }
 
 export function DataTableBody<TData extends RowData>({
@@ -344,6 +361,7 @@ export function DataTableBody<TData extends RowData>({
   onRowClick,
   getRowMemoKey,
   renderRowContextMenu,
+  getRowTone,
 }: DataTableBodyProps<TData>) {
   const {
     table,
@@ -616,6 +634,7 @@ export function DataTableBody<TData extends RowData>({
                   resolvedRenderRowContextMenu as
                     ((row: unknown) => React.ReactNode) | undefined
                 }
+                tone={getRowTone?.(row.original as TData)}
               />
             ),
           )

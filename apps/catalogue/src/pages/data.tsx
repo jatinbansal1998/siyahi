@@ -650,6 +650,13 @@ export const data: Page = {
           purpose: "Rows before any filter; pass it when the page narrowed the data before the table.",
         },
         {
+          name: "DataTableBody getRowTone",
+          type: '(row) => "negative" | "warning" | undefined',
+          default: "—",
+          purpose:
+            "Marks the row that needs a look with a faint wash of the colour, as data-tone on a TableRow does, the pinned cell included.",
+        },
+        {
           name: "meta.compact",
           type: "boolean",
           default: "false",
@@ -671,7 +678,8 @@ export const data: Page = {
       examples: [
         {
           name: "data-table",
-          caption: "Search, a category filter, one-click sort headers, the row count and a pinned product column.",
+          caption:
+            "Search, a category filter, one-click sort headers, the row count and a pinned product column; the one product selling under 50 units is marked warning.",
         },
         {
           name: "data-table-filters",

@@ -51,9 +51,10 @@ a meaning:
   colour, not separate hues.
 - **Colour marks exceptions.** The one stat tile or table row that needs a look
   is marked by the page: `tone: "negative"` or `"warning"` on a `SectionCards`
-  item, `data-tone="negative"` or `"warning"` on a `TableRow`. It takes a faint
-  wash of the colour over the card (7% in light, 12% in dark), and a tile an
-  outline of it. The page decides, never the sign: a falling cost is good news.
+  or `MetricStrip` item, `data-tone="negative"` or `"warning"` on a `TableRow`,
+  and `getRowTone` on a `DataTableBody`, returning the tone for the row. It
+  takes a faint wash of the colour over the card (7% in light, 12% in dark),
+  and a tile or figure an outline of it. The page decides, never the sign: a falling cost is good news.
   Mark one or two; a page where every row is washed marks nothing.
 
 ## Surfaces
