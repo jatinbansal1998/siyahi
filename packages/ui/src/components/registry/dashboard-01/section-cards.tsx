@@ -44,7 +44,8 @@
 // the grid is filled with the card colour, so the row stands off the page,
 // each tile's rules sit on its bottom and end edges, and the footer keeps its
 // rule and band: the empty cell at the end of a 3 + 2 row is a blank stretch
-// of the sheet, ruled off like the rest.
+// of the sheet, ruled off like the rest. The row carries data-surface, so the
+// theme draws the surface the row laid itself out for even inside a portal.
 // Siyahi edit: the label and the footer lines are small monospaced capitals
 // (`font-mono text-2xs tracking-wider uppercase`), set apart from the figure.
 // Siyahi edit: `tone` marks a tile as an exception (a loss, a figure behind
@@ -106,7 +107,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
   const surface = useSurface()
   const ruled = surface === "ruled"
   return (
-    <div className={cn("@container/main", ruled && "overflow-hidden border-y")}>
+    <div data-surface={surface} className={cn("@container/main", ruled && "overflow-hidden border-y")}>
       <div className={cn("grid grid-cols-1", ruled ? "-me-px -mb-px bg-card" : surface === "open" ? "gap-4" : "gap-2", COLUMNS[items.length] ?? COLUMNS[4])}>
         {items.map((item) => (
           <div key={item.label} data-slot="section-card" className={cn("min-w-0", ruled && "border-e border-b")}>

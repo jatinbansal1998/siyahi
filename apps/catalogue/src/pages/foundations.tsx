@@ -229,7 +229,7 @@ export const foundations: Page = {
       props: [
         {
           name: "surface",
-          type: '"card" | "ruled" | "open"',
+          type: '"ruled" | "card" | "open"',
           default: '"ruled"',
           purpose: "Set on a nested provider for one part of a page; left out, a provider keeps the surface around it.",
         },

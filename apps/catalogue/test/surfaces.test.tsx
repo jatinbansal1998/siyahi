@@ -144,7 +144,37 @@ describe("surfaces", { timeout: 60_000 }, () => {
     await pick("Ruled");
   });
 
+  it("keeps a card-surface grid's cards boxed when a portal draws it outside the provider's element", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/foundations/surfaces"));
+    await pick("Card");
+    // A dialog, sheet or popover renders under <body>, outside the provider's data-surface element.
+    const drawn = await example()
+      .locator('[data-slot="panel-grid"]')
+      .evaluate((grid) => {
+        const copy = document.body.appendChild(grid.cloneNode(true)) as HTMLElement;
+        const card = getComputedStyle(copy.querySelector('[data-slot="card"]') as Element);
+        const result = { ring: card.boxShadow, rules: [card.borderTopWidth, card.borderBottomWidth] };
+        copy.remove();
+        return result;
+      });
+    expect(transparentRing(drawn.ring)).toBe(false);
+    expect(drawn.rules).toEqual(["0px", "0px"]);
+    await pick("Ruled");
+  });
+
+  it("rules a lone card in a ruled provider nested inside a card, as a family index's preview is", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/data"));
+    const preview = page
+      .locator('[data-slot="family-preview"] [data-slot="siyahi-provider"] [data-slot="card"]')
+      .first();
+    await preview.waitFor({ state: "attached" });
+    expect(
+      await preview.evaluate((el) => [getComputedStyle(el).borderTopWidth, getComputedStyle(el).borderBottomWidth]),
+    ).toEqual(["1px", "1px"]);
+  });
+
   it("is ruled outside any provider: a lone card filled, with no ring and a rule above and below", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/foundations/surfaces"));
     const drawn = await example()
       .locator('[data-slot="card"]', { hasText: "Top products" })
       .evaluate((card) => {

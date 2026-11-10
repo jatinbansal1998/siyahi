@@ -28,7 +28,13 @@ export function PanelGrid({ columns = 2, children, className }: PanelGridProps) 
   const surface = useSurface();
   const ruled = surface === "ruled";
   return (
-    <div data-slot="panel-grid" className={cn("@container/panels", ruled && "overflow-clip border-y", className)}>
+    // data-surface carries the surface this grid laid itself out for to the theme's CSS, which cannot read React
+    // context: inside a dialog or popover, portaled out of the provider's element, the two would otherwise disagree.
+    <div
+      data-slot="panel-grid"
+      data-surface={surface}
+      className={cn("@container/panels", ruled && "overflow-clip border-y", className)}
+    >
       <div
         className={cn(
           "grid grid-cols-1",

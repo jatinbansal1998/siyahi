@@ -550,8 +550,13 @@
   [data-slot="card"] {
     --tw-ring-color: transparent;
   }
-  /* A card inside a panel or a tile's cell, or nested in another card, is ruled by what holds it. */
-  [data-slot="card"]:not(:is([data-slot="panel"], [data-slot="section-card"], [data-slot="card"]) [data-slot="card"]) {
+  /*
+   * A card inside a panel or a tile's cell, or nested in another card, is ruled by what holds it; only a holder
+   * inside this scope counts, so a ruled provider inside a card starts its own lone cards afresh.
+   */
+  [data-slot="card"]:not(
+    :scope :is([data-slot="panel"], [data-slot="section-card"], [data-slot="card"]) [data-slot="card"]
+  ) {
     border-block: 1px solid var(--border);
   }
 }

@@ -8,7 +8,7 @@ import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
  * from the next, for a page of separate blocks. "open": no fill and no lines, the block's content level with the
  * page's text.
  */
-export type Surface = "ruled" | "open" | "card";
+export type Surface = "ruled" | "card" | "open";
 
 const LocaleContext = createContext<SiyahiLocale>(defaultLocale);
 const SurfaceContext = createContext<Surface>("ruled");
