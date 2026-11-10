@@ -115,7 +115,8 @@ ledger totals, the masthead and exception tones.
 Nest a provider to change one section. A dialog, sheet or popover renders
 outside the page's provider element: `PanelGrid` and `SectionCards` carry
 their surface into it, but a lone `Card` there is ruled unless the popup's
-content sits in its own `SiyahiProvider`. Stack `PageSection` blocks with
+content sits in its own provider with an explicit surface, such as
+`<SiyahiProvider surface="card">`; a provider without one draws no element. Stack `PageSection` blocks with
 `flex flex-col gap-6`; use `PanelGrid` for blocks side by side. Categories use
 neutral outline badges, leaving colour for meaning and chart series.
 
