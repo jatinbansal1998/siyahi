@@ -79,8 +79,7 @@ on every heat step); 3:1 for a field's edge (`--input`) against the page and its
 own fill, the focus ring (against the page, the card, a tab list and the
 sidebar around a control, and its inner page-colour ring against a primary
 fill), a selected tab against its list, and chart and
-meaning colours against the page and the slots next to them, a waterfall's
-gain and loss edges against their own tint, every chart colour against the
+meaning colours against the page and the slots next to them, every chart colour against the
 40% band a chart card lays behind a hovered category, and a StatusHeatmap's
 degraded and critical days against a healthy one. Every colour must
 sit inside sRGB. When a component paints a token on a new fill, add the pair to

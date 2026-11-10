@@ -31,6 +31,13 @@ const card = (scope: Locator, title: string): Locator =>
 const endNames = (chart: Locator): Promise<string[]> =>
   chart.locator('[data-slot="end-labels"] text').allTextContents();
 
+/** How strongly an element draws: its opacity times every ancestor's, as the browser composites them. */
+const strength = (el: Element): number => {
+  let value = 1;
+  for (let node: Element | null = el; node; node = node.parentElement) value *= Number(getComputedStyle(node).opacity);
+  return value;
+};
+
 /** An element's fade-in: its animation's name and delay. */
 const timing = (el: Element): string[] => [getComputedStyle(el).animationName, getComputedStyle(el).animationDelay];
 
@@ -239,11 +246,16 @@ describe("chart ink", { timeout: 60_000 }, () => {
         .locator('[data-slot="chart"]')
         .evaluate((el) => [getComputedStyle(el).filter, getComputedStyle(el).opacity]),
     ).toEqual(["grayscale(1)", "0.65"]);
-    // The note keeps its text contrast: it sits outside the faded chart, at full strength.
-    expect(
-      await chart
-        .locator('[data-slot="stale-note"]')
-        .evaluate((el) => [el.closest('[data-slot="chart"]'), getComputedStyle(el).opacity]),
-    ).toEqual([null, "1"]);
+    expect(await tile.locator('[data-slot="sparkline"]').evaluate((el) => getComputedStyle(el).opacity)).toBe("0.65");
+    // The notes, the tile's figure and its badge keep their text contrast: drawn at full strength, nothing above
+    // them faded either.
+    for (const text of [
+      chart.locator('[data-slot="stale-note"]'),
+      tile.locator('[data-slot="stale-note"]'),
+      tile.locator('[data-slot="card-title"]'),
+      tile.locator('[data-slot="badge"]'),
+    ]) {
+      expect(await text.evaluate(strength)).toBe(1);
+    }
   });
 });
