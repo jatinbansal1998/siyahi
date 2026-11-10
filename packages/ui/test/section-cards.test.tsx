@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { Card } from "../src/components/ui/card";
 import { SectionCards } from "../src/components/registry/dashboard-01/section-cards";
+import { SiyahiProvider, type Surface } from "../src/components/siyahi/siyahi-provider";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -22,6 +23,42 @@ const surface = (className: string | undefined): string[] =>
   (className ?? "").split(/\s+/).filter((token) => /^(bg-|from-|to-|via-|shadow-)/.test(token.split(":").at(-1) ?? ""));
 
 describe("SectionCards", () => {
+  // The theme washes a card by its data-tone; a falling figure alone must not mark it, only the page's tone.
+  it("sets tiles 8px apart on a card surface and 16px apart on an open one", async () => {
+    const gaps: Record<string, string | undefined> = {};
+    for (const pick of ["card", "open"] satisfies Surface[]) {
+      root = createRoot(document.body.appendChild(document.createElement("div")));
+      await act(async () =>
+        root?.render(
+          <SiyahiProvider surface={pick}>
+            <SectionCards items={[{ label: "Invested", value: "₹40,25,000" }]} />
+          </SiyahiProvider>,
+        ),
+      );
+      const grid = document.querySelector('[data-slot="section-card"]')?.parentElement;
+      gaps[pick] = grid?.className.split(/\s+/).find((token) => token.startsWith("gap-"));
+      await act(async () => root?.unmount());
+      document.body.replaceChildren();
+    }
+    expect(gaps).toEqual({ card: "gap-2", open: "gap-4" });
+  });
+
+  it("marks only the tile the page sets a tone on", async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <SectionCards
+          items={[
+            { label: "Cash flow", value: "-₹61,200", tone: "negative" },
+            { label: "Costs", value: "₹12,000", badge: "-8%" },
+          ]}
+        />,
+      ),
+    );
+    const tones = [...document.querySelectorAll('[data-slot="card"]')].map((card) => card.getAttribute("data-tone"));
+    expect(tones).toEqual(["negative", null]);
+  });
+
   // dashboard-01 painted its tiles with a gradient and its own shadow through
   // `*:data-[slot=card]:` classes on the grid; a tile is a stock Card instead.
   it("leaves its tiles the stock Card surface", async () => {

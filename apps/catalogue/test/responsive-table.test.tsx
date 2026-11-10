@@ -79,7 +79,8 @@ describe("responsive table", () => {
     const { page } = catalogue;
     const card = page.locator('#data-table [data-slot="card"]', { hasText: "Products on a phone" });
     const table = card.locator("table");
-    const headers = () => table.locator("thead th").allInnerTexts();
+    // The source text: innerText follows the heads' text-transform and reads them in capitals.
+    const headers = () => table.locator("thead th").allTextContents();
     await page.setViewportSize({ width: 390, height: 844 });
     await expect.poll(async () => (await headers()).join("|")).toBe("Product|Revenue");
     expect(await table.locator("tbody tr").first().innerText()).toContain("1.8%");

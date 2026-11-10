@@ -31,6 +31,19 @@ describe("SiyahiProvider", () => {
     );
     // Open parts blocks with whitespace; a ruled grid would rule each panel's edges.
     expect(html).toContain("gap-x-8");
-    expect(html).not.toContain("border-l");
+    expect(html).not.toContain("border-e");
+  });
+
+  it("rules a page that sets no surface: ruled is the default, with or without a provider", () => {
+    const grid = (
+      <PanelGrid>
+        <p>Block</p>
+      </PanelGrid>
+    );
+    for (const html of [renderToStaticMarkup(grid), renderToStaticMarkup(<SiyahiProvider>{grid}</SiyahiProvider>)]) {
+      // A rule above and below the grid, and each panel's rules on its bottom and end edges.
+      expect(html).toContain("border-y");
+      expect(html).toContain("border-e border-b");
+    }
   });
 });

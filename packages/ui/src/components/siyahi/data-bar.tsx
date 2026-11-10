@@ -22,8 +22,8 @@ export function DataBar({ value, max, tone = "chart", children, className }: Dat
   const fill = tone === "chart" ? "bg-chart-1" : value < 0 ? "bg-negative" : "bg-positive";
   return (
     <div data-slot="data-bar" className={cn("flex items-center gap-2", className)}>
-      <div aria-hidden="true" className="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
-        <div className={cn("h-full rounded-full", fill)} style={{ width: `${share * 100}%` }} />
+      <div aria-hidden="true" className="h-1.5 w-16 shrink-0 overflow-hidden bg-muted">
+        <div className={cn("h-full", fill)} style={{ width: `${share * 100}%` }} />
       </div>
       <span className="tabular-nums">{children}</span>
     </div>

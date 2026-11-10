@@ -18,24 +18,32 @@ export interface PanelGridProps {
 }
 
 /**
- * Data blocks side by side: chart cards, tables, a MetricStrip. On a ruled surface a hairline parts them across and
- * down, with a rule above and below the grid; open leaves whitespace between them, and card a gap between boxes.
- * Each block's left and top edges carry its rules, and the grid clips the ones on its own edges.
+ * Data blocks side by side: chart cards, tables, a MetricStrip. On a ruled surface, the default, the grid is filled
+ * with the card colour and a hairline parts the blocks across and down, with a rule above and below the grid and none
+ * on its sides; open leaves whitespace between them, and card an 8px gap between boxes. Each block's bottom and end
+ * edges carry its rules and the grid clips the ones on its own edges, so an empty cell at the end of a short last row
+ * is a blank stretch of the sheet, ruled off like the rest. The theme numbers each block's card title 01, 02.
  */
 export function PanelGrid({ columns = 2, children, className }: PanelGridProps) {
   const surface = useSurface();
   const ruled = surface === "ruled";
   return (
-    <div data-slot="panel-grid" className={cn("@container/panels", ruled && "overflow-clip border-y", className)}>
+    // data-surface carries the surface this grid laid itself out for to the theme's CSS, which cannot read React
+    // context: inside a dialog or popover, portaled out of the provider's element, the two would otherwise disagree.
+    <div
+      data-slot="panel-grid"
+      data-surface={surface}
+      className={cn("@container/panels", ruled && "overflow-clip border-y", className)}
+    >
       <div
         className={cn(
           "grid grid-cols-1",
           COLUMNS[columns],
-          ruled ? "-mt-px -ml-px" : surface === "open" ? "gap-x-8 gap-y-6" : "gap-4",
+          ruled ? "-me-px -mb-px bg-card" : surface === "open" ? "gap-x-8 gap-y-6" : "gap-2",
         )}
       >
         {Children.map(children, (child) => (
-          <div data-slot="panel" className={cn("min-w-0", ruled && "border-t border-l")}>
+          <div data-slot="panel" className={cn("min-w-0", ruled && "border-e border-b")}>
             {child}
           </div>
         ))}

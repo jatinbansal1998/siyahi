@@ -117,7 +117,7 @@ export const data: Page = {
   id: "data",
   title: "Data",
   icon: <ChartAreaIcon />,
-  lead: "Charts, tables and figures. Each data block sits in a card, with a fixed height for charts.",
+  lead: "Charts, tables and figures. Each data block is a filled card, ruled off on the page, with a fixed height for charts.",
   layout: "index",
   families: [
     {

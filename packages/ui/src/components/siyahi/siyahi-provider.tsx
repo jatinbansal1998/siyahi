@@ -3,20 +3,22 @@ import { TooltipProvider } from "@siyahi/ui/components/ui/tooltip";
 import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
 
 /**
- * How a data block sits on the page. "ruled": no box, hairlines between blocks in a PanelGrid. "open": no box and no
- * lines, the block's content level with the page's text. "card": shadcn's own card, a filled box with a 1px ring.
+ * How a data block sits on the page. "ruled", the default: blocks filled with the card colour and parted by hairlines,
+ * with a rule above and below each group and none on its sides. "card": a filled square card in a hairline ring, 8px
+ * from the next, for a page of separate blocks. "open": no fill and no lines, the block's content level with the
+ * page's text.
  */
-export type Surface = "ruled" | "open" | "card";
+export type Surface = "ruled" | "card" | "open";
 
 const LocaleContext = createContext<SiyahiLocale>(defaultLocale);
-const SurfaceContext = createContext<Surface>("card");
+const SurfaceContext = createContext<Surface>("ruled");
 
 export interface SiyahiProviderProps {
   /** Any setting left out keeps its default: en-IN, INR, Asia/Kolkata. */
   locale?: Partial<SiyahiLocale>;
   /**
    * Set it on a nested provider for one part of a page. Left out, a provider keeps the surface around it, so a
-   * provider that only changes the locale changes nothing else; the outermost default is "card".
+   * provider that only changes the locale changes nothing else; the outermost default is "ruled".
    */
   surface?: Surface;
   children: ReactNode;

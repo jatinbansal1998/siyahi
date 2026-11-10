@@ -84,6 +84,28 @@ describe("contrast check", () => {
     expect(named(broken)).toContain("dark --foreground on --positive 75% in --card");
   });
 
+  it("reads an exception's wash from the theme, and lays a StatusBadge's tint over it", () => {
+    // A 20% wash darkens a marked tile or row until its muted lines and its badge's red dot no longer read.
+    const broken = setVar(themeCss, "light", "wash", "20%");
+    expect(named(broken)).toEqual(
+      expect.arrayContaining([
+        "light --muted-foreground on --negative 20% in --card",
+        "light --muted-foreground on --negative/wash over --card",
+        "light --negative on --negative/8 over --negative/wash over --background",
+      ]),
+    );
+  });
+
+  it("fails a stat tile's Sparkline on a dark amber wash at the mock-up's 15%", () => {
+    const broken = setVar(themeCss, "dark", "wash", "15%");
+    expect(named(broken)).toEqual(
+      expect.arrayContaining([
+        "dark --chart-1 on --warning 15% in --card",
+        "dark --chart-1 on --warning/wash over --card",
+      ]),
+    );
+  });
+
   it("fails a degraded day that a healthy day's grey swallows", () => {
     // A darker muted grey still reads as text, but its 30% healthy fill comes too close to the amber.
     const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.3 0 0)");
@@ -151,7 +173,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 210\/210 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 282\/282 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

@@ -5,14 +5,15 @@ import PageHeroExample from "../examples/page-hero";
 import type { Page } from "../page";
 
 const RULES = [
-  "A panel holds data, prose sits on the page. By default a data block is a card raised off the faintly tinted canvas; a ruled surface takes the box off and parts blocks with hairlines in a PanelGrid. One level of panel.",
-  "A stat tile is SectionCards from shadcn's dashboard block: muted label, outline badge, value, bold line, muted line. Many figures of equal weight go in one MetricStrip instead.",
+  "A panel holds data, prose sits on the page. By default a page is ruled on white: data blocks are filled with the card colour and parted by hairlines, with a rule above and below each group; a page of separate blocks asks for square cards, 8px apart, by setting surface to card. Every corner is square. One level of panel.",
+  "A page opens on its masthead, PageHero: eyebrow, title, one muted line, actions at the right, a hairline under it.",
+  "A stat tile is SectionCards from shadcn's dashboard block: label in small mono capitals, outline badge, value, footer lines. Many figures of equal weight go in one MetricStrip instead. The page marks the tile or table row that needs a look with a tone; colour marks exceptions only.",
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws the dashed horizontal grid, the tooltip and the legend below; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
-  "Tables are the registry data table, inside a Card.",
+  "Tables are the registry data table, inside a Card. Column heads are small mono capitals; a total row sits between a rule and a double rule.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
   "Ink indigo is placed, not spread: links, focus rings, the selected sidebar item and the first chart series. Three meaning colours, positive, negative and warning, carry gains, losses and caution. Buttons, badges and toggles stay black and white.",
   "Notices are StatusAlert in a tone: information, a warning, an error or a success, the whole card washed in its colour; states are StatusBadge. Never a single coloured edge on any box.",
-  "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers and ticks.",
+  "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers, ticks, panel numbers and the small capital labels over figures.",
   "Indian grouping, compact rupees, IST with zone, signs beside colour, scheme follows the device, reduced motion honoured.",
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables hide columns that do not fit, never their meta.compact ones, behind an All columns toggle, sidebar becomes a drawer.",
 ];
@@ -78,7 +79,7 @@ export const overview: Page = {
     {
       id: "at-a-glance",
       title: "At a glance",
-      lead: "A page built from the package: a metric strip, a chart card and a data table, all live.",
+      lead: "An app page built from the package, on the default ruled surface: masthead, stat tiles, a chart and a table with its total, all live.",
       examples: [
         {
           name: "overview-dashboard",

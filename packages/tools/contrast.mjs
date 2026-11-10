@@ -23,13 +23,14 @@ import { readTheme } from "./theme.mjs";
  * What a component paints, written as Tailwind writes it:
  * `muted` is the token, `muted/50` the token at 50% over what lies under it,
  * and `positive@60` is `color-mix(in oklab, var(--positive) 60%, var(--card))`,
- * a treemap tile; `positive@heat-5` takes the share from the theme's --heat-5.
+ * a treemap tile; `positive@heat-5` and `negative/wash` take the share from the
+ * theme's --heat-5 or --wash.
  * @typedef {string} Paint
  */
 /**
  * `surface` limits a pair to the canvas or the card, for a paint only one of them ever holds, such as a chart card's
- * hover band.
- * @typedef {{ fg: Paint, bg: Paint, min: number, scheme?: Scheme, surface?: "background" | "card" }} Pair
+ * hover band. A list of paints for `bg` lays each over the one before, such as a footer band over an exception's wash.
+ * @typedef {{ fg: Paint, bg: Paint | Paint[], min: number, scheme?: Scheme, surface?: "background" | "card" }} Pair
  */
 
 const TEXT = 4.5;
@@ -103,6 +104,29 @@ const PAIRS = [
   // A StatusHeatmap's degraded and critical days against a healthy one, its
   // default 30% grey, so a bad day stands out of a run of good ones.
   ...["warning", "destructive"].map((fg) => ({ fg, bg: "muted-foreground/30", min: MARK })),
+  // An exception the page marks, washed in its tone at the theme's --wash. A
+  // stat tile mixes the tone into the card, opaque (`@wash`); a table row lays
+  // it over what is under it (`/wash`). On either: text, muted lines, a Delta
+  // icon and --chart-1 (a tile's Sparkline, a row's DataBar; a run of gains or
+  // losses takes --positive or --negative, as the SectionCards rule says). A
+  // tile's footer band sits over its wash, and a StatusBadge's dot on its own
+  // wash over a row's.
+  ...["negative@wash", "negative/wash", "warning@wash", "warning/wash"].flatMap((wash) => [
+    { fg: "foreground", bg: wash, min: TEXT },
+    { fg: "muted-foreground", bg: wash, min: TEXT },
+    { fg: "positive", bg: wash, min: MARK },
+    { fg: "negative", bg: wash, min: MARK },
+    { fg: "chart-1", bg: wash, min: MARK },
+  ]),
+  ...["negative", "warning"].map((tone) => ({
+    fg: "muted-foreground",
+    bg: [`${tone}@wash`, "muted/50"],
+    min: TEXT,
+  })),
+  ...[
+    ["negative", ["negative/wash", "negative/8"]],
+    ["warning", ["warning/wash", "warning/10"]],
+  ].map(([fg, bg]) => ({ fg: String(fg), bg: /** @type {Paint[]} */ (bg), min: MARK })),
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A dimmed bar keeps its full colour
@@ -151,13 +175,13 @@ export function checkContrast(theme) {
     const paintOver = (paint, under) => {
       const [, name = "", sep, amount = ""] = /^([\w-]+)(?:([/@])([\w.-]+))?$/.exec(paint) ?? [];
       const base = token(name);
+      // A share is a number, or the name of a theme token holding a percentage, such as heat-5.
+      const share = /^[\d.]+$/.test(amount) ? Number(amount) : sep ? percentage(amount) : 100;
       if (sep === "@") {
-        // A share is a number, or the name of a theme token holding a percentage, such as heat-5.
-        const share = /^[\d.]+$/.test(amount) ? Number(amount) : percentage(amount);
         const rgb = oklchToSrgb(mixOklab(base, token("card"), share / 100));
         return { rgb, name: `--${name} ${share}% in --card` };
       }
-      const alpha = base.alpha * (sep === "/" ? Number(amount) / 100 : 1);
+      const alpha = (base.alpha * share) / 100;
       if (alpha === 1) return { rgb: oklchToSrgb(base), name: `--${paint}` };
       return { rgb: over({ ...base, alpha }, under.rgb), name: `--${paint} over ${under.name}` };
     };
@@ -166,7 +190,7 @@ export function checkContrast(theme) {
       for (const surface of SURFACES) {
         if (pair.surface && pair.surface !== surface) continue;
         const page = { rgb: oklchToSrgb(token(surface)), name: `--${surface}` };
-        const bg = pair.bg ? paintOver(pair.bg, page) : page;
+        const bg = [pair.bg].flat().reduce((under, paint) => (paint ? paintOver(paint, under) : under), page);
         const fg = paintOver(pair.fg, bg);
         const [fgHex, bgHex] = [srgbHex(fg.rgb), srgbHex(bg.rgb)];
         const ratio = contrastSrgb(fg.rgb, bg.rgb);

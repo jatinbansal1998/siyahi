@@ -54,9 +54,12 @@ layouts and product-specific logic belong in the consuming app.
   Numbers use `useFormat()`, changes use `Delta`; do not replace the formatters
   with bare `toLocaleString()`. Prose uses `max-w-prose`.
 - Follow the installed `DESIGN.md` (`node_modules/@siyahi/ui/DESIGN.md`)
-  before designing or changing UI: its rules on colour and emphasis are
-  binding. In short, colour carries meaning and emphasis tints the whole box
-  (`StatusAlert`, `StatusBadge`, `Callout`, `Quote`), never a stripe down one side.
+  before designing or changing UI: its rules on colour, emphasis, surfaces,
+  shape and labels are binding. In short, colour carries meaning and emphasis
+  tints the whole box (`StatusAlert`, `StatusBadge`, `Callout`, `Quote`), never
+  a stripe down one side. A page is ruled on white by default: set no surface
+  unless the page is a set of separate blocks (`surface="card"`), and add no
+  rounded corners, shadows or gaps of your own between data blocks.
 - The installed README owns surfaces, chart colours, locale and dark mode.
   Include `<meta name="color-scheme" content="light dark">` in app HTML.
   Follow the package's reduced-motion behaviour; JavaScript-started motion

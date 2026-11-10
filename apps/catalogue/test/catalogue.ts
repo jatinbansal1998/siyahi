@@ -24,7 +24,8 @@ export async function openCatalogue(route: string, options: BrowserContextOption
       if (message.type() === "error") errors.push(`console error: ${message.text()}`);
     });
     await page.goto(`${url}#/${route}`);
-    await page.getByRole("heading", { level: 1 }).waitFor();
+    // The page's own masthead; an example of a whole page may hold a masthead of its own.
+    await page.getByRole("heading", { level: 1 }).first().waitFor();
     // The title shows before the examples; a suite starts once the page's examples have loaded.
     await page.getByRole("status").filter({ hasText: "Loading examples" }).waitFor({ state: "detached" });
     return { page, close };
@@ -33,4 +34,15 @@ export async function openCatalogue(route: string, options: BrowserContextOption
     await browser.close();
     throw error;
   }
+}
+
+/** A theme colour as the browser resolves it, to compare with a computed background. */
+export function themeColor(page: Page, token: string): Promise<string> {
+  return page.evaluate((name) => {
+    const probe = document.body.appendChild(document.createElement("div"));
+    probe.style.backgroundColor = `var(${name})`;
+    const value = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return value;
+  }, token);
 }

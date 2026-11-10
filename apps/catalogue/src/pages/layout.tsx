@@ -10,42 +10,46 @@ export const layout: Page = {
   families: [
     {
       id: "page-hero",
-      title: "Page hero",
-      lead: "PageHero introduces a front page or a long explainer: a large title, what the page is, and where to go next.",
+      title: "Masthead",
+      lead: "PageHero is the page's masthead: a small mark and eyebrow, the title, one muted line saying what the page is, the actions at the right, and a hairline under it.",
       imports: ["PageHero"],
       props: [
-        { name: "title", type: "ReactNode", purpose: "The page's h1, set large." },
+        { name: "title", type: "ReactNode", purpose: "The page's h1." },
         {
           name: "eyebrow",
           type: "ReactNode",
           default: "—",
-          purpose: "A short line above the title in the link colour.",
+          purpose: "A short line above the title in the mono face and the link colour, such as the app's name.",
         },
-        { name: "lead", type: "ReactNode", default: "—", purpose: "What the page is, in a sentence or two." },
-        { name: "detail", type: "ReactNode", default: "—", purpose: "Muted detail under the lead: scope, sources." },
+        { name: "lead", type: "ReactNode", default: "—", purpose: "What the page is, in a sentence, muted." },
+        {
+          name: "detail",
+          type: "ReactNode",
+          default: "—",
+          purpose: "Scope or sources, run on after the lead in the same muted line.",
+        },
         {
           name: "actions",
           type: "ReactNode",
           default: "—",
-          purpose: "The one or two places a reader goes next: a primary Button and an outline one.",
+          purpose: "The one or two places a reader goes next, at the right: a primary Button and an outline one.",
         },
         {
           name: "mark",
           type: "ReactNode",
           default: "—",
-          purpose:
-            "A large decorative mark drawn faintly in the accent, such as a logo SVG that paints with currentColor.",
+          purpose: "A small mark before the eyebrow, such as a logo SVG that paints with currentColor.",
         },
       ],
       rules: [
-        "One per page, above everything else; the parts below it are PageSections.",
-        "A dashboard view opens on its answer, not a hero: the hero is for front pages and explainers.",
+        "One per page, above everything else; the parts below it are PageSections or a PanelGrid.",
+        "Compact on purpose: an app page opens on its figures, so the masthead takes one line of muted text, not a hero card.",
         "At most one primary action.",
       ],
       examples: [
         {
           name: "page-hero",
-          caption: "The catalogue's own front page: eyebrow, title, lead, detail, two actions and its ink drop.",
+          caption: "The catalogue's own front page: its ink drop and eyebrow, title, lead, detail and two actions.",
         },
       ],
     },

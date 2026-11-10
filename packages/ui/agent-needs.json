@@ -148,7 +148,7 @@
     "guidance": "`PanelGrid`"
   },
   {
-    "need": "Boxes back, or no lines at all, for a page or a part of one",
+    "need": "Separate square cards instead of the default ruled panels, or no lines at all, for a page or a part of one",
     "guidance": "`SiyahiProvider` with `surface=\"card\"` or `surface=\"open\"`"
   },
   {

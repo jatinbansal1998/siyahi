@@ -39,6 +39,18 @@
 // size="sm", which would also shrink the figure to 14px.
 // Siyahi edit: a selectable tile focuses with an opaque ring, its only focus
 // sign; the half-strength ring was under 2:1 against the card.
+// Siyahi edit: square tiles 8px apart on the card surface (16px on an open
+// one, whose tiles have no box to part them). On a ruled one, the default,
+// the grid is filled with the card colour, so the row stands off the page,
+// each tile's rules sit on its bottom and end edges, and the footer keeps its
+// rule and band: the empty cell at the end of a 3 + 2 row is a blank stretch
+// of the sheet, ruled off like the rest. The row carries data-surface, so the
+// theme draws the surface the row laid itself out for even inside a portal.
+// Siyahi edit: the label and the footer lines are small monospaced capitals
+// (`font-mono text-2xs tracking-wider uppercase`), set apart from the figure.
+// Siyahi edit: `tone` marks a tile as an exception (a loss, a figure behind
+// plan): the theme washes it in the tone and outlines it. The page sets it;
+// a negative change alone is not an exception (a falling cost is good news).
 "use client"
 
 import * as React from "react"
@@ -70,6 +82,8 @@ export interface SectionCard {
   detail?: React.ReactNode
   /** In a picker, a tile that cannot be picked, such as one with nothing in it: faded, and its button disabled. */
   disabled?: boolean
+  /** Marks the tile as the exception on the page: a faint wash of the colour and an outline of it. */
+  tone?: "negative" | "warning"
 }
 
 // Tailwind finds classes by scanning source, so each step is written out whole.
@@ -90,13 +104,15 @@ export interface SectionCardsProps {
 }
 
 export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
-  const ruled = useSurface() === "ruled"
+  const surface = useSurface()
+  const ruled = surface === "ruled"
   return (
-    <div className={cn("@container/main", ruled && "overflow-hidden border-y")}>
-      <div className={cn("grid grid-cols-1", ruled ? "-mt-px -ml-px" : "gap-4", COLUMNS[items.length] ?? COLUMNS[4])}>
+    <div data-surface={surface} className={cn("@container/main", ruled && "overflow-hidden border-y")}>
+      <div className={cn("grid grid-cols-1", ruled ? "-me-px -mb-px bg-card" : surface === "open" ? "gap-4" : "gap-2", COLUMNS[items.length] ?? COLUMNS[4])}>
         {items.map((item) => (
-          <div key={item.label} data-slot="section-card" className={cn("min-w-0", ruled && "border-t border-l")}>
+          <div key={item.label} data-slot="section-card" className={cn("min-w-0", ruled && "border-e border-b")}>
             <Card
+              data-tone={item.tone}
               className={cn(
                 "@container/card h-full [--card-spacing:--spacing(3)]",
                 onSelect && "relative",
@@ -105,7 +121,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
                 onSelect && item.disabled && "opacity-60",
               )}
             >
-              {/* A Card is a div, which a button cannot hold, so the button lies over the tile and takes its radius, square on a ruled page, for the focus ring to follow the corner. */}
+              {/* A Card is a div, which a button cannot hold, so the button lies over the tile and takes its radius, for the focus ring to follow the corner. */}
               {onSelect && (
                 <button
                   type="button"
@@ -117,7 +133,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
                 />
               )}
               <CardHeader>
-                <CardDescription>{item.label}</CardDescription>
+                <CardDescription className="font-mono text-2xs tracking-wider uppercase">{item.label}</CardDescription>
                 <CardTitle className="text-2xl font-semibold tabular-nums">
                   {item.value}
                 </CardTitle>
@@ -129,7 +145,7 @@ export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
               </CardHeader>
               {item.trend && <CardContent>{item.trend}</CardContent>}
               {(item.headline || item.detail) && (
-                <CardFooter className="flex-col items-start gap-1 text-sm">
+                <CardFooter className="flex-col items-start gap-1 font-mono text-2xs tracking-wider uppercase">
                   {item.headline && <div className="flex flex-wrap gap-2 font-medium">{item.headline}</div>}
                   {item.detail && <div className="text-muted-foreground">{item.detail}</div>}
                 </CardFooter>

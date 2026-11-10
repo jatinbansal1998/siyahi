@@ -289,7 +289,7 @@
       ]
     },
     {
-      "need": "Boxes back, or no lines at all, for a page or a part of one",
+      "need": "Separate square cards instead of the default ruled panels, or no lines at all, for a page or a part of one",
       "guidance": "`SiyahiProvider` with `surface=\"card\"` or `surface=\"open\"`",
       "components": [
         "SiyahiProvider"
@@ -936,7 +936,31 @@
     },
     {
       "file": "agents/examples/overview-dashboard.tsx",
-      "components": []
+      "components": [
+        "Badge",
+        "Button",
+        "Callout",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Delta",
+        "Input",
+        "PageHero",
+        "PanelGrid",
+        "StatusBadge",
+        "Table",
+        "TableBody",
+        "TableCell",
+        "TableFooter",
+        "TableHead",
+        "TableHeader",
+        "TableRow",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
     },
     {
       "file": "agents/examples/page-hero.tsx",
@@ -1066,7 +1090,6 @@
       "components": [
         "Delta",
         "SectionCards",
-        "SiyahiProvider",
         "useFormat"
       ]
     },
@@ -1183,6 +1206,7 @@
         "Table",
         "TableBody",
         "TableCell",
+        "TableFooter",
         "TableHead",
         "TableHeader",
         "TableRow",

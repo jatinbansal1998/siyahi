@@ -34,6 +34,12 @@
    * fallback draws and every prose block rewraps when Geist arrives.
    */
   --max-width-prose: 43.1em;
+  /*
+   * 11px, for labels over figures: a stat tile's label and footer lines and a
+   * table's column heads, set as `font-mono text-2xs tracking-wider uppercase`.
+   */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -72,6 +78,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --radius-xs: calc(var(--radius) * 0.3);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -83,8 +90,8 @@
 
 :root {
   color-scheme: light dark;
-  /* shadcn's "small": crisper than its 0.625rem default, still not square. Cards 10px, buttons 7px. */
-  --radius: 0.45rem;
+  /* Square: panels, buttons, fields, badges and toggles alike. Only a dot, an avatar or a slider thumb stays round. */
+  --radius: 0rem;
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -102,7 +109,8 @@
   --accent-foreground: oklch(0.205 0 0);
   /* Deeper than the loss red, so a destructive button's label reads on its own red tint, hovered too. */
   --destructive: oklch(0.49 0.19 27.325);
-  --border: oklch(0.922 0 0);
+  /* A step firmer than shadcn's 0.922 grey: with square, filled panels the hairlines carry the page's structure. */
+  --border: oklch(0.145 0 0 / 18%);
   /* The edge of a field (input, textarea, select, input group) at 3:1: --border stays faint for dividers. */
   --input: oklch(0.64 0 0);
   --ring: oklch(0.62 0.16 275);
@@ -123,6 +131,12 @@
   --heat-3: 36%;
   --heat-4: 48%;
   --heat-5: 60%;
+  /*
+   * An exception (a stat tile or a table row the page marks with a tone) takes this share of --negative or
+   * --warning over the card, and a tile an outline of the tone at --wash-edge.
+   */
+  --wash: 7%;
+  --wash-edge: 45%;
   --link: oklch(0.51 0.2 275);
   /*
    * Indigo, amber, plum, sky, teal: no green or red, so no series reads as a
@@ -145,7 +159,7 @@
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.45 0.2 275);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.145 0 0 / 18%);
   --sidebar-ring: oklch(0.62 0.16 275);
 
   @variant dark {
@@ -175,7 +189,7 @@
     --accent-foreground: oklch(0.922 0 0);
     /* Paler and calmer than the loss red, so a destructive label reads on its red tint over the card, hovered too. */
     --destructive: oklch(0.8 0.1 22.216);
-    --border: oklch(1 0 0 / 10%);
+    --border: oklch(1 0 0 / 20%);
     --input: oklch(0.62 0 0);
     --ring: oklch(0.6 0.14 275);
     /*
@@ -195,6 +209,13 @@
     --heat-3: 42.5%;
     --heat-4: 51.25%;
     --heat-5: 60%;
+    /*
+     * As with heat, a faint share of a dark card reads as the card itself; above
+     * 12% the amber wash takes --chart-1, a tile's Sparkline or a row's DataBar,
+     * under 3:1.
+     */
+    --wash: 12%;
+    --wash-edge: 55%;
     --link: oklch(0.75 0.128 275);
     --chart-1: oklch(0.58 0.2 275);
     --chart-2: oklch(0.88 0.08 75);
@@ -207,7 +228,7 @@
     --sidebar-primary-foreground: oklch(0.205 0 0);
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.8 0.1 275);
-    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-border: oklch(1 0 0 / 20%);
     --sidebar-ring: oklch(0.6 0.14 275);
   }
 }
@@ -247,6 +268,31 @@
   background-color: var(--foreground);
   color: var(--background);
   border-color: var(--foreground);
+}
+
+/*
+ * A toggle group's items sit flush and share their borders, one control with
+ * its parts side by side; stock spaces them 8px apart. A group set to
+ * spacing={0} already joins its items by dropping their inner borders. The
+ * pressed item rises over its neighbours, so its own edge shows on both sides.
+ */
+[data-slot="toggle-group"]:not([data-spacing="0"]) {
+  gap: 0;
+  > [data-slot="toggle-group-item"] {
+    &[aria-pressed="true"],
+    &[data-pressed] {
+      z-index: 1;
+    }
+    &[data-variant="outline"] + [data-slot="toggle-group-item"] {
+      margin-inline-start: -1px;
+    }
+  }
+  &[data-orientation="vertical"]
+    > [data-slot="toggle-group-item"][data-variant="outline"]
+    + [data-slot="toggle-group-item"] {
+    margin-inline-start: 0;
+    margin-block-start: -1px;
+  }
 }
 
 /*
@@ -304,6 +350,11 @@
   border-color: var(--destructive);
 }
 
+/* Progress is a bar, square as every bar is; stock draws it as a pill. */
+[data-slot="progress-track"] {
+  border-radius: 0;
+}
+
 /*
  * A slider's unfilled track is outlined in the field edge, so its extent reads
  * at 3:1; the muted track alone is 1.05:1 on the canvas.
@@ -326,14 +377,84 @@
 }
 
 /*
- * A card on the card surface lifts off the tinted canvas with a faint shadow
- * under its 1px ring (Tailwind composes --tw-shadow with the ring), and a data
- * table inside it drops its own border, so there is one frame, not two.
+ * Column heads are labels, in small monospaced capitals; a sort header's
+ * button and a data table's column title take the head's type rather than
+ * their own. A total row reads as a
+ * ledger's: one rule above it and a double rule under it in the text colour,
+ * with no band.
  */
-@scope (:root, [data-surface="card"]) to ([data-surface="ruled"], [data-surface="open"]) {
-  [data-slot="card"] {
-    --tw-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.06), 0 1px 3px 0 oklch(0 0 0 / 0.04);
+[data-slot="table-head"] {
+  @apply font-mono text-2xs tracking-wider uppercase;
+  :is([class~="group/button"], [data-slot="column-title"]) {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
   }
+}
+[data-slot="table-footer"] {
+  background: none;
+  border-top: 1px solid var(--foreground);
+  border-bottom: 3px double var(--foreground);
+  font-weight: 600;
+}
+
+/*
+ * An exception the page marks, a stat tile (SectionCard's tone) or a table
+ * row (<TableRow data-tone="negative">), takes a faint wash of its colour over
+ * the card, and a tile an outline of it, so the one figure needing attention
+ * stands out of a run of neutral ones. Unlayered, to outrank a row's hover band.
+ */
+:is([data-slot="card"], [data-slot="table-row"]) {
+  &[data-tone="negative"] {
+    --exception: var(--negative);
+  }
+  &[data-tone="warning"] {
+    --exception: var(--warning);
+  }
+}
+[data-slot="card"]:is([data-tone="negative"], [data-tone="warning"]) {
+  background-color: color-mix(in oklab, var(--exception) var(--wash), var(--card));
+  --tw-ring-color: color-mix(in oklab, var(--exception) var(--wash-edge), transparent);
+}
+[data-slot="table-row"]:is([data-tone="negative"], [data-tone="warning"]) {
+  background-color: color-mix(in oklab, var(--exception) var(--wash), transparent);
+}
+
+/*
+ * Panels in a PanelGrid are numbered 01, 02 before their title, in the mono
+ * face and the link colour, so the text can point to one. A panel without a
+ * card title, such as a MetricStrip with none, takes no number; a block
+ * wrapped in its own SiyahiProvider (which draws no box) still counts. The panel
+ * counts, not the title: a card header is a size container, whose style
+ * containment would keep each title's count to itself.
+ */
+[data-slot="panel-grid"] {
+  counter-reset: panel;
+}
+[data-slot="panel"]:has(
+  > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"],
+  > [data-slot="siyahi-provider"] > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"]
+) {
+  counter-increment: panel;
+}
+:is([data-slot="panel"], [data-slot="panel"] > [data-slot="siyahi-provider"])
+  > [data-slot="card"]
+  > [data-slot="card-header"]
+  > [data-slot="card-title"]::before {
+  content: counter(panel, decimal-leading-zero);
+  @apply font-mono text-2xs font-medium text-link;
+  letter-spacing: 0.04em;
+  margin-inline-end: 0.7em;
+  position: relative;
+  top: -0.12em;
+}
+
+/*
+ * A data table inside a card drops its own border: the card's ring or the
+ * ruled page's hairlines already frame it. On an open page, with no frame,
+ * it keeps its border.
+ */
+@scope (:root, [data-surface="ruled"], [data-surface="card"]) to ([data-surface="open"]) {
   [data-slot="card"] [data-slot="table-container"] {
     border-color: transparent;
   }
@@ -407,33 +528,51 @@
 }
 
 /*
- * Surfaces, from SiyahiProvider's surface prop. Card, the default, is
- * shadcn's own card on the tinted canvas. Ruled and open take the box off
- * every core Card: no fill, no corner, no ring, and no tinted footer band;
- * PanelGrid draws the hairlines between ruled blocks. Open also drops the
- * card's padding, so a block's content sits level with the page's text. Each
- * scope stops at a provider that says otherwise. Unlayered, like the rule above, to
- * outrank the core components' utility classes; a picked SectionCards tile
- * keeps its ring, which is important.
+ * Surfaces, from SiyahiProvider's surface prop. Ruled, the default, keeps
+ * every card's fill and drops its ring: PanelGrid and SectionCards fill their
+ * grid with the card colour and draw hairlines between the blocks, with a rule
+ * above and below the group and none on its left and right edges, and a card
+ * that stands alone, such as a MetricStrip or a table's card, takes those
+ * rules above and below itself. Card is a filled square card with a hairline
+ * ring and no shadow, 8px from the next, for a page of separate blocks. Open
+ * takes the box off every core Card: no fill, no ring, no tinted footer band,
+ * and no padding, so a block's content sits level with the page's text. Each
+ * scope stops at a provider that says otherwise. Unlayered, like the rules
+ * above, to outrank the core components' utility classes; a picked
+ * SectionCards tile keeps its ring, which is important, and an exception
+ * keeps its outline, which is more specific.
  */
-@scope ([data-surface="ruled"], [data-surface="open"]) to ([data-surface="card"]) {
+[data-slot="card"] {
+  --tw-ring-color: var(--border);
+}
+
+@scope (:root, [data-surface="ruled"]) to ([data-surface="card"], [data-surface="open"]) {
+  [data-slot="card"] {
+    --tw-ring-color: transparent;
+  }
+  /*
+   * A card inside a panel or a tile's cell, or nested in another card, is ruled by what holds it; only a holder
+   * inside this scope counts, so a ruled provider inside a card starts its own lone cards afresh.
+   */
+  [data-slot="card"]:not(
+    :scope :is([data-slot="panel"], [data-slot="section-card"], [data-slot="card"]) [data-slot="card"]
+  ) {
+    border-block: 1px solid var(--border);
+  }
+}
+
+@scope ([data-surface="open"]) to ([data-surface="ruled"], [data-surface="card"]) {
   [data-slot="card"] {
     background: none;
-    border-radius: 0;
     --tw-ring-color: transparent;
+    --card-spacing: 0px;
+    gap: calc(var(--spacing) * 4);
   }
   [data-slot="card-footer"] {
     background: none;
     border-top-width: 0;
     /* The band's own top padding stacked on the card's gap, and with no band it read as a hole under the figure. */
     padding-top: 0;
-  }
-}
-
-@scope ([data-surface="open"]) to ([data-surface="ruled"], [data-surface="card"]) {
-  [data-slot="card"] {
-    --card-spacing: 0px;
-    gap: calc(var(--spacing) * 4);
   }
 }
 
