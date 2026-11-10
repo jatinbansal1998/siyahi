@@ -7,15 +7,15 @@ export interface RangePositionProps {
   high: number;
   value: number;
   /** Names the low end: "52-week low". */
-  lowLabel?: string;
-  highLabel?: string;
+  lowLabel?: string | undefined;
+  highLabel?: string | undefined;
   /** Follows the percentage in the full variant: "of the way up the 52-week range". */
   caption?: ReactNode;
   /** Writes low, high and value; useFormat().money by default. */
-  valueFormatter?: (value: number) => string;
+  valueFormatter?: ((value: number) => string) | undefined;
   /** compact fits a table cell: the ends' figures either side of the track, nothing above it. */
-  variant?: "full" | "compact";
-  className?: string;
+  variant?: "full" | "compact" | undefined;
+  className?: string | undefined;
 }
 
 /**

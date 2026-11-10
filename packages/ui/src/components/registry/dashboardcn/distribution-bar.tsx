@@ -23,6 +23,8 @@
 // edge, so its extent still reads at 3:1; 35% opacity fell under it.
 // Segments take a key for when names repeat, and chart tokens as colours.
 // Siyahi edit: the track is square, not a pill, as every Siyahi box is.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
@@ -34,35 +36,35 @@ export interface DistributionSegment {
   name: string
   value: number
   /** Defaults to chart-1 through chart-5 in order; var(--muted) for space that is free. */
-  color?: ChartColor | "var(--muted)"
+  color?: ChartColor | "var(--muted)" | undefined
   /** Stable key when names can repeat. */
-  key?: string
+  key?: string | undefined
 }
 
 export interface DistributionMarker {
   /** The value the line marks, on the bar's scale. */
   at: number
-  label?: string
+  label?: string | undefined
 }
 
 export interface DistributionBarProps extends Omit<React.ComponentProps<"div">, "onMouseLeave"> {
   segments: DistributionSegment[]
-  valueFormatter?: (value: number) => string
-  showLegend?: boolean
+  valueFormatter?: ((value: number) => string) | undefined
+  showLegend?: boolean | undefined
   /** Show absolute values in the legend in addition to the share. */
-  showValues?: boolean
+  showValues?: boolean | undefined
   /** The value the bar's right end stands for. Defaults to the positive segments' total. */
-  max?: number
+  max?: number | undefined
   /**
    * The value the bar's left end stands for. Defaults to the negative segments' total, or 0 when there are none.
    * Above zero, segments (which start at zero) fall off the bar.
    */
-  min?: number
-  markers?: DistributionMarker[]
+  min?: number | undefined
+  markers?: DistributionMarker[] | undefined
   /** The key (or name) of the one segment to keep solid; the rest fade. */
-  highlighted?: string | null
+  highlighted?: string | null | undefined
   /** Called with the segment under the pointer, and null when it leaves the bar. */
-  onHover?: (segment: DistributionSegment | null) => void
+  onHover?: ((segment: DistributionSegment | null) => void) | undefined
 }
 
 const defaultColors = [

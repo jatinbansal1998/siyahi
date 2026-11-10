@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-faceted-filter.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 c891c4c7d6f1b14ed6256940b746003059603e04b90846dd3a85f9fe56b47672
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import type { RowData } from "@tanstack/react-table"
 import type { DataTableInstance, DataTableRow } from "../types"
 
@@ -19,7 +21,7 @@ export interface BuildFacetedOptionsConfig {
    * columns that are not declared as `select`/`multiSelect` variants but are
    * still being used with a faceted filter (boolean, text, etc.).
    */
-  staticOptions?: Option[]
+  staticOptions?: Option[] | undefined
   /**
    * Narrow the returned options to values that exist in rows passing every
    * *other* active filter (the current column's own filter is excluded).
@@ -45,7 +47,7 @@ export interface BuildFacetedOptionsConfig {
    * present. Receives the stringified row value, returns the display label.
    * Ignored when `staticOptions` is provided.
    */
-  formatOptionLabel?: (value: string) => string
+  formatOptionLabel?: ((value: string) => string) | undefined
 }
 
 /**

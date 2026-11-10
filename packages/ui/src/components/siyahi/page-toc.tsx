@@ -11,9 +11,9 @@ export interface PageTocItem {
 export interface PageTocProps {
   items: PageTocItem[];
   /** Names the navigation for screen readers. */
-  label?: string;
+  label?: string | undefined;
   /** Layout only, such as `top-14` under a sticky page header. */
-  className?: string;
+  className?: string | undefined;
 }
 
 /**

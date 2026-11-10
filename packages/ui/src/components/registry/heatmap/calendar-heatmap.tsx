@@ -23,6 +23,8 @@
 // text colour, or the focus ring's) and never fade the day's colour; the ring
 // a focused SVG cell was given never drew. The picked cell's ring is a
 // class too, so focus outranks it.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import type { Locale, Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
@@ -65,24 +67,24 @@ type YearRow = {
 };
 
 export type Labels = {
-  months?: string[];
-  weekdays?: string[];
-  stat?: string; // Stat text template. Placeholders: {{value}}, {{year}}
-  cellLabel?: string; // aria-label template. Placeholders: {{date}}, {{value}}
-  heatmapLabel?: string; // aria-label for the heatmap SVG. Placeholder: {{year}}
-  legendLabel?: string; // aria-label for the legend fieldset
-  legendLevelLabel?: string; // aria-label template for legend swatches. Placeholder: {{level}}
+  months?: string[] | undefined;
+  weekdays?: string[] | undefined;
+  stat?: string | undefined; // Stat text template. Placeholders: {{value}}, {{year}}
+  cellLabel?: string | undefined; // aria-label template. Placeholders: {{date}}, {{value}}
+  heatmapLabel?: string | undefined; // aria-label for the heatmap SVG. Placeholder: {{year}}
+  legendLabel?: string | undefined; // aria-label for the legend fieldset
+  legendLevelLabel?: string | undefined; // aria-label template for legend swatches. Placeholder: {{level}}
 };
 
 export type ColorConfig = {
-  empty?: string;
-  scale?: string;
+  empty?: string | undefined;
+  scale?: string | undefined;
 };
 
 type MonthLabel = {
   weekIndex: number;
   label: string;
-  year?: number;
+  year?: number | undefined;
 };
 
 // Non-normalized: 1 empty + (levels-1) colored steps. Normalized: levels colored steps, no empty.
@@ -161,8 +163,8 @@ type CalendarHeatmapContextType = {
   height: number;
   hasEmptyColumn: boolean;
   continuousMonths: boolean;
-  locale?: Locale;
-  colors?: ColorConfig;
+  locale?: Locale | undefined;
+  colors?: ColorConfig | undefined;
   /** The change that takes the deepest step when the heatmap is signed; null when it fades one hue. */
   signedRange: number | null;
 };
@@ -441,27 +443,27 @@ const getMonthLabels = (
 
 export type CalendarHeatmapProps = HTMLAttributes<HTMLDivElement> & {
   data: Activity[];
-  weekStart?: WeekDay;
-  continuousMonths?: boolean;
-  hasEmptyColumn?: boolean;
-  blockSize?: number;
-  blockMargin?: number;
-  blockRadius?: number;
-  blockAspectRatio?: number;
-  levels?: number;
-  isNormalized?: boolean;
+  weekStart?: WeekDay | undefined;
+  continuousMonths?: boolean | undefined;
+  hasEmptyColumn?: boolean | undefined;
+  blockSize?: number | undefined;
+  blockMargin?: number | undefined;
+  blockRadius?: number | undefined;
+  blockAspectRatio?: number | undefined;
+  levels?: number | undefined;
+  isNormalized?: boolean | undefined;
   /** Colour each day green or red by its sign, deeper the larger it is, for a daily gain or loss. */
-  signed?: boolean;
+  signed?: boolean | undefined;
   /** With signed: the size that takes the deepest step. Defaults to the largest day's. */
-  range?: number;
-  colors?: ColorConfig;
-  locale?: Locale;
-  labels?: Labels;
-  fontSize?: number;
+  range?: number | undefined;
+  colors?: ColorConfig | undefined;
+  locale?: Locale | undefined;
+  labels?: Labels | undefined;
+  fontSize?: number | undefined;
   emptyState?: ReactNode;
-  totalCount?: number;
-  style?: CSSProperties;
-  className?: string;
+  totalCount?: number | undefined;
+  style?: CSSProperties | undefined;
+  className?: string | undefined;
   children: ReactNode;
 };
 
@@ -675,13 +677,13 @@ export const CalendarHeatmap = ({
 
 export type CalendarHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
   /** The cell the page has picked: drawn with a ring and announced as pressed. */
-  selected?: boolean;
+  selected?: boolean | undefined;
   activity: ActivityWithLevel;
   dayIndex: number;
   weekIndex: number;
-  highlighted?: boolean;
-  onCellClick?: (activity: ActivityWithLevel) => void;
-  onCellHover?: (activity: ActivityWithLevel | null) => void;
+  highlighted?: boolean | undefined;
+  onCellClick?: ((activity: ActivityWithLevel) => void) | undefined;
+  onCellHover?: ((activity: ActivityWithLevel | null) => void) | undefined;
 };
 
 export const CalendarHeatmapBlock = ({
@@ -701,7 +703,7 @@ export const CalendarHeatmapBlock = ({
   style: styleProp,
   ...props
 }: CalendarHeatmapBlockProps & {
-  ref?: React.RefObject<SVGRectElement | null>;
+  ref?: React.RefObject<SVGRectElement | null> | undefined;
 }) => {
   const {
     blockSize,
@@ -795,18 +797,18 @@ export type CalendarHeatmapBodyProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children"
 > & {
-  hideMonthLabels?: boolean;
-  hideWeekdayLabels?: boolean;
-  hideYearLabels?: boolean;
-  className?: string;
-  labelClassName?: string;
-  yearClassName?: string;
+  hideMonthLabels?: boolean | undefined;
+  hideWeekdayLabels?: boolean | undefined;
+  hideYearLabels?: boolean | undefined;
+  className?: string | undefined;
+  labelClassName?: string | undefined;
+  yearClassName?: string | undefined;
   children: (props: {
     activity: ActivityWithLevel;
     dayIndex: number;
     weekIndex: number;
   }) => ReactNode;
-  renderYearFooter?: (props: { year: number; totalCount: number }) => ReactNode;
+  renderYearFooter?: ((props: { year: number; totalCount: number }) => ReactNode) | undefined;
 };
 
 export const CalendarHeatmapBody = ({
@@ -1000,13 +1002,13 @@ export type CalendarHeatmapStatProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children"
 > & {
-  compute?: (data: ActivityWithLevel[]) => number | string;
-  label?: string; // Template overriding labels.stat. Placeholders: {{value}}, {{year}}
-  children?: (result: {
+  compute?: ((data: ActivityWithLevel[]) => number | string) | undefined;
+  label?: string | undefined; // Template overriding labels.stat. Placeholders: {{value}}, {{year}}
+  children?: ((result: {
     value: number | string;
     data: ActivityWithLevel[];
     year: number;
-  }) => ReactNode;
+  }) => ReactNode) | undefined;
 };
 
 export const CalendarHeatmapStat = ({
@@ -1044,10 +1046,10 @@ export type CalendarHeatmapLegendProps = Omit<
   HTMLAttributes<HTMLFieldSetElement>,
   "children"
 > & {
-  labels?: { less?: string; more?: string };
+  labels?: { less?: string | undefined; more?: string | undefined } | undefined;
   /** A signed heatmap's figures in the legend's scale line, such as useFormat().money. */
-  valueFormatter?: (value: number) => string;
-  children?: (props: { level: number }) => ReactNode;
+  valueFormatter?: ((value: number) => string) | undefined;
+  children?: ((props: { level: number }) => ReactNode) | undefined;
 };
 
 export const CalendarHeatmapLegend = ({

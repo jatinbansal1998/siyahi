@@ -3,6 +3,8 @@
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 17856adbce037e757ea5989bbd742a0d9fb8881dc83357339c66ba37b9b695a0
 // Siyahi edit: `meta.compact` marks the columns a compact table keeps.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 import {
   type Cell,
@@ -35,8 +37,8 @@ declare module "@tanstack/react-table" {
     TValue,
   > {
     // Display
-    label?: string
-    placeholder?: string
+    label?: string | undefined
+    placeholder?: string | undefined
     /**
      * Which column absorbs the leftover row width when column resizing is on
      * (needs `<DataTableColumnResize />`). Filling is ON BY DEFAULT — the first
@@ -52,7 +54,7 @@ declare module "@tanstack/react-table" {
      * persistence side effects. Turn filling off for a whole table with
      * `TableMeta.disableFlexFill`.
      */
-    flex?: boolean
+    flex?: boolean | undefined
     /**
      * Never hide this column to fit. Once any column sets it, a table whose
      * columns do not fit its width hides the others, rightmost first, until
@@ -61,44 +63,44 @@ declare module "@tanstack/react-table" {
      * its result. Read `useDataTable().compactColumns?.hidden` in a cell to
      * fold a hidden figure under a kept one.
      */
-    compact?: boolean
+    compact?: boolean | undefined
 
     // Filtering
-    variant?: FilterVariant
-    options?: Option[]
-    range?: [number, number]
+    variant?: FilterVariant | undefined
+    options?: Option[] | undefined
+    range?: [number, number] | undefined
     /**
      * Automatically generate options for select/multiSelect columns if not provided.
      * When true and no static `options` exist, generation logic (wrappers / hooks) may supply them.
      */
-    autoOptions?: boolean
+    autoOptions?: boolean | undefined
     /** Whether to automatically rename option labels using formatLabel. When false, uses raw value as label. */
-    autoOptionsFormat?: boolean
+    autoOptionsFormat?: boolean | undefined
     /**
      * Per-column label formatter applied when options are auto-derived from
      * row data. Receives the stringified row value and returns the display
      * label. Wins over `autoOptionsFormat` when present. Ignored when the
      * caller passes explicit `options`.
      */
-    formatOptionLabel?: (value: string) => string
+    formatOptionLabel?: ((value: string) => string) | undefined
     /** Per-column override for showing counts (falls back to wrapper prop). */
-    showCounts?: boolean
+    showCounts?: boolean | undefined
     /** Per-column override for using filtered rows for counts (falls back to wrapper prop). */
-    dynamicCounts?: boolean
+    dynamicCounts?: boolean | undefined
     /** Merge strategy override: preserve | augment | replace (falls back to wrapper prop). */
-    mergeStrategy?: "preserve" | "augment" | "replace"
+    mergeStrategy?: "preserve" | "augment" | "replace" | undefined
 
     // Formatting
-    unit?: string
-    icon?: React.ComponentType<{ className?: string }>
+    unit?: string | undefined
+    icon?: React.ComponentType<{ className?: string | undefined }> | undefined
 
     // Row Expansion
-    expandedContent?: (row: TData) => React.ReactNode
+    expandedContent?: ((row: TData) => React.ReactNode) | undefined
   }
 
   interface TableMeta<TFeatures extends TableFeatures, TData extends RowData> {
-    joinOperator?: JoinOperator
-    hasIndividualJoinOperators?: boolean
+    joinOperator?: JoinOperator | undefined
+    hasIndividualJoinOperators?: boolean | undefined
     /**
      * Turn off default flex fill for the whole table, so columns size to their
      * own widths and the table scrolls horizontally instead of stretching to
@@ -108,7 +110,7 @@ declare module "@tanstack/react-table" {
      * — it's read when table options are built, so toggling it at runtime
      * alone won't re-apply until another table state change rebuilds them.
      */
-    disableFlexFill?: boolean
+    disableFlexFill?: boolean | undefined
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
 }
@@ -120,8 +122,8 @@ declare module "@tanstack/react-table" {
 export interface Option {
   label: string
   value: string
-  count?: number
-  icon?: React.ComponentType<{ className?: string }>
+  count?: number | undefined
+  icon?: React.ComponentType<{ className?: string | undefined }> | undefined
 }
 
 // ============================================================================
@@ -147,7 +149,7 @@ export interface ExtendedColumnFilter<TData> {
   variant: FilterVariant
   operator: FilterOperator
   filterId: string
-  joinOperator?: JoinOperator // Individual join operator for each filter
+  joinOperator?: JoinOperator | undefined // Individual join operator for each filter
   // You can extend with additional properties if needed
 }
 
@@ -167,11 +169,11 @@ export interface ExtendedColumnSort<TData> {
  * Query keys for URL state management
  */
 export interface QueryKeys {
-  page?: string
-  perPage?: string
-  sort?: string
-  filters?: string
-  joinOperator?: string
+  page?: string | undefined
+  perPage?: string | undefined
+  sort?: string | undefined
+  filters?: string | undefined
+  joinOperator?: string | undefined
   // Additional keys can be added as needed
 }
 

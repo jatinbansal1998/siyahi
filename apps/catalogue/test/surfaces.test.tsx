@@ -164,8 +164,12 @@ describe("surfaces", { timeout: 60_000 }, () => {
 
   it("rules a lone card in a ruled provider nested inside a card, as a family index's preview is", async () => {
     await page.goto(page.url().replace(/#.*/, "#/data"));
+    // The first family's band, Area chart, a lone card. Bands load their examples one by one, so the first card
+    // on the page can be a later family's, such as Chart panels', whose cards a panel grid rules instead.
     const preview = page
-      .locator('[data-slot="family-preview"] [data-slot="siyahi-provider"] [data-slot="card"]')
+      .locator('[data-slot="family-preview"]')
+      .first()
+      .locator('[data-slot="siyahi-provider"] [data-slot="card"]')
       .first();
     await preview.waitFor({ state: "attached" });
     expect(

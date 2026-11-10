@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,18 +13,26 @@ const oxlint = path.join(tools, "node_modules/.bin/oxlint");
  * Lints one file with only the siyahi rules and returns the rule names that fired.
  * @param {string} source
  * @param {object} [settings] oxlint settings, such as shadcn's, which tell it where components come from
+ * @param {Record<string, string>} [rules] the rules to run, the page rules unless given
+ * @param {string[]} [flags] more oxlint flags, such as --fix, which rewrites the file in `dir`
+ * @param {string} [dir]
  * @returns {string[]}
  */
-function lint(source, settings = {}) {
-  const dir = mkdtempSync(path.join(tmpdir(), "siyahi-lint-"));
+function lint(
+  source,
+  settings = {},
+  rules = recommended,
+  flags = [],
+  dir = mkdtempSync(path.join(tmpdir(), "siyahi-lint-")),
+) {
   writeFileSync(path.join(dir, "page.tsx"), source);
   writeFileSync(
     path.join(dir, "oxlintrc.json"),
-    JSON.stringify({ jsPlugins: [path.join(tools, "lint/index.mjs")], settings, rules: recommended }),
+    JSON.stringify({ jsPlugins: [path.join(tools, "lint/index.mjs")], settings, rules }),
   );
   let output = "";
   try {
-    output = execFileSync(oxlint, ["-c", "oxlintrc.json", "--format", "json", "page.tsx"], {
+    output = execFileSync(oxlint, ["-c", "oxlintrc.json", "--format", "json", ...flags, "page.tsx"], {
       cwd: dir,
       encoding: "utf8",
     });
@@ -111,5 +119,57 @@ describe("siyahi lint rules", () => {
     expect(
       lint(`export const c = "#1a2b3c";\nexport const A = () => <div className="dark:bg-black text-[13px]" />;`),
     ).toEqual([]);
+  });
+});
+
+describe("siyahi library rules", () => {
+  const LIBRARY = { "siyahi/optional-accepts-undefined": "error" };
+
+  it("reports an optional property that rejects undefined, in any file", () => {
+    expect(lint(`export interface Item { tone?: "negative" | "warning"; label: string }`, {}, LIBRARY)).toEqual([
+      "optional-accepts-undefined",
+    ]);
+  });
+
+  it("accepts an optional property that takes undefined, ReactNode, unknown or a required one", () => {
+    const source = [
+      `import type * as React from "react";`,
+      `export interface Item {`,
+      `  tone?: "negative" | "warning" | undefined;`,
+      `  note?: React.ReactNode;`,
+      `  meta?: unknown;`,
+      `  label: string;`,
+      `}`,
+    ].join("\n");
+    expect(lint(source, {}, LIBRARY)).toEqual([]);
+  });
+
+  it("is not among the page rules", () => {
+    expect(lint(`import { Card } from "@siyahi/ui";\nexport interface Item { tone?: "negative" }`)).toEqual([]);
+  });
+
+  it("reports an optional method, class field and mapped property, and leaves a conditional type's pattern alone", () => {
+    const source = [
+      `export interface Props { onSelect?(): void }`,
+      `export class Settings { tone?: string }`,
+      `export type Loose<T> = { [K in keyof T]?: T[K] };`,
+      `export type Picked<T> = T extends { x?: infer U extends string } ? U : never;`,
+    ].join("\n");
+    expect(lint(source, {}, LIBRARY)).toEqual([
+      "optional-accepts-undefined",
+      "optional-accepts-undefined",
+      "optional-accepts-undefined",
+    ]);
+  });
+
+  it("fixes by adding `| undefined`, bracketing a function type, and is clean after", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "siyahi-lint-"));
+    const source = `export type Props = { tone?: "negative"; onSelect?: (label: string) => void }\nexport type Loose<T> = { [K in keyof T]?: T[K] }`;
+    lint(source, {}, LIBRARY, ["--fix"], dir);
+    const fixed = readFileSync(path.join(dir, "page.tsx"), "utf8");
+    expect(fixed).toBe(
+      `export type Props = { tone?: "negative" | undefined; onSelect?: ((label: string) => void) | undefined }\nexport type Loose<T> = { [K in keyof T]?: T[K] | undefined }`,
+    );
+    expect(lint(fixed, {}, LIBRARY)).toEqual([]);
   });
 });

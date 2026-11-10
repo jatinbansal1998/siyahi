@@ -33,6 +33,8 @@
 // series of losses runs down from zero unstacked too.
 // Siyahi edit: wrapped sideways labels can grow rows without making the bars oversized.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 import { Bar, BarChart, Cell, type YAxisProps } from "recharts"
@@ -43,13 +45,13 @@ import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 export interface BarChartCardProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K> {
   /** Stack the series in one bar per point instead of side by side. */
-  stacked?: boolean
+  stacked?: boolean | undefined
   /** Bars run sideways, categories down the left: for long names, such as product categories. */
-  horizontal?: boolean
+  horizontal?: boolean | undefined
   /** The picked category's x value: its bars stay solid and the rest fade. */
-  selected?: T[K] | null
+  selected?: T[K] | null | undefined
   /** Called with a clicked category's x value, or null when the picked one is clicked again. */
-  onSelect?: (value: T[K] | null) => void
+  onSelect?: ((value: T[K] | null) => void) | undefined
 }
 
 // Recharts' value axis defaults to [0, "auto"], which reaches zero only from above:

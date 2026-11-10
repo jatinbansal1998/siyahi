@@ -2,7 +2,8 @@
 // Oxlint (and ESLint) plugin `siyahi`. Every rule runs only in files that
 // import `@siyahi/ui`, so pages written before Siyahi stay outside the rules
 // without any configuration. Three rules come from @shadcn/lint; the other
-// four cover what it does not check.
+// four cover what it does not check. One more, optional-accepts-undefined, is
+// for a component library's own types: unscoped, and not in `recommended`.
 import { plugin as shadcn } from "@shadcn/lint";
 
 /** @typedef {{ sourceCode: { text: string }, report: (problem: { node: unknown, message: string }) => void }} Context */
@@ -138,6 +139,88 @@ const noChartThemeMap = {
   }),
 };
 
+/** Types that already hold undefined, so they need no `| undefined`. */
+const HOLDS_UNDEFINED = new Set(["TSUndefinedKeyword", "TSAnyKeyword", "TSUnknownKeyword", "TSVoidKeyword"]);
+/** Types that bind looser than `|`, so a union with undefined wraps them in brackets. */
+const LOOSE = new Set(["TSFunctionType", "TSConstructorType", "TSConditionalType"]);
+
+/**
+ * @param {{ type: string, types?: { type: string }[], typeName?: { type: string, name?: string, right?: { name?: string } } }} type
+ * @returns {boolean}
+ */
+function holdsUndefined(type) {
+  if (HOLDS_UNDEFINED.has(type.type)) return true;
+  if (type.type === "TSUnionType") return (type.types ?? []).some(holdsUndefined);
+  // React's ReactNode includes undefined.
+  const name = type.typeName?.type === "TSQualifiedName" ? type.typeName.right?.name : type.typeName?.name;
+  return type.type === "TSTypeReference" && name === "ReactNode";
+}
+
+/**
+ * Whether a node sits in the pattern a conditional type matches against, `T extends { x?: infer U } ? U : never`,
+ * where adding undefined would change what matches and what `infer` takes.
+ * @param {any} node
+ * @returns {boolean}
+ */
+function inPattern(node) {
+  for (let child = node; child.parent; child = child.parent) {
+    if (child.parent.type === "TSConditionalType" && child.parent.extendsType === child) return true;
+  }
+  return false;
+}
+
+/** @type {Rule} */
+const optionalAcceptsUndefined = {
+  meta: {
+    type: "problem",
+    fixable: "code",
+    docs: { description: "Require `| undefined` on an optional property, for pages under exactOptionalPropertyTypes." },
+  },
+  // Under exactOptionalPropertyTypes, `tone?: Tone` rejects `tone: loss ? "negative" : undefined`, the way a page
+  // writes a prop it sets only sometimes; `tone?: Tone | undefined` takes it.
+  create: (context) => {
+    const message =
+      "An optional property must also accept undefined: add `| undefined`, for pages under exactOptionalPropertyTypes.";
+    /**
+     * @param {any} node a property signature, class field or mapped type
+     * @param {any} type its type
+     */
+    function check(node, type) {
+      if (!type || holdsUndefined(type) || inPattern(node)) return;
+      context.report({
+        node,
+        message,
+        fix: (/** @type {any} */ fixer) =>
+          LOOSE.has(type.type)
+            ? [fixer.insertTextBefore(type, "("), fixer.insertTextAfter(type, ") | undefined")]
+            : fixer.insertTextAfter(type, " | undefined"),
+      });
+    }
+    return {
+      /** @param {any} node */
+      TSPropertySignature(node) {
+        if (node.optional) check(node, node.typeAnnotation?.typeAnnotation);
+      },
+      /** @param {any} node */
+      PropertyDefinition(node) {
+        if (node.optional) check(node, node.typeAnnotation?.typeAnnotation);
+      },
+      /** @param {any} node `[K in keyof T]?: T[K]` */
+      TSMappedType(node) {
+        if (node.optional === true || node.optional === "+") check(node, node.typeAnnotation);
+      },
+      /** @param {any} node `onSelect?(): void`, which has no type to add undefined to */
+      TSMethodSignature(node) {
+        if (!node.optional || inPattern(node)) return;
+        context.report({
+          node,
+          message: `${message} Write it as a property: \`onSelect?: (() => void) | undefined\`.`,
+        });
+      },
+    };
+  },
+};
+
 /**
  * Options for shadcn's no-restyle, so every app gets the same policy from
  * `"siyahi/no-restyle": "error"` alone. Pages may place a component (margin,
@@ -163,24 +246,28 @@ function withOptions(rule, options) {
   };
 }
 
+/** Rules for pages that use Siyahi. */
+const pageRules = {
+  "no-color-literal": scoped(noColorLiteral),
+  "no-scheme-variant": scoped(noSchemeVariant),
+  "no-numeric-font-size": scoped(noNumericFontSize),
+  "no-chart-theme-map": scoped(noChartThemeMap),
+  "no-raw-colors": scoped(shadcn.rules["no-raw-colors"]),
+  "no-arbitrary-values": scoped(shadcn.rules["no-arbitrary-values"]),
+  "no-restyle": scoped(withOptions(shadcn.rules["no-restyle"], RESTYLE)),
+};
+
 /** @type {{ meta: { name: string }, rules: Record<string, Rule> }} */
 const plugin = {
   meta: { name: "siyahi" },
-  rules: {
-    "no-color-literal": scoped(noColorLiteral),
-    "no-scheme-variant": scoped(noSchemeVariant),
-    "no-numeric-font-size": scoped(noNumericFontSize),
-    "no-chart-theme-map": scoped(noChartThemeMap),
-    "no-raw-colors": scoped(shadcn.rules["no-raw-colors"]),
-    "no-arbitrary-values": scoped(shadcn.rules["no-arbitrary-values"]),
-    "no-restyle": scoped(withOptions(shadcn.rules["no-restyle"], RESTYLE)),
-  },
+  // optional-accepts-undefined is for a component library's own types, not for pages, which only use them.
+  rules: { ...pageRules, "optional-accepts-undefined": optionalAcceptsUndefined },
 };
 
 /**
- * Every rule at "error", for a Vite+ or ESLint config to spread.
+ * Every page rule at "error", for a Vite+ or ESLint config to spread.
  * @type {Record<string, "error">}
  */
-export const recommended = Object.fromEntries(Object.keys(plugin.rules).map((name) => [`siyahi/${name}`, "error"]));
+export const recommended = Object.fromEntries(Object.keys(pageRules).map((name) => [`siyahi/${name}`, "error"]));
 
 export default plugin;

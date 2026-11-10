@@ -43,12 +43,12 @@ export interface ScatterPoint {
   /** Up. `null` when unknown: the point is not drawn, so say on the page how many are missing. */
   y: number | null;
   /** Unique key when names repeat, such as one product sold in two regions. Defaults to `name`. */
-  key?: string;
+  key?: string | undefined;
   /**
    * A weight, such as a holding's value: the dot's area follows it. Give every point a size, or none. A size that is
    * not a positive number draws the smallest dot and leaves the others' sizes as they are.
    */
-  size?: number;
+  size?: number | undefined;
 }
 
 export type { ScatterQuadrants };
@@ -73,33 +73,33 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
    * "log" spreads values across powers of ten, for sizes that run from tiny to large. With xScaleToggle it is the
    * first selection. Log draws only when every x is above zero; otherwise the axis is linear.
    */
-  xScale?: AxisScale;
+  xScale?: AxisScale | undefined;
   /** Linear and Log buttons for the x axis in the header, so a reader can switch. */
-  xScaleToggle?: boolean;
+  xScaleToggle?: boolean | undefined;
   /** As xScale, for the y axis: log draws only when every y is above zero. */
-  yScale?: AxisScale;
+  yScale?: AxisScale | undefined;
   /** Linear and Log buttons for the y axis in the header. */
-  yScaleToggle?: boolean;
+  yScaleToggle?: boolean | undefined;
   /** The x ticks and the tooltip's x figure. Defaults to the locale's numbers. */
-  xFormatter?: (value: number) => string;
+  xFormatter?: ((value: number) => string) | undefined;
   /** The y ticks and the tooltip's y figure. Defaults to the locale's numbers. */
-  yFormatter?: (value: number) => string;
+  yFormatter?: ((value: number) => string) | undefined;
   /** How many points get their name beside the dot, at most; a name with no free spot is left to the tooltip. */
-  labels?: number;
+  labels?: number | undefined;
   /** The tooltip's rows under the point's name, and what a screen reader hears. Defaults to the two axes' figures. */
-  details?: (point: T) => readonly ScatterDetail[];
+  details?: ((point: T) => readonly ScatterDetail[]) | undefined;
   /** The point that carries a ring, matched by key; pass back what onSelect gave. */
-  selected?: T | null;
+  selected?: T | null | undefined;
   /** Gets a tapped or keyed point, and null on a second tap, Escape or a tap on the plot. */
-  onSelect?: (point: T | null) => void;
+  onSelect?: ((point: T | null) => void) | undefined;
   /** Lines under the chart, such as a caption or how many points are not drawn. */
   footer?: ReactNode;
   /** Dashed lines at a value on each axis, splitting the plot into four, and the corners' names. */
-  quadrants?: ScatterQuadrants;
+  quadrants?: ScatterQuadrants | undefined;
   /** Names the size in the tooltip, such as "Value". Defaults to "Size". */
-  sizeLabel?: string;
+  sizeLabel?: string | undefined;
   /** The tooltip's size figure. Defaults to the locale's numbers. */
-  sizeFormatter?: (value: number) => string;
+  sizeFormatter?: ((value: number) => string) | undefined;
 }
 
 const RADIUS = 5;
@@ -363,8 +363,8 @@ function PointTooltip<T extends ScatterPoint>({
   payload,
   details,
 }: {
-  active?: boolean;
-  payload?: readonly { payload?: T }[];
+  active?: boolean | undefined;
+  payload?: readonly { payload?: T | undefined }[] | undefined;
   details: (point: T) => readonly ScatterDetail[];
 }) {
   const point = active ? payload?.[0]?.payload : undefined;
@@ -384,11 +384,11 @@ function PointTooltip<T extends ScatterPoint>({
 
 interface DotProps<T extends ScatterPoint> {
   /** From Recharts: the dot's pixel position, its point, and the ids its touch handling finds the dot by. */
-  cx?: number;
-  cy?: number;
-  payload?: T;
-  index?: number;
-  "data-recharts-item-id"?: string;
+  cx?: number | undefined;
+  cy?: number | undefined;
+  payload?: T | undefined;
+  index?: number | undefined;
+  "data-recharts-item-id"?: string | undefined;
   selectedKey: string | null;
   /** The one dot Tab lands on, or null when the dots are not controls. */
   focusKey: string | null;

@@ -49,6 +49,14 @@ flex-col gap-4">`, `<TableCell><span className="font-mono">`,
 A Vite+ or ESLint config can spread every rule at once:
 `import { recommended } from "@siyahi/tools/lint"`.
 
+One more rule is for a component library's own types rather than for pages, so
+it runs in every file it is turned on for and is not in `recommended`:
+`siyahi/optional-accepts-undefined` rejects an optional property that does not
+take undefined, such as `tone?: Tone`, and `--fix` writes
+`tone?: Tone | undefined`. Under TypeScript's `exactOptionalPropertyTypes` a
+page can only pass `tone: loss ? "negative" : undefined` to the second.
+Siyahi runs it on its own package.
+
 ## Font preload
 
 A Vite plugin that adds `<link rel="preload" as="font">` tags to the built

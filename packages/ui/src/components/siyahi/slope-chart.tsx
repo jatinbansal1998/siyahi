@@ -10,7 +10,7 @@ export interface SlopeItem {
   /** The value on the right: after, or our own figure. */
   to: number;
   /** Unique key when names repeat. Defaults to `name`. */
-  key?: string;
+  key?: string | undefined;
 }
 
 export interface SlopeChartProps {
@@ -21,10 +21,10 @@ export interface SlopeChartProps {
   /** Heads the right side, such as "Portfolio" or "2026". */
   toLabel: string;
   /** Keys (or names) of the items to draw in the accent colour; the rest stay grey. */
-  highlighted?: readonly string[];
+  highlighted?: readonly string[] | undefined;
   /** Writes each end's value; useFormat().pct by default. */
-  valueFormatter?: (value: number) => string;
-  className?: string;
+  valueFormatter?: ((value: number) => string) | undefined;
+  className?: string | undefined;
 }
 
 const ROW = 18;

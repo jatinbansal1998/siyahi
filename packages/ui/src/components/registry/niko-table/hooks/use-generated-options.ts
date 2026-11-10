@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 cfbf8e13644889f4c5ef7114e1fbc513bfedfc9ed98f18c1f0b19cbb93c2f499
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 
 import type { DataTableInstance, Option } from "../types"
@@ -15,36 +17,36 @@ export interface GenerateOptionsConfig {
    * Whether to include counts for each option label
    * @default true
    */
-  showCounts?: boolean
+  showCounts?: boolean | undefined
   /**
    * If true, recompute counts based on the filtered rows; otherwise use all core rows
    * @default true
    */
-  dynamicCounts?: boolean
+  dynamicCounts?: boolean | undefined
   /**
    * If true, only generate options from filtered rows. If false, generate from all rows.
    * This controls which rows are used to generate the option list itself.
    * Note: This is separate from dynamicCounts which controls count calculation.
    * @default true
    */
-  limitToFilteredRows?: boolean
+  limitToFilteredRows?: boolean | undefined
   /**
    * Only generate options for these column ids (if provided)
    */
-  includeColumns?: string[]
+  includeColumns?: string[] | undefined
   /**
    * Exclude these column ids from option generation
    */
-  excludeColumns?: string[]
+  excludeColumns?: string[] | undefined
   /**
    * Optional cap on number of options per column (after sorting)
    */
-  limitPerColumn?: number
+  limitPerColumn?: number | undefined
   /**
    * Default merge strategy when a column does not provide meta.mergeStrategy.
    * Column-level mergeStrategy still takes precedence.
    */
-  mergeStrategy?: "preserve" | "augment" | "replace"
+  mergeStrategy?: "preserve" | "augment" | "replace" | undefined
 }
 
 /**

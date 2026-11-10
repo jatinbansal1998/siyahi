@@ -8,6 +8,8 @@
 // Siyahi edit: the check has no text-success (Siyahi has no such token and
 // keeps colour for meaning), and both icons take data-icon="inline-start" so
 // Button spaces them from the label.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 import * as React from "react"
 import { CheckIcon, CopyIcon } from "lucide-react"
@@ -25,8 +27,8 @@ function CopyButton({
   ...props
 }: {
   value: string
-  label?: string
-  copiedLabel?: string
+  label?: string | undefined
+  copiedLabel?: string | undefined
 } & React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants>) {
   const [copied, setCopied] = React.useState(false)

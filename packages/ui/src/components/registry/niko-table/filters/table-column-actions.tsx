@@ -6,6 +6,8 @@
 // default Button is not nested inside the trigger's own button.
 // Siyahi edit: the label and the actions sit in a DropdownMenuGroup. Base UI's
 // Menu.GroupLabel throws outside a Menu.Group, which crashed the menu on open.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import React from "react"
 import { MoreVertical } from "lucide-react"
 
@@ -21,25 +23,25 @@ import { cn } from "@siyahi/ui/lib/utils"
 
 export interface TableColumnActionsProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
   /**
    * Optional label shown at the top of the dropdown.
    * @default "Column Actions"
    */
-  label?: string
+  label?: string | undefined
   /**
    * Whether to show a visual indicator when actions are active.
    */
-  isActive?: boolean
+  isActive?: boolean | undefined
   /**
    * Custom trigger element. If not provided, uses a MoreVertical icon button.
    */
-  trigger?: React.ReactElement
+  trigger?: React.ReactElement | undefined
   /**
    * Alignment of the dropdown content.
    * @default "end"
    */
-  align?: "start" | "center" | "end"
+  align?: "start" | "center" | "end" | undefined
 }
 
 /**

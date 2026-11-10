@@ -2,6 +2,8 @@
 // Origin: https://ui.shadcn.com/r/styles/base-vega/sidebar-07.json
 // Licence: MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md
 // Copied: 2026-10-20, sha256 926e6f27dc8b1f0d87c3576f113877333e7c58a89f72760fba02b2a001de0584
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import {
   Collapsible,
   CollapsibleContent,
@@ -34,16 +36,16 @@ export function NavMain({
     title: string
     url: string
     icon: React.ReactNode
-    isActive?: boolean
+    isActive?: boolean | undefined
     // Siyahi edit: a flat item's anchor takes extra props, such as hover
     // handlers that prefetch the view's data.
-    linkProps?: Omit<React.ComponentProps<"a">, "href">
+    linkProps?: Omit<React.ComponentProps<"a">, "href"> | undefined
     // Siyahi edit: a sub-item can be the open page too, marked like a flat item.
     items?: {
       title: string
       url: string
-      isActive?: boolean
-    }[]
+      isActive?: boolean | undefined
+    }[] | undefined
   }[]
 }) {
   // Siyahi edit: on a phone the sidebar is a drawer, so following a link

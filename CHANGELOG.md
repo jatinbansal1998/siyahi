@@ -90,6 +90,18 @@
   the row is washed as a `TableRow` with `data-tone` is, its pinned cell
   included. `tone` on a `MetricStripItem` washes that figure and outlines it on
   the hairlines around it, as a `SectionCards` tile's tone does.
+- Every optional prop the package declares takes `undefined` too
+  (`tone?: "negative" | "warning" | undefined`), so a page compiled with
+  `exactOptionalPropertyTypes` can write `tone: loss ? "negative" : undefined`
+  instead of `...(loss && { tone: "negative" })`. That holds for what a
+  component inherits too: `SiyahiProvider`'s `locale` settings,
+  `DataTableRoot`'s TanStack table options and `AppSidebar`'s `Sidebar` props.
+  shadcn core components' own optional props and TanStack's column
+  definitions are unchanged. `@siyahi/tools/lint` has a new rule for a
+  library's own types, `siyahi/optional-accepts-undefined`, not in
+  `recommended`.
+- `SiyahiProvider` keeps the default for a `locale` setting passed as
+  `undefined` (`{ currency: undefined }` set the currency to undefined).
 - A data table on an open surface paints its pinned cells and sticky header in
   the page colour, not the card's, which drew a stripe down the pinned column
   there (in dark mode most). The theme sets `--table-fill`, the colour under

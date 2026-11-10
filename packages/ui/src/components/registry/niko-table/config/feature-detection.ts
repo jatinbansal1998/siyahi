@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 541ccd025b22ca0fc9c639c33cdf114369a046a549c28cff2ceac1cc795243d1
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import {
   Children,
   isValidElement,
@@ -14,18 +16,18 @@ import {
  * Feature requirements that components can declare
  */
 export interface FeatureRequirements {
-  enableFilters?: boolean
-  enablePagination?: boolean
-  enableRowSelection?: boolean
-  enableSorting?: boolean
-  enableMultiSort?: boolean
-  enableGrouping?: boolean
-  enableExpanding?: boolean
-  enableColumnResizing?: boolean
-  manualSorting?: boolean
-  manualPagination?: boolean
-  manualFiltering?: boolean
-  pageCount?: number
+  enableFilters?: boolean | undefined
+  enablePagination?: boolean | undefined
+  enableRowSelection?: boolean | undefined
+  enableSorting?: boolean | undefined
+  enableMultiSort?: boolean | undefined
+  enableGrouping?: boolean | undefined
+  enableExpanding?: boolean | undefined
+  enableColumnResizing?: boolean | undefined
+  manualSorting?: boolean | undefined
+  manualPagination?: boolean | undefined
+  manualFiltering?: boolean | undefined
+  pageCount?: number | undefined
 }
 
 // Tree-walk detection is 50-150ms; cache by `children` identity. Client-only
@@ -115,7 +117,7 @@ const COMPONENT_FEATURES: Record<string, FeatureRequirements> = {
  */
 export function detectFeaturesFromChildren(
   children: ReactNode,
-  columns?: Array<{ header?: unknown; enableColumnFilter?: boolean }>,
+  columns?: Array<{ header?: unknown; enableColumnFilter?: boolean | undefined }>,
 ): FeatureRequirements {
   // Skip cache when `columns` provided — column content drives detection and
   // changes frequently, would return stale results.
@@ -139,7 +141,7 @@ export function detectFeaturesFromChildren(
         // Check if this component has feature requirements
         if (typeof child.type === "function") {
           const componentType = child.type as ComponentType<unknown> & {
-            displayName?: string
+            displayName?: string | undefined
           }
           const displayName = componentType.displayName
           const componentFeatures = displayName
@@ -207,7 +209,7 @@ export function detectFeaturesFromChildren(
 
             if (typeof element.type === "function") {
               const componentType = element.type as ComponentType<unknown> & {
-                displayName?: string
+                displayName?: string | undefined
               }
               const displayName = componentType.displayName
               const componentFeatures = displayName

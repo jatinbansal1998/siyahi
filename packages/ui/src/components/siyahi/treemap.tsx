@@ -13,29 +13,29 @@ export interface TreemapItem {
   /** Signed change as a fraction; sets the heat. `null` when unknown: a muted tile marked "—". */
   change: number | null;
   /** Unique key when names repeat, such as one city sold to online and in stores. Defaults to `name`. */
-  key?: string;
+  key?: string | undefined;
   /** Tiles of one group, such as a region, sit together under the group's name, even a group of one. */
-  group?: string;
+  group?: string | undefined;
 }
 
 export interface TreemapProps<T extends TreemapItem> {
   items: T[];
   height: number;
   /** ±range: the change, as a fraction, that takes the deepest heat step. Default 0.05 (±5%); a range that is not a positive number uses the default. */
-  range?: number;
+  range?: number | undefined;
   /**
    * Gets the item under a mouse, and null when it moves onto a group's name or leaves the map. A tap fires no hover:
    * on a touch screen it selects, so the page shows the tile in place rather than in a card at the finger.
    */
-  onHover?: (item: T | null) => void;
+  onHover?: ((item: T | null) => void) | undefined;
   /** The selected item, matched by key, whose tile carries a ring. Pass back what onSelect gave. */
-  selected?: T | null;
+  selected?: T | null | undefined;
   /**
    * Gets the item whose tile is tapped or clicked, and null when the selected
    * tile is tapped again or a tap lands anywhere else. On a touch screen, which
    * has no hover, this is how a reader gets a tile's figures.
    */
-  onSelect?: (item: T | null) => void;
+  onSelect?: ((item: T | null) => void) | undefined;
 }
 
 /** Heat map of parts of a whole: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
@@ -188,8 +188,8 @@ function Swatch({ label, fill }: { label: string; fill: string }) {
 
 export interface TreemapLegendProps {
   /** The Treemap's own range, so each swatch matches its tiles. */
-  range?: number;
-  className?: string;
+  range?: number | undefined;
+  className?: string | undefined;
 }
 
 /** The Treemap's colour scale under the map: five steps of loss, no change, five steps of gain, deepest at the ends. */

@@ -78,7 +78,7 @@ export function pct(value: number, locale: SiyahiLocale = defaultLocale, fractio
 
 export interface TimeOptions {
   /** Write the date, in the same zone, before the time: 20 Oct 2026, 14:30 IST. */
-  withDate?: boolean;
+  withDate?: boolean | undefined;
 }
 
 /** A 24-hour time in the locale's zone, with the zone written: 14:30 IST. */

@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 04ab2e51555e4768a6f65ca8e251f1e6355c854ecbdaed74315f50efcfbbaf1d
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -116,7 +118,7 @@ export interface DataTableGroupedRowsProps<TData extends RowData = RowData> {
    * row for that group. Table-level gating is better expressed by simply not
    * nesting this component.
    */
-  enabledFor?: (row: DataTableRow<TData>) => boolean
+  enabledFor?: ((row: DataTableRow<TData>) => boolean) | undefined
 }
 
 /**
@@ -164,7 +166,7 @@ export function resolveGroupedRowsSlot<TData extends RowData = RowData>(
   let found: DataTableGroupedRowsProps<TData> | undefined
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) return
-    const type = child.type as { displayName?: string }
+    const type = child.type as { displayName?: string | undefined }
     if (
       child.type === DataTableGroupedRows ||
       type.displayName === "DataTableGroupedRows"

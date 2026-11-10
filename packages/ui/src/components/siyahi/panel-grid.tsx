@@ -12,9 +12,9 @@ const COLUMNS = {
 
 export interface PanelGridProps {
   /** Blocks across on a wide page; two on a medium one, and one on a phone. */
-  columns?: keyof typeof COLUMNS;
+  columns?: keyof typeof COLUMNS | undefined;
   children: ReactNode;
-  className?: string;
+  className?: string | undefined;
 }
 
 /**

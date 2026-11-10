@@ -6,6 +6,8 @@
 // default Button is not nested inside the trigger's own button.
 // Siyahi edit: fit full option labels, constrain the popup to the viewport,
 // and wrap long labels without squeezing checkboxes or counts.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -54,19 +56,19 @@ import {
 
 import type { RowData } from "@tanstack/react-table"
 export interface TableFacetedFilterProps<TData extends RowData, TValue> {
-  column?: DataTableColumn<TData, TValue>
-  title?: string
+  column?: DataTableColumn<TData, TValue> | undefined
+  title?: string | undefined
   options: Option[]
-  multiple?: boolean
+  multiple?: boolean | undefined
   /**
    * Callback fired when filter value changes
    * Useful for server-side filtering or external state management
    */
-  onValueChange?: (value: string[] | undefined) => void
+  onValueChange?: ((value: string[] | undefined) => void) | undefined
   /**
    * Optional custom trigger element
    */
-  trigger?: React.ReactElement
+  trigger?: React.ReactElement | undefined
 }
 
 export function useTableFacetedFilter<TData extends RowData, TValue = unknown>({
@@ -74,9 +76,9 @@ export function useTableFacetedFilter<TData extends RowData, TValue = unknown>({
   onValueChange,
   multiple,
 }: {
-  column?: DataTableColumn<TData, TValue>
-  onValueChange?: (value: string[] | undefined) => void
-  multiple?: boolean
+  column?: DataTableColumn<TData, TValue> | undefined
+  onValueChange?: ((value: string[] | undefined) => void) | undefined
+  multiple?: boolean | undefined
 }) {
   const columnFilterValue = column?.getFilterValue()
 
@@ -277,7 +279,7 @@ export function TableFacetedFilterContent({
   onItemSelect,
   onReset,
 }: {
-  title?: string
+  title?: string | undefined
   options: Option[]
   selectedValues: Set<string>
   onItemSelect: (option: Option, isSelected: boolean) => void

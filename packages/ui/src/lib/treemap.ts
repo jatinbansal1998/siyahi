@@ -16,9 +16,9 @@ export interface Layout<T> {
 }
 
 interface Node<T> {
-  item?: T;
-  group?: string;
-  children?: Node<T>[];
+  item?: T | undefined;
+  group?: string | undefined;
+  children?: Node<T>[] | undefined;
 }
 
 const box = ({ x0, y0, x1, y1 }: { x0: number; y0: number; x1: number; y1: number }): Box => ({
@@ -34,7 +34,7 @@ const area = (weight: number | undefined): number =>
   weight !== undefined && Number.isFinite(weight) && weight > 0 ? weight : 0;
 
 /** Squarified layout: items without a group are tiles of their own, the rest sit together under their group's label. */
-export function layout<T extends { weight: number; group?: string }>(
+export function layout<T extends { weight: number; group?: string | undefined }>(
   items: T[],
   width: number,
   height: number,

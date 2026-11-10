@@ -4,6 +4,9 @@
 // Copied: 2026-10-20, sha256 844e0dc6da405c5478dc429d17fb57582ac84ecf6cacf624078b98f3e21368f8
 // Siyahi edit: the root holds the table's width; columns that do not fit hide,
 // rightmost first and never a `meta.compact` one, until the reader asks for all.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`;
+// the TanStack options it inherits take Optional<…> for the same reason.
 import {
   useTable,
   type ColumnDef,
@@ -43,6 +46,7 @@ import {
   type GlobalFilter,
 } from "../types"
 import { fitColumns, isCompactWidth } from "@siyahi/ui/lib/compact-columns"
+import type { Optional } from "@siyahi/ui/lib/optional"
 import { DataTableProvider } from "./data-table-context"
 
 /**
@@ -67,13 +71,13 @@ const tooltipProviderDelay = {
 
 export interface DataTableConfig {
   // Feature toggles
-  enablePagination?: boolean
-  enableFilters?: boolean
-  enableSorting?: boolean
-  enableRowSelection?: boolean
-  enableMultiSort?: boolean
-  enableGrouping?: boolean
-  enableExpanding?: boolean
+  enablePagination?: boolean | undefined
+  enableFilters?: boolean | undefined
+  enableSorting?: boolean | undefined
+  enableRowSelection?: boolean | undefined
+  enableMultiSort?: boolean | undefined
+  enableGrouping?: boolean | undefined
+  enableExpanding?: boolean | undefined
   /**
    * Enable drag-to-resize column widths (opt-in; off by default so existing
    * tables are unaffected). When on, columns render at `column.getSize()` and a
@@ -81,64 +85,64 @@ export interface DataTableConfig {
    * `<DataTableColumnResize />` inside the root to enable via feature detection.
    * Double-click a grip to autosize; columns opt out with `enableResizing: false`.
    */
-  enableColumnResizing?: boolean
+  enableColumnResizing?: boolean | undefined
   /**
    * When grouping is active, how grouped columns are placed in the column flow.
    * TanStack default: `'reorder'` (move grouped columns to the start).
    * `'remove'` hides them; `false` leaves them in place.
    */
-  groupedColumnMode?: false | "reorder" | "remove"
+  groupedColumnMode?: false | "reorder" | "remove" | undefined
 
   // Manual modes (for server-side)
-  manualSorting?: boolean
-  manualPagination?: boolean
-  manualFiltering?: boolean
-  pageCount?: number
+  manualSorting?: boolean | undefined
+  manualPagination?: boolean | undefined
+  manualFiltering?: boolean | undefined
+  pageCount?: number | undefined
 
   // Initial state
-  initialPageSize?: number
-  initialPageIndex?: number
+  initialPageSize?: number | undefined
+  initialPageIndex?: number | undefined
 
   // Auto-reset behaviors
-  autoResetPageIndex?: boolean
-  autoResetExpanded?: boolean
+  autoResetPageIndex?: boolean | undefined
+  autoResetExpanded?: boolean | undefined
 }
 
 interface TableRootProps<TData extends RowData> extends Omit<
-  Partial<TableOptions<DataTableFeatures, TData>>,
+  Optional<TableOptions<DataTableFeatures, TData>>,
   // `key` is dropped so React's reserved `key` prop keeps its own semantics
   // — TanStack v9 added a `key` table option that would otherwise force
   // `<DataTableRoot key={…}>` to be a string.
   "columns" | "data" | "getRowId" | "key"
 > {
   // Option 1: Pass a pre-configured table instance
-  table?: ReactTable<DataTableFeatures, TData>
+  table?: ReactTable<DataTableFeatures, TData> | undefined
 
   // Option 2: Let DataTableRoot create its own table
-  columns?: DataTableColumns<TData>
-  data?: TData[]
+  columns?: DataTableColumns<TData> | undefined
+  data?: TData[] | undefined
 
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 
   // Configuration object
-  config?: DataTableConfig
-  getRowId?: (originalRow: TData, index: number) => string
+  config?: DataTableConfig | undefined
+  getRowId?: ((originalRow: TData, index: number) => string) | undefined
 
   // Loading state
-  isLoading?: boolean
+  isLoading?: boolean | undefined
 
   // Event handlers
-  onGlobalFilterChange?: (value: GlobalFilter) => void
-  onPaginationChange?: (updater: Updater<PaginationState>) => void
-  onSortingChange?: (updater: Updater<SortingState>) => void
-  onColumnVisibilityChange?: (updater: Updater<ColumnVisibilityState>) => void
-  onColumnFiltersChange?: (updater: Updater<ColumnFiltersState>) => void
-  onRowSelectionChange?: (updater: Updater<RowSelectionState>) => void
-  onExpandedChange?: (updater: Updater<ExpandedState>) => void
-  onGroupingChange?: (updater: Updater<GroupingState>) => void
-  onColumnOrderChange?: (updater: Updater<ColumnOrderState>) => void
-  onRowSelection?: (selectedRows: TData[]) => void
+  onGlobalFilterChange?: ((value: GlobalFilter) => void) | undefined
+  onPaginationChange?: ((updater: Updater<PaginationState>) => void) | undefined
+  onSortingChange?: ((updater: Updater<SortingState>) => void) | undefined
+  onColumnVisibilityChange?: ((updater: Updater<ColumnVisibilityState>) => void) | undefined
+  onColumnFiltersChange?: ((updater: Updater<ColumnFiltersState>) => void) | undefined
+  onRowSelectionChange?: ((updater: Updater<RowSelectionState>) => void) | undefined
+  onExpandedChange?: ((updater: Updater<ExpandedState>) => void) | undefined
+  onGroupingChange?: ((updater: Updater<GroupingState>) => void) | undefined
+  onColumnOrderChange?: ((updater: Updater<ColumnOrderState>) => void) | undefined
+  onRowSelection?: ((selectedRows: TData[]) => void) | undefined
 }
 
 // Internal component that handles hooks for direct props mode
@@ -380,7 +384,7 @@ function DataTableRootInternal<TData extends RowData>({
     data?.forEach((row, idx) => {
       const rowId =
         getRowId?.(row, idx) ??
-        (row as { id?: string | number }).id?.toString() ??
+        (row as { id?: string | number | undefined }).id?.toString() ??
         String(idx)
       map.set(rowId, row)
     })
@@ -760,7 +764,7 @@ function DataTableRootInternal<TData extends RowData>({
         getRowId ??
         ((originalRow, index) => {
           // Try to use 'id' property if it exists
-          const rowWithId = originalRow as { id?: string | number }
+          const rowWithId = originalRow as { id?: string | number | undefined }
           if (rowWithId.id !== undefined && rowWithId.id !== null) {
             return String(rowWithId.id)
           }

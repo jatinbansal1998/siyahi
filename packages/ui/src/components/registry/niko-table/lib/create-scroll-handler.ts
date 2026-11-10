@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 a9b1c8f9efb88dbbbfae5db0fe4db35996b1f496524e8274618567ccad807359
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 export interface ScrollEvent {
   scrollTop: number
   scrollHeight: number
@@ -36,10 +38,10 @@ export function createScrollHandler({
   onScrolledBottom,
   scrollThreshold = 50,
 }: {
-  onScroll?: (event: ScrollEvent) => void
-  onScrolledTop?: () => void
-  onScrolledBottom?: () => void
-  scrollThreshold?: number
+  onScroll?: ((event: ScrollEvent) => void) | undefined
+  onScrolledTop?: (() => void) | undefined
+  onScrolledBottom?: (() => void) | undefined
+  scrollThreshold?: number | undefined
 }): (event: Event) => void {
   /**
    * Edge-transition gating only — no rAF coalescing.

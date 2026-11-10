@@ -28,6 +28,8 @@
 // strip from the theme's surface rule, which finds cards by that slot.
 // Siyahi edit: `tone` marks a figure as the exception, as on a SectionCards
 // tile: the theme washes its tile in the tone and outlines it.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
@@ -50,14 +52,14 @@ export interface MetricStripItem {
   /** The figure, formatted by the page: money(4512300). */
   value: React.ReactNode
   /** The signed change, drawn as a Delta under the figure; its sign colours the trend. For "pct", a fraction. */
-  change?: number
-  changeFormat?: "pct" | "money"
+  change?: number | undefined
+  changeFormat?: "pct" | "money" | undefined
   /** Muted words after the change, such as "vs last month". */
   note?: React.ReactNode
   /** Recent values, oldest first, drawn as a sparkline beside the figure. */
-  trend?: number[]
+  trend?: number[] | undefined
   /** Marks the figure as the exception on the page: a faint wash of the colour and an outline of it. */
-  tone?: "negative" | "warning"
+  tone?: "negative" | "warning" | undefined
 }
 
 export interface MetricStripProps extends Omit<React.ComponentProps<typeof Card>, "title"> {

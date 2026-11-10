@@ -160,7 +160,7 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps, ValueScaleProps, LineMarksProps<T, K> {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
   /** The value axis' range: a page's fixed one, or a card's rule such as bars reaching zero. */
-  yDomain?: YAxisProps["domain"];
+  yDomain?: YAxisProps["domain"] | undefined;
   /** One Bar, Area or Line per series. */
   children: ReactNode;
   /**
@@ -168,22 +168,22 @@ interface ChartFrameProps<T extends object, K extends keyof T>
    * chart-bar-horizontal. The value axis runs along the bottom when yTickFormatter is given, and is hidden
    * otherwise. x and y keep their meaning: x is the category, y the value.
    */
-  horizontal?: boolean;
+  horizontal?: boolean | undefined;
   /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
-  stackOffset?: "sign";
-  onClick?: ComponentProps<typeof BarChart>["onClick"];
+  stackOffset?: "sign" | undefined;
+  onClick?: ComponentProps<typeof BarChart>["onClick"] | undefined;
   /** A tooltip row per hovered mark; by default each series' colour, label and formatted value (seriesRow). */
-  tooltipRow?: ComponentProps<typeof ChartTooltipContent>["formatter"];
+  tooltipRow?: ComponentProps<typeof ChartTooltipContent>["formatter"] | undefined;
   /** The legend under the plot; by default one chip per series. */
-  legend?: ReactElement;
+  legend?: ReactElement | undefined;
   /** Why this chart cannot go on a log scale whatever its values, such as stacked areas adding up from zero. */
-  logBlocked?: string;
+  logBlocked?: string | undefined;
   /** The marks are lines (a line chart, unstacked areas): name each series at its line's end, where there is room. */
-  endLabels?: boolean;
+  endLabels?: boolean | undefined;
   /** Hatch a forecast stretch, behind lines that sit on card halos; a stack's fills cover it already. */
-  forecastHatch?: boolean;
+  forecastHatch?: boolean | undefined;
   /** The lines' curve, which a grey line raised from the legend is drawn with too. */
-  curve?: ChartCurve;
+  curve?: ChartCurve | undefined;
 }
 
 /**
@@ -205,7 +205,7 @@ export function seriesFill<T>(item: ChartSeriesItem<T>, data: readonly T[]): Cha
  * grid, and none elsewhere. The eye lands on now, where a reader starts.
  */
 export function endDot(color: ChartColor, count: number, hollow = false) {
-  return ({ cx, cy, index }: { cx?: number; cy?: number; index?: number }) =>
+  return ({ cx, cy, index }: { cx?: number | undefined; cy?: number | undefined; index?: number | undefined }) =>
     index === count - 1 && cx !== undefined && cy !== undefined ? (
       hollow ? (
         // A forecast's end is not a reading: the dot is hollow.
@@ -236,18 +236,18 @@ export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number
 }
 
 interface TickProps {
-  x?: number | string;
-  y?: number | string;
-  payload?: { value?: unknown };
+  x?: number | string | undefined;
+  y?: number | string | undefined;
+  payload?: { value?: unknown } | undefined;
 }
 
 interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
-  payload?: { value?: unknown };
+  payload?: { value?: unknown } | undefined;
   /** The axis that carries the values: y, or x when the bars run sideways. */
   axis: "x" | "y";
   formatter: (value: number, scale: number) => string;
   /** Each tick in its own unit, as on a log axis, whose ticks run across powers of ten: ₹20,000, ₹1L, ₹5Cr. */
-  ownUnit?: boolean;
+  ownUnit?: boolean | undefined;
 }
 
 /**

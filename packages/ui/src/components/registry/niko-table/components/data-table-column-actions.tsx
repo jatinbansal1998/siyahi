@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 81888992f30c214f182125413618bce5f1e0fa89d2a2dd4eb302029890846325
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -38,7 +40,7 @@ import { useColumnHeaderContext } from "./data-table-column-header"
 export function DataTableColumnActions<TData extends RowData, TValue>(
   props: Omit<React.ComponentProps<typeof TableColumnActions>, "isActive"> & {
     /** Override to manually set active state */
-    isActive?: boolean
+    isActive?: boolean | undefined
   },
 ) {
   const context = useColumnHeaderContext<TData, TValue>(false)

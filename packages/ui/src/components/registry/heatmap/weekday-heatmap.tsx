@@ -15,6 +15,8 @@
 // text colour, or the focus ring's) and never fade the cell's colour, as
 // CalendarHeatmap and StatusHeatmap do; the ring a focused SVG cell was given
 // never drew. The picked cell's ring is a class, so focus outranks it.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import type { Locale, Day as WeekDay } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -106,23 +108,23 @@ type WeekdayHeatmapContextType = {
   weekStart: WeekDay;
   hours: readonly number[];
   weekdays: readonly number[];
-  colors?: ColorConfig;
+  colors?: ColorConfig | undefined;
 };
 
 export type WeekdayHeatmapLabels = {
-  hours?: string[];
-  endHour?: string | null;
-  weekdays?: string[];
-  stat?: string; // Stat text template. Placeholder: {{value}}
-  cellLabel?: string; // aria-label template. Placeholders: {{weekday}}, {{hour}}, {{value}}
-  heatmapLabel?: string; // aria-label for the heatmap SVG
-  legendLabel?: string; // aria-label for the legend fieldset
-  legendLevelLabel?: string; // aria-label template for legend swatches. Placeholder: {{level}}
+  hours?: string[] | undefined;
+  endHour?: string | null | undefined;
+  weekdays?: string[] | undefined;
+  stat?: string | undefined; // Stat text template. Placeholder: {{value}}
+  cellLabel?: string | undefined; // aria-label template. Placeholders: {{weekday}}, {{hour}}, {{value}}
+  heatmapLabel?: string | undefined; // aria-label for the heatmap SVG
+  legendLabel?: string | undefined; // aria-label for the legend fieldset
+  legendLevelLabel?: string | undefined; // aria-label template for legend swatches. Placeholder: {{level}}
 };
 
 export type ColorConfig = {
-  empty?: string;
-  scale?: string;
+  empty?: string | undefined;
+  scale?: string | undefined;
 };
 
 // Non-normalized: 1 empty + (levels-1) colored steps. Normalized: levels colored steps, no empty.
@@ -221,28 +223,28 @@ const useWeekdayHeatmap = () => {
 
 export type WeekdayHeatmapProps = HTMLAttributes<HTMLDivElement> & {
   data: WeekdayHourlyActivity[];
-  weekStart?: WeekDay;
+  weekStart?: WeekDay | undefined;
   /** Displayed hours, in order; defaults to the full day. */
-  hours?: readonly WeekdayHour[];
+  hours?: readonly WeekdayHour[] | undefined;
   /** Displayed days, in order; defaults to the full week from weekStart. */
-  weekdays?: readonly WeekdayIndex[];
-  use12Hour?: boolean;
-  blockSize?: number;
-  blockMargin?: number;
-  blockRadius?: number;
-  blockAspectRatio?: number;
-  levels?: number;
-  isNormalized?: boolean;
-  colors?: ColorConfig;
-  locale?: Locale;
-  labels?: WeekdayHeatmapLabels;
-  fontSize?: number;
+  weekdays?: readonly WeekdayIndex[] | undefined;
+  use12Hour?: boolean | undefined;
+  blockSize?: number | undefined;
+  blockMargin?: number | undefined;
+  blockRadius?: number | undefined;
+  blockAspectRatio?: number | undefined;
+  levels?: number | undefined;
+  isNormalized?: boolean | undefined;
+  colors?: ColorConfig | undefined;
+  locale?: Locale | undefined;
+  labels?: WeekdayHeatmapLabels | undefined;
+  fontSize?: number | undefined;
   emptyState?: ReactNode;
-  totalCount?: number;
-  extraRow?: WeekdayExtraRowSpec;
-  extraColumn?: WeekdayExtraColumnSpec;
-  style?: CSSProperties;
-  className?: string;
+  totalCount?: number | undefined;
+  extraRow?: WeekdayExtraRowSpec | undefined;
+  extraColumn?: WeekdayExtraColumnSpec | undefined;
+  style?: CSSProperties | undefined;
+  className?: string | undefined;
   children: ReactNode;
 };
 
@@ -492,13 +494,13 @@ export const WeekdayHeatmap = ({
 
 export type WeekdayHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
   /** The cell the page has picked: drawn with a ring and announced as pressed. */
-  selected?: boolean;
+  selected?: boolean | undefined;
   activity: WeekdayHourlyActivityWithLevel;
-  extra?: "row" | "column";
-  highlighted?: boolean;
-  onCellClick?: (activity: WeekdayHourlyActivityWithLevel) => void;
-  onCellHover?: (activity: WeekdayHourlyActivityWithLevel | null) => void;
-  className?: string;
+  extra?: "row" | "column" | undefined;
+  highlighted?: boolean | undefined;
+  onCellClick?: ((activity: WeekdayHourlyActivityWithLevel) => void) | undefined;
+  onCellHover?: ((activity: WeekdayHourlyActivityWithLevel | null) => void) | undefined;
+  className?: string | undefined;
 };
 
 export const WeekdayHeatmapBlock = ({
@@ -517,7 +519,7 @@ export const WeekdayHeatmapBlock = ({
   style: styleProp,
   ...props
 }: WeekdayHeatmapBlockProps & {
-  ref?: React.RefObject<SVGRectElement | null>;
+  ref?: React.RefObject<SVGRectElement | null> | undefined;
 }) => {
   const {
     blockSize,
@@ -630,22 +632,22 @@ export type WeekdayHeatmapBodyProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children"
 > & {
-  hideHourLabels?: boolean;
-  hideWeekdayLabels?: boolean;
-  className?: string;
-  labelClassName?: string;
+  hideHourLabels?: boolean | undefined;
+  hideWeekdayLabels?: boolean | undefined;
+  className?: string | undefined;
+  labelClassName?: string | undefined;
   children: (props: {
     activity: WeekdayHourlyActivityWithLevel;
     weekdayIndex: number;
   }) => ReactNode;
-  renderExtraRow?: (props: {
+  renderExtraRow?: ((props: {
     activity: WeekdayHourlyActivityWithLevel;
     weekdayIndex: number;
-  }) => ReactNode;
-  renderExtraColumn?: (props: {
+  }) => ReactNode) | undefined;
+  renderExtraColumn?: ((props: {
     activity: WeekdayHourlyActivityWithLevel;
     weekdayIndex: number;
-  }) => ReactNode;
+  }) => ReactNode) | undefined;
 };
 
 export const WeekdayHeatmapBody = ({
@@ -918,12 +920,12 @@ export type WeekdayHeatmapStatProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children"
 > & {
-  compute?: (data: WeekdayHourlyActivityWithLevel[]) => number | string;
-  label?: string; // Template overriding labels.stat. Placeholder: {{value}}
-  children?: (result: {
+  compute?: ((data: WeekdayHourlyActivityWithLevel[]) => number | string) | undefined;
+  label?: string | undefined; // Template overriding labels.stat. Placeholder: {{value}}
+  children?: ((result: {
     value: number | string;
     data: WeekdayHourlyActivityWithLevel[];
-  }) => ReactNode;
+  }) => ReactNode) | undefined;
 };
 
 export const WeekdayHeatmapStat = ({
@@ -958,8 +960,8 @@ export type WeekdayHeatmapLegendProps = Omit<
   HTMLAttributes<HTMLFieldSetElement>,
   "children"
 > & {
-  labels?: { less?: string; more?: string };
-  children?: (props: { level: number }) => ReactNode;
+  labels?: { less?: string | undefined; more?: string | undefined } | undefined;
+  children?: ((props: { level: number }) => ReactNode) | undefined;
 };
 
 export const WeekdayHeatmapLegend = ({

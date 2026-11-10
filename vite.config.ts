@@ -90,7 +90,8 @@ export default defineConfig({
         // Siyahi's own compositions are the design system: styling the
         // components they wrap is their job, not a restyle.
         files: ["packages/ui/src/**"],
-        rules: { "siyahi/no-restyle": "off" },
+        // A page under exactOptionalPropertyTypes can pass undefined to any optional prop the package declares.
+        rules: { "siyahi/no-restyle": "off", "siyahi/optional-accepts-undefined": "error" },
       },
     ],
     options: {

@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 93687c305d271629805932fe7cd853a87b8991d3bb14cf842c787e71d4d568f6
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 
 import type { RowData } from "@tanstack/react-table"
@@ -23,7 +25,7 @@ export interface DataTableRowContextMenuSlotProps<TData extends RowData> {
    * menu (e.g. locked/browse-only rows). Table-level gating (e.g. "no manage
    * permission") is better done by simply not rendering the slot at all.
    */
-  enabledFor?: (row: TData) => boolean
+  enabledFor?: ((row: TData) => boolean) | undefined
 }
 
 /**
@@ -70,7 +72,7 @@ export function resolveRowContextMenuRenderer<TData extends RowData>(
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) return
     // Match by displayName — reference equality breaks across re-exports / HMR.
-    const type = child.type as { displayName?: string }
+    const type = child.type as { displayName?: string | undefined }
     if (
       child.type === DataTableRowContextMenuSlot ||
       type.displayName === "DataTableRowContextMenuSlot"

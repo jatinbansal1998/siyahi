@@ -21,6 +21,8 @@
 // after it over a card-coloured halo, with a hollow end dot; today gets a
 // rule. Lines draw in over 1.3s.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 import { Fragment } from "react"
@@ -41,7 +43,7 @@ export interface LineChartCardProps<T extends object, K extends keyof T>
     NumericXProps,
     ValueScaleProps,
     LineMarksProps<T, K> {
-  curve?: ChartCurve
+  curve?: ChartCurve | undefined
 }
 
 /** Values over an ordered axis as lines: one series, or several to compare, such as sales against a target. */

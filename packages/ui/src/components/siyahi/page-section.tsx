@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export interface PageSectionProps {
   /** Anchor for a table of contents; the section scrolls in with room above it. */
-  id?: string;
+  id?: string | undefined;
   /** Small muted line above the title, such as "Part 2". */
   eyebrow?: ReactNode;
   title: ReactNode;

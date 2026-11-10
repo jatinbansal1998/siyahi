@@ -14,6 +14,8 @@
 // Siyahi edit: `getRowTone` on DataTableBody marks the row that needs a look
 // with data-tone, as a page marks a plain TableRow, and a pinned cell carries
 // data-pinned, so the theme washes it with the rest of its row.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
@@ -53,12 +55,12 @@ export type { ScrollEvent }
 // ============================================================================
 
 export interface DataTableHeaderProps {
-  className?: string
+  className?: string | undefined
   /**
    * Makes the header sticky at the top when scrolling.
    * @default true
    */
-  sticky?: boolean
+  sticky?: boolean | undefined
 }
 
 export const DataTableHeader = React.memo(function DataTableHeader({
@@ -197,7 +199,7 @@ interface BodyRowProps {
    * `useCallback`) so `React.memo` keeps holding. Return `null` to opt a
    * specific row out of having a menu.
    */
-  renderRowContextMenu?: (row: unknown) => React.ReactNode
+  renderRowContextMenu?: ((row: unknown) => React.ReactNode) | undefined
   /** The page's exception tone for this row; the theme washes the row in it. */
   tone: "negative" | "warning" | undefined
 }
@@ -231,7 +233,7 @@ const BodyRow = React.memo(function BodyRow({
       data-row-index={displayIndex}
       data-row-id={row.id}
       data-row-type={
-        (row.original as { rowType?: string } | undefined)?.rowType
+        (row.original as { rowType?: string | undefined } | undefined)?.rowType
       }
       data-parity={displayIndex % 2 === 0 ? "even" : "odd"}
       data-expanded={isExpanded ? "true" : undefined}
@@ -315,11 +317,11 @@ BodyRow.displayName = "BodyRow"
 
 export interface DataTableBodyProps<TData extends RowData> {
   children?: React.ReactNode
-  className?: string
-  onScroll?: (event: ScrollEvent) => void
-  onScrolledTop?: () => void
-  onScrolledBottom?: () => void
-  scrollThreshold?: number
+  className?: string | undefined
+  onScroll?: ((event: ScrollEvent) => void) | undefined
+  onScrolledTop?: (() => void) | undefined
+  onScrolledBottom?: (() => void) | undefined
+  scrollThreshold?: number | undefined
   /**
    * Click is dispatched per-row from each cell's onClick. The event's
    * `currentTarget` is the `<td>` cell — typed as `HTMLElement` to
@@ -327,12 +329,12 @@ export interface DataTableBodyProps<TData extends RowData> {
    * `<tbody>`). Consumers needing the row element can
    * `event.target.closest("tr[data-row-id]")`.
    */
-  onRowClick?: (row: TData, event: React.MouseEvent<HTMLElement>) => void
+  onRowClick?: ((row: TData, event: React.MouseEvent<HTMLElement>) => void) | undefined
   /**
    * Return a per-row memo invalidation key. When this key changes for a
    * specific row, only that row re-renders.
    */
-  getRowMemoKey?: (row: TData) => string
+  getRowMemoKey?: ((row: TData) => string) | undefined
   /**
    * Attach a native right-click context menu to each row. Return the menu
    * items (`ContextMenuItem`, `ContextMenuSeparator`, `ContextMenuSub`, …)
@@ -341,14 +343,14 @@ export interface DataTableBodyProps<TData extends RowData> {
    *
    * Wrap the callback in `useCallback` so memoized rows don't re-render.
    */
-  renderRowContextMenu?: (row: TData) => React.ReactNode
+  renderRowContextMenu?: ((row: TData) => React.ReactNode) | undefined
   /**
    * Mark the row that needs a look, such as a holding in deep loss: return
    * `"negative"` or `"warning"` and the row takes a faint wash of that
    * colour, as a `TableRow` with `data-tone` does; `undefined` leaves it
    * plain. The page decides, never the sign. Mark one or two rows.
    */
-  getRowTone?: (row: TData) => "negative" | "warning" | undefined
+  getRowTone?: ((row: TData) => "negative" | "warning" | undefined) | undefined
 }
 
 export function DataTableBody<TData extends RowData>({
@@ -653,8 +655,8 @@ DataTableBody.displayName = "DataTableBody"
 
 export interface DataTableEmptyBodyProps {
   children?: React.ReactNode
-  colSpan?: number
-  className?: string
+  colSpan?: number | undefined
+  className?: string | undefined
 }
 
 /**
@@ -725,16 +727,16 @@ DataTableEmptyBody.displayName = "DataTableEmptyBody"
 
 export interface DataTableSkeletonProps {
   children?: React.ReactNode
-  colSpan?: number
+  colSpan?: number | undefined
   /**
    * Number of skeleton rows to display.
    * @default 5
    * @recommendation Set this to match your page size for better UX (e.g., if page size is 10, set rows={10})
    */
-  rows?: number
-  className?: string
-  cellClassName?: string
-  skeletonClassName?: string
+  rows?: number | undefined
+  className?: string | undefined
+  cellClassName?: string | undefined
+  skeletonClassName?: string | undefined
 }
 
 export function DataTableSkeleton({
@@ -801,8 +803,8 @@ DataTableSkeleton.displayName = "DataTableSkeleton"
 
 export interface DataTableLoadingProps {
   children?: React.ReactNode
-  colSpan?: number
-  className?: string
+  colSpan?: number | undefined
+  className?: string | undefined
 }
 
 export function DataTableLoading({
@@ -854,8 +856,8 @@ export interface DataTableLoadingMoreProps {
    * customize the label per-table (e.g. "Loading more venues…").
    */
   children?: React.ReactNode
-  colSpan?: number
-  className?: string
+  colSpan?: number | undefined
+  className?: string | undefined
 }
 
 /**
