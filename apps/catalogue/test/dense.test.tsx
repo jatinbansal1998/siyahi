@@ -96,12 +96,20 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
     await open("inputs/toggle-group", "Toggle group");
     const group = page.locator('[data-slot="example-preview"]').first().locator('[data-slot="toggle-group"]').first();
     await group.waitFor();
-    const unpressed = group.locator('[data-slot="toggle-group-item"][aria-pressed="false"]').first();
-    await unpressed.focus();
+    // Focus "All" by keyboard, so :focus-visible applies: arrow onto the pressed "1Y" beside it and back.
+    await group.getByRole("button", { name: "All" }).focus();
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowRight");
     const focused = group.locator('[data-slot="toggle-group-item"]:focus-visible');
     await expect.poll(() => focused.count()).toBe(1);
+    expect(
+      await focused.evaluate((el) => [
+        el.textContent,
+        el.getAttribute("aria-pressed"),
+        el.previousElementSibling?.textContent,
+        el.previousElementSibling?.getAttribute("aria-pressed"),
+      ]),
+    ).toEqual(["All", "false", "1Y", "true"]);
     const [outline, shadow = ""] = await style(focused, "outline-style", "box-shadow");
     expect(outline).toBe("none");
     expect(shadow.split(/,(?![^(]*\))/).every((layer) => layer.trim().endsWith("inset"))).toBe(true);
