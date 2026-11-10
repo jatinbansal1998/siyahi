@@ -105,6 +105,15 @@ describe("chart ink", { timeout: 60_000 }, () => {
       ).toBe(true);
       await debt.click();
       expect(await raised.count()).toBe(0);
+      // By keyboard: after moving along the plot, Enter on a legend name raises its line and opens no tooltip.
+      await funds.locator(".recharts-surface").focus();
+      await page.keyboard.press("ArrowRight");
+      await debt.focus();
+      await page.keyboard.press("Enter");
+      expect(await debt.getAttribute("aria-pressed")).toBe("true");
+      expect(await funds.locator(".recharts-tooltip-wrapper").evaluate((el) => getComputedStyle(el).visibility)).toBe(
+        "hidden",
+      );
     } finally {
       await page.setViewportSize({ width: 1280, height: 900 });
     }

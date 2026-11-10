@@ -68,6 +68,8 @@ export function endLabelsFit(names: readonly string[], width: number, plotHeight
 
 /** A series' line end, in pixels, and the name it carries there. */
 export interface LineEnd {
+  /** The series' key: names can repeat, keys cannot. */
+  id: string;
   name: string;
   color: string;
   x: number;
@@ -145,12 +147,13 @@ export function EndLabels<T extends object, K extends keyof T>({ data, xKey, ser
     const row = data.findLast((candidate) => Number.isFinite(candidate[key as keyof T]));
     const x = row && xScale(row[xKey]);
     const y = row && yScale(row[key as keyof T]);
-    if (x !== undefined && y !== undefined) lines.push({ name: label, color, x, y, quiet: color === QUIET });
+    if (x !== undefined && y !== undefined)
+      lines.push({ id: String(key), name: label, color, x, y, quiet: color === QUIET });
   }
   return (
     <g data-slot="end-labels">
       {placeEnds(lines, plot).map(({ gutter, ...end }) => (
-        <g key={end.name}>
+        <g key={end.id}>
           {end.leader && (
             <polyline
               points={`${end.x + 4},${end.y} ${Math.max(end.x + 4, gutter) + 6},${end.at}`}

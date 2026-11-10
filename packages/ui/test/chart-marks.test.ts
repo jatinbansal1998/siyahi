@@ -3,6 +3,7 @@ import { QUIET, endLabelRoom, endLabelsFit, linesEndAtEdge, placeEnds, type Line
 
 const plot = { x: 40, y: 12, width: 400, height: 200 };
 const end = (name: string, x: number, y: number, quiet = false): LineEnd => ({
+  id: name,
   name,
   color: quiet ? QUIET : "var(--chart-1)",
   x,
@@ -43,6 +44,20 @@ describe("placeEnds", () => {
       ["Q1", 50, true],
       ["Q2", 100, true],
       ["Q3", 150, true],
+    ]);
+  });
+
+  it("keeps two series of one name apart by their keys", () => {
+    const placed = placeEnds(
+      [
+        { ...end("Same", 440, 40, true), id: "a" },
+        { ...end("Same", 440, 120, true), id: "b" },
+      ],
+      plot,
+    );
+    expect(placed.map(({ id, name }) => [id, name])).toEqual([
+      ["a", "Same"],
+      ["b", "Same"],
     ]);
   });
 

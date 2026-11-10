@@ -91,24 +91,28 @@ function useRenderWhenFontsLoad(): void {
 
 interface QuietLegendProps<T> {
   series: ChartSeries<T>;
+  /** The marks are lines a raised copy can trace; a stack's bands are not, so its grey names stay plain. */
+  raisable: boolean;
   raised: ChartSeriesItem<T>["key"] | undefined;
   onRaise: (key: ChartSeriesItem<T>["key"] | undefined) => void;
 }
 
 /**
  * The legend when some series are quiet: every series by name. The grey ones share a colour, so a legend square
- * cannot say which line is which; each grey name is a button that raises its line in the text colour, over the rest.
+ * cannot say which line is which; on lines each grey name is a button that raises its line in the text colour, over
+ * the rest. A stack's grey bands sit in the legend's order, bottom to top.
  */
-function QuietLegend<T>({ series, raised, onRaise }: QuietLegendProps<T>) {
+export function QuietLegend<T>({ series, raisable, raised, onRaise }: QuietLegendProps<T>) {
   return (
     <div
       className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-3"
-      // Recharts reads focus anywhere in the chart as the keyboard reaching the plot and opens the tooltip on the
-      // first point, over the lines; a pressed legend name is not that.
+      // Recharts reads focus and keys anywhere in the chart as the keyboard moving along the plot, and opens the
+      // tooltip over the lines; a legend name taking focus or Enter is not that.
       onFocus={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
     >
       {series.map(({ key, label, color }) =>
-        color === QUIET ? (
+        raisable && color === QUIET ? (
           <button
             key={key}
             type="button"
@@ -120,7 +124,7 @@ function QuietLegend<T>({ series, raised, onRaise }: QuietLegendProps<T>) {
             {label}
           </button>
         ) : (
-          <div key={key} className="flex items-center gap-1.5">
+          <div key={key} className={cn("flex items-center gap-1.5", color === QUIET && "text-muted-foreground")}>
             <div className="size-2 shrink-0" style={{ backgroundColor: color }} />
             {label}
           </div>
@@ -435,7 +439,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const ends =
     endLabels && linesEndAtEdge(data, xKey, series, xDomain) && endLabelsFit(names, contentWidth, plotHeight);
   const quiet = series.some(({ color }) => color === QUIET);
-  const raised = ends ? undefined : series.find(({ key, color }) => key === raisedKey && color === QUIET);
+  // Only lines can be raised: a copy of a stacked band's series would trace its own values, not the band's edge.
+  const raised = endLabels && !ends ? series.find(({ key, color }) => key === raisedKey && color === QUIET) : undefined;
   const formatValue = useMemo(
     () => valueFormatter ?? new Intl.NumberFormat(numberLocale).format,
     [valueFormatter, numberLocale],
@@ -676,7 +681,13 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 <EndLabels data={data} xKey={xKey} series={series} />
               ) : (
                 <ChartLegend
-                  content={quiet ? <QuietLegend series={series} raised={raised?.key} onRaise={setRaisedKey} /> : legend}
+                  content={
+                    quiet ? (
+                      <QuietLegend series={series} raisable={endLabels} raised={raised?.key} onRaise={setRaisedKey} />
+                    ) : (
+                      legend
+                    )
+                  }
                   itemSorter={null}
                 />
               )}
