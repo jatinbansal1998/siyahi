@@ -9,11 +9,6 @@ export function drawOrder<T>(series: ChartSeries<T>): ChartSeries<T> {
   return [...series.filter(({ color }) => color === QUIET), ...series.filter(({ color }) => color !== QUIET)];
 }
 
-/** The quiet series' one shared name: "6 other funds". */
-export function othersName(count: number, othersLabel: string): string {
-  return `${count} ${othersLabel}`;
-}
-
 // A name starts 24px right of the plot, past its leader and colour square, in 11px Geist.
 const NAME_START = 24;
 const NAME_FONT = '500 11px "Geist Variable", "Geist Fallback", ui-sans-serif, sans-serif';
@@ -32,14 +27,6 @@ function nameWidth(name: string): number {
   if (!measure) return name.length * NAME_WIDTH_GUESS;
   measure.font = NAME_FONT;
   return measure.measureText(name).width;
-}
-
-/** The names the line ends carry: each named series, and one for the quiet ones. */
-export function endNames<T>(series: ChartSeries<T>, othersLabel: string): string[] {
-  const quiet = series.filter(({ color }) => color === QUIET).length;
-  const names = series.filter(({ color }) => color !== QUIET).map(({ label }) => label);
-  if (quiet > 0) names.push(othersName(quiet, othersLabel));
-  return names;
 }
 
 /** Room the names need right of the plot: the widest name as drawn, after its leader and colour square. */
@@ -85,7 +72,7 @@ export interface LineEnd {
   color: string;
   x: number;
   y: number;
-  /** One of the quiet series' shared name: muted, with no colour square. */
+  /** A quiet (grey) series: its name is muted, with no colour square; its place says which line it is. */
   quiet: boolean;
 }
 
@@ -108,26 +95,14 @@ export interface PlotBox {
 }
 
 /**
- * Where each name goes: the quiet series folded into one name at the middle one's level, then every name spread
- * to 14px apart, top to bottom, pushed back up from the plot's foot and never above its top. A point that maps to
- * no number (a scale being replaced) is left out.
+ * Where each name goes: every line's name at its end's level, spread to 14px apart, top to bottom, pushed back up
+ * from the plot's foot and never above its top. A point that maps to no number (a scale being replaced) is left out.
  */
-export function placeEnds(lines: readonly LineEnd[], plot: PlotBox, othersLabel: string): PlacedEnd[] {
-  const finite = lines.filter(({ x, y }) => Number.isFinite(x) && Number.isFinite(y));
-  const quiet = finite.filter((end) => end.quiet).toSorted((a, b) => a.y - b.y);
+export function placeEnds(lines: readonly LineEnd[], plot: PlotBox): PlacedEnd[] {
   const gutter = plot.x + plot.width;
   const ends: PlacedEnd[] = [];
-  for (const end of finite) if (!end.quiet) ends.push({ ...end, at: end.y, gutter, leader: false });
-  const middle = quiet[Math.floor(quiet.length / 2)];
-  if (middle) {
-    ends.push({
-      ...middle,
-      name: othersName(quiet.length, othersLabel),
-      color: QUIET,
-      at: middle.y,
-      gutter,
-      leader: false,
-    });
+  for (const end of lines) {
+    if (Number.isFinite(end.x) && Number.isFinite(end.y)) ends.push({ ...end, at: end.y, gutter, leader: false });
   }
   ends.sort((a, b) => a.y - b.y);
   let previous = -Infinity;
@@ -152,21 +127,15 @@ interface EndLabelsProps<T extends object, K extends keyof T> {
   data: readonly T[];
   xKey: K;
   series: ChartSeries<T>;
-  othersLabel: string;
 }
 
 /**
  * Each series' name in the gutter right of the plot, in the text colour beside a square of the line's colour, in
  * place of a legend the reader has to match colours against. A leader joins each name to its line's end where the
- * name was moved off the end's level or the line ends short of the plot's edge. Quiet (muted) series share one
- * muted name, such as "6 other funds".
+ * name was moved off the end's level or the line ends short of the plot's edge. A quiet (grey) series' name is
+ * muted, with no square: its place beside its line's end says which line it is.
  */
-export function EndLabels<T extends object, K extends keyof T>({
-  data,
-  xKey,
-  series,
-  othersLabel,
-}: EndLabelsProps<T, K>) {
+export function EndLabels<T extends object, K extends keyof T>({ data, xKey, series }: EndLabelsProps<T, K>) {
   const xScale = useXAxisScale();
   const yScale = useYAxisScale();
   const plot = usePlotArea();
@@ -180,7 +149,7 @@ export function EndLabels<T extends object, K extends keyof T>({
   }
   return (
     <g data-slot="end-labels">
-      {placeEnds(lines, plot, othersLabel).map(({ gutter, ...end }) => (
+      {placeEnds(lines, plot).map(({ gutter, ...end }) => (
         <g key={end.name}>
           {end.leader && (
             <polyline

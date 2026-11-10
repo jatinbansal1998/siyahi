@@ -14,6 +14,7 @@ import {
   AreaChart,
   BarChart,
   CartesianGrid,
+  Line,
   LineChart,
   ReferenceLine,
   Text,
@@ -46,6 +47,7 @@ import {
 } from "@siyahi/ui/components/ui/chart";
 import type {
   ChartColor,
+  ChartCurve,
   ChartReferenceLine,
   ChartSeries,
   ChartSeriesItem,
@@ -54,16 +56,7 @@ import type {
   SeriesChartProps,
   ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series";
-import {
-  EndLabels,
-  QUIET,
-  TimeMarks,
-  endLabelRoom,
-  endLabelsFit,
-  endNames,
-  linesEndAtEdge,
-  othersName,
-} from "@siyahi/ui/lib/chart-marks";
+import { EndLabels, QUIET, TimeMarks, endLabelRoom, endLabelsFit, linesEndAtEdge } from "@siyahi/ui/lib/chart-marks";
 import { fitsLog, logAxis } from "@siyahi/ui/lib/ticks";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
@@ -96,20 +89,38 @@ function useRenderWhenFontsLoad(): void {
   }, [loaded]);
 }
 
-/** The legend when some series are quiet: the named ones, then one muted name for the rest, "6 other funds". */
-function QuietLegend<T>({ series, othersLabel }: { series: ChartSeries<T>; othersLabel: string }) {
-  const quiet = series.filter(({ color }) => color === QUIET).length;
+interface QuietLegendProps<T> {
+  series: ChartSeries<T>;
+  raised: ChartSeriesItem<T>["key"] | undefined;
+  onRaise: (key: ChartSeriesItem<T>["key"] | undefined) => void;
+}
+
+/**
+ * The legend when some series are quiet: every series by name. The grey ones share a colour, so a legend square
+ * cannot say which line is which; each grey name is a button that raises its line in the text colour, over the rest.
+ */
+function QuietLegend<T>({ series, raised, onRaise }: QuietLegendProps<T>) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-3">
-      {series
-        .filter(({ color }) => color !== QUIET)
-        .map(({ key, label, color }) => (
+      {series.map(({ key, label, color }) =>
+        color === QUIET ? (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={raised === key}
+            onClick={() => onRaise(raised === key ? undefined : key)}
+            className="flex items-center gap-1.5 text-muted-foreground aria-pressed:text-foreground"
+          >
+            <div className="size-2 shrink-0 bg-current" />
+            {label}
+          </button>
+        ) : (
           <div key={key} className="flex items-center gap-1.5">
             <div className="size-2 shrink-0" style={{ backgroundColor: color }} />
             {label}
           </div>
-        ))}
-      {quiet > 0 && <div className="text-muted-foreground">{othersName(quiet, othersLabel)}</div>}
+        ),
+      )}
     </div>
   );
 }
@@ -162,6 +173,8 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   endLabels?: boolean;
   /** Hatch a forecast stretch, behind lines that sit on card halos; a stack's fills cover it already. */
   forecastHatch?: boolean;
+  /** The lines' curve, which a grey line raised from the legend is drawn with too. */
+  curve?: ChartCurve;
 }
 
 /**
@@ -399,7 +412,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   logBlocked,
   endLabels = false,
   forecastHatch = true,
-  othersLabel = "others",
+  curve = "monotone",
   forecastFrom,
   today,
   stale,
@@ -409,13 +422,15 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const [contentRef, contentWidth] = useElementWidth<HTMLDivElement>();
   // The names are measured as drawn, again once Geist has loaded: the fallback's widths are not Geist's.
   useRenderWhenFontsLoad();
-  const names = endLabels ? endNames(series, othersLabel) : [];
+  const [raisedKey, setRaisedKey] = useState<ChartSeriesItem<T>["key"]>();
+  const names = endLabels ? series.map(({ label }) => label) : [];
   const labelRoom = endLabels ? endLabelRoom(names) : 0;
   // The plot's height under the card's top margin and the x axis: the names must fit it 14px apart.
   const plotHeight = height - 12 - (xTickDetail ? 40 : 30) - (xLabel ? 18 : 0);
   const ends =
     endLabels && linesEndAtEdge(data, xKey, series, xDomain) && endLabelsFit(names, contentWidth, plotHeight);
   const quiet = series.some(({ color }) => color === QUIET);
+  const raised = ends ? undefined : series.find(({ key, color }) => key === raisedKey && color === QUIET);
   const formatValue = useMemo(
     () => valueFormatter ?? new Intl.NumberFormat(numberLocale).format,
     [valueFormatter, numberLocale],
@@ -634,11 +649,29 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 />
               )}
               {children}
+              {raised &&
+                // The raised grey line, over every other, solid up to a forecast and dashed after it like the rest.
+                (forecastFrom === undefined ? ["solid"] : ["chart-actual", "chart-forecast"]).map((part) => (
+                  <Line
+                    key={`raised-${part}`}
+                    dataKey={raised.key}
+                    type={curve}
+                    stroke="var(--foreground)"
+                    strokeWidth={2}
+                    strokeDasharray={part === "chart-forecast" ? "5 4" : undefined}
+                    className={part === "solid" ? "chart-raised" : `chart-raised ${part}`}
+                    dot={false}
+                    activeDot={false}
+                    tooltipType="none"
+                    legendType="none"
+                    isAnimationActive={false}
+                  />
+                ))}
               {ends ? (
-                <EndLabels data={data} xKey={xKey} series={series} othersLabel={othersLabel} />
+                <EndLabels data={data} xKey={xKey} series={series} />
               ) : (
                 <ChartLegend
-                  content={quiet ? <QuietLegend series={series} othersLabel={othersLabel} /> : legend}
+                  content={quiet ? <QuietLegend series={series} raised={raised?.key} onRaise={setRaisedKey} /> : legend}
                   itemSorter={null}
                 />
               )}

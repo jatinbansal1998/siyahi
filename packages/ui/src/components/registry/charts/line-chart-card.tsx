@@ -17,7 +17,7 @@
 // from tiny to large.
 // Siyahi edit: each series is named at its line's end instead of in a legend
 // (lib/chart-marks), where the card is wide enough; quiet series (muted) draw
-// first and share one name. A forecast stretch (forecastFrom) dashes each line
+// first, named in muted text; in the legend a grey name raises its line. A forecast stretch (forecastFrom) dashes each line
 // after it over a card-coloured halo, with a hollow end dot; today gets a
 // rule. Lines draw in over 1.3s.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
@@ -53,7 +53,7 @@ export function LineChartCard<T extends object, K extends keyof T>({
   const count = props.data.length
   const series = drawOrder(props.series)
   return (
-    <ChartFrame chart={LineChart} endLabels {...props}>
+    <ChartFrame chart={LineChart} endLabels curve={curve} {...props}>
       {/* Every forecast's card-coloured halo first, under every line, so the hatching never runs beside a dashed
           line and no series' halo can erase a neighbour's. */}
       {forecast &&

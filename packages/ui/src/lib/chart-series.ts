@@ -98,7 +98,7 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   stale?: ReactNode;
 }
 
-/** What a chart of lines takes, LineChartCard and AreaChartCard: a forecast stretch, today, and quiet series. */
+/** What a chart of lines takes, LineChartCard and AreaChartCard: a forecast stretch and today. */
 export interface LineMarksProps<T extends object, K extends keyof T> {
   /**
    * The x value from which the data is a forecast, such as the last month-end: each line goes dashed from it, a faint
@@ -107,11 +107,6 @@ export interface LineMarksProps<T extends object, K extends keyof T> {
   forecastFrom?: NoInfer<T[K]>;
   /** The x value of today: a 1px rule in the link colour with a small TODAY label. */
   today?: NoInfer<T[K]>;
-  /**
-   * Past five series, give the few the page names their chart colours and the rest var(--muted-foreground): those
-   * draw first, in grey, and share one name at the line ends, "6 other funds", built from this word. Defaults to "others".
-   */
-  othersLabel?: string;
 }
 
 /** A numeric x axis, for samples in time or any measure where a mark can sit between two rows. */

@@ -4,8 +4,10 @@
 
 - Charts: `LineChartCard` and overlapping `AreaChartCard` series are named at
   their line ends (a legend below on a card under 400px wide or where names
-  would take over 30% of it). Series in `var(--muted-foreground)` draw first in
-  grey and share one name, built from the new `othersLabel` ("6 other funds").
+  would take over 30% of it or not fit its height). Series in
+  `var(--muted-foreground)` draw first in grey and are named in muted text with
+  no square; in the legend each grey name is a button that raises its line in
+  the text colour.
   New `forecastFrom` dashes the lines from a point over a hatched FORECAST band
   with hollow end dots; new `today` draws a 1px rule in the link colour.
   Overlapping areas have no fill (they had a gradient on the first series); a

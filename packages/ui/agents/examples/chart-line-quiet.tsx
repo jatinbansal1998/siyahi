@@ -83,7 +83,7 @@ const growth = [
 ];
 
 // The palette has five colours, so past five the page names the few it is about in colour; the rest are muted, draw
-// first in grey and share one name at the line ends.
+// first in grey, each still named at its end.
 const QUIET = "var(--muted-foreground)";
 const series: ChartSeries<(typeof growth)[number]> = [
   { key: "flexi", label: "Flexi cap", color: QUIET },
@@ -105,7 +105,6 @@ export default function ChartLineQuietExample() {
       data={growth}
       xKey="month"
       series={series}
-      othersLabel="other funds"
       today="Oct"
       forecastFrom="Oct"
       valueFormatter={pct}

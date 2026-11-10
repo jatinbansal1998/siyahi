@@ -72,6 +72,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
       logBlocked={stacked ? "Log cannot show stacked areas" : undefined}
       endLabels={!stacked}
       forecastHatch={!stacked}
+      curve={curve}
       {...props}
     >
       {/* Every forecast's card-coloured halo first, under every line, so the hatching never runs beside a dashed

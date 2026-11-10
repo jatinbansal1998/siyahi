@@ -157,7 +157,7 @@
   },
   {
     "need": "More than five lines on one chart",
-    "guidance": "chart colours for the few the page is about, `var(--muted-foreground)` for the rest, and `othersLabel` for their shared name"
+    "guidance": "chart colours for the few the page is about, `var(--muted-foreground)` for the rest; every line keeps its own name"
   },
   {
     "need": "A chart or stat tile whose data is old",

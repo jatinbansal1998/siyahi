@@ -2,7 +2,7 @@ import { ChartAreaIcon } from "lucide-react";
 import type { Page, PropRow } from "../page";
 
 // The props every chart card shares; each family adds its own after them.
-// What LineChartCard and AreaChartCard take beyond SERIES_PROPS: a forecast stretch, today, and quiet series.
+// What LineChartCard and AreaChartCard take beyond SERIES_PROPS: a forecast stretch and today.
 const LINE_MARKS_PROPS: PropRow[] = [
   {
     name: "forecastFrom",
@@ -17,18 +17,11 @@ const LINE_MARKS_PROPS: PropRow[] = [
     default: "—",
     purpose: "The x value of today: a 1px rule in the link colour, labelled TODAY.",
   },
-  {
-    name: "othersLabel",
-    type: "string",
-    default: '"others"',
-    purpose:
-      'Past five series, the ones in var(--muted-foreground) draw first in grey and share one name: "6 other funds".',
-  },
 ];
 
 const LINE_RULES = [
   "Each series is named at its line's end, in the text colour beside a square of its colour, in a gutter after the last point; ends that crowd are spread 14px apart with a short leader. They go in a legend below instead on a card under 400px wide (a phone), where they would take more than 30% of it or not fit its height, and where a line ends short of the right edge.",
-  'The palette has five colours. Past five series, name the few the page is about in colour and give the rest var(--muted-foreground): they draw first, in grey, and share one name ("6 other funds").',
+  "The palette has five colours. Past five series, name the few the page is about in colour and give the rest var(--muted-foreground): they draw first, in grey, each still named at its end in muted text.",
   "Lines draw in left to right over 1.3s on first draw, then the dots and names fade in; reduced motion shows them at once.",
   "A forecast's lines dash over a card-coloured halo, so the hatching never runs beside them; a stack keeps solid edges and no hatching.",
 ];
@@ -326,7 +319,7 @@ export const data: Page = {
       title: "Forecast and today",
       lead: "LineChartCard and AreaChartCard mark today with a rule and draw a forecast stretch dashed over a hatched band.",
       imports: ["LineChartCard", "type ChartSeries"],
-      props: LINE_MARKS_PROPS.filter(({ name }) => name !== "othersLabel"),
+      props: LINE_MARKS_PROPS,
       rules: [
         "today is a 1px rule in the link colour, labelled TODAY; forecastFrom dashes every line from that point, hatches the stretch to the last point, labels it FORECAST and hollows the end dots.",
         "Give the forecast rows in data like any other; the page says where they start. A stacked area keeps solid edges, since a dashed copy of a band would stack twice; the band still marks the stretch.",
@@ -341,17 +334,16 @@ export const data: Page = {
     {
       id: "many-series",
       title: "Many series",
-      lead: "Past five series, the page names the few it is about in colour; the rest draw first in grey and share one name.",
+      lead: "Past five series, the page picks the few it is about for colour; the rest draw first in grey. Every line keeps its name.",
       imports: ["LineChartCard", "type ChartSeries"],
-      props: LINE_MARKS_PROPS.filter(({ name }) => name === "othersLabel"),
       rules: [
-        'The palette has five colours. Give the series that matter --chart-1 onwards and the rest var(--muted-foreground): they draw first, under the named ones, and share one name at the line ends, "6 other funds", or one entry in the legend.',
+        "The palette has five colours. Give the series that matter --chart-1 onwards and the rest var(--muted-foreground): they draw first, under the coloured ones.",
+        "Every line is named at its end, a grey one in muted text with no square: its place says which line it is. Where the names do not fit, the legend lists every series, and each grey name there is a button that raises its line in the text colour.",
       ],
       examples: [
         {
           name: "chart-line-quiet",
-          caption:
-            'Eight funds: the two being watched in colour, the other six in grey sharing one name, "6 other funds".',
+          caption: "Eight funds: the two being watched in colour, the other six in grey, each named at its end.",
         },
       ],
     },

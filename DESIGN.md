@@ -120,7 +120,10 @@ the actions at the right, and a hairline under it. One per page; no hero card.
   keep a legend.
 - **Five colours, then grey.** Past five series, the page names the few it is
   about in chart colours and gives the rest `var(--muted-foreground)`: they
-  draw first, in grey, and share one name, "6 other funds" (`othersLabel`).
+  draw first, in grey. Every line is still named: a grey one's name at its end
+  is muted with no square, and its place says which line it is. Never a count
+  standing in for names. In the legend a grey name is a button that raises its
+  line in the text colour, since a shared grey square cannot tell lines apart.
 - **No fill under overlapping areas**: from three series on, fills bury each
   other. A stack fills each band with a flat tint, never a gradient.
 - **Forecast and today.** `forecastFrom` dashes every line from that point,

@@ -60,13 +60,49 @@ describe("chart ink", { timeout: 60_000 }, () => {
     }
   });
 
-  it("draws quiet series first in grey and gives them one shared name", async () => {
+  it("draws quiet series first in grey and still names every line, a grey one muted with no square", async () => {
     const funds = card(await open("data/many-series", "Many series"), "Growth by fund");
-    await expect.poll(() => endNames(funds)).toEqual(["Gold", "Nifty 50", "6 other funds"]);
+    await expect
+      .poll(async () => (await endNames(funds)).toSorted())
+      .toEqual(["Debt", "Flexi cap", "Gold", "International", "Liquid", "Mid cap", "Nifty 50", "Small cap"]);
     const strokes = await funds
       .locator(".recharts-line:not(.chart-forecast) .recharts-line-curve")
       .evaluateAll((paths) => paths.map((path) => path.getAttribute("stroke")));
     expect(strokes).toEqual([...Array(6).fill("var(--muted-foreground)"), "var(--chart-1)", "var(--chart-2)"]);
+    // A square for each coloured series only; the grey names are muted.
+    const names = funds.locator('[data-slot="end-labels"]');
+    expect(await names.locator("rect").count()).toBe(2);
+    expect(await names.locator("text", { hasText: "Debt" }).getAttribute("class")).toContain("fill-muted-foreground");
+  });
+
+  it("lists every series in the phone legend, and a grey name there raises its line in the text colour", async () => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    try {
+      const funds = card(await open("data/many-series", "Many series"), "Growth by fund");
+      const legend = funds.locator(".recharts-legend-wrapper");
+      await expect
+        .poll(async () => (await legend.locator(":scope > div > *").allTextContents()).toSorted())
+        .toEqual(["Debt", "Flexi cap", "Gold", "International", "Liquid", "Mid cap", "Nifty 50", "Small cap"]);
+      const debt = legend.getByRole("button", { name: "Debt" });
+      const raised = funds.locator(".recharts-line.chart-raised:not(.chart-forecast) .recharts-line-curve");
+      expect(await raised.count()).toBe(0);
+      await debt.click();
+      expect(await debt.getAttribute("aria-pressed")).toBe("true");
+      await expect.poll(() => raised.getAttribute("stroke")).toBe("var(--foreground)");
+      // The same path as Debt's grey line (second in draw order), drawn over every other line.
+      const grey = funds.locator(".recharts-line:not(.chart-forecast, .chart-raised) .recharts-line-curve").nth(1);
+      // The grey lines ease into the phone's layout over the 1.3s draw; the raised one does not animate.
+      await expect
+        .poll(async () => (await grey.getAttribute("d")) === (await raised.getAttribute("d")), { timeout: 3000 })
+        .toBe(true);
+      expect(
+        await funds.locator(".recharts-line").evaluateAll((lines) => lines.at(-1)?.classList.contains("chart-raised")),
+      ).toBe(true);
+      await debt.click();
+      expect(await raised.count()).toBe(0);
+    } finally {
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
   });
 
   it("dashes a forecast after its point over a hatched band, hollows its end dots and rules today in the link colour", async () => {
