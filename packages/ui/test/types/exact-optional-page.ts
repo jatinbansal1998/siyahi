@@ -47,3 +47,23 @@ export const chart = {
   today: loss ? "Mon" : undefined,
   yScaleToggle: loss ? true : undefined,
 } satisfies ui.LineChartCardProps<{ day: string; value: number }, "day">;
+
+// Settings and options a component inherits from elsewhere take undefined too.
+export const provider = {
+  locale: { currency: loss ? "USD" : undefined },
+  children: null,
+} satisfies ui.SiyahiProviderProps;
+
+export const sidebar = {
+  navMain: [],
+  collapsible: loss ? "none" : undefined,
+  side: loss ? "right" : undefined,
+} satisfies ui.AppSidebarProps;
+
+declare const pinning: Parameters<typeof ui.DataTableRoot<{ id: string }>>[0]["onColumnPinningChange"];
+export const root = {
+  data: [{ id: "a" }],
+  columns: [],
+  children: null,
+  onColumnPinningChange: loss ? pinning : undefined,
+} satisfies Parameters<typeof ui.DataTableRoot<{ id: string }>>[0];

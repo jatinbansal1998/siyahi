@@ -156,6 +156,19 @@ function holdsUndefined(type) {
   return type.type === "TSTypeReference" && name === "ReactNode";
 }
 
+/**
+ * Whether a node sits in the pattern a conditional type matches against, `T extends { x?: infer U } ? U : never`,
+ * where adding undefined would change what matches and what `infer` takes.
+ * @param {any} node
+ * @returns {boolean}
+ */
+function inPattern(node) {
+  for (let child = node; child.parent; child = child.parent) {
+    if (child.parent.type === "TSConditionalType" && child.parent.extendsType === child) return true;
+  }
+  return false;
+}
+
 /** @type {Rule} */
 const optionalAcceptsUndefined = {
   meta: {
@@ -165,22 +178,47 @@ const optionalAcceptsUndefined = {
   },
   // Under exactOptionalPropertyTypes, `tone?: Tone` rejects `tone: loss ? "negative" : undefined`, the way a page
   // writes a prop it sets only sometimes; `tone?: Tone | undefined` takes it.
-  create: (context) => ({
-    /** @param {{ optional?: boolean, typeAnnotation?: { typeAnnotation: { type: string, range: [number, number] } } }} node */
-    TSPropertySignature(node) {
-      const type = node.typeAnnotation?.typeAnnotation;
-      if (!node.optional || !type || holdsUndefined(type)) return;
+  create: (context) => {
+    const message =
+      "An optional property must also accept undefined: add `| undefined`, for pages under exactOptionalPropertyTypes.";
+    /**
+     * @param {any} node a property signature, class field or mapped type
+     * @param {any} type its type
+     */
+    function check(node, type) {
+      if (!type || holdsUndefined(type) || inPattern(node)) return;
       context.report({
         node,
-        message:
-          "An optional property must also accept undefined: add `| undefined`, for pages under exactOptionalPropertyTypes.",
+        message,
         fix: (/** @type {any} */ fixer) =>
           LOOSE.has(type.type)
             ? [fixer.insertTextBefore(type, "("), fixer.insertTextAfter(type, ") | undefined")]
             : fixer.insertTextAfter(type, " | undefined"),
       });
-    },
-  }),
+    }
+    return {
+      /** @param {any} node */
+      TSPropertySignature(node) {
+        if (node.optional) check(node, node.typeAnnotation?.typeAnnotation);
+      },
+      /** @param {any} node */
+      PropertyDefinition(node) {
+        if (node.optional) check(node, node.typeAnnotation?.typeAnnotation);
+      },
+      /** @param {any} node `[K in keyof T]?: T[K]` */
+      TSMappedType(node) {
+        if (node.optional === true || node.optional === "+") check(node, node.typeAnnotation);
+      },
+      /** @param {any} node `onSelect?(): void`, which has no type to add undefined to */
+      TSMethodSignature(node) {
+        if (!node.optional || inPattern(node)) return;
+        context.report({
+          node,
+          message: `${message} Write it as a property: \`onSelect?: (() => void) | undefined\`.`,
+        });
+      },
+    };
+  },
 };
 
 /**

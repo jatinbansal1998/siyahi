@@ -1,6 +1,7 @@
 import { createContext, use, useMemo, type ReactNode } from "react";
 import { TooltipProvider } from "@siyahi/ui/components/ui/tooltip";
 import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
+import type { Optional } from "@siyahi/ui/lib/optional";
 
 /**
  * How a data block sits on the page. "ruled", the default: blocks filled with the card colour and parted by hairlines,
@@ -15,7 +16,7 @@ const SurfaceContext = createContext<Surface>("ruled");
 
 export interface SiyahiProviderProps {
   /** Any setting left out keeps its default: en-IN, INR, Asia/Kolkata. */
-  locale?: Partial<SiyahiLocale> | undefined;
+  locale?: Optional<SiyahiLocale> | undefined;
   /**
    * Set it on a nested provider for one part of a page. Left out, a provider keeps the surface around it, so a
    * provider that only changes the locale changes nothing else; the outermost default is "ruled".
@@ -26,7 +27,11 @@ export interface SiyahiProviderProps {
 
 /** Wrap the app once. Carries the locale, the surface and the tooltip provider shadcn asks for. */
 export function SiyahiProvider({ locale, surface, children }: SiyahiProviderProps) {
-  const { numberLocale, currency, timeZone } = { ...defaultLocale, ...locale };
+  const {
+    numberLocale = defaultLocale.numberLocale,
+    currency = defaultLocale.currency,
+    timeZone = defaultLocale.timeZone,
+  } = locale ?? {};
   const value = useMemo(() => ({ numberLocale, currency, timeZone }), [numberLocale, currency, timeZone]);
   const around = use(SurfaceContext);
   return (

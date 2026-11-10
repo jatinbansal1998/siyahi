@@ -23,11 +23,15 @@ component looks, change the theme; to change what it does, compose it.
 Write every optional property as `name?: T | undefined`. A page compiled with
 `exactOptionalPropertyTypes` (The Book is) passes a prop it sets only
 sometimes as `tone: loss ? "negative" : undefined`, which `tone?: T` alone
-rejects. `siyahi/optional-accepts-undefined` enforces it across the package,
-add-ons included, and `pnpm lint --fix` writes it.
-`packages/ui/test/types/exact-optional-page.ts` is such a page, compiled
-against the built package by `typecheck`. shadcn core is not edited, so its
-own optional props stay as shadcn wrote them.
+rejects. `siyahi/optional-accepts-undefined` enforces it across the package:
+`pnpm lint --fix` writes it in our own code and `pnpm lint:registry --fix` in
+the add-ons. Props a type inherits from elsewhere (TanStack's table options,
+core's `Sidebar` props, a settings object) take `Optional<T>` from
+`lib/optional.ts` rather than `Partial<T>`, which under that flag still
+rejects undefined. `packages/ui/test/types/exact-optional-page.ts` is such a
+page, compiled against the built package by `typecheck`. shadcn core is not
+edited, so its own optional props stay as shadcn wrote them, and so do
+TanStack's column definitions (`DataTableColumnDef`).
 
 ## Registry add-ons
 

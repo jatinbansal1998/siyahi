@@ -5,7 +5,8 @@
 // Siyahi edit: the sample data is removed; the app passes its own navigation
 // and, optionally, a header (or teams), projects and user.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
-// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`;
+// the Sidebar props it inherits take Optional<…> for the same reason.
 "use client"
 
 import * as React from "react"
@@ -21,9 +22,10 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@siyahi/ui/components/ui/sidebar"
+import type { Optional } from "@siyahi/ui/lib/optional"
 import { cn } from "@siyahi/ui/lib/utils"
 
-export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+export interface AppSidebarProps extends Optional<React.ComponentProps<typeof Sidebar>> {
   navMain: React.ComponentProps<typeof NavMain>["items"]
   navLabel?: string | undefined
   /** Shown at the top instead of the team switcher. */

@@ -5,7 +5,8 @@
 // Siyahi edit: the root holds the table's width; columns that do not fit hide,
 // rightmost first and never a `meta.compact` one, until the reader asks for all.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
-// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`;
+// the TanStack options it inherits take Optional<…> for the same reason.
 import {
   useTable,
   type ColumnDef,
@@ -45,6 +46,7 @@ import {
   type GlobalFilter,
 } from "../types"
 import { fitColumns, isCompactWidth } from "@siyahi/ui/lib/compact-columns"
+import type { Optional } from "@siyahi/ui/lib/optional"
 import { DataTableProvider } from "./data-table-context"
 
 /**
@@ -107,7 +109,7 @@ export interface DataTableConfig {
 }
 
 interface TableRootProps<TData extends RowData> extends Omit<
-  Partial<TableOptions<DataTableFeatures, TData>>,
+  Optional<TableOptions<DataTableFeatures, TData>>,
   // `key` is dropped so React's reserved `key` prop keeps its own semantics
   // — TanStack v9 added a `key` table option that would otherwise force
   // `<DataTableRoot key={…}>` to be a string.

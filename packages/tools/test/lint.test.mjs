@@ -148,11 +148,28 @@ describe("siyahi library rules", () => {
     expect(lint(`import { Card } from "@siyahi/ui";\nexport interface Item { tone?: "negative" }`)).toEqual([]);
   });
 
-  it("fixes by adding `| undefined`, bracketing a function type", () => {
+  it("reports an optional method, class field and mapped property, and leaves a conditional type's pattern alone", () => {
+    const source = [
+      `export interface Props { onSelect?(): void }`,
+      `export class Settings { tone?: string }`,
+      `export type Loose<T> = { [K in keyof T]?: T[K] };`,
+      `export type Picked<T> = T extends { x?: infer U extends string } ? U : never;`,
+    ].join("\n");
+    expect(lint(source, {}, LIBRARY)).toEqual([
+      "optional-accepts-undefined",
+      "optional-accepts-undefined",
+      "optional-accepts-undefined",
+    ]);
+  });
+
+  it("fixes by adding `| undefined`, bracketing a function type, and is clean after", () => {
     const dir = mkdtempSync(path.join(tmpdir(), "siyahi-lint-"));
-    lint(`export type Props = { tone?: "negative"; onSelect?: (label: string) => void }`, {}, LIBRARY, ["--fix"], dir);
-    expect(readFileSync(path.join(dir, "page.tsx"), "utf8")).toBe(
-      `export type Props = { tone?: "negative" | undefined; onSelect?: ((label: string) => void) | undefined }`,
+    const source = `export type Props = { tone?: "negative"; onSelect?: (label: string) => void }\nexport type Loose<T> = { [K in keyof T]?: T[K] }`;
+    lint(source, {}, LIBRARY, ["--fix"], dir);
+    const fixed = readFileSync(path.join(dir, "page.tsx"), "utf8");
+    expect(fixed).toBe(
+      `export type Props = { tone?: "negative" | undefined; onSelect?: ((label: string) => void) | undefined }\nexport type Loose<T> = { [K in keyof T]?: T[K] | undefined }`,
     );
+    expect(lint(fixed, {}, LIBRARY)).toEqual([]);
   });
 });
