@@ -9,7 +9,8 @@ afterEach(() => {
 it("opens a page from the shared catalogue server", async () => {
   const catalogue = await openCatalogue("overview");
   onTestFinished(catalogue.close);
-  expect(await catalogue.page.getByRole("heading", { level: 1 }).innerText()).toBe("Siyahi");
+  // The front page's own masthead comes first; its "At a glance" example is an app page with a masthead of its own.
+  expect(await catalogue.page.getByRole("heading", { level: 1 }).first().innerText()).toBe("Siyahi");
 }, 60_000);
 
 it("fails on close when the page threw or logged a console error", async () => {

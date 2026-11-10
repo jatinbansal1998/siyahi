@@ -17,6 +17,8 @@ export default function SectionCardsTrendExample() {
       // A run of losses: the meaning colour, not a chart slot.
       trend: <Sparkline data={[0, -8200, -14100, -30400, -52800, -61200]} color="var(--negative)" />,
       detail: "Running total since April",
+      // The one figure on the page that needs a look, marked by the page: a falling cost would not be.
+      tone: "negative",
     },
     {
       label: "Gift cards this year",

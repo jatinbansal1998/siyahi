@@ -45,7 +45,6 @@ const SPACING = [
   { name: "8", bar: "w-8", px: 32 },
   { name: "12", bar: "w-12", px: 48 },
 ];
-const RADII = ["rounded-sm", "rounded-md", "rounded-lg", "rounded-xl"];
 const HEAT_STEPS = [1, 2, 3, 4, 5];
 
 function onSchemeChange(callback: () => void): () => void {
@@ -203,31 +202,23 @@ export const foundations: Page = {
     },
     {
       id: "spacing",
-      title: "Spacing and radius",
-      lead: "Tailwind's 4px scale, and radii derived from one --radius.",
-      rules: ['Cards pad 16px (12px for size="sm"); page gutters are 16px on a phone.'],
+      title: "Spacing and corners",
+      lead: "Tailwind's 4px scale, and square corners: --radius is 0.",
+      rules: [
+        'Cards pad 16px (12px for size="sm"); page gutters are 16px on a phone.',
+        "Every corner is square: panels, cards, buttons, fields, badges, toggles and menus. Only a dot, an avatar or a slider thumb is round.",
+      ],
       body: (
-        <>
-          <div className="flex flex-col gap-2">
-            {SPACING.map((s) => (
-              <div key={s.name} className="flex items-center gap-3">
-                <span className="w-24 font-mono text-xs text-muted-foreground">
-                  {s.name} · {s.px}px
-                </span>
-                {/* Square ends: a rounded 4px bar read as a dot, not a length. */}
-                <div className={`h-4 bg-primary ${s.bar}`} />
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-4">
-            {RADII.map((r) => (
-              <div key={r} className="flex flex-col items-center gap-2">
-                <div className={`size-16 border border-foreground/25 bg-muted ${r}`} />
-                <span className="font-mono text-xs text-muted-foreground">{r}</span>
-              </div>
-            ))}
-          </div>
-        </>
+        <div className="flex flex-col gap-2">
+          {SPACING.map((s) => (
+            <div key={s.name} className="flex items-center gap-3">
+              <span className="w-24 font-mono text-xs text-muted-foreground">
+                {s.name} · {s.px}px
+              </span>
+              <div className={`h-4 bg-primary ${s.bar}`} />
+            </div>
+          ))}
+        </div>
       ),
     },
     {
@@ -244,9 +235,10 @@ export const foundations: Page = {
         },
       ],
       rules: [
-        "card, the default, is shadcn's own card: a white box with a 1px ring on the faintly tinted canvas, so data reads as raised off the page.",
-        "ruled takes the box off every card and draws a hairline between the blocks of a PanelGrid: one surface, parted by lines, as on an operations screen.",
-        "open drops the lines too, and the card's padding, so a block's content sits level with the page's text, for pages read top to bottom.",
+        "card, the default, is tight square cards: each block filled with the card colour inside a hairline, 8px from the next, with no shadow.",
+        "ruled is ruled on white: the blocks of a PanelGrid or a row of SectionCards are filled with the card colour and parted by hairlines, with a rule above and below the group and none on its left and right edges. No boxes, no wasted gaps, and the data still stands off the page.",
+        "open drops the fill and the lines, and the card's padding, so a block's content sits level with the page's text, for pages read top to bottom.",
+        "Every PanelGrid numbers its blocks' titles 01, 02 in the mono face and the link colour, on every surface.",
         "A picked SectionCards tile keeps its ring on every surface.",
       ],
       examples: [

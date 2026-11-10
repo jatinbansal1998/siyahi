@@ -240,9 +240,14 @@ const display: Entry[] = [
     id: "table",
     title: "Table",
     lead: "The plain table, for small fixed lists.",
-    imports: ["Table", "TableHeader", "TableBody", "TableRow", "TableHead", "TableCell"],
-    rules: ["Anything to sort or filter uses the data table."],
-    caption: "A month-by-month cash flow in a card.",
+    imports: ["Table", "TableHeader", "TableBody", "TableFooter", "TableRow", "TableHead", "TableCell"],
+    rules: [
+      "Anything to sort or filter uses the data table.",
+      "Column heads are small monospaced capitals; the theme sets them.",
+      "A total goes in TableFooter: one rule above it, a double rule under it, no band.",
+      'A row that needs a look takes data-tone="negative" or "warning" on its TableRow, a faint wash of the colour. The page decides; never mark a row from its sign alone.',
+    ],
+    caption: "A month-by-month cash flow in a card, with its total and August marked for a look.",
   },
 ];
 

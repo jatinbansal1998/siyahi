@@ -41,40 +41,74 @@ async function pick(surface: "Ruled" | "Open" | "Card"): Promise<void> {
   await example().getByRole("button", { name: surface, exact: true }).click();
 }
 
-const NONE: Pick<Box, "fill" | "corner"> = { fill: "rgba(0, 0, 0, 0)", corner: "0px" };
+const NONE = "rgba(0, 0, 0, 0)";
 const transparentRing = (ring: string) => ring === "none" || /rgba\(0, 0, 0, 0\) 0px 0px 0px 1px/.test(ring);
 
+/** A theme colour as the browser resolves it, to compare with a computed background. */
+const token = (name: string): Promise<string> =>
+  page.evaluate((name) => {
+    const probe = document.body.appendChild(document.createElement("div"));
+    probe.style.backgroundColor = `var(${name})`;
+    const value = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return value;
+  }, name);
+
 describe("surfaces", { timeout: 60_000 }, () => {
-  it("draws no box on a ruled page, MetricStrip's card included, and rules between the panels", async () => {
+  it("fills every block with the card colour on a ruled page, with rules between the panels and none on the sides", async () => {
     await page.goto(page.url().replace(/#.*/, "#/foundations/surfaces"));
     await pick("Ruled");
+    const card = await token("--card");
     const cards = example().locator('[data-slot="card"]');
     await expect.poll(() => cards.count()).toBe(3);
-    for (const card of await cards.all()) {
-      const drawn = await box(card);
-      expect({ fill: drawn.fill, corner: drawn.corner }).toEqual(NONE);
+    for (const drawn of await Promise.all((await cards.all()).map(box))) {
+      expect({ fill: drawn.fill, corner: drawn.corner }).toEqual({ fill: card, corner: "0px" });
       expect(transparentRing(drawn.ring)).toBe(true);
     }
-    const rules = await example()
+    const panels = await example()
       .locator('[data-slot="panel"]')
       .evaluateAll((panels) =>
-        panels.map((p) => [getComputedStyle(p).borderTopWidth, getComputedStyle(p).borderLeftWidth]),
+        panels.map((p) => [
+          getComputedStyle(p).borderTopWidth,
+          getComputedStyle(p).borderLeftWidth,
+          getComputedStyle(p).backgroundColor,
+        ]),
       );
-    expect(rules).toEqual([
-      ["1px", "1px"],
-      ["1px", "1px"],
+    expect(panels).toEqual([
+      ["1px", "1px", card],
+      ["1px", "1px", card],
     ]);
+    // The grid clips its first panel's left rule and draws none on its right: the outer lines are top and bottom.
+    const outer = await example()
+      .locator('[data-slot="panel-grid"]')
+      .evaluate((grid) => {
+        const style = getComputedStyle(grid);
+        const first = grid.querySelector('[data-slot="panel"]') as Element;
+        return {
+          edges: [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth],
+          leftRuleShows: first.getBoundingClientRect().left >= grid.getBoundingClientRect().left,
+        };
+      });
+    expect(outer).toEqual({ edges: ["1px", "0px", "1px", "0px"], leftRuleShows: false });
   });
 
-  it("gives shadcn's card back on a card surface, and drops the padding on an open one", async () => {
+  it("draws tight square cards on a card surface, and drops the box and padding on an open one", async () => {
     const products = example().locator('[data-slot="card"]', { hasText: "Top products" });
     await pick("Card");
     const card = await box(products);
-    expect(card.fill).not.toBe(NONE.fill);
-    expect(card.corner).toBe("10.08px");
-    expect(transparentRing(card.ring)).toBe(false);
+    expect({ fill: card.fill, corner: card.corner }).toEqual({ fill: await token("--card"), corner: "0px" });
+    // A hairline ring and no shadow under it: every other layer Tailwind composes is empty.
+    const layers = card.ring.split(/,(?![^(]*\))/).map((layer) => layer.trim());
+    expect(layers.filter((layer) => !layer.endsWith("0px 0px 0px 0px"))).toEqual([
+      `${await token("--border")} 0px 0px 0px 1px`,
+    ]);
+    const gap = await example()
+      .locator('[data-slot="panel-grid"] > div')
+      .evaluate((grid) => [getComputedStyle(grid).columnGap, getComputedStyle(grid).rowGap]);
+    expect(gap).toEqual(["8px", "8px"]);
     await pick("Open");
     expect((await box(products)).padding).toBe("0px");
+    expect((await box(products)).fill).toBe(NONE);
     expect(
       await example()
         .locator('[data-slot="panel"]')
@@ -85,15 +119,16 @@ describe("surfaces", { timeout: 60_000 }, () => {
   });
 
   it("is a card outside any provider", async () => {
-    const corner = await example()
+    const drawn = await example()
       .locator('[data-slot="card"]', { hasText: "Top products" })
       .evaluate((card) => {
         const copy = document.body.appendChild(card.cloneNode(true)) as HTMLElement;
-        const result = getComputedStyle(copy).borderTopLeftRadius;
+        const result = { fill: getComputedStyle(copy).backgroundColor, ring: getComputedStyle(copy).boxShadow };
         copy.remove();
         return result;
       });
-    expect(corner).not.toBe("0px");
+    expect(drawn.fill).toBe(await token("--card"));
+    expect(transparentRing(drawn.ring)).toBe(false);
   });
 
   it("keeps a picked SectionCards tile's ring on a ruled page", async () => {
@@ -106,7 +141,7 @@ describe("surfaces", { timeout: 60_000 }, () => {
     expect(transparentRing((await box(picked)).ring)).toBe(false);
   });
 
-  it("parts stat tiles with hairlines on a ruled page, its ring inside the picked tile and no gap above the footer", async () => {
+  it("parts filled stat tiles with hairlines on a ruled page, its ring inside the picked tile and the footer's rule and band kept", async () => {
     await page.goto(page.url().replace(/#.*/, "#/blocks/section-cards"));
     const picker = page.locator('[data-slot="card"]', { has: page.locator('button[aria-label="All"]') });
     await picker.waitFor();
@@ -116,9 +151,15 @@ describe("surfaces", { timeout: 60_000 }, () => {
       const wrapper = grid.parentElement as Element;
       return {
         rule: [getComputedStyle(wrapper).borderTopWidth, getComputedStyle(wrapper).borderBottomWidth],
-        tiles: [...grid.children].map((t) => [getComputedStyle(t).borderTopWidth, getComputedStyle(t).borderLeftWidth]),
+        tiles: [...grid.children].map((t) => [
+          getComputedStyle(t).borderTopWidth,
+          getComputedStyle(t).borderLeftWidth,
+          getComputedStyle(t).backgroundColor,
+        ]),
         pickedRing: getComputedStyle(tile).boxShadow,
-        footerTop: getComputedStyle(tile.querySelector('[data-slot="card-footer"]') as Element).paddingTop,
+        footer: ((footer) => [footer.paddingTop, footer.borderTopWidth, footer.backgroundColor])(
+          getComputedStyle(tile.querySelector('[data-slot="card-footer"]') as Element),
+        ),
         // siyahi-shots measures cards against the page gutter, so no tile may start left of its row (siyahi#34).
         outdent: Math.min(
           ...[...grid.querySelectorAll('[data-slot="card"]')].map(
@@ -128,10 +169,12 @@ describe("surfaces", { timeout: 60_000 }, () => {
       };
     });
     expect(row.rule).toEqual(["1px", "1px"]);
-    expect(row.tiles.every(([top, left]) => top === "1px" && left === "1px")).toBe(true);
+    const card = await token("--card");
+    expect(row.tiles.every(([top, left, fill]) => top === "1px" && left === "1px" && fill === card)).toBe(true);
     expect(row.pickedRing).toContain("inset");
-    // The footer lines follow the figure at the card's own gap, with no band's padding above them.
-    expect(row.footerTop).toBe("0px");
+    // The footer keeps the card's band: its padding, a rule above it and a faint fill.
+    expect(row.footer.slice(0, 2)).toEqual(["12px", "1px"]);
+    expect(row.footer[2]).not.toBe(NONE);
     expect(row.outdent).toBeGreaterThanOrEqual(0);
   });
 

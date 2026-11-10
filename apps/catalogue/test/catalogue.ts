@@ -24,7 +24,8 @@ export async function openCatalogue(route: string, options: BrowserContextOption
       if (message.type() === "error") errors.push(`console error: ${message.text()}`);
     });
     await page.goto(`${url}#/${route}`);
-    await page.getByRole("heading", { level: 1 }).waitFor();
+    // The page's own masthead; an example of a whole page may hold a masthead of its own.
+    await page.getByRole("heading", { level: 1 }).first().waitFor();
     // The title shows before the examples; a suite starts once the page's examples have loaded.
     await page.getByRole("status").filter({ hasText: "Loading examples" }).waitFor({ state: "detached" });
     return { page, close };

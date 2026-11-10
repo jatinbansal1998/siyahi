@@ -936,7 +936,32 @@
     },
     {
       "file": "agents/examples/overview-dashboard.tsx",
-      "components": []
+      "components": [
+        "Badge",
+        "Button",
+        "Callout",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Delta",
+        "Input",
+        "PageHero",
+        "PanelGrid",
+        "SiyahiProvider",
+        "StatusBadge",
+        "Table",
+        "TableBody",
+        "TableCell",
+        "TableFooter",
+        "TableHead",
+        "TableHeader",
+        "TableRow",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "useFormat"
+      ]
     },
     {
       "file": "agents/examples/page-hero.tsx",
@@ -1183,6 +1208,7 @@
         "Table",
         "TableBody",
         "TableCell",
+        "TableFooter",
         "TableHead",
         "TableHeader",
         "TableRow",

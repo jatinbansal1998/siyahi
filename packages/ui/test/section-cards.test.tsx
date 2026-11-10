@@ -22,6 +22,23 @@ const surface = (className: string | undefined): string[] =>
   (className ?? "").split(/\s+/).filter((token) => /^(bg-|from-|to-|via-|shadow-)/.test(token.split(":").at(-1) ?? ""));
 
 describe("SectionCards", () => {
+  // The theme washes a card by its data-tone; a falling figure alone must not mark it, only the page's tone.
+  it("marks only the tile the page sets a tone on", async () => {
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <SectionCards
+          items={[
+            { label: "Cash flow", value: "-₹61,200", tone: "negative" },
+            { label: "Costs", value: "₹12,000", badge: "-8%" },
+          ]}
+        />,
+      ),
+    );
+    const tones = [...document.querySelectorAll('[data-slot="card"]')].map((card) => card.getAttribute("data-tone"));
+    expect(tones).toEqual(["negative", null]);
+  });
+
   // dashboard-01 painted its tiles with a gradient and its own shadow through
   // `*:data-[slot=card]:` classes on the grid; a tile is a stock Card instead.
   it("leaves its tiles the stock Card surface", async () => {

@@ -2,6 +2,30 @@
 
 ## 0.1.9
 
+- Siyahi's own look replaces stock shadcn's. Every corner is square
+  (`--radius` is 0) and hairlines are a step firmer (`--border` is the text
+  colour at 18% in light, white at 20% in dark). `surface="card"` is tight
+  square cards: filled, a hairline ring, no shadow, 8px apart in `PanelGrid`
+  and `SectionCards`. `surface="ruled"` is ruled on white: blocks and tiles
+  are filled with the card colour and parted by hairlines, with rules above and
+  below and none on the sides, and a stat tile keeps its footer's rule and
+  band. The rounded, shadowed card and the unfilled ruled page are gone.
+- Labels over figures are small monospaced capitals: `SectionCards` labels and
+  footer lines, `MetricStrip` labels and every table's column heads (a new
+  `text-2xs` size, 11px). A `TableFooter` total sits between a rule and a
+  double rule, with no band. `PanelGrid` numbers its blocks' titles 01, 02 in
+  the mono face and link colour. A `ToggleGroup`'s items sit flush and share
+  borders.
+- `PageHero` is a compact masthead: a small mark and eyebrow, the title, one
+  muted line (`lead` then `detail`), the actions at the right and a hairline
+  under it, in place of the large hero card. Props are unchanged; `mark` is
+  now a small icon before the eyebrow instead of a faint watermark.
+- Exceptions are marked by the page: `tone: "negative" | "warning"` on a
+  `SectionCards` item, or `data-tone` on a `TableRow`, takes a faint wash of
+  the colour (`--wash`, 7% in light, 15% in dark) and a tile an outline of it.
+  The contrast check scores text, icons and badge dots on both washes, and a
+  `Pair`'s `bg` may now list fills laid one over another.
+
 - Charts offer their own Linear and Log buttons. `xScaleToggle` and
   `yScaleToggle` on `ScatterChartCard`, and `yScaleToggle` on `LineChartCard`
   and `AreaChartCard`, put a small outline toggle in the card's header after

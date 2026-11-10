@@ -20,6 +20,8 @@
 // rules sit on each tile's left and top edge, and the strip clips the ones on
 // its own edges, so they stay right on every row whatever the count.
 // Siyahi edit: the title is optional, for a strip of figures heading a page.
+// Siyahi edit: each figure's label is small monospaced capitals, as a
+// SectionCards tile's is.
 // Siyahi edit: data-slot="metric-strip" sits on the strip inside the card,
 // not on the Card, where it replaced the card's own slot and so hid the
 // strip from the theme's surface rule, which finds cards by that slot.
@@ -111,7 +113,7 @@ function MetricStrip({
                 data-slot="metric-strip-item"
                 className={cn("flex min-w-0 flex-col gap-1.5 border-t border-l px-4 py-4", columns)}
               >
-                <div className="truncate text-xs text-muted-foreground">{item.label}</div>
+                <div className="truncate font-mono text-2xs tracking-wider text-muted-foreground uppercase">{item.label}</div>
                 <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <div className="text-xl font-semibold tracking-tight tabular-nums">{item.value}</div>

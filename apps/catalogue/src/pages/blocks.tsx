@@ -24,7 +24,7 @@ export const blocks: Page = {
           name: "items",
           type: "SectionCard[]",
           purpose:
-            "{ label, value, badge?, trend?, headline?, detail?, disabled? } per tile; badge is usually a Delta.",
+            "{ label, value, badge?, trend?, headline?, detail?, disabled?, tone? } per tile; badge is usually a Delta.",
         },
         {
           name: "selected",
@@ -51,11 +51,19 @@ export const blocks: Page = {
           purpose:
             "In a picker, a tile that cannot be picked, such as a channel with no orders: faded, its button disabled.",
         },
+        {
+          name: "items[].tone",
+          type: '"negative" | "warning"',
+          default: "—",
+          purpose: "Marks the tile as the exception on the page: a faint wash of the colour and an outline of it.",
+        },
       ],
       rules: [
         "One tile per row on a phone. Wider, the columns follow the count so no tile sits alone under a full row: four run 2 then 4 across, three and six run 3 across, five runs 3 + 2 and then 5 in a row.",
         "A trend of gains or losses takes var(--positive) or var(--negative); any other run keeps --chart-1.",
         "A picked tile keeps its ring on every surface.",
+        "The label and the footer lines are small monospaced capitals; the figure stays in the sans face.",
+        "Set tone on the one or two tiles that need a look. The page decides: a falling figure is not an exception when it is a cost.",
       ],
       examples: [
         { name: "section-cards", caption: "Five headline figures, each with a Delta badge and two footer lines." },
@@ -65,7 +73,8 @@ export const blocks: Page = {
         },
         {
           name: "section-cards-trend",
-          caption: "Each tile with a sparkline of its run, coloured by gain, loss or neither.",
+          caption:
+            "Each tile with a sparkline of its run, coloured by gain, loss or neither; the cash flow tile is marked negative.",
         },
       ],
     },
