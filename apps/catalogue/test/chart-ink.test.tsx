@@ -191,7 +191,8 @@ describe("chart ink", { timeout: 60_000 }, () => {
     // The names wait for the 1.3s draw; a stack's fills reveal with their lines, so no fade can blank them on an update.
     expect(await names.evaluate(timing)).toEqual(["chart-fade-in", "1.3s"]);
     const fill = card(panels, "Value by kind").locator(".recharts-area-area").first();
-    expect((await fill.evaluate(timing))[0]).toBe("none");
+    // Recharts may swap the fill's path as the chart settles; a path read as it is replaced has no style at all.
+    await expect.poll(async () => (await fill.evaluate(timing))[0]).toBe("none");
     const bars = card(panels, "Money added by kind and quarter").first().locator(".recharts-bar-rectangles").first();
     expect(await bars.evaluate(timing)).toEqual(["chart-fade-in", "0s"]);
     await page.emulateMedia({ reducedMotion: "reduce" });
