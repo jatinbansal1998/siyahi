@@ -30,14 +30,14 @@ const teams: Team[] = [
 const NEAR = 0.02;
 const FAR = 0.05;
 
-const pts = (value: number) => `${(value * 100).toFixed(1)} pts`;
+const points = (value: number) => `${(value * 100).toFixed(1)} points`;
 
 function statusOf({ weight, target }: Team): TargetStatus {
   const gap = weight - target;
-  const size = `${pts(Math.abs(gap))} ${gap > 0 ? "over" : "under"}`;
+  const size = `${points(Math.abs(gap))} ${gap > 0 ? "over" : "under"}`;
   if (Math.abs(gap) <= NEAR) return { kind: "met", label: "On target" };
   if (Math.abs(gap) <= FAR) return { kind: "missed", label: size };
-  return { kind: "warning", label: `${size}, review` };
+  return { kind: "warning", label: `${size}, needs review` };
 }
 
 export default function TargetRowsExample() {

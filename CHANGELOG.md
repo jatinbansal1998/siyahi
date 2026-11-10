@@ -435,6 +435,11 @@ Page parts that dash and The Book built for themselves. Published as
   (`await card.screenshot(…)`), since the full-page shot grows the viewport
   and can undo a hover. A page error or console error now fails the mode, with
   or without a script: a page that logs a failed request no longer passes.
+- `DESIGN.md` has a Words section: titles state the finding, descriptions say
+  what the figures are, labels are short nouns written in full, units, signs,
+  dates and statuses have one form each, and empty, loading and error states
+  say what happened and what to do. The catalogue's examples follow it, so
+  some example titles, labels and descriptions read differently.
 
 ## 0.1.8
 

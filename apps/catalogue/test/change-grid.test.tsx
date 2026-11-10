@@ -21,7 +21,7 @@ describe("ChangeGrid layout", { timeout: 60_000 }, () => {
     await page.setViewportSize({ width: 390, height: 900 });
     const grid = page.locator('[data-slot="change-grid"]').first();
     const scroller = grid.locator("xpath=..");
-    const label = grid.getByRole("rowheader", { name: "FY24" });
+    const label = grid.getByRole("rowheader", { name: "FY25" });
     await label.waitFor();
     const edge = (await scroller.boundingBox())!.x;
     const width = await scroller.evaluate((el) => el.scrollWidth - el.clientWidth);
@@ -35,6 +35,6 @@ describe("ChangeGrid layout", { timeout: 60_000 }, () => {
       ([x, y]) => document.elementFromPoint(x!, y!)?.closest("th")?.textContent,
       [box.x + box.width / 2, box.y + box.height / 2],
     );
-    expect(top).toBe("FY24");
+    expect(top).toBe("FY25");
   });
 });

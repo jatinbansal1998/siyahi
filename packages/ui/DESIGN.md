@@ -100,6 +100,87 @@ An app page opens on its masthead, `PageHero`: a small mark and eyebrow in the
 mono face and link colour, the title, one muted line saying what the page is,
 the actions at the right, and a hairline under it. One per page; no hero card.
 
+## Words
+
+A page is read by someone who acts on its figures. Its words are plain English,
+in sentence case, and explain themselves: a reader needs no other page to know
+what a figure is, where it came from and what to do next. These rules bind what
+a page's reader sees. The catalogue's own notes (the text that introduces a
+component, its rules and its captions) teach the package and are exempt from
+them, and so are the words in a demo that only name a component's variant or API
+("Ghost", "moneyCompact") or show a bare state (a field disabled with no reason
+given). Everything else in an example is bound like any app's copy, including
+the error, empty, loading and busy text of a state demo. Each rule's example is
+from the catalogue.
+
+- **A title states the finding** when the block makes one point: "Search is
+  near its slowest of the month, login near its fastest". In an app, work its
+  figures out from the data the block draws, so it cannot go stale. When the
+  finding changes with the reader's choice (a toggle, a filter, a pick), the
+  title names the topic instead: "Revenue by channel and quarter". No full
+  stop, no pun or metaphor.
+- **A description says what the figures are**: the measure, its scope and
+  period, how it was counted, whatever the title left out. A single fragment
+  takes no full stop: "Each month's revenue against its target". Once there are
+  two parts, each ends with one: "Each week's balance against the highest it
+  had been so far. At zero the bakery was at a new high." Page copy never names
+  a component, a token or a prop.
+- **Explain what the reader cannot guess.** Say how to read a mark that is not
+  obvious ("Money in above the line, money out below it"), and define a term
+  on first use, in the description, a tooltip or a popover: "Churn counts
+  customers who did not renew this month."
+- **Say where the figures come from and how fresh they are**: the system or
+  report they are read from, "From sar -r", and when, "Prices as of the last
+  market close."
+- **Labels and column heads are short nouns, written in full.** The theme sets
+  them in small mono capitals, so write them in sentence case and never
+  abbreviate to fit: no "vs", "p95", "Qty". Name what the figure is, then its
+  period if the block has several: "Cash flow this year". A note on a plot or
+  beside a figure is lowercase: "new limit, 50%", "new this year".
+- **Units.** A figure from the formatters carries its unit (₹2.4L, 14.2%,
+  14:30 IST). Any other unit is named once: after a label in brackets, "Hour of
+  day (IST)", or after a title with a comma, "Memory in use, GiB". Keep the
+  symbols readers know (%, ₹, ms, s, GiB); anything else is a word. A
+  difference between two percentages is in points, to one decimal, as no
+  formatter writes them: "Sales is 5.6 points under its budget".
+- **Numbers** go through `useFormat()` and `Delta`. In the default locale that
+  is Indian grouping (1,53,110), compact rupees (₹3.1Cr) and amounts under a
+  lakh in full; a page under another locale keeps its forms. A figure on its
+  own (a cell, a tick, a tooltip) carries its sign, as Colour says; a sign you
+  write is `+` or the minus `−`, never a hyphen: "+₹21,300", "−₹18,400". In a
+  phrase a word may carry the direction instead: "5.6 points under". A range
+  takes an en dash, "0–12 GiB"; a multiple takes ×, "about 1.5× a month". A
+  missing figure is —, and a page that leaves items out says how many.
+- **Dates and times** read as the formatters write them, in the default locale
+  day before month: "20 Oct 2026, 14:30 IST". Every block says its time zone
+  once, on its axis title, its description or each time: "Hour of day (IST)". A
+  period is in words, "Last 30 days", "April to March"; a financial year is
+  "FY26", with the block saying when it ends: "FY26 ends in March 2026". A
+  tooltip's heading says more than the tick under it: "Week ending 1 Nov 2026"
+  against "Nov".
+- **A status names a state, not a task**, in a few words that match its tone:
+  "Paid", "Out for delivery", "Needs review".
+- **The components write the chart and staleness notes**: FORECAST, TODAY and
+  "Stale · 3 Nov". The page passes the point or the date and nothing more, and
+  says in its description which stretch is a forecast: "November and December
+  are a forecast". It never writes a note of its own for the same thing.
+- **A button or menu item says what happens**, as a verb, in one to three
+  words: "Export CSV", "Copy order number". A busy button keeps its label as
+  "Saving"; a finished one says so briefly, "Copied". An icon-only button names
+  its action in `aria-label`: "Refresh". A toggle names its options in words
+  ("Cumulative growth", "Last year"); only a range toggle in a card's header
+  shortens them, to 1M, 6M, 1Y and All. A control disabled for a reason the
+  page does not show says why beside it, as a chart's Log button does.
+- **Empty, loading and error states say what happened and what to do.** Empty
+  names what is missing and why: "No holding matches the search." Loading is
+  a `Skeleton` in the block's shape; long work names itself, "Orders imported",
+  with its progress, and a waiting line ends in one "…". An error's title says
+  what happened, "Import failed"; its line says why and what the reader can
+  do: "The CSV could not be read. Export it again and retry." A field's error
+  states the rule with an example: "A PIN code is six digits, such as 560001".
+- **Address the reader as you and the business as we**: "What you own, what it
+  is worth today", "Our store".
+
 ## Labels and totals
 
 - **Labels are small monospaced capitals**: a stat tile's label and footer

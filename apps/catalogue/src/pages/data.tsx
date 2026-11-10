@@ -232,7 +232,7 @@ export const data: Page = {
         "The page owns the pick: hold selected in its state and set it from onSelect.",
       ],
       examples: [
-        { name: "chart-bar", caption: "Three series grouped by quarter, with a toggle that stacks them." },
+        { name: "chart-bar", caption: "Five series grouped by quarter, with a toggle that stacks them." },
         {
           name: "chart-bar-hourly",
           caption: "One series by hour, with xFormatter writing 09:00 and xLabel and yLabel titling the axes.",
@@ -669,7 +669,10 @@ export const data: Page = {
         "Scrolling sideways hides the figure a reader came for, on a phone and a laptop alike: mark the few answering columns meta.compact, and put DataTableCompactColumnsToggle in the toolbar to show them all and back.",
       ],
       examples: [
-        { name: "data-table", caption: "Search, a category filter, one-click sort headers and the row count." },
+        {
+          name: "data-table",
+          caption: "Search, a category filter, one-click sort headers, the row count and a pinned product column.",
+        },
         {
           name: "data-table-filters",
           caption: "Search stays in the toolbar; the other filters move into a sheet when space is narrow.",

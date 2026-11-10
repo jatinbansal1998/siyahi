@@ -12,11 +12,11 @@ describe("touch controls", { timeout: 60_000 }, () => {
     const { page } = catalogue;
     await page.setViewportSize({ width: 320, height: 844 });
     await page.goto(`${new URL(page.url()).origin}/#/data/data-table`);
-    const search = page.getByRole("textbox", { name: "Search compact example" });
+    const search = page.getByRole("textbox", { name: "Search orders" });
     await search.waitFor({ state: "visible" });
     await expect.poll(() => search.evaluate((el) => el.getBoundingClientRect().width)).toBeGreaterThanOrEqual(200);
     await search.fill("ORD-1042");
-    const table = page.getByRole("region", { name: "Orders with compact filters" });
+    const table = page.getByRole("region", { name: "Open orders" });
     await expect.poll(() => table.locator("tbody tr").count()).toBe(1);
     expect(await table.textContent()).toContain("ORD-1042");
     await search.fill("");

@@ -71,13 +71,13 @@ describe("responsive table", () => {
           getComputedStyle(el).getPropertyValue("--table-fade-start"),
           getComputedStyle(el).getPropertyValue("--table-fade-end"),
         ]);
-    await expect.poll(() => fade("Search every column")).toEqual(["0px", "32px"]);
-    expect(await fade("Products on a phone")).toEqual(["0px", "0px"]);
+    await expect.poll(() => fade("This week's units and revenue")).toEqual(["0px", "32px"]);
+    expect(await fade("Revenue by product")).toEqual(["0px", "0px"]);
   });
 
   it("shows only the key columns on a phone until the reader asks for all of them", async () => {
     const { page } = catalogue;
-    const card = page.locator('#data-table [data-slot="card"]', { hasText: "Products on a phone" });
+    const card = page.locator('#data-table [data-slot="card"]', { hasText: "Revenue by product" });
     const table = card.locator("table");
     // The source text: innerText follows the heads' text-transform and reads them in capitals.
     const headers = () => table.locator("thead th").allTextContents();

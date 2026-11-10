@@ -58,7 +58,7 @@ const columns: DataTableColumnDef<Product>[] = [
     accessorKey: "change",
     header,
     size: 110,
-    meta: { label: "Week", variant: "number" },
+    meta: { label: "Change", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
   },
 ];
@@ -68,10 +68,7 @@ export default function DataTableExample() {
     <Card>
       <CardHeader>
         <CardTitle>Products</CardTitle>
-        <CardDescription>
-          Search every column, filter by category, sort any column in one click; the product stays put when the table
-          scrolls in wide panels. In narrow panels every column scrolls, leaving room for the figures
-        </CardDescription>
+        <CardDescription>This week's units and revenue for each product, with the change on last week</CardDescription>
       </CardHeader>
       <CardContent>
         <DataTableRoot

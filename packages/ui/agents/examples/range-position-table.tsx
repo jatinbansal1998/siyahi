@@ -43,8 +43,28 @@ const services: Service[] = [
   service("login", 175, 161, 203),
 ];
 
+function useMilliseconds(): (value: number) => string {
+  const { count } = useFormat();
+  return (value) => `${count(value)} ms`;
+}
+
 function Milliseconds({ value }: { value: number }) {
-  return `${useFormat().count(value)} ms`;
+  return useMilliseconds()(value);
+}
+
+function Range({ row }: { row: Service }) {
+  const ms = useMilliseconds();
+  return (
+    <RangePosition
+      variant="compact"
+      low={row.low}
+      high={row.high}
+      value={row.today}
+      valueFormatter={ms}
+      lowLabel="30-day fastest"
+      highLabel="30-day slowest"
+    />
+  );
 }
 
 const header = () => <DataTableSortHeader />;
@@ -54,8 +74,8 @@ const columns: DataTableColumnDef<Service>[] = [
   {
     accessorKey: "today",
     header,
-    size: 120,
-    meta: { label: "p95 today", variant: "number" },
+    size: 170,
+    meta: { label: "95th percentile today", variant: "number" },
     cell: ({ row }) => <Milliseconds value={row.original.today} />,
   },
   {
@@ -63,16 +83,7 @@ const columns: DataTableColumnDef<Service>[] = [
     header,
     size: 200,
     meta: { label: "30-day range", compact: true },
-    cell: ({ row }) => (
-      <RangePosition
-        variant="compact"
-        low={row.original.low}
-        high={row.original.high}
-        value={row.original.today}
-        lowLabel="30-day fastest"
-        highLabel="30-day slowest"
-      />
-    ),
+    cell: ({ row }) => <Range row={row.original} />,
   },
 ];
 
@@ -82,7 +93,8 @@ export default function RangePositionTableExample() {
       <CardHeader>
         <CardTitle>Search is near its slowest of the month, login near its fastest</CardTitle>
         <CardDescription>
-          Each service's response time today on a track from its fastest day to its slowest; sort to rank them
+          Each service's 95th-percentile response time today (95 in 100 requests were faster) on a track from its
+          fastest day to its slowest; sort to rank them
         </CardDescription>
       </CardHeader>
       <CardContent>

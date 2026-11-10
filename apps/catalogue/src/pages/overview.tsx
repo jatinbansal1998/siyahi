@@ -16,6 +16,7 @@ const RULES = [
   "Sizes from the base-nova style, tables denser: 16px panels, table rows sized to their content. Geist, tabular figures. Geist Mono for identifiers, ticks, panel numbers, the small capital labels and a table's figures.",
   "Indian grouping, compact rupees, IST with zone, signs beside colour, scheme follows the device, reduced motion honoured.",
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables hide columns that do not fit, never their meta.compact ones, behind an All columns toggle, sidebar becomes a drawer.",
+  "Words explain themselves: a title states the finding (or names the topic when the reader's choice changes the finding), a description says what the figures are and where they came from, a label is a short noun written in full, and an empty or failed block says what happened and what to do.",
 ];
 
 const START: [href: string, title: string, use: string][] = [
@@ -143,7 +144,7 @@ export const overview: Page = {
     },
     {
       id: "rules",
-      title: "The ten rules",
+      title: "The twelve rules",
       lead: "What every Siyahi page keeps.",
       body: (
         <ol className="flex max-w-prose list-decimal flex-col gap-2 pl-5">

@@ -14,7 +14,7 @@ export default function HistogramChartExample() {
   return (
     <HistogramChartCard
       title="Checkout response times"
-      description="The last 2,000 requests, counted in 100 ms buckets. Lines mark the median and the 95th percentile."
+      description="The last 2,000 requests, counted in 100 ms buckets. Lines mark the median and the 95th percentile (95 in 100 requests were faster)."
       values={times}
       valueFormatter={(ms) => `${count(ms)} ms`}
       tickFormatter={count}

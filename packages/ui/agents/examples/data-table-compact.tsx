@@ -36,7 +36,7 @@ const products: Product[] = [
 
 const header = () => <DataTableSortHeader />;
 
-// While the Week column is hidden to fit, the week's change rides under the revenue it belongs to.
+// While the change column is hidden to fit, the week's change rides under the revenue it belongs to.
 function RevenueCell({ product }: { product: Product }) {
   const format = useFormat();
   const { compactColumns } = useDataTable<Product>();
@@ -64,7 +64,7 @@ const columns: DataTableColumnDef<Product>[] = [
     accessorKey: "change",
     header,
     size: 110,
-    meta: { label: "Week", variant: "number" },
+    meta: { label: "Change", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
   },
 ];
@@ -73,11 +73,8 @@ export default function DataTableCompactExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Products on a phone</CardTitle>
-        <CardDescription>
-          Product and revenue are the key columns. When the columns do not fit, the others hide from the right, and the
-          week's change rides under the revenue once its column is gone; All columns brings back the rest
-        </CardDescription>
+        <CardTitle>Revenue by product</CardTitle>
+        <CardDescription>This week's revenue for each product, with the change on last week</CardDescription>
       </CardHeader>
       <CardContent>
         <DataTableRoot data={products} columns={columns}>
@@ -85,7 +82,7 @@ export default function DataTableCompactExample() {
             <DataTableCompactColumnsToggle />
             <DataTableRowCount unit="products" />
           </DataTableToolbarSection>
-          <DataTable aria-label="Products on a phone">
+          <DataTable aria-label="Revenue by product">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

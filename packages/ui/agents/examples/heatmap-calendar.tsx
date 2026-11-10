@@ -30,7 +30,7 @@ export default function HeatmapCalendarExample() {
     <Card>
       <CardHeader>
         <CardTitle>Deploys per day</CardTitle>
-        <CardDescription>The last 12 months; counts use a single-hue fade of --chart-1</CardDescription>
+        <CardDescription>The last 12 months; the stronger the colour, the more deploys</CardDescription>
       </CardHeader>
       <CardContent>
         <CalendarHeatmap data={data} labels={{ heatmapLabel: "Deploys per day over the last 12 months" }}>

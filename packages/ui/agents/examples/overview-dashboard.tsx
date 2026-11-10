@@ -40,7 +40,7 @@ interface Holding {
 const holdings: Holding[] = [
   { name: "Nifty 50 index fund", kind: "Equity", status: "On track", tone: "positive", value: 1840000, change: 0.124 },
   { name: "Flexi cap fund", kind: "Equity", status: "On track", tone: "positive", value: 962000, change: 0.087 },
-  { name: "Gold bonds, 2031", kind: "Gold", status: "Review", tone: "warning", value: 410500, change: 0.211 },
+  { name: "Gold bonds, 2031", kind: "Gold", status: "Needs review", tone: "warning", value: 410500, change: 0.211 },
   { name: "Short-term debt fund", kind: "Debt", status: "On track", tone: "positive", value: 655000, change: 0.031 },
   { name: "Small cap fund", kind: "Equity", status: "Below plan", tone: "negative", value: 318200, change: -0.064 },
 ];
@@ -76,7 +76,7 @@ function Holdings({ rows }: { rows: Holding[] }) {
               <TableHead>Holding</TableHead>
               <TableHead>Status</TableHead>
               <TableHead data-numeric>Value</TableHead>
-              <TableHead data-numeric>12 months</TableHead>
+              <TableHead data-numeric>Change over 12 months</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
