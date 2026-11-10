@@ -28,9 +28,11 @@ export default function CodeBlockExample() {
         <CodeBlockContent wrap>{CHECK}</CodeBlockContent>
       </CodeBlock>
       <CodeBlock size="sm">
-        <CodeBlockActions>
-          <CodeBlockCopyButton value={LOG} />
-        </CodeBlockActions>
+        <CodeBlockHeader>
+          <CodeBlockActions>
+            <CodeBlockCopyButton value={LOG} />
+          </CodeBlockActions>
+        </CodeBlockHeader>
         <CodeBlockContent className="max-h-48">{LOG}</CodeBlockContent>
       </CodeBlock>
     </div>

@@ -43,6 +43,16 @@ similar). No clear licence, no copy. Then:
 4. Add the origin to `THIRD_PARTY_NOTICES.md` and run `pnpm generate`, which
    rewrites `registry.lock.json` and the `@siyahi/ui` barrel.
 
+## Stacking
+
+A part a component lifts with a z-index (a button laid over a tile, a sticky
+header, a badge) must rank only inside its component, never against a page's
+sticky header or section strip, which are z-10 too. Add the component's root
+slot to the `isolation: isolate` list in `siyahi.css` (for a part that must
+sit over a neighbour, such as an avatar's badge in a group, the group's slot), and its page to
+`apps/catalogue/test/page-chrome.test.tsx`, which fails on any lifted part
+outside such a root.
+
 ## Charts
 
 Give every chart series its colour as a chart token in the config:

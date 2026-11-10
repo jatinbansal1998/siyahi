@@ -137,7 +137,7 @@
   },
   {
     "need": "A command or file to copy, wrapped or scrolling",
-    "guidance": "`CodeBlock` with `CodeBlockCopyButton`"
+    "guidance": "`CodeBlock` with `CodeBlockCopyButton` in `CodeBlockActions` inside a `CodeBlockHeader`, never floating over the code"
   },
   {
     "need": "A labelled copy action, such as \"Copy all\" for a section",

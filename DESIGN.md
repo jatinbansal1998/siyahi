@@ -87,6 +87,9 @@ mono face and the link colour, so the text can point to one.
   `rounded-*` class to a box.
 - **Joined toggles.** The items of a `ToggleGroup` sit flush and share their
   borders, one control; the pressed item fills with the foreground.
+- **A code block's copy button sits in a header row** (`CodeBlockHeader`),
+  beside its title or alone, never floating over the code, where it would
+  cover the end of a line. An untitled snippet takes the extra row.
 - Badges stay boxed (an outline), the primary button and the pressed toggle
   black (white in dark), titles in the sans face, at normal spacing.
 

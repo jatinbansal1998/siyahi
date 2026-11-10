@@ -24,6 +24,16 @@
 - The sidebar has compact rows and mono capital group labels; a
   non-collapsible sidebar gets the page-side hairline a collapsible one already
   has.
+- Nothing a component lifts inside itself can sit over, or take a tap from, a
+  page's sticky header or section strip: a `SectionCards` picker tile's button,
+  an avatar's badge, a calendar's days, a focused toggle and a price chart's
+  layers now rank only inside their component.
+
+- A code block's copy button sits in a header row, never floating over the
+  code: it no longer covers the end of a line or paints over a sticky section
+  strip (`PageToc`) on a phone. Put `CodeBlockActions` in a `CodeBlockHeader`;
+  one written straight in the block now takes a row of its own above the code
+  too, always shown.
 
 - Siyahi's own look replaces stock shadcn's. Every corner is square
   (`--radius` is 0) and hairlines are a step firmer (`--border` is the text
