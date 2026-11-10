@@ -298,6 +298,27 @@
       ]
     },
     {
+      "need": "A forecast stretch after the latest actual figure, or a marker for today",
+      "guidance": "`LineChartCard` or `AreaChartCard` with `forecastFrom` and `today` set to x values",
+      "components": [
+        "LineChartCard",
+        "AreaChartCard"
+      ]
+    },
+    {
+      "need": "More than five lines on one chart",
+      "guidance": "chart colours for the few the page is about, `var(--muted-foreground)` for the rest; every line keeps its own name",
+      "components": []
+    },
+    {
+      "need": "A chart or stat tile whose data is old",
+      "guidance": "`stale` on the chart card or the `SectionCards` item, with since when (\"3 Nov\"); `StaleNote` for another kind of block",
+      "components": [
+        "SectionCards",
+        "StaleNote"
+      ]
+    },
+    {
       "need": "A form field with its label, a hint or an error",
       "guidance": "`Field` with `FieldLabel`, the control, then `FieldDescription` or `FieldError`; `aria-invalid` on an invalid control",
       "components": [
@@ -614,9 +635,23 @@
       ]
     },
     {
+      "file": "agents/examples/chart-line-forecast.tsx",
+      "components": [
+        "LineChartCard",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/chart-line-log.tsx",
       "components": [
         "Badge",
+        "LineChartCard",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-line-quiet.tsx",
+      "components": [
         "LineChartCard",
         "useFormat"
       ]
@@ -633,6 +668,16 @@
         "LineChartCard",
         "ToggleGroup",
         "ToggleGroupItem",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-panels.tsx",
+      "components": [
+        "AreaChartCard",
+        "BarChartCard",
+        "LineChartCard",
+        "PanelGrid",
         "useFormat"
       ]
     },
@@ -1217,6 +1262,16 @@
         "CardHeader",
         "CardTitle",
         "SlopeChart"
+      ]
+    },
+    {
+      "file": "agents/examples/stale-blocks.tsx",
+      "components": [
+        "AreaChartCard",
+        "Delta",
+        "SectionCards",
+        "Sparkline",
+        "useFormat"
       ]
     },
     {

@@ -79,12 +79,17 @@ on every heat step); 3:1 for a field's edge (`--input`) against the page and its
 own fill, the focus ring (against the page, the card, a tab list and the
 sidebar around a control, and its inner page-colour ring against a primary
 fill), a selected tab against its list, and chart and
-meaning colours against the page and the slots next to them, a waterfall's
-gain and loss edges against their own tint, every chart colour against the
+meaning colours against the page and the slots next to them, every chart colour against the
 40% band a chart card lays behind a hovered category, and a StatusHeatmap's
 degraded and critical days against a healthy one. Every colour must
 sit inside sRGB. When a component paints a token on a new fill, add the pair to
 `PAIRS` there. When a check fails, change the value, never the bar.
+
+A bar is read by its edge: its 1px full-colour edge must reach 3:1 against the
+card, and its tint is a fill carried by that edge, so the tint inside needs no
+pair against the edge. Marks in a block the page marks stale are exempt from
+the 3:1 mark bar, since a stale block is meant to be harder to read; its
+"Stale" note and its figures keep their text contrast.
 
 An icon in an `Alert` takes its meaning colour with Tailwind's important
 modifier: `<TriangleAlertIcon className="text-warning!" />`. `alert.tsx` sets
