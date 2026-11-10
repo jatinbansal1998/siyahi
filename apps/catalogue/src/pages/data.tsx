@@ -256,6 +256,31 @@ export const data: Page = {
       ],
     },
     {
+      id: "line-chart",
+      title: "Line chart",
+      lead: "LineChartCard draws values over an ordered axis as lines, for comparing series such as a store against its category.",
+      imports: ["LineChartCard", "type ChartSeries"],
+      props: [...SERIES_PROPS, ...LINE_MARKS_PROPS, X_DOMAIN, CURVE, ...VALUE_SCALE_PROPS],
+      rules: [
+        ...LINE_RULES,
+        "A zero line draws by itself whenever a value goes below zero.",
+        VALUE_SCALE_RULE,
+        "A mode toggle sits top right; on a card narrower than about 430px it drops under the title and description, left-aligned, so a long label is never cut off.",
+        "Ranked categories are a BarList, not a line chart.",
+      ],
+      examples: [
+        {
+          name: "chart-line",
+          caption:
+            "Sales growth against the category, with valueFormatter for the tooltip and yTickFormatter for the axis.",
+        },
+        {
+          name: "chart-line-log",
+          caption: "A year of user growth on a log axis first, with Linear and Log buttons beside a scope badge.",
+        },
+      ],
+    },
+    {
       id: "chart-panels",
       title: "Chart panels",
       lead: "Line, area and bar cards side by side in a PanelGrid, as a page of figures uses them.",
@@ -326,31 +351,6 @@ export const data: Page = {
           name: "chart-line-quiet",
           caption:
             'Eight funds: the two being watched in colour, the other six in grey sharing one name, "6 other funds".',
-        },
-      ],
-    },
-    {
-      id: "line-chart",
-      title: "Line chart",
-      lead: "LineChartCard draws values over an ordered axis as lines, for comparing series such as a store against its category.",
-      imports: ["LineChartCard", "type ChartSeries"],
-      props: [...SERIES_PROPS, ...LINE_MARKS_PROPS, X_DOMAIN, CURVE, ...VALUE_SCALE_PROPS],
-      rules: [
-        ...LINE_RULES,
-        "A zero line draws by itself whenever a value goes below zero.",
-        VALUE_SCALE_RULE,
-        "A mode toggle sits top right; on a card narrower than about 430px it drops under the title and description, left-aligned, so a long label is never cut off.",
-        "Ranked categories are a BarList, not a line chart.",
-      ],
-      examples: [
-        {
-          name: "chart-line",
-          caption:
-            "Sales growth against the category, with valueFormatter for the tooltip and yTickFormatter for the axis.",
-        },
-        {
-          name: "chart-line-log",
-          caption: "A year of user growth on a log axis first, with Linear and Log buttons beside a scope badge.",
         },
       ],
     },
