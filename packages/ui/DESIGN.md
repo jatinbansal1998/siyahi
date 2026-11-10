@@ -135,9 +135,9 @@ is from the catalogue.
   its budget".
 - **Numbers** go through `useFormat()` and `Delta`: Indian grouping
   (1,53,110), compact rupees (₹3.1Cr), amounts under a lakh in full. In text a
-  sign is `+` or the minus `−`, never a hyphen, and a change states its
-  direction once, by sign or by word: "3.0 points under", not "−3.0 points
-  under". A range takes an en dash, "0–12 GiB"; a multiple takes ×, "about
+  sign is `+` or the minus `−`, never the hyphen the formatters print:
+  "+₹21,300", "−₹18,400". A change states its direction once, by sign or by
+  word: "3.0 points under", not "−3.0 points under". A range takes an en dash, "0–12 GiB"; a multiple takes ×, "about
   1.5× a month". A missing figure is —, and a page that leaves items out says
   how many.
 - **Dates and times** read as the formatters write them, day before month:

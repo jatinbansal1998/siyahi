@@ -669,7 +669,10 @@ export const data: Page = {
         "Scrolling sideways hides the figure a reader came for, on a phone and a laptop alike: mark the few answering columns meta.compact, and put DataTableCompactColumnsToggle in the toolbar to show them all and back.",
       ],
       examples: [
-        { name: "data-table", caption: "Search, a category filter, one-click sort headers and the row count." },
+        {
+          name: "data-table",
+          caption: "Search, a category filter, one-click sort headers, the row count and a pinned product column.",
+        },
         {
           name: "data-table-filters",
           caption: "Search stays in the toolbar; the other filters move into a sheet when space is narrow.",

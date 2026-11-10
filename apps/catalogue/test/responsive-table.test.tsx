@@ -71,7 +71,7 @@ describe("responsive table", () => {
           getComputedStyle(el).getPropertyValue("--table-fade-start"),
           getComputedStyle(el).getPropertyValue("--table-fade-end"),
         ]);
-    await expect.poll(() => fade("Search every column")).toEqual(["0px", "32px"]);
+    await expect.poll(() => fade("This week's units and revenue")).toEqual(["0px", "32px"]);
     expect(await fade("Revenue by product")).toEqual(["0px", "0px"]);
   });
 

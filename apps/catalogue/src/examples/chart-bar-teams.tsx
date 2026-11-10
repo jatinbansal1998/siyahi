@@ -57,7 +57,7 @@ export default function ChartBarTeamsExample() {
       horizontal
       data={rows}
       xKey="team"
-      xTickDetail={(row) => `${pct(row.actual)} against ${pct(row.comparison)} · ${gap(row)}`}
+      xTickDetail={(row) => `${pct(row.actual)} against ${pct(row.comparison)}, ${gap(row)}`}
       series={series}
       valueFormatter={(v) => pct(v)}
       // A tick format puts the value axis along the bottom of the sideways bars.

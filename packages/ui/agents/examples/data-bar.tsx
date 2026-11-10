@@ -41,6 +41,12 @@ function Money({ amount }: { amount: number }) {
   return useFormat().money(amount);
 }
 
+// The formatters print a bare hyphen, so a change in plain text writes its own + or −.
+function SignedMoney({ amount }: { amount: number }) {
+  const sign = amount > 0 ? "+" : amount < 0 ? "\u2212" : "";
+  return `${sign}${useFormat().money(Math.abs(amount))}`;
+}
+
 const header = () => <DataTableSortHeader />;
 
 const columns: DataTableColumnDef<Store>[] = [
@@ -63,7 +69,7 @@ const columns: DataTableColumnDef<Store>[] = [
     meta: { label: "Change on last month", variant: "number" },
     cell: ({ row }) => (
       <DataBar value={row.original.change} max={largestChange} tone="sign">
-        <Money amount={row.original.change} />
+        <SignedMoney amount={row.original.change} />
       </DataBar>
     ),
   },
