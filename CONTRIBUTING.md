@@ -66,8 +66,9 @@ the page, on its own fill, and on every tint the components put it on (muted
 text on Callout, StatusAlert, StatusBadge and Quote washes and code-line fills, destructive
 text on its tint at rest and on hover, the command placeholder, treemap labels
 on every heat step); 3:1 for a field's edge (`--input`) against the page and its
-own fill, the focus outline (against the page, the card, a tab list and the
-sidebar, which are all it touches), a selected tab against its list, and chart and
+own fill, the focus ring (against the page, the card, a tab list and the
+sidebar around a control, and its inner page-colour ring against a primary
+fill), a selected tab against its list, and chart and
 meaning colours against the page and the slots next to them, a waterfall's
 gain and loss edges against their own tint, every chart colour against the
 40% band a chart card lays behind a hovered category, and a StatusHeatmap's

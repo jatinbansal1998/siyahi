@@ -325,19 +325,20 @@
 }
 
 /*
- * Focus is one rule for every control: a 2px outline in the text colour
- * (--ring), 2px clear of the control, so it never touches a fill and reads at
- * the text's contrast on the page or the card whatever the control looks like,
- * pressed, hovered or selected, and on a chart mark as a square around it,
- * apart from a selected mark's stroke. shadcn's half-strength ring halo is
- * dropped: next to a dark or light fill it fell under 3:1. A field shows the
- * outline on its own edge (offset -1px: its 1px edge plus 1px out), and an
- * input group around its input. Something that fills a box that clips, such
- * as a stat tile's picker button or a scroll area, draws it inside. Menu items
- * and options show focus as their highlight, and popups as themselves, so they
- * take none.
+ * Focus is drawn inside the control, never outside it, so no neighbour and no
+ * box that clips can cover it: a 2px ring in the text colour (--ring) on the
+ * control's edge, and a 2px ring of the page colour just inside that, so the
+ * pair reads on any fill, black, white or hovered, and the outer ring meets
+ * the page around the control at the text's contrast. A field shows focus as
+ * its own edge, 2px in the text colour; an input group and the command search
+ * show it round the whole group. A chart mark is drawn in SVG, where these
+ * rings do not paint: it takes a dashed stroke in the text colour, apart from a
+ * picked mark's solid one. Menu items and options show focus as their
+ * highlight, and popups as themselves, so they take none.
  */
 :focus-visible:not(
+  svg,
+  svg *,
   [role="menuitem"],
   [role="menuitemcheckbox"],
   [role="menuitemradio"],
@@ -346,33 +347,48 @@
   [role="alertdialog"],
   [role="menu"],
   [role="listbox"],
-  [data-slot="input-group-control"]
-) {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-  --tw-ring-shadow: 0 0 #0000;
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"],
+  [data-slot="input-group-control"],
+  [data-slot="command-input"]
+),
+[data-slot="slider-thumb"]:has(input:focus-visible) {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 2px var(--ring),
+    inset 0 0 0 4px var(--background);
 }
 :is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]):focus-visible,
-[data-slot="input-group"]:has([data-slot="input-group-control"]:focus-visible) {
-  outline: 2px solid var(--ring);
-  outline-offset: -1px;
-  --tw-ring-shadow: 0 0 #0000;
+[data-slot="input-group"]:has(:is([data-slot="input-group-control"], [data-slot="command-input"]):focus-visible) {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
 }
 :is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"])[aria-invalid="true"]:focus-visible,
-[data-slot="input-group"]:has([data-slot="input-group-control"][aria-invalid="true"]:focus-visible),
+[data-slot="input-group"]:has([data-slot="input-group-control"][aria-invalid="true"]:focus-visible) {
+  border-color: var(--destructive);
+  box-shadow: inset 0 0 0 1px var(--destructive);
+}
 [class~="group/button"][class~="text-destructive"]:focus-visible {
-  outline-color: var(--destructive);
+  box-shadow:
+    inset 0 0 0 2px var(--destructive),
+    inset 0 0 0 4px var(--background);
 }
-:is(
-  [data-slot="section-card"] button,
-  [data-slot="scroll-area-viewport"],
-  [data-slot="table-head"] button
-):focus-visible {
-  outline-offset: -2px;
+/* A code block shows its scrolling content's focus itself; its own frame keeps no halo. */
+[data-slot="code-block"]:has(> [data-slot="code-block-content"]:focus-visible) {
+  --tw-ring-shadow: 0 0 #0000;
 }
-[data-slot="slider-thumb"]:has(input:focus-visible) {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
+svg :is(rect, circle, path)[tabindex]:focus-visible,
+[data-slot="treemap-tile"]:focus-visible > rect:first-child {
+  outline: none;
+  stroke: var(--ring);
+  stroke-width: 2px;
+  stroke-dasharray: 3 2;
+}
+/* A treemap tile clips at its own edge, so half its stroke shows: twice the width keeps 2px. */
+[data-slot="treemap-tile"]:focus-visible > rect:first-child {
+  stroke-width: 4px;
 }
 
 /*

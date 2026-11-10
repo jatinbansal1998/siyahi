@@ -58,26 +58,18 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
     expect(edge).toBe(await themeColor(page, "--destructive"));
   });
 
-  it("focuses a field as a 2px outline in the text colour on its own edge, with no halo", async () => {
+  it("focuses a field as its own edge, 2px in the text colour, drawn inside it", async () => {
     const form = await open("inputs/field");
     const name = form.getByLabel("Name");
     await name.focus();
     const ink = await themeColor(page, "--foreground");
     expect(await themeColor(page, "--ring")).toBe(ink);
-    await expect
-      .poll(async () =>
-        (await style(name, "outline-style", "outline-width", "outline-color", "outline-offset")).join(" "),
-      )
-      .toBe(`solid 2px ${ink} -1px`);
-    const [shadow = ""] = await style(name, "box-shadow");
-    expect(
-      shadow
-        .split(/,(?![^(]*\))/)
-        .every((layer) => layer.trim().endsWith("0px 0px 0px 0px") || layer.trim() === "none"),
-    ).toBe(true);
+    await expect.poll(async () => (await style(name, "border-top-color"))[0]).toBe(ink);
+    await expect.poll(async () => (await style(name, "box-shadow"))[0]).toBe(`${ink} 0px 0px 0px 1px inset`);
+    expect(await style(name, "outline-style")).toEqual(["none"]);
   });
 
-  it("focuses a pressed toggle with an outline 2px clear of its black fill, never a halo beside it", async () => {
+  it("focuses a pressed toggle with a text-colour ring and a page-colour ring inside its black fill", async () => {
     const form = await open("inputs/field");
     // Keyboard focus, so :focus-visible applies: Tab from the field before the group, then arrow to the pressed item.
     await form.getByLabel("Folio number").focus();
@@ -91,17 +83,47 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
       "true",
     );
     const ink = await themeColor(page, "--foreground");
+    const paper = await themeColor(page, "--background");
     await expect
-      .poll(async () =>
-        (await style(pressed, "outline-style", "outline-width", "outline-color", "outline-offset")).join(" "),
-      )
-      .toBe(`solid 2px ${ink} 2px`);
-    const [shadow = ""] = await style(pressed, "box-shadow");
-    expect(
-      shadow
-        .split(/,(?![^(]*\))/)
-        .every((layer) => layer.trim().endsWith("0px 0px 0px 0px") || layer.trim() === "none"),
-    ).toBe(true);
+      .poll(async () => (await style(pressed, "box-shadow"))[0])
+      .toBe(`${ink} 0px 0px 0px 2px inset, ${paper} 0px 0px 0px 4px inset`);
+    expect(await style(pressed, "outline-style")).toEqual(["none"]);
+  });
+
+  it("keeps a focused toggle's ring inside it, so a pressed neighbour cannot swallow it", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/components/toggle-group"));
+    const group = page.locator('[data-slot="example-preview"]').first().locator('[data-slot="toggle-group"]').first();
+    await group.waitFor();
+    const unpressed = group.locator('[data-slot="toggle-group-item"][aria-pressed="false"]').first();
+    await unpressed.focus();
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowRight");
+    const focused = group.locator('[data-slot="toggle-group-item"]:focus-visible');
+    await expect.poll(() => focused.count()).toBe(1);
+    const [outline, shadow = ""] = await style(focused, "outline-style", "box-shadow");
+    expect(outline).toBe("none");
+    expect(shadow.split(/,(?![^(]*\))/).every((layer) => layer.trim().endsWith("inset"))).toBe(true);
+  });
+
+  it("rings the whole command search, its icon included, when its input has focus", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/inputs/command"));
+    const input = page.locator('[data-slot="command-input"]').first();
+    await input.focus();
+    const ink = await themeColor(page, "--foreground");
+    const group = page.locator('[data-slot="input-group"]', { has: input });
+    await expect.poll(async () => (await style(group, "border-top-color"))[0]).toBe(ink);
+    expect(await style(input, "outline-style", "box-shadow")).toEqual(["none", "none"]);
+  });
+
+  it("draws a focused treemap tile's ring as a dashed stroke inside it, apart from a picked tile's solid one", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/data/treemap"));
+    const tile = page.locator('[data-slot="treemap-tile"][tabindex="0"]').first();
+    await tile.focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowLeft");
+    const rect = page.locator('[data-slot="treemap-tile"]:focus-visible > rect').first();
+    await expect.poll(async () => (await style(rect, "stroke-dasharray"))[0]).toBe("3px, 2px");
+    expect(await style(rect, "stroke")).toEqual([await themeColor(page, "--ring")]);
   });
 
   it("sets a label in a FieldContent in mono capitals, and a right-aligned word in the sans", async () => {

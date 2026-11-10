@@ -33,12 +33,13 @@ a meaning:
   canvas and the card; dividers, card rings, gridlines and the outlines of
   buttons, toggles and code blocks are the `--border` hairline (the text colour
   at 18% in light, white at 20% in dark), firm enough to carry the page's
-  structure. Focus is one 2px outline in the text colour (`--ring`), 2px clear
-  of every control, so it touches only the page or the card around it, never a
-  fill: it reads the same on a black button, a pressed toggle or a chart mark,
-  and a picked mark keeps its own stroke apart from it. A field shows it on its
-  own edge. A destructive control and an invalid field focus in the
-  destructive red. Menu items show focus as their highlight. A selected
+  structure. Focus is drawn inside the control, so no neighbour or clipping box
+  covers it: a 2px ring in the text colour (`--ring`) on its edge with a 2px
+  ring of the page colour inside, which reads on a black, white or hovered
+  fill alike. A field shows it as its own edge, 2px in the text colour; a chart
+  mark as a dashed stroke, apart from a picked mark's solid one. A destructive
+  control and an invalid field focus in the destructive red. Menu items show
+  focus as their highlight. A selected
   toggle or pill tab fills with the foreground. A chart bar that a selection
   dims keeps its full-colour outline and fades only inside.
 - **Destructive is not loss.** `--destructive` (delete, an invalid field) is a

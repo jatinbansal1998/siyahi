@@ -91,10 +91,14 @@ const PAIRS = [
   ...["", "muted", "muted/50"].map((bg) => ({ fg: "input", bg, min: MARK })),
   { fg: "input", bg: "input/30", min: MARK, scheme: "dark" },
   ...["ring", "destructive"].map((fg) => ({ fg, bg: "", min: MARK })),
-  // Focus is a 2px outline of the ring, 2px clear of the control: it meets
-  // only what lies around the control, the page and the card (above), a tab
-  // list's muted fill and the sidebar.
+  // Focus is a 2px ring of --ring on the control's edge with a 2px ring of the
+  // page colour inside it. The outer ring meets what lies around the control:
+  // the page and the card (above), a tab list's muted fill and the sidebar.
+  // The inner ring meets the control's own fill, which matters where that is
+  // dark: a primary button's (a pressed toggle's foreground fill is checked
+  // with the selected toggle's text, above).
   ...["muted", "sidebar"].map((bg) => ({ fg: "ring", bg, min: MARK })),
+  { fg: "background", bg: "primary", min: MARK },
   // An invalid field's red wash (--field-wash): the value and placeholder on
   // it, and its red edge against it.
   ...["foreground", "muted-foreground"].map((fg) => ({ fg, bg: "destructive@field-wash", min: TEXT })),

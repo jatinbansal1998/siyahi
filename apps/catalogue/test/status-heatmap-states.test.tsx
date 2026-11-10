@@ -24,7 +24,7 @@ const paint = (selector: string) =>
       opacity: style.opacity,
       stroke: style.stroke,
       width: style.strokeWidth,
-      outline: `${style.outlineStyle} ${style.outlineWidth} ${style.outlineColor}`,
+      dash: style.strokeDasharray,
     };
   });
 const token = (name: string) =>
@@ -45,21 +45,23 @@ describe("StatusHeatmap states", { timeout: 60_000 }, () => {
     expect((await paint(degraded)).opacity).toBe("1");
   });
 
-  it("outlines a keyboard-focused day in the focus colour", async () => {
+  it("dashes a keyboard-focused day in the focus colour", async () => {
     const first = '[data-slot="status-heatmap-block"][tabindex="0"]';
     await page.locator(first).focus();
     await page.keyboard.press("ArrowRight");
     const focused = '[data-slot="status-heatmap-block"]:focus-visible';
-    await expect.poll(async () => (await paint(focused)).outline).toBe(`solid 2px ${await token("--ring")}`);
+    await expect.poll(async () => (await paint(focused)).dash).toBe("3px, 2px");
+    expect((await paint(focused)).stroke).toBe(await token("--ring"));
   });
 
-  it("outlines a picked day in the focus colour, apart from its picked stroke, when the keyboard comes back to it", async () => {
+  it("dashes a picked day in the focus colour, apart from its solid picked stroke, when the keyboard comes back to it", async () => {
     await page.locator('[data-slot="status-heatmap-block"][tabindex="0"]').focus();
     await page.keyboard.press("Enter");
     await expect.poll(() => page.locator('[data-slot="status-heatmap-block"][aria-pressed="true"]').count()).toBe(1);
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
     const focused = '[data-slot="status-heatmap-block"][aria-pressed="true"]:focus-visible';
-    await expect.poll(async () => (await paint(focused)).outline).toBe(`solid 2px ${await token("--ring")}`);
+    await expect.poll(async () => (await paint(focused)).dash).toBe("3px, 2px");
+    expect((await paint(focused)).stroke).toBe(await token("--ring"));
   });
 });

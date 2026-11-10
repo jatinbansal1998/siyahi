@@ -27,7 +27,7 @@ const paint = (selector: string) =>
         opacity: style.opacity,
         stroke: style.stroke,
         width: style.strokeWidth,
-        outline: `${style.outlineStyle} ${style.outlineWidth} ${style.outlineColor}`,
+        dash: style.strokeDasharray,
       };
     });
 const token = (name: string) =>
@@ -48,14 +48,15 @@ describe("CalendarHeatmap states", { timeout: 60_000 }, () => {
     expect((await paint(day)).opacity).toBe("1");
   });
 
-  it("outlines a keyboard-focused day in the focus colour", async () => {
+  it("dashes a keyboard-focused day in the focus colour", async () => {
     await calendar().locator('[data-slot="calendar-heatmap-block"][tabindex="0"]').focus();
     await page.keyboard.press("ArrowRight");
     const focused = '[data-slot="calendar-heatmap-block"]:focus-visible';
-    await expect.poll(async () => (await paint(focused)).outline).toBe(`solid 2px ${await token("--ring")}`);
+    await expect.poll(async () => (await paint(focused)).dash).toBe("3px, 2px");
+    expect((await paint(focused)).stroke).toBe(await token("--ring"));
   });
 
-  it("outlines a picked day in the focus colour, apart from its picked stroke, when the keyboard comes back to it", async () => {
+  it("dashes a picked day in the focus colour, apart from its solid picked stroke, when the keyboard comes back to it", async () => {
     const first = calendar().locator('[data-slot="calendar-heatmap-block"][tabindex="0"]');
     await first.focus();
     await page.keyboard.press("Enter");
@@ -65,6 +66,7 @@ describe("CalendarHeatmap states", { timeout: 60_000 }, () => {
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
     const focused = '[data-slot="calendar-heatmap-block"][aria-pressed="true"]:focus-visible';
-    await expect.poll(async () => (await paint(focused)).outline).toBe(`solid 2px ${await token("--ring")}`);
+    await expect.poll(async () => (await paint(focused)).dash).toBe("3px, 2px");
+    expect((await paint(focused)).stroke).toBe(await token("--ring"));
   });
 });
