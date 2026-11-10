@@ -6,10 +6,10 @@ export interface DataBarProps {
   /** The value a full bar stands for, usually the column's largest: Math.max(...rows.map((row) => row.value)). */
   max: number;
   /** "sign" draws a gain in --positive and a loss in --negative; by default every bar is --chart-1. */
-  tone?: "chart" | "sign";
+  tone?: "chart" | "sign" | undefined;
   /** The figure, as the page formats it. */
   children: ReactNode;
-  className?: string;
+  className?: string | undefined;
 }
 
 /**

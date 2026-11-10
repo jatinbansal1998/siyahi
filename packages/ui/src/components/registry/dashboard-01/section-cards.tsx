@@ -54,6 +54,8 @@
 // Siyahi edit: `stale` marks a tile's data as old, with since when: the theme
 // greys the tile and a small "Stale · 3 Nov" note sits under its label. The
 // page sets it, as it sets a tone.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 import * as React from "react"
@@ -85,9 +87,9 @@ export interface SectionCard {
   /** Muted second footer line. */
   detail?: React.ReactNode
   /** In a picker, a tile that cannot be picked, such as one with nothing in it: faded, and its button disabled. */
-  disabled?: boolean
+  disabled?: boolean | undefined
   /** Marks the tile as the exception on the page: a faint wash of the colour and an outline of it. */
-  tone?: "negative" | "warning"
+  tone?: "negative" | "warning" | undefined
   /** Marks the tile's data as old, with since when, such as "3 Nov": the tile greys out and says so. */
   stale?: React.ReactNode
 }
@@ -104,9 +106,9 @@ const COLUMNS: Record<number, string> = {
 export interface SectionCardsProps {
   items: SectionCard[]
   /** The label of the picked tile. */
-  selected?: string
+  selected?: string | undefined
   /** Makes each tile one button, so keep tile content non-interactive; gets the label of the tile picked. */
-  onSelect?: (label: string) => void
+  onSelect?: ((label: string) => void) | undefined
 }
 
 export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {

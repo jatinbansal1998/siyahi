@@ -14,7 +14,7 @@ import { useDerivedColumnTitle } from "@siyahi/ui/components/registry/niko-table
  * column menu takes two clicks for the same. Use it as a column's `header`:
  * `header: () => <DataTableSortHeader />`; the title defaults to `meta.label`.
  */
-export function DataTableSortHeader<TData extends RowData>({ title }: { title?: string }) {
+export function DataTableSortHeader<TData extends RowData>({ title }: { title?: string | undefined }) {
   const { column } = useColumnHeaderContext<TData, unknown>(true);
   const label = useDerivedColumnTitle(column, column.id, title);
   const sorted = column.getIsSorted();

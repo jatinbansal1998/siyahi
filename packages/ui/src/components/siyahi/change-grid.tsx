@@ -8,9 +8,9 @@ export interface ChangeGridRow {
   /** One figure per column, in column order; null where there is none, such as a month still to come. NaN counts as none. */
   values: readonly (number | null)[];
   /** The row's total as the page works it out: monthly returns compound rather than add. Leave it out for no total. */
-  total?: number | null;
+  total?: number | null | undefined;
   /** Unique key when labels repeat. Defaults to `label`. */
-  key?: string;
+  key?: string | undefined;
 }
 
 export interface ChangeGridProps {
@@ -18,14 +18,14 @@ export interface ChangeGridProps {
   columns: readonly string[];
   rows: readonly ChangeGridRow[];
   /** "pct" takes fractions, 0.025 for 2.5%; "money" takes amounts, written short in one unit. */
-  format?: "pct" | "money";
+  format?: "pct" | "money" | undefined;
   /** The change that takes the deepest tint, as a size. Defaults to the grid's largest, totals aside. */
-  range?: number;
+  range?: number | undefined;
   /** Heads the total column, which draws when any row has a total. */
-  totalLabel?: string;
+  totalLabel?: string | undefined;
   /** Names the table for a screen reader, such as "Monthly sales growth by year". */
   label: string;
-  className?: string;
+  className?: string | undefined;
 }
 
 const MINUS = "−";

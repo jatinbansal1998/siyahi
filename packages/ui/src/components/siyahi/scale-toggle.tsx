@@ -9,11 +9,11 @@ export interface ScaleToggleProps {
   /** The group's accessible name, such as "Share of book scale". */
   label: string;
   /** The axis' name shown before the buttons, for a card with a toggle on each axis. */
-  caption?: string;
+  caption?: string | undefined;
   value: AxisScale;
   onValueChange: (scale: AxisScale) => void;
   /** Why log cannot draw this data, such as a value at or below zero: Log is disabled and this shows beside it. */
-  logBlocked?: string;
+  logBlocked?: string | undefined;
 }
 
 /** Linear and Log buttons for one chart axis, in the header's toggle style. */

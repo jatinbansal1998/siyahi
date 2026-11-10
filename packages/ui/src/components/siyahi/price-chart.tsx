@@ -6,7 +6,7 @@ export interface PriceChartProps {
   /** Fixed height in pixels. */
   height: number;
   /** TradingView's licence asks for a credit on the page; turn it off on the second chart. */
-  credit?: boolean;
+  credit?: boolean | undefined;
 }
 
 // Lightweight Charts parses colours through getComputedStyle, which keeps

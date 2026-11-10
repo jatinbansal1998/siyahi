@@ -5,6 +5,8 @@
 // Siyahi edit: the "Column Sort" label and its items sit in a
 // DropdownMenuGroup. Base UI's Menu.GroupLabel throws outside a Menu.Group,
 // which crashed the menu on open.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -63,10 +65,10 @@ export function TableColumnSortOptions<TData extends RowData, TValue>({
   withSeparator = true,
 }: {
   column: DataTableColumn<TData, TValue>
-  table?: DataTableInstance<TData>
-  variant?: SortIconVariant
+  table?: DataTableInstance<TData> | undefined
+  variant?: SortIconVariant | undefined
   /** Whether to render a separator before the options. @default true */
-  withSeparator?: boolean
+  withSeparator?: boolean | undefined
 }) {
   const context = useDataTable<TData>()
   const table = propTable || context.table
@@ -209,9 +211,9 @@ export function TableColumnSortMenu<TData extends RowData, TValue>({
   className,
 }: {
   column: DataTableColumn<TData, TValue>
-  table?: DataTableInstance<TData>
-  variant?: SortIconVariant
-  className?: string
+  table?: DataTableInstance<TData> | undefined
+  variant?: SortIconVariant | undefined
+  className?: string | undefined
 }) {
   const context = useDataTable<TData>()
   const table = propTable || context.table

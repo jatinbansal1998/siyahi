@@ -4,7 +4,7 @@ import { TONES, type Tone } from "@siyahi/ui/lib/tone";
 
 export interface CalloutProps extends Omit<ComponentProps<"aside">, "title"> {
   /** neutral for an aside, accent for a key point, warning for a caution, positive or negative for a gain or a loss. */
-  tone?: Tone;
+  tone?: Tone | undefined;
   /** A lucide icon, drawn in the tone's colour. */
   icon?: ReactNode;
   title?: ReactNode;

@@ -27,6 +27,8 @@
 // outline, 3:1 on the card where the grey alone is 1.5:1, and a no-data day's
 // outline is dashed, so the two differ by more than a faint fill. The legend
 // wraps, so four states fit a narrow phone.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -62,28 +64,28 @@ type StatusHeatmapContextType = {
   width: number;
   height: number;
   dateFormat: string;
-  locale?: Locale;
-  colors?: StatusColorConfig;
+  locale?: Locale | undefined;
+  colors?: StatusColorConfig | undefined;
 };
 
 export type StatusHeatmapLabels = {
   statuses?: Record<number, string> & {
-    noData?: string;
-    critical?: string;
-    degraded?: string;
-    healthy?: string;
-  };
-  stat?: string; // Stat text template. Placeholder: {{value}}
-  cellLabel?: string; // aria-label template. Placeholders: {{date}}, {{status}}
-  heatmapLabel?: string; // aria-label for the heatmap SVG
-  legendLabel?: string; // aria-label for the legend fieldset
+    noData?: string | undefined;
+    critical?: string | undefined;
+    degraded?: string | undefined;
+    healthy?: string | undefined;
+  } | undefined;
+  stat?: string | undefined; // Stat text template. Placeholder: {{value}}
+  cellLabel?: string | undefined; // aria-label template. Placeholders: {{date}}, {{status}}
+  heatmapLabel?: string | undefined; // aria-label for the heatmap SVG
+  legendLabel?: string | undefined; // aria-label for the legend fieldset
 };
 
 export type StatusColorConfig = Record<number, string> & {
-  noData?: string;
-  critical?: string;
-  degraded?: string;
-  healthy?: string;
+  noData?: string | undefined;
+  critical?: string | undefined;
+  degraded?: string | undefined;
+  healthy?: string | undefined;
 };
 
 // Siyahi edit: the defaults name the theme's colours instead of fixed Tailwind
@@ -162,7 +164,7 @@ const DegradedGradient = ({
   healthyValue,
 }: {
   id: string;
-  colors?: StatusColorConfig;
+  colors?: StatusColorConfig | undefined;
   healthyValue: StatusValue;
 }) => (
   <defs>
@@ -212,20 +214,20 @@ const useStatusHeatmap = () => {
 
 export type StatusHeatmapProps = HTMLAttributes<HTMLDivElement> & {
   data: StatusActivity[];
-  dateFormat?: string;
-  blockSize?: number;
-  blockMargin?: number;
-  blockRadius?: number;
-  blockAspectRatio?: number;
-  colors?: StatusColorConfig;
-  locale?: Locale;
-  labels?: StatusHeatmapLabels;
-  fontSize?: number;
+  dateFormat?: string | undefined;
+  blockSize?: number | undefined;
+  blockMargin?: number | undefined;
+  blockRadius?: number | undefined;
+  blockAspectRatio?: number | undefined;
+  colors?: StatusColorConfig | undefined;
+  locale?: Locale | undefined;
+  labels?: StatusHeatmapLabels | undefined;
+  fontSize?: number | undefined;
   emptyState?: ReactNode;
-  statusValues?: StatusValue[]; // Legend order. Defaults to [0, 1, 2, 3]
-  healthyValue?: StatusValue; // Value counted by the default StatusHeatmapStat compute. Default: 3
-  style?: CSSProperties;
-  className?: string;
+  statusValues?: StatusValue[] | undefined; // Legend order. Defaults to [0, 1, 2, 3]
+  healthyValue?: StatusValue | undefined; // Value counted by the default StatusHeatmapStat compute. Default: 3
+  style?: CSSProperties | undefined;
+  className?: string | undefined;
   children: ReactNode;
 };
 
@@ -383,13 +385,13 @@ export const StatusHeatmap = ({
 
 export type StatusHeatmapBlockProps = HTMLAttributes<SVGRectElement> & {
   /** The cell the page has picked: drawn with a ring and announced as pressed. */
-  selected?: boolean;
+  selected?: boolean | undefined;
   activity: StatusActivity;
   dayIndex: number;
-  highlighted?: boolean;
-  onCellClick?: (activity: StatusActivity) => void;
-  onCellHover?: (activity: StatusActivity | null) => void;
-  className?: string;
+  highlighted?: boolean | undefined;
+  onCellClick?: ((activity: StatusActivity) => void) | undefined;
+  onCellHover?: ((activity: StatusActivity | null) => void) | undefined;
+  className?: string | undefined;
 };
 
 export const StatusHeatmapBlock = ({
@@ -408,7 +410,7 @@ export const StatusHeatmapBlock = ({
   style: styleProp,
   ...props
 }: StatusHeatmapBlockProps & {
-  ref?: React.RefObject<SVGRectElement | null>;
+  ref?: React.RefObject<SVGRectElement | null> | undefined;
 }) => {
   const { blockSize, blockWidth, blockMargin, blockRadius, labels, colors, degradedId, healthyValue } =
     useStatusHeatmap();
@@ -486,10 +488,10 @@ export type StatusHeatmapBodyProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children"
 > & {
-  hideDateLabels?: boolean;
-  labelInterval?: number; // Show label every N days
-  className?: string;
-  labelClassName?: string;
+  hideDateLabels?: boolean | undefined;
+  labelInterval?: number | undefined; // Show label every N days
+  className?: string | undefined;
+  labelClassName?: string | undefined;
   children: (props: {
     activity: StatusActivity;
     dayIndex: number;
@@ -623,12 +625,12 @@ export type StatusHeatmapStatProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children"
 > & {
-  compute?: (data: StatusActivity[]) => number | string;
-  label?: string; // Template overriding labels.stat. Placeholder: {{value}}
-  children?: (result: {
+  compute?: ((data: StatusActivity[]) => number | string) | undefined;
+  label?: string | undefined; // Template overriding labels.stat. Placeholder: {{value}}
+  children?: ((result: {
     value: number | string;
     data: StatusActivity[];
-  }) => ReactNode;
+  }) => ReactNode) | undefined;
 };
 
 export const StatusHeatmapStat = ({
@@ -665,8 +667,8 @@ export type StatusHeatmapLegendProps = Omit<
   HTMLAttributes<HTMLFieldSetElement>,
   "children"
 > & {
-  labels?: StatusHeatmapLabels["statuses"];
-  children?: (props: { value: StatusValue; label: string }) => ReactNode;
+  labels?: StatusHeatmapLabels["statuses"] | undefined;
+  children?: ((props: { value: StatusValue; label: string }) => ReactNode) | undefined;
 };
 
 export const StatusHeatmapLegend = ({

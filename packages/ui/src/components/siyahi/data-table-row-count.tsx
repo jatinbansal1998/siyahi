@@ -6,7 +6,7 @@ export interface DataTableRowCountProps {
   /** What a row is, plural: "positions" prints "48 positions" while nothing is filtered. */
   unit: string;
   /** Rows before any filter. Defaults to the table's data; pass it when the page narrowed the data before the table. */
-  total?: number;
+  total?: number | undefined;
 }
 
 /** How many rows the filters leave: "12 of 48", or "48 positions" when they leave all. For a table toolbar, at its end. */

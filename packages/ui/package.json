@@ -47,7 +47,7 @@
   "scripts": {
     "build": "node ../tools/contrast.mjs styles/siyahi.css && vp pack",
     "prepublishOnly": "echo 'Publishing what the check job built; no build here.'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc -p test/types"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

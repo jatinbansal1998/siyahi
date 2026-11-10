@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 535691515901e13d70031ca63d4a295965de9b86b6b66a9d566f3e742d8cb134
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -46,7 +48,7 @@ function useDataTableEmptyState() {
 export interface DataTableEmptyStateProps {
   children: React.ReactNode
   isFiltered: boolean
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -80,7 +82,7 @@ export function DataTableEmptyState({
 
 export interface DataTableEmptyIconProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -108,7 +110,7 @@ DataTableEmptyIcon.displayName = "DataTableEmptyIcon"
 
 export interface DataTableEmptyMessageProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -150,7 +152,7 @@ DataTableEmptyMessage.displayName = "DataTableEmptyMessage"
 
 export interface DataTableEmptyFilteredMessageProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -191,7 +193,7 @@ DataTableEmptyFilteredMessage.displayName = "DataTableEmptyFilteredMessage"
 
 export interface DataTableEmptyActionsProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -219,7 +221,7 @@ DataTableEmptyActions.displayName = "DataTableEmptyActions"
 
 export interface DataTableEmptyTitleProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -246,7 +248,7 @@ DataTableEmptyTitle.displayName = "DataTableEmptyTitle"
 
 export interface DataTableEmptyDescriptionProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 }
 
 /**

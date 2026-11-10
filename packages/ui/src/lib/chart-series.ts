@@ -24,7 +24,7 @@ export interface ChartSeriesItem<T> {
   label: string;
   color: ChartColor;
   /** A bar below zero takes this colour instead, such as var(--negative) for a loss beside var(--positive). */
-  negativeColor?: ChartColor;
+  negativeColor?: ChartColor | undefined;
 }
 
 /**
@@ -38,12 +38,15 @@ export type ChartSeries<T> = readonly ChartSeriesItem<T>[];
  * A labelled line across the plot: a level on the value axis (y), such as a limit, or a point on the x axis, such
  * as an event. A level is dashed, an event solid.
  */
-export type ChartReferenceLine = ({ y: number; x?: never } | { x: number | string; y?: never }) & {
-  label?: string;
+export type ChartReferenceLine = (
+  | { y: number; x?: never | undefined }
+  | { x: number | string; y?: never | undefined }
+) & {
+  label?: string | undefined;
   /** "strong" draws it in the text colour, for the line that matters most; "muted" by default. */
-  emphasis?: "muted" | "strong";
+  emphasis?: "muted" | "strong" | undefined;
   /** Where the label sits against the line. Defaults to insideTopLeft. */
-  labelPosition?: "insideTopLeft" | "insideTopRight" | "insideBottomLeft" | "insideBottomRight";
+  labelPosition?: "insideTopLeft" | "insideTopRight" | "insideBottomLeft" | "insideBottomRight" | undefined;
 };
 
 /** What BarChartCard, AreaChartCard and LineChartCard all take. */
@@ -58,35 +61,35 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   xKey: K;
   series: ChartSeries<NoInfer<T>>;
   /** Categories to label, or tick positions with xDomain. Every named tick is drawn; other rows keep their marks and tooltips. */
-  xTicks?: readonly T[K][];
+  xTicks?: readonly T[K][] | undefined;
   /** The x axis ticks, and the tooltip's heading unless xTooltipFormatter is set. Defaults to the value as text. */
-  xFormatter?: (value: T[K]) => string;
+  xFormatter?: ((value: T[K]) => string) | undefined;
   /** The tooltip's heading, when it should say more than a tick: "19:34:13 IST, 10 s average" against "19:34". */
-  xTooltipFormatter?: (value: T[K]) => string;
+  xTooltipFormatter?: ((value: T[K]) => string) | undefined;
   /** A series' value in the tooltip, and the y axis unless yTickFormatter is set. Defaults to the locale's numbers. */
-  valueFormatter?: (value: number) => string;
+  valueFormatter?: ((value: number) => string) | undefined;
   /**
    * The y axis, when its ticks should be shorter than the tooltip's figures: moneyCompact against money. It gets the
    * axis' largest tick as `scale`, so moneyCompact writes every tick in one unit.
    */
-  yTickFormatter?: (value: number, scale: number) => string;
+  yTickFormatter?: ((value: number, scale: number) => string) | undefined;
   /**
    * A fixed range for the value axis, such as [0, 100] for a percentage. By default it fits the data; a bar
    * chart's always reaches zero.
    */
-  yDomain?: [number, number];
+  yDomain?: [number, number] | undefined;
   /** Where the value axis puts its ticks, such as [0, 25, 50, 75, 100]. */
-  yTicks?: readonly number[];
+  yTicks?: readonly number[] | undefined;
   /** Height of the plot and legend, in pixels. Sideways bars grow when wrapped tick details need more room. */
   height: number;
   /** A second line under each x tick, so a row's figure reads without a hover: "FY24" then "+₹1.2L". */
-  xTickDetail?: (row: T) => string;
+  xTickDetail?: ((row: T) => string) | undefined;
   /** A title under the x axis, such as "Hour of day (IST)". Not drawn on sideways bars. */
-  xLabel?: string;
+  xLabel?: string | undefined;
   /** A title beside the value axis, read bottom to top, such as "Orders". Not drawn on sideways bars. */
-  yLabel?: string;
+  yLabel?: string | undefined;
   /** Limits and events to mark on the plot. A zero line draws by itself when a value goes below zero. */
-  referenceLines?: readonly ChartReferenceLine[];
+  referenceLines?: readonly ChartReferenceLine[] | undefined;
   /** Shown in the plot's place, at its height, while the data loads or after it failed to. */
   placeholder?: ReactNode;
   /** Lines under the chart, such as a caption or a takeaway, in the card's footer. */
@@ -104,15 +107,15 @@ export interface LineMarksProps<T extends object, K extends keyof T> {
    * The x value from which the data is a forecast, such as the last month-end: each line goes dashed from it, a faint
    * hatched band labelled FORECAST covers the stretch, and the end dots are hollow.
    */
-  forecastFrom?: NoInfer<T[K]>;
+  forecastFrom?: NoInfer<T[K]> | undefined;
   /** The x value of today: a 1px rule in the link colour with a small TODAY label. */
-  today?: NoInfer<T[K]>;
+  today?: NoInfer<T[K]> | undefined;
 }
 
 /** A numeric x axis, for samples in time or any measure where a mark can sit between two rows. */
 export interface NumericXProps {
   /** The x axis runs over this range of the xKey field, which must hold numbers; without it the axis is one slot per row. */
-  xDomain?: [number, number];
+  xDomain?: [number, number] | undefined;
 }
 
 /** A value axis that may run on a log scale: lines and areas, which need not start at zero as bars must. */
@@ -122,9 +125,9 @@ export interface ValueScaleProps {
    * yScaleToggle is set. Log draws only when every value, and yDomain, is above zero; otherwise the axis is linear.
    * On log the axis ticks at 1, 2 and 5 inside yDomain, if given, and yTicks is not used.
    */
-  yScale?: AxisScale;
+  yScale?: AxisScale | undefined;
   /** Linear and Log buttons for the value axis in the header, after the action, so a reader can switch. */
-  yScaleToggle?: boolean;
+  yScaleToggle?: boolean | undefined;
 }
 
 /**

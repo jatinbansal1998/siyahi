@@ -5,6 +5,8 @@
 // Siyahi edit: narrow tables suspend horizontal freezing
 // while retaining the requested pinning for wider layouts, and expose the
 // compact-columns toggle.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -40,7 +42,7 @@ export type ScrollAlign = "auto" | "start" | "center" | "end"
 /** Scroll a row into view by its position in the current row model. */
 export type ScrollRowIntoView = (
   index: number,
-  opts?: { align?: ScrollAlign },
+  opts?: { align?: ScrollAlign | undefined },
 ) => void
 
 /**
@@ -64,9 +66,9 @@ export type ActiveCell = ActiveSelection | null
 
 export interface FlashRowsOptions {
   /** How long the highlight lasts, ms. Default 1400. */
-  durationMs?: number
+  durationMs?: number | undefined
   /** Scroll the first flashed row into view first. Default true. */
-  scrollIntoView?: boolean
+  scrollIntoView?: boolean | undefined
 }
 
 /**
@@ -288,8 +290,8 @@ export interface CompactColumns {
 interface DataTableProviderProps<TData extends RowData> {
   children: React.ReactNode
   table: DataTableInstance<TData>
-  columns?: DataTableColumnDef<TData>[]
-  isLoading?: boolean
+  columns?: DataTableColumnDef<TData>[] | undefined
+  isLoading?: boolean | undefined
   isCompact: boolean
   onWidthChange: (width: number) => void
   compactColumns: CompactColumns | null

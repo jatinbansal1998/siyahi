@@ -95,7 +95,14 @@ export function placeLabels(
 export interface ScatterQuadrants {
   x: number;
   y: number;
-  labels?: { topLeft?: string; topRight?: string; bottomLeft?: string; bottomRight?: string };
+  labels?:
+    | {
+        topLeft?: string | undefined;
+        topRight?: string | undefined;
+        bottomLeft?: string | undefined;
+        bottomRight?: string | undefined;
+      }
+    | undefined;
 }
 
 export type QuadrantLabels = ScatterQuadrants["labels"];
@@ -117,16 +124,17 @@ export const MAX_RADIUS = 20;
 const MIN_RADIUS = 3;
 
 /** A size that is not a positive number (NaN, Infinity, a negative) weighs nothing. */
-const weight = (p: { size?: number }) => (p.size !== undefined && Number.isFinite(p.size) && p.size > 0 ? p.size : 0);
+const weight = (p: { size?: number | undefined }) =>
+  p.size !== undefined && Number.isFinite(p.size) && p.size > 0 ? p.size : 0;
 
 /**
  * Each dot's radius. Area, not radius, follows size, so a holding twice as large has twice the ink. A size that weighs
  * nothing draws the smallest dot, so it cannot shrink or hide the others. Points without sizes all take `plain`.
  */
-export function dotSizes(points: readonly { size?: number }[], plain: number) {
+export function dotSizes(points: readonly { size?: number | undefined }[], plain: number) {
   const largest = points.reduce((most, p) => Math.max(most, weight(p)), 0);
   const sized = points.some((p) => p.size !== undefined);
-  const radiusOf = (p: { size?: number }) => {
+  const radiusOf = (p: { size?: number | undefined }) => {
     if (!sized || p.size === undefined) return plain;
     // Every size bad leaves nothing to scale against: each dot is the smallest.
     return largest > 0 ? Math.max(MIN_RADIUS, MAX_RADIUS * Math.sqrt(weight(p) / largest)) : MIN_RADIUS;

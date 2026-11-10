@@ -5,8 +5,8 @@ import { useFormat } from "@siyahi/ui/lib/format";
 export interface DeltaProps {
   /** The signed change. For `pct`, a fraction: 0.025 is 2.5%. */
   value: number;
-  format?: "pct" | "money";
-  className?: string;
+  format?: "pct" | "money" | undefined;
+  className?: string | undefined;
 }
 
 const MINUS = "−";

@@ -10,9 +10,9 @@ export interface ChangeBarProps {
    * Draws the bar from a centre line, losses leftward and gains rightward. Pass it when the column holds both signs:
    * rows.some((row) => row.change < 0) && rows.some((row) => row.change > 0).
    */
-  diverging?: boolean;
-  format?: DeltaProps["format"];
-  className?: string;
+  diverging?: boolean | undefined;
+  format?: DeltaProps["format"] | undefined;
+  className?: string | undefined;
 }
 
 /**

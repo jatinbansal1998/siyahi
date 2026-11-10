@@ -14,6 +14,8 @@
 // direction of the last move; a whole line in green or red read loud in a row
 // of tiles. The dot needs 3px of room past the plot's ends. Lines are straight,
 // so the last step lies exactly on the run.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 import { Area, AreaChart, Line, LineChart, ResponsiveContainer, YAxis } from "recharts"
 
@@ -23,18 +25,18 @@ import type { ChartColor } from "@siyahi/ui/lib/chart-series"
 export interface SparklineProps extends React.ComponentProps<"div"> {
   /** Series to plot, oldest first. */
   data: number[]
-  variant?: "area" | "line"
+  variant?: "area" | "line" | undefined
   /**
    * The last step and the dot on the latest value: a chart slot, or var(--positive) or var(--negative) for a gain or
    * a loss. Defaults to var(--chart-1). The run before it is muted.
    */
-  color?: ChartColor
-  curve?: "monotone" | "linear" | "step"
+  color?: ChartColor | undefined
+  curve?: "monotone" | "linear" | "step" | undefined
   /** The run's line; the last step is 2px. */
-  strokeWidth?: number
+  strokeWidth?: number | undefined
   /** Animate after hydration and when data changes. Respects reduced motion. */
-  animate?: boolean
-  animationDuration?: number
+  animate?: boolean | undefined
+  animationDuration?: number | undefined
 }
 
 const reducedMotionQuery = "(prefers-reduced-motion: reduce)"
@@ -84,7 +86,7 @@ function Sparkline({
       dataKey="now"
       stroke={color}
       strokeWidth={2}
-      dot={(dot: { cx?: number; cy?: number; index?: number }) =>
+      dot={(dot: { cx?: number | undefined; cy?: number | undefined; index?: number | undefined }) =>
         dot.index === data.length - 1 ? (
           <circle key="now" cx={dot.cx} cy={dot.cy} r={3} fill={color} />
         ) : (

@@ -81,15 +81,15 @@ export interface HistogramChartCardProps extends Pick<
   /** The raw values, one per item, such as each request's response time. */
   values: readonly number[];
   /** About how many buckets; the width is rounded, so the count varies a little. */
-  bins?: number;
+  bins?: number | undefined;
   /** Writes the bucket edges and the marks, such as (v) => `${v} ms`. Defaults to the locale's numbers. */
-  valueFormatter?: (value: number) => string;
+  valueFormatter?: ((value: number) => string) | undefined;
   /** The bucket edges under the axis, when they should be shorter than valueFormatter: 1,000 against 1,000 ms. */
-  tickFormatter?: (value: number) => string;
+  tickFormatter?: ((value: number) => string) | undefined;
   /** What is counted, in the legend and tooltip, such as "Requests". */
-  countLabel?: string;
+  countLabel?: string | undefined;
   /** Percentiles to mark with a line at their bucket; their exact values are written under the chart. */
-  marks?: readonly HistogramMark[];
+  marks?: readonly HistogramMark[] | undefined;
 }
 
 const NO_MARKS: readonly HistogramMark[] = [];

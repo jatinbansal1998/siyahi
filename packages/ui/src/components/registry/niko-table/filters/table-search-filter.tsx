@@ -5,6 +5,8 @@
 // Siyahi edit: a `label` prop names the field for screen readers, so two
 // tables on one page are told apart; upstream always says "Search table".
 // Siyahi edit: constrain the search field to its card on narrow screens.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 import { Input } from "@siyahi/ui/components/ui/input"
 import { Button } from "@siyahi/ui/components/ui/button"
@@ -15,13 +17,13 @@ import type { DataTableInstance } from "../types"
 import type { RowData } from "@tanstack/react-table"
 export interface TableSearchFilterProps<TData extends RowData> {
   table: DataTableInstance<TData>
-  className?: string
-  placeholder?: string
+  className?: string | undefined
+  placeholder?: string | undefined
   /** The field's accessible name, such as "Filter holdings". */
-  label?: string
-  showClearButton?: boolean
-  onChange?: (value: string) => void
-  value?: string
+  label?: string | undefined
+  showClearButton?: boolean | undefined
+  onChange?: ((value: string) => void) | undefined
+  value?: string | undefined
   /**
    * Debounce ms before pushing the typed value into table state. The
    * input reflects keystrokes immediately; only the call to
@@ -40,7 +42,7 @@ export interface TableSearchFilterProps<TData extends RowData> {
    *
    * @default 0
    */
-  debounceMs?: number
+  debounceMs?: number | undefined
 }
 
 export function TableSearchFilter<TData extends RowData>({

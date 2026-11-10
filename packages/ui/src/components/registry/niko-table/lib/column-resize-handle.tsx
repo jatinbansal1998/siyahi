@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 11b008fb0691ce787f9033af5ad89fd8fd38ca80bbae77a5dda3078a6a872437
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -101,15 +103,15 @@ export interface DataTableColumnResizeHandleProps<TData extends RowData> {
    * from the rendered width (no jump) and, on release, writes an explicit width
    * — which pins the column and hands the fill to the next eligible column.
    */
-  isFlex?: boolean
+  isFlex?: boolean | undefined
   /**
    * Drive the resize preview line during a flex drag (from the DataTable
    * context). Passed `{ resizingColumnId, deltaOffset }` while dragging, `null`
    * on release.
    */
-  setResizePreview?: (
+  setResizePreview?: ((
     info: { resizingColumnId: string | null; deltaOffset: number } | null,
-  ) => void
+  ) => void) | undefined
 }
 
 export function DataTableColumnResizeHandle<TData extends RowData>({

@@ -17,6 +17,8 @@
 // Siyahi edit: an item's optional detail (a secondary figure such as a Delta)
 // renders after its label, outside the link, and does not shrink, so a long
 // label truncates before the figure does.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
@@ -30,25 +32,25 @@ export interface BarListItem {
   name: string
   value: number
   /** Renders the label as a link. */
-  href?: string
+  href?: string | undefined
   icon?: React.ReactNode
   /** Secondary figure after the label, such as a `Delta`. */
   detail?: React.ReactNode
   /** Stable key when names can repeat. */
-  key?: string
+  key?: string | undefined
 }
 
 export interface BarListProps extends React.ComponentProps<"div"> {
   data: BarListItem[]
-  valueFormatter?: (value: number) => string
-  sortOrder?: "descending" | "ascending" | "none"
+  valueFormatter?: ((value: number) => string) | undefined
+  sortOrder?: "descending" | "ascending" | "none" | undefined
   /** Any CSS color. Defaults to chart-1. */
-  color?: string
+  color?: string | undefined
   /** Show each row's share of the total next to its value. */
-  showPercentage?: boolean
+  showPercentage?: boolean | undefined
   /** The value a full-width bar stands for. Give two lists the same max to draw them on one scale. Defaults to the largest value. */
-  max?: number
-  onItemClick?: (item: BarListItem) => void
+  max?: number | undefined
+  onItemClick?: ((item: BarListItem) => void) | undefined
 }
 
 function BarList({

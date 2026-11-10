@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "cn";
 
 /** Label and value pairs, such as a record's fields in a card. */
-export function DataList({ className, children }: { className?: string; children: ReactNode }) {
+export function DataList({ className, children }: { className?: string | undefined; children: ReactNode }) {
   return <dl className={cn("flex flex-col gap-4", className)}>{children}</dl>;
 }
 

@@ -18,6 +18,17 @@ exactly what `shadcn add` wrote. They are not formatted or linted, so
 `shadcn add --overwrite <name>` can refresh them at any time. To change how a
 component looks, change the theme; to change what it does, compose it.
 
+## Optional props
+
+Write every optional property as `name?: T | undefined`. A page compiled with
+`exactOptionalPropertyTypes` (The Book is) passes a prop it sets only
+sometimes as `tone: loss ? "negative" : undefined`, which `tone?: T` alone
+rejects. `siyahi/optional-accepts-undefined` enforces it across the package,
+add-ons included, and `pnpm lint --fix` writes it.
+`packages/ui/test/types/exact-optional-page.ts` is such a page, compiled
+against the built package by `typecheck`. shadcn core is not edited, so its
+own optional props stay as shadcn wrote them.
+
 ## Registry add-ons
 
 An add-on from a third-party registry is copied once and then ours to edit.

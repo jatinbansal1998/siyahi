@@ -16,19 +16,19 @@ export interface TargetRow {
   value: number;
   target: number;
   /** Qualitative ranges behind the bar as [from, to]; each later band draws a grey step darker, so nest them. */
-  bands?: [number, number][];
-  status?: TargetStatus;
+  bands?: [number, number][] | undefined;
+  status?: TargetStatus | undefined;
   /** Tells rows apart when labels are not plain unique text. */
-  key?: string;
+  key?: string | undefined;
 }
 
 export interface TargetRowsProps {
   rows: TargetRow[];
   /** The scale every row shares; by default 0 to the largest value, target or band edge. */
-  domain?: [number, number];
+  domain?: [number, number] | undefined;
   /** Writes the value and the target; useFormat().count by default. */
-  valueFormatter?: (value: number) => string;
-  className?: string;
+  valueFormatter?: ((value: number) => string) | undefined;
+  className?: string | undefined;
 }
 
 const GLYPH = { met: "✓", missed: "—", warning: "⚠" } as const;

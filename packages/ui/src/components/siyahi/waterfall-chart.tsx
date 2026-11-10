@@ -11,7 +11,7 @@ import type { ChartColor, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
  */
 export type WaterfallStep =
   | { kind: "change"; label: string; value: number }
-  | { kind: "total"; label: string; value?: number };
+  | { kind: "total"; label: string; value?: number | undefined };
 
 /** A step as drawn: the running total after it, and the span its bar covers. */
 export interface WaterfallBar {
@@ -71,9 +71,9 @@ export interface WaterfallChartCardProps extends Pick<
   /** The bars in order: usually a total to start from, the changes, and a total to end on. */
   steps: readonly WaterfallStep[];
   /** Bars run sideways with the labels down the left, for long names such as product categories. */
-  horizontal?: boolean;
+  horizontal?: boolean | undefined;
   /** What the legend calls each kind of bar. */
-  labels?: { rise: string; fall: string; total: string };
+  labels?: { rise: string; fall: string; total: string } | undefined;
 }
 
 const COLOR: Record<WaterfallBar["kind"], ChartColor> = {

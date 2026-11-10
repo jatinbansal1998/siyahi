@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 754af96d81030c85887fd4e866060197cf80c0af4dc4204d7bde69b4b49d8f2a
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -31,8 +33,8 @@ export function TableColumnTitle<TData extends RowData, TValue>({
   children,
 }: {
   column: DataTableColumn<TData, TValue>
-  title?: string
-  className?: string
+  title?: string | undefined
+  className?: string | undefined
   children?: React.ReactNode
 }) {
   const derivedTitle = useDerivedColumnTitle(column, column.id, title)

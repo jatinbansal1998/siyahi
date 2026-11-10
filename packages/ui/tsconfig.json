@@ -14,5 +14,7 @@
       "@siyahi/ui/*": ["./src/*"]
     }
   },
-  "include": ["src", "scripts", "test", "vite.config.ts"]
+  "include": ["src", "scripts", "test", "vite.config.ts"],
+  // A page of its own, compiled against the built package with exactOptionalPropertyTypes (test/types/tsconfig.json).
+  "exclude": ["test/types"]
 }

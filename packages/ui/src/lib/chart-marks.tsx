@@ -184,9 +184,9 @@ interface TimeMarksProps<T extends object, K extends keyof T> {
   data: readonly T[];
   xKey: K;
   /** The x value from which the data is a forecast. */
-  forecastFrom?: T[K];
+  forecastFrom?: T[K] | undefined;
   /** The x value of today. */
-  today?: T[K];
+  today?: T[K] | undefined;
   /** Prefix of the clip paths the series' actual and forecast copies use (`<id>-actual`, `<id>-forecast`). */
   clipId: string;
   /** Hatch the forecast stretch; a stack's fills already cover it, so a stacked chart only labels it. */

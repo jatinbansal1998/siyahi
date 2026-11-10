@@ -4,6 +4,8 @@
 // Copied: 2026-10-20, sha256 c3681e651f5c5aefd0d8a8046c0c173056ea7805c93e9e12848902862b9db5c7
 // Siyahi edit: the table primitive comes from niko's own copy in ../ui/table,
 // not shadcn core's table.tsx, which has no TableComponent export.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import { flexRender, type RowData } from "@tanstack/react-table"
 import { ChevronRight } from "lucide-react"
 import React from "react"
@@ -138,12 +140,12 @@ export interface GroupedBodyRowProps<TData extends RowData = RowData> {
    * usually a different height from a leaf row, so it has to be measured
    * rather than assumed — without this the rows below it drift.
    */
-  measureRef?: (node: HTMLTableRowElement | null) => void
+  measureRef?: ((node: HTMLTableRowElement | null) => void) | undefined
   /**
    * Virtualized bodies only: the row's index in the virtual window, which the
    * virtualizer reads back off the DOM as `data-index`.
    */
-  virtualIndex?: number
+  virtualIndex?: number | undefined
 }
 
 export const GroupedBodyRow = React.memo(function GroupedBodyRow<

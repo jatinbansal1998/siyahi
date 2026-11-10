@@ -4,6 +4,8 @@
 // Copied: 2026-10-20, sha256 bce8a7e8692ff6f78ad65349cb5e70b8122c0d65337a6b3ae39d0407471bfbf7
 // Siyahi edit: the row is passed as Base UI's render prop, so it is not
 // wrapped in a <div> inside <tbody>.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 import * as React from "react"
@@ -39,7 +41,7 @@ export interface DataTableRowContextMenuProps {
    */
   children: React.ReactNode
   /** Extra className for the popup surface. */
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -73,7 +75,7 @@ export function DataTableRowContextMenu({
   const [open, setOpen] = React.useState(false)
   const anchoredTrigger = open
     ? React.cloneElement(
-        trigger as React.ReactElement<{ "data-context-menu-open"?: string }>,
+        trigger as React.ReactElement<{ "data-context-menu-open"?: string | undefined }>,
         { "data-context-menu-open": "" },
       )
     : trigger

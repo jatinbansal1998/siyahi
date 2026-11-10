@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 069088cfee823288495fe893376cd226b70b05fdad03d640f0b21e9eef57d09c
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -32,17 +34,17 @@ export interface DataTableErrorBoundaryProps {
   /**
    * Callback fired when an error is caught
    */
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+  onError?: ((error: Error, errorInfo: React.ErrorInfo) => void) | undefined
   /**
    * Whether to show a reset button
    * @default true
    */
-  showResetButton?: boolean
+  showResetButton?: boolean | undefined
   /**
    * Custom reset button text
    * @default "Try Again"
    */
-  resetButtonText?: string
+  resetButtonText?: string | undefined
 }
 
 interface DataTableErrorBoundaryState {

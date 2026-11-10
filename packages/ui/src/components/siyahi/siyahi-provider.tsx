@@ -15,12 +15,12 @@ const SurfaceContext = createContext<Surface>("ruled");
 
 export interface SiyahiProviderProps {
   /** Any setting left out keeps its default: en-IN, INR, Asia/Kolkata. */
-  locale?: Partial<SiyahiLocale>;
+  locale?: Partial<SiyahiLocale> | undefined;
   /**
    * Set it on a nested provider for one part of a page. Left out, a provider keeps the surface around it, so a
    * provider that only changes the locale changes nothing else; the outermost default is "ruled".
    */
-  surface?: Surface;
+  surface?: Surface | undefined;
   children: ReactNode;
 }
 

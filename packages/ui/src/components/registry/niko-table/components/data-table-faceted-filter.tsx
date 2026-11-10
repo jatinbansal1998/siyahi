@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-faceted-filter.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 c16d04f3dbb792defdc82b386fb3961af6c6fd70858a980dcb93223260cb03b7
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
 import {
   TableFacetedFilter,
@@ -27,28 +29,28 @@ type DataTableFacetedFilterProps<TData extends RowData, TValue> = Omit<
   /**
    * Optional title override (if not provided, will use column.meta.label)
    */
-  title?: string
+  title?: string | undefined
   /**
    * Static options (if provided, will be used instead of dynamic generation)
    */
-  options?: Option[]
+  options?: Option[] | undefined
   /**
    * Whether to show counts for each option
    * @default true
    */
-  showCounts?: boolean
+  showCounts?: boolean | undefined
   /**
    * Whether to update counts based on other active filters
    * @default true
    */
-  dynamicCounts?: boolean
+  dynamicCounts?: boolean | undefined
   /**
    * If true, only show options that exist in the currently filtered table rows.
    * If false, show all options from the entire dataset (useful for multi-select filters
    * where you want to see all possible options even if they're not in the current filtered results).
    * @default !multiple (true for single-select, false for multi-select)
    */
-  limitToFilteredRows?: boolean
+  limitToFilteredRows?: boolean | undefined
 }
 
 /**
@@ -88,11 +90,11 @@ type DataTableFacetedFilterProps<TData extends RowData, TValue> = Omit<
 interface UseFacetedOptionsArgs<TData extends RowData> {
   table: DataTableInstance<TData>
   accessorKey: string
-  options?: Option[]
+  options?: Option[] | undefined
   showCounts: boolean
   dynamicCounts: boolean
   limitToFilteredRows: boolean
-  precomputedOptions?: Record<string, Option[]>
+  precomputedOptions?: Record<string, Option[]> | undefined
 }
 
 // Resolves option list in priority order: 1) caller `options`, 2) meta-aware
@@ -213,11 +215,11 @@ function useFacetedFilterSetup<TData extends RowData>({
   title,
 }: {
   accessorKey: string
-  options?: Option[]
+  options?: Option[] | undefined
   showCounts: boolean
   dynamicCounts: boolean
   limitToFilteredRows: boolean
-  title?: string
+  title?: string | undefined
 }) {
   const { table, generatedOptionsMap } = useDataTable<TData>()
   const column = table.getColumn(accessorKey)

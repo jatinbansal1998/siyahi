@@ -10,6 +10,8 @@
 // positive z-index paints over the table instead of under it.
 // Siyahi edit: the scrolling region is named and keyboard focusable, so every
 // column remains reachable without a pointer.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 /**
@@ -72,20 +74,20 @@ export interface DataTableContainerProps extends React.AriaAttributes {
    * and applied as inline styles to ensure scroll event callbacks work reliably.
    * For other height utilities, use the height/maxHeight props directly.
    */
-  className?: string
+  className?: string | undefined
   /**
    * Sets the height of the table container.
    * When provided, enables vertical scrolling and allows DataTableBody/DataTableVirtualizedBody
    * to use onScroll, onScrolledTop, and onScrolledBottom callbacks.
    * Takes precedence over height utilities in className.
    */
-  height?: number | string
+  height?: number | string | undefined
   /**
    * Sets the maximum height of the table container.
    * Defaults to the height value if not specified.
    * Takes precedence over max-height utilities in className.
    */
-  maxHeight?: number | string
+  maxHeight?: number | string | undefined
 }
 
 /**

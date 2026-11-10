@@ -5,7 +5,7 @@ import { TONES, type Tone } from "@siyahi/ui/lib/tone";
 
 export interface StatusBadgeProps extends Omit<ComponentProps<typeof Badge>, "variant"> {
   /** positive for done or paid, warning for pending, negative for failed, accent for new, neutral for a draft. */
-  tone?: Tone;
+  tone?: Tone | undefined;
 }
 
 /**

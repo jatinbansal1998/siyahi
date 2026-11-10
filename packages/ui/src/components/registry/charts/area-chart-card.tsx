@@ -23,6 +23,8 @@
 // Linear and Log buttons in the header (lib/chart-frame), for values that run
 // from tiny to large. Stacked areas add up from zero, so their Log is off.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
+// Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
+// page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 "use client"
 
 import { Fragment } from "react"
@@ -44,8 +46,8 @@ export interface AreaChartCardProps<T extends object, K extends keyof T>
     ValueScaleProps,
     LineMarksProps<T, K> {
   /** Stack the series into a total instead of overlapping them. */
-  stacked?: boolean
-  curve?: ChartCurve
+  stacked?: boolean | undefined
+  curve?: ChartCurve | undefined
 }
 
 /**

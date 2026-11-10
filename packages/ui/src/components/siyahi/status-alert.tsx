@@ -14,7 +14,7 @@ const ICONS = {
 
 export interface StatusAlertProps extends Omit<ComponentProps<typeof Alert>, "variant"> {
   /** neutral for information, warning for a caution, negative for an error, positive for a success. */
-  tone?: Tone;
+  tone?: Tone | undefined;
 }
 
 /**
