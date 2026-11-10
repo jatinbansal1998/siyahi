@@ -26,6 +26,8 @@
 // Siyahi edit: data-slot="metric-strip" sits on the strip inside the card,
 // not on the Card, where it replaced the card's own slot and so hid the
 // strip from the theme's surface rule, which finds cards by that slot.
+// Siyahi edit: `tone` marks a figure as the exception, as on a SectionCards
+// tile: the theme washes its tile in the tone and outlines it.
 import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
@@ -54,6 +56,8 @@ export interface MetricStripItem {
   note?: React.ReactNode
   /** Recent values, oldest first, drawn as a sparkline beside the figure. */
   trend?: number[]
+  /** Marks the figure as the exception on the page: a faint wash of the colour and an outline of it. */
+  tone?: "negative" | "warning"
 }
 
 export interface MetricStripProps extends Omit<React.ComponentProps<typeof Card>, "title"> {
@@ -112,6 +116,7 @@ function MetricStrip({
               <div
                 key={item.label}
                 data-slot="metric-strip-item"
+                data-tone={item.tone}
                 className={cn("flex min-w-0 flex-col gap-1.5 border-e border-b px-4 py-4", columns)}
               >
                 <div className="truncate font-mono text-2xs tracking-wider text-muted-foreground uppercase">{item.label}</div>

@@ -88,7 +88,7 @@ export const blocks: Page = {
           name: "items",
           type: "MetricStripItem[]",
           purpose:
-            "{ label, value, change?, changeFormat?, note?, trend? } per figure; change draws as a Delta and colours the trend.",
+            '{ label, value, change?, changeFormat?, note?, trend?, tone? } per figure; change draws as a Delta and colours the trend; tone "negative" or "warning" marks the figure that needs a look.',
         },
         { name: "title", type: "ReactNode", default: "—", purpose: "Optional, for a strip heading a page." },
         { name: "description", type: "ReactNode", default: "—", purpose: "A muted line under the title." },
@@ -112,7 +112,8 @@ export const blocks: Page = {
       examples: [
         {
           name: "metric-strip",
-          caption: "Six figures for October with their changes, sparklines and a period toggle.",
+          caption:
+            "Six figures for October with their changes, sparklines and a period toggle; the cash flow is marked negative.",
         },
       ],
     },

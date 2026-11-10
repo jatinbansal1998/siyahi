@@ -36,6 +36,9 @@ const products: Product[] = [
   { product: "Desk lamp", category: "Lighting", units: 900, revenue: 255600, change: 0.009 },
 ];
 
+// The page's own rule for a product that needs a look; a falling figure alone would not be one.
+const tone = (product: Product): "warning" | undefined => (product.units < 50 ? "warning" : undefined);
+
 // One click sorts largest (or Z) first; the title comes from meta.label.
 const header = () => <DataTableSortHeader />;
 
@@ -87,7 +90,7 @@ export default function DataTableExample() {
           </DataTableToolbarSection>
           <DataTable aria-label="Products">
             <DataTableHeader />
-            <DataTableBody />
+            <DataTableBody getRowTone={tone} />
           </DataTable>
         </DataTableRoot>
       </CardContent>
