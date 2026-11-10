@@ -64,7 +64,7 @@ const columns: DataTableColumnDef<Product>[] = [
     accessorKey: "change",
     header,
     size: 110,
-    meta: { label: "Week", variant: "number" },
+    meta: { label: "Change this week", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
   },
 ];
@@ -73,7 +73,7 @@ export default function DataTableCompactExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Products on a phone</CardTitle>
+        <CardTitle>Revenue by product</CardTitle>
         <CardDescription>
           Product and revenue are the key columns. When the columns do not fit, the others hide from the right, and the
           week's change rides under the revenue once its column is gone; All columns brings back the rest
@@ -85,7 +85,7 @@ export default function DataTableCompactExample() {
             <DataTableCompactColumnsToggle />
             <DataTableRowCount unit="products" />
           </DataTableToolbarSection>
-          <DataTable aria-label="Products on a phone">
+          <DataTable aria-label="Revenue by product">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

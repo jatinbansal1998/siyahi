@@ -14,7 +14,7 @@ const data = [
 
 const series: ChartSeries<(typeof data)[number]> = [
   { key: "used", label: "Used", color: "var(--chart-1)" },
-  { key: "anon", label: "Anon", color: "var(--chart-2)" },
+  { key: "anon", label: "Program memory", color: "var(--chart-2)" },
 ];
 
 const clock = (minute: number) => `${Math.floor(15 + minute / 60)}:${String(minute % 60).padStart(2, "0")}`;
@@ -23,7 +23,7 @@ export default function ChartLineTimelineExample() {
   return (
     <LineChartCard
       title="Memory in use, GiB"
-      description="sar -r. Used excludes cache; anon is program memory."
+      description="From sar -r. Used excludes the page cache; program memory is what sar calls anon."
       data={data}
       xKey="minute"
       // Ticks on both ends of the domain: the first sits at the plot's left edge.

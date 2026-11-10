@@ -26,8 +26,8 @@ export default function ChartBarExample() {
       title="Revenue by channel and quarter"
       description={
         layout === "grouped"
-          ? "All five chart colours side by side, in series order"
-          : "All five chart colours stacked into the quarter's total"
+          ? "Each channel's revenue, side by side"
+          : "Each channel's revenue, stacked into the quarter's total"
       }
       action={
         <ToggleGroup

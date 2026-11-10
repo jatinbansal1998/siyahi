@@ -8,7 +8,7 @@ export default function MetricStripExample() {
       label: "Revenue",
       value: money(4512300),
       change: 0.031,
-      note: "vs Sep",
+      note: "Against September",
       trend: [3820000, 3950000, 4110000, 4020000, 4380000, 4512300],
     },
     {

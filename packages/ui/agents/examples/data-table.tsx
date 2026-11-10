@@ -58,7 +58,7 @@ const columns: DataTableColumnDef<Product>[] = [
     accessorKey: "change",
     header,
     size: 110,
-    meta: { label: "Week", variant: "number" },
+    meta: { label: "Change this week", variant: "number" },
     cell: ({ row }) => <Delta value={row.original.change} />,
   },
 ];

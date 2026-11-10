@@ -55,7 +55,7 @@ const columns: DataTableColumnDef<Service>[] = [
     accessorKey: "today",
     header,
     size: 120,
-    meta: { label: "p95 today", variant: "number" },
+    meta: { label: "95th percentile today", variant: "number" },
     cell: ({ row }) => <Milliseconds value={row.original.today} />,
   },
   {

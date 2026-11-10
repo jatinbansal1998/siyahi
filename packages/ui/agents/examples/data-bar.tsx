@@ -60,7 +60,7 @@ const columns: DataTableColumnDef<Store>[] = [
     accessorKey: "change",
     header,
     size: 170,
-    meta: { label: "vs last month", variant: "number" },
+    meta: { label: "Change on last month", variant: "number" },
     cell: ({ row }) => (
       <DataBar value={row.original.change} max={largestChange} tone="sign">
         <Money amount={row.original.change} />
@@ -69,7 +69,7 @@ const columns: DataTableColumnDef<Store>[] = [
   },
   {
     id: "daily",
-    header: "10 days",
+    header: "Last 10 days",
     size: 110,
     enableSorting: false,
     cell: ({ row }) => {

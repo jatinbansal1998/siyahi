@@ -30,7 +30,7 @@ export default function DistributionBarTugExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>The tug-of-war</CardTitle>
+        <CardTitle>Campaigns earned ₹70,000 more than they lost</CardTitle>
         <CardDescription>Each finished campaign, losses left of break-even and gains right</CardDescription>
       </CardHeader>
       <CardContent>

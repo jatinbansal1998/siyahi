@@ -150,7 +150,7 @@ export const foundations: Page = {
           ))}
         </div>
       ),
-      examples: [{ name: "chart-bar", caption: "Three series taking --chart-1 to --chart-3 in order." }],
+      examples: [{ name: "chart-bar", caption: "Five series taking --chart-1 to --chart-5 in order." }],
     },
     {
       id: "heat",

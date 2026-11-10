@@ -55,7 +55,7 @@ layouts and product-specific logic belong in the consuming app.
   with bare `toLocaleString()`. Prose uses `max-w-prose`.
 - Follow the installed `DESIGN.md` (`node_modules/@siyahi/ui/DESIGN.md`)
   before designing or changing UI: its rules on colour, emphasis, surfaces,
-  shape and labels are binding. In short, colour carries meaning and emphasis
+  shape, labels and words are binding. In short, colour carries meaning and emphasis
   tints the whole box (`StatusAlert`, `StatusBadge`, `Callout`, `Quote`), never
   a stripe down one side. A page is ruled on white by default: set no surface
   unless the page is a set of separate blocks (`surface="card"`), and add no

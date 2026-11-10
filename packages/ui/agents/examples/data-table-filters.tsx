@@ -77,22 +77,22 @@ export default function DataTableFiltersExample() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Orders with compact filters</CardTitle>
-        <CardDescription>Search stays visible; secondary filters move into a panel in narrow space.</CardDescription>
+        <CardTitle>Open orders</CardTitle>
+        <CardDescription>Orders packed or out for delivery, by warehouse</CardDescription>
       </CardHeader>
       <CardContent>
         {/* The closed filter panel is absent at first render, so configure its features explicitly. */}
         <DataTableRoot data={data} columns={columns} config={{ enableFilters: true, enableSorting: true }}>
           <DataTableToolbarSection>
             <DataTableSearchFilter
-              label="Search compact example"
+              label="Search orders"
               placeholder="Search orders…"
               className="w-full flex-none sm:w-64"
             />
             <Filters />
             <DataTableRowCount unit="orders" />
           </DataTableToolbarSection>
-          <DataTable aria-label="Orders with compact filters">
+          <DataTable aria-label="Open orders">
             <DataTableHeader />
             <DataTableBody />
           </DataTable>

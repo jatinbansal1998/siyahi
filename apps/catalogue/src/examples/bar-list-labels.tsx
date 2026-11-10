@@ -12,7 +12,7 @@ export default function BarListLabelsExample() {
     <Card>
       <CardHeader>
         <CardTitle>Orders by category, ranked</CardTitle>
-        <CardDescription>Full labels and order counts stay readable in narrow panels</CardDescription>
+        <CardDescription>Orders placed this month in each category</CardDescription>
       </CardHeader>
       <CardContent>
         <BarList data={categories} valueFormatter={count} />

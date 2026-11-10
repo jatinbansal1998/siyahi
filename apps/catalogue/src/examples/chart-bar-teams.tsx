@@ -33,7 +33,7 @@ export default function ChartBarTeamsExample() {
   ];
   const gap = (row: Row) => {
     const points = Math.abs(row.actual - row.comparison) * 100;
-    return row.actual >= row.comparison ? `+${points.toFixed(1)} pts over` : `\u2212${points.toFixed(1)} pts under`;
+    return `${points.toFixed(1)} points ${row.actual >= row.comparison ? "over" : "under"}`;
   };
   return (
     <BarChartCard
@@ -57,7 +57,7 @@ export default function ChartBarTeamsExample() {
       horizontal
       data={rows}
       xKey="team"
-      xTickDetail={(row) => `${pct(row.actual)} vs ${pct(row.comparison)} · ${gap(row)}`}
+      xTickDetail={(row) => `${pct(row.actual)} against ${pct(row.comparison)} · ${gap(row)}`}
       series={series}
       valueFormatter={(v) => pct(v)}
       // A tick format puts the value axis along the bottom of the sideways bars.
