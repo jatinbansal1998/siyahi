@@ -26,10 +26,10 @@ export function ChangeBar({ value, max, diverging = false, format, className }: 
   return (
     <div data-slot="change-bar" className={cn("flex w-full flex-col items-end gap-1.5", className)}>
       <Delta value={value} format={format} className="font-medium" />
-      <div aria-hidden="true" className="relative h-0.75 w-full rounded-full bg-muted">
+      <div aria-hidden="true" className="relative h-0.75 w-full bg-muted">
         <div
           data-slot="change-bar-fill"
-          className="absolute inset-y-0 rounded-full bg-foreground"
+          className="absolute inset-y-0 bg-foreground"
           style={{ [side]: diverging ? "50%" : 0, width: `${share * half}%` }}
         />
         {diverging && <div className="absolute -inset-y-1 left-1/2 w-px -translate-x-1/2 bg-muted-foreground" />}

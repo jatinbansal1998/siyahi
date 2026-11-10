@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { Card } from "../src/components/ui/card";
 import { SectionCards } from "../src/components/registry/dashboard-01/section-cards";
+import { SiyahiProvider, type Surface } from "../src/components/siyahi/siyahi-provider";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -23,6 +24,25 @@ const surface = (className: string | undefined): string[] =>
 
 describe("SectionCards", () => {
   // The theme washes a card by its data-tone; a falling figure alone must not mark it, only the page's tone.
+  it("sets tiles 8px apart on a card surface and 16px apart on an open one", async () => {
+    const gaps: Record<string, string | undefined> = {};
+    for (const surface of ["card", "open"] satisfies Surface[]) {
+      root = createRoot(document.body.appendChild(document.createElement("div")));
+      await act(async () =>
+        root?.render(
+          <SiyahiProvider surface={surface}>
+            <SectionCards items={[{ label: "Invested", value: "₹40,25,000" }]} />
+          </SiyahiProvider>,
+        ),
+      );
+      const grid = document.querySelector('[data-slot="section-card"]')?.parentElement;
+      gaps[surface] = grid?.className.split(/\s+/).find((token) => token.startsWith("gap-"));
+      await act(async () => root?.unmount());
+      document.body.replaceChildren();
+    }
+    expect(gaps).toEqual({ card: "gap-2", open: "gap-4" });
+  });
+
   it("marks only the tile the page sets a tone on", async () => {
     root = createRoot(document.body.appendChild(document.createElement("div")));
     await act(async () =>

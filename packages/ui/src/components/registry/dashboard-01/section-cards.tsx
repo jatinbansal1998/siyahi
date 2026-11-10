@@ -39,7 +39,8 @@
 // size="sm", which would also shrink the figure to 14px.
 // Siyahi edit: a selectable tile focuses with an opaque ring, its only focus
 // sign; the half-strength ring was under 2:1 against the card.
-// Siyahi edit: square tiles 8px apart on the card surface; on a ruled one
+// Siyahi edit: square tiles 8px apart on the card surface (16px on an open
+// one, whose tiles have no box to part them); on a ruled one
 // each tile's cell is filled with the card colour, so the row stands off the
 // page, and the footer keeps its rule and band.
 // Siyahi edit: the label and the footer lines are small monospaced capitals
@@ -100,10 +101,11 @@ export interface SectionCardsProps {
 }
 
 export function SectionCards({ items, selected, onSelect }: SectionCardsProps) {
-  const ruled = useSurface() === "ruled"
+  const surface = useSurface()
+  const ruled = surface === "ruled"
   return (
     <div className={cn("@container/main", ruled && "overflow-hidden border-y")}>
-      <div className={cn("grid grid-cols-1", ruled ? "-mt-px -ml-px" : "gap-2", COLUMNS[items.length] ?? COLUMNS[4])}>
+      <div className={cn("grid grid-cols-1", ruled ? "-mt-px -ml-px" : surface === "open" ? "gap-4" : "gap-2", COLUMNS[items.length] ?? COLUMNS[4])}>
         {items.map((item) => (
           <div key={item.label} data-slot="section-card" className={cn("min-w-0", ruled && "border-t border-l bg-card")}>
             <Card

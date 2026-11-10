@@ -46,7 +46,7 @@ a meaning:
 - **Colour marks exceptions.** The one stat tile or table row that needs a look
   is marked by the page: `tone: "negative"` or `"warning"` on a `SectionCards`
   item, `data-tone="negative"` or `"warning"` on a `TableRow`. It takes a faint
-  wash of the colour over the card (7% in light, 15% in dark), and a tile an
+  wash of the colour over the card (7% in light, 12% in dark), and a tile an
   outline of it. The page decides, never the sign: a falling cost is good news.
   Mark one or two; a page where every row is washed marks nothing.
 
@@ -71,8 +71,10 @@ mono face and the link colour, so the text can point to one.
 ## Shape
 
 - **Square corners everywhere**: panels, cards, buttons, fields, badges,
-  toggles, menus (`--radius` is 0). Only a dot, an avatar or a slider thumb is
-  round. Never add a `rounded-*` class to a box.
+  toggles, menus, and bars and tracks (data bars, progress) alike (`--radius`
+  is 0). Only a dot, an avatar, a slider, a spinner or a scrollbar is round;
+  the stock chart tooltip's colour chips keep shadcn's 2px. Never add a
+  `rounded-*` class to a box.
 - **Joined toggles.** The items of a `ToggleGroup` sit flush and share their
   borders, one control; the pressed item fills with the foreground.
 - Badges stay boxed (an outline), the primary button and the pressed toggle

@@ -46,13 +46,9 @@ export function RangePosition({
       aria-valuemax={high}
       aria-valuenow={value}
       aria-valuetext={`${write(value)}, ${f.pct(share, 0)} of the way from ${write(low)} to ${write(high)}`}
-      className="relative h-1.5 min-w-12 flex-1 rounded-full bg-muted"
+      className="relative h-1.5 min-w-12 flex-1 bg-muted"
     >
-      <div
-        data-slot="range-fill"
-        className="absolute inset-y-0 left-0 rounded-full bg-foreground"
-        style={{ width: at }}
-      />
+      <div data-slot="range-fill" className="absolute inset-y-0 left-0 bg-foreground" style={{ width: at }} />
       <div
         data-slot="range-thumb"
         className={cn(

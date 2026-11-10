@@ -25,6 +25,7 @@ import {
   useFormat,
 } from "@siyahi/ui";
 import { DownloadIcon, LightbulbIcon, PlusIcon } from "lucide-react";
+import { useState } from "react";
 import ChartArea from "./chart-area";
 import SectionCardsTrend from "./section-cards-trend";
 
@@ -58,9 +59,11 @@ function InkDrop() {
   );
 }
 
-function Holdings() {
+function Holdings({ rows }: { rows: Holding[] }) {
   const { money, pct } = useFormat();
-  const total = holdings.reduce((sum, row) => sum + row.value, 0);
+  const total = rows.reduce((sum, row) => sum + row.value, 0);
+  // The change of the whole: today's total against what the same holdings were worth a year ago.
+  const yearAgo = rows.reduce((sum, row) => sum + row.value / (1 + row.change), 0);
   return (
     <Card>
       <CardHeader>
@@ -78,7 +81,14 @@ function Holdings() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {holdings.map((row) => (
+            {rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-muted-foreground">
+                  No holding matches the search.
+                </TableCell>
+              </TableRow>
+            )}
+            {rows.map((row) => (
               // Only the holdings that need a look are marked; a row on track stays plain.
               <TableRow key={row.name} data-tone={row.tone === "positive" ? undefined : row.tone}>
                 <TableCell>
@@ -101,7 +111,7 @@ function Holdings() {
             <TableRow>
               <TableCell colSpan={2}>Total</TableCell>
               <TableCell className="text-right">{money(total)}</TableCell>
-              <TableCell className="text-right">{pct(0.094)}</TableCell>
+              <TableCell className="text-right">{yearAgo > 0 && pct(total / yearAgo - 1)}</TableCell>
             </TableRow>
           </TableFooter>
         </Table>
@@ -112,6 +122,8 @@ function Holdings() {
 
 // An app page on a ruled surface: masthead, controls, stat tiles, a chart and a table in a PanelGrid, and the takeaway.
 export default function OverviewDashboard() {
+  const [query, setQuery] = useState("");
+  const shown = holdings.filter((row) => row.name.toLowerCase().includes(query.trim().toLowerCase()));
   return (
     <SiyahiProvider surface="ruled">
       <div className="flex flex-col gap-6">
@@ -140,7 +152,14 @@ export default function OverviewDashboard() {
             <ToggleGroupItem value="1y">1 year</ToggleGroupItem>
             <ToggleGroupItem value="all">All</ToggleGroupItem>
           </ToggleGroup>
-          <Input className="w-56" placeholder="Search holdings" aria-label="Search holdings" />
+          <Input
+            className="w-56"
+            type="search"
+            placeholder="Search holdings"
+            aria-label="Search holdings"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
           <p className="text-sm text-muted-foreground">
             Five holdings in three kinds.{" "}
             <a className="text-link underline underline-offset-4" href="#/data">
@@ -151,7 +170,7 @@ export default function OverviewDashboard() {
         <SectionCardsTrend />
         <PanelGrid>
           <ChartArea />
-          <Holdings />
+          <Holdings rows={shown} />
         </PanelGrid>
         <Callout tone="accent" icon={<LightbulbIcon />} title="The takeaway">
           Equity is <strong>74%</strong> of the book against a plan of 65%. The small cap fund is the only holding below

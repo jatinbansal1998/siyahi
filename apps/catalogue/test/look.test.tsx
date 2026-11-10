@@ -61,6 +61,29 @@ describe("the look", { timeout: 60_000 }, () => {
     expect(before.color).toBe(await token("--link"));
   });
 
+  it("keeps numbering a block wrapped in its own SiyahiProvider", async () => {
+    // A provider draws a display: contents div between the panel and its card.
+    await example()
+      .locator('[data-slot="panel"]')
+      .first()
+      .evaluate((panel) => {
+        const provider = document.createElement("div");
+        provider.dataset.slot = "siyahi-provider";
+        provider.className = "contents";
+        provider.append(...panel.childNodes);
+        panel.append(provider);
+      });
+    const counts = await example()
+      .locator('[data-slot="panel"]')
+      .evaluateAll((panels) => panels.map((panel) => getComputedStyle(panel).counterIncrement));
+    expect(counts).toEqual(["panel 1", "panel 1"]);
+    const content = await example()
+      .locator('[data-slot="panel"] [data-slot="card-title"]')
+      .first()
+      .evaluate((title) => getComputedStyle(title, "::before").content);
+    expect(content).toContain("counter(panel");
+  });
+
   it("joins a toggle group's items, sharing their borders", async () => {
     const items = example().getByRole("group", { name: "Period" }).locator('[data-slot="toggle-group-item"]');
     const edges = await items.evaluateAll((els) =>
@@ -75,6 +98,15 @@ describe("the look", { timeout: 60_000 }, () => {
       example().locator('[data-slot="section-card"] [data-slot="card-description"]').first(),
       example().locator('[data-slot="section-card"] [data-slot="card-footer"]').first(),
     ];
+    // A data table's column title, as DataTableColumnTitle draws it, takes the head's type over its own text-sm.
+    await labels[0]?.evaluate((head) => {
+      const title = document.createElement("div");
+      title.dataset.slot = "column-title";
+      title.className = "text-sm";
+      title.textContent = "Holding";
+      head.replaceChildren(title);
+    });
+    labels.push(example().locator('[data-slot="table-head"] [data-slot="column-title"]'));
     for (const label of labels) {
       const [font, transform, size] = await style(label, "font-family", "text-transform", "font-size");
       expect([font?.startsWith('"Geist Mono'), transform, size]).toEqual([true, "uppercase", "11px"]);
@@ -90,6 +122,16 @@ describe("the look", { timeout: 60_000 }, () => {
       await token("--foreground"),
       TRANSPARENT,
     ]);
+  });
+
+  it("filters the holdings as the reader searches, and totals the rows shown", async () => {
+    const search = example().getByRole("searchbox", { name: "Search holdings" });
+    await search.fill("small cap");
+    const body = example().locator('[data-slot="table-body"] [data-slot="table-row"]');
+    await expect.poll(() => body.count()).toBe(1);
+    expect(await example().locator('[data-slot="table-footer"]').innerText()).toContain("₹3,18,200");
+    await search.fill("");
+    await expect.poll(() => body.count()).toBe(5);
   });
 
   it("washes only the tile and the rows the page marks, and outlines the tile", async () => {

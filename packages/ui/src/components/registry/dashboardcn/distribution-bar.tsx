@@ -22,6 +22,7 @@
 // A faded segment mixes its interior toward the card inside a full-colour
 // edge, so its extent still reads at 3:1; 35% opacity fell under it.
 // Segments take a key for when names repeat, and chart tokens as colours.
+// Siyahi edit: the track is square, not a pill, as every Siyahi box is.
 import * as React from "react"
 
 import { cn } from "@siyahi/ui/lib/utils"
@@ -159,7 +160,7 @@ function DistributionBar({
               .map((segment) => `${segment.name} ${figure(segment)}`)
               .join(", ")
           }
-          className="bg-muted relative h-2.5 w-full overflow-hidden rounded-full"
+          className="bg-muted relative h-2.5 w-full overflow-hidden"
           onMouseLeave={onHover ? () => onHover(null) : undefined}
         >
           {resolved.map((segment) =>

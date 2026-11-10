@@ -206,7 +206,7 @@ export const foundations: Page = {
       lead: "Tailwind's 4px scale, and square corners: --radius is 0.",
       rules: [
         'Cards pad 16px (12px for size="sm"); page gutters are 16px on a phone.',
-        "Every corner is square: panels, cards, buttons, fields, badges, toggles and menus. Only a dot, an avatar or a slider thumb is round.",
+        "Every corner is square: panels, cards, buttons, fields, badges, toggles, menus, data bars and progress. Only a dot, an avatar, a slider, a spinner or a scrollbar is round.",
       ],
       body: (
         <div className="flex flex-col gap-2">

@@ -89,8 +89,19 @@ describe("contrast check", () => {
     const broken = setVar(themeCss, "light", "wash", "20%");
     expect(named(broken)).toEqual(
       expect.arrayContaining([
+        "light --muted-foreground on --negative 20% in --card",
         "light --muted-foreground on --negative/wash over --card",
         "light --negative on --negative/8 over --negative/wash over --background",
+      ]),
+    );
+  });
+
+  it("fails a stat tile's Sparkline on a dark amber wash at the mock-up's 15%", () => {
+    const broken = setVar(themeCss, "dark", "wash", "15%");
+    expect(named(broken)).toEqual(
+      expect.arrayContaining([
+        "dark --chart-1 on --warning 15% in --card",
+        "dark --chart-1 on --warning/wash over --card",
       ]),
     );
   });
@@ -162,7 +173,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 258\/258 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 282\/282 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

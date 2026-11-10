@@ -4,7 +4,7 @@ import { DataBar } from "../src/components/siyahi/data-bar";
 
 /** The bar's width and classes, read from the markup. */
 function bar(html: string): { width: string | undefined; fill: string | undefined } {
-  const match = /<div class="h-full rounded-full ([^"]+)" style="width:([^"]+)"/.exec(html);
+  const match = /<div class="h-full ([^"]+)" style="width:([^"]+)"/.exec(html);
   return { fill: match?.[1], width: match?.[2] };
 }
 

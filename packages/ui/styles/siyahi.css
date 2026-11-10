@@ -78,6 +78,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --radius-xs: calc(var(--radius) * 0.3);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -208,8 +209,12 @@
     --heat-3: 42.5%;
     --heat-4: 51.25%;
     --heat-5: 60%;
-    /* As with heat, a faint share of a dark card reads as the card itself. */
-    --wash: 15%;
+    /*
+     * As with heat, a faint share of a dark card reads as the card itself; above
+     * 12% the amber wash takes --chart-1, a tile's Sparkline or a row's DataBar,
+     * under 3:1.
+     */
+    --wash: 12%;
     --wash-edge: 55%;
     --link: oklch(0.75 0.128 275);
     --chart-1: oklch(0.58 0.2 275);
@@ -345,6 +350,11 @@
   border-color: var(--destructive);
 }
 
+/* Progress is a bar, square as every bar is; stock draws it as a pill. */
+[data-slot="progress-track"] {
+  border-radius: 0;
+}
+
 /*
  * A slider's unfilled track is outlined in the field edge, so its extent reads
  * at 3:1; the muted track alone is 1.05:1 on the canvas.
@@ -368,13 +378,14 @@
 
 /*
  * Column heads are labels, in small monospaced capitals; a sort header's
- * button takes the head's type rather than its own. A total row reads as a
+ * button and a data table's column title take the head's type rather than
+ * their own. A total row reads as a
  * ledger's: one rule above it and a double rule under it in the text colour,
  * with no band.
  */
 [data-slot="table-head"] {
   @apply font-mono text-2xs tracking-wider uppercase;
-  [class~="group/button"] {
+  :is([class~="group/button"], [data-slot="column-title"]) {
     font: inherit;
     letter-spacing: inherit;
     text-transform: inherit;
@@ -412,17 +423,24 @@
 /*
  * Panels in a PanelGrid are numbered 01, 02 before their title, in the mono
  * face and the link colour, so the text can point to one. A panel without a
- * card title, such as a MetricStrip with none, takes no number. The panel
+ * card title, such as a MetricStrip with none, takes no number; a block
+ * wrapped in its own SiyahiProvider (which draws no box) still counts. The panel
  * counts, not the title: a card header is a size container, whose style
  * containment would keep each title's count to itself.
  */
 [data-slot="panel-grid"] {
   counter-reset: panel;
 }
-[data-slot="panel"]:has(> [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"]) {
+[data-slot="panel"]:has(
+  > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"],
+  > [data-slot="siyahi-provider"] > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"]
+) {
   counter-increment: panel;
 }
-[data-slot="panel"] > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"]::before {
+:is([data-slot="panel"], [data-slot="panel"] > [data-slot="siyahi-provider"])
+  > [data-slot="card"]
+  > [data-slot="card-header"]
+  > [data-slot="card-title"]::before {
   content: counter(panel, decimal-leading-zero);
   @apply font-mono text-2xs font-medium text-link;
   letter-spacing: 0.04em;

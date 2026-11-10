@@ -22,7 +22,7 @@
   now a small icon before the eyebrow instead of a faint watermark.
 - Exceptions are marked by the page: `tone: "negative" | "warning"` on a
   `SectionCards` item, or `data-tone` on a `TableRow`, takes a faint wash of
-  the colour (`--wash`, 7% in light, 15% in dark) and a tile an outline of it.
+  the colour (`--wash`, 7% in light, 12% in dark) and a tile an outline of it.
   The contrast check scores text, icons and badge dots on both washes, and a
   `Pair`'s `bg` may now list fills laid one over another.
 
