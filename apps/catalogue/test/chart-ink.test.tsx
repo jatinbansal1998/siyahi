@@ -88,6 +88,11 @@ describe("chart ink", { timeout: 60_000 }, () => {
       expect(await raised.count()).toBe(0);
       await debt.click();
       expect(await debt.getAttribute("aria-pressed")).toBe("true");
+      // Pressing a name raises its line; it does not open the tooltip over the lines.
+      await page.mouse.move(0, 0);
+      expect(await funds.locator(".recharts-tooltip-wrapper").evaluate((el) => getComputedStyle(el).visibility)).toBe(
+        "hidden",
+      );
       await expect.poll(() => raised.getAttribute("stroke")).toBe("var(--foreground)");
       // The same path as Debt's grey line (second in draw order), drawn over every other line.
       const grey = funds.locator(".recharts-line:not(.chart-forecast, .chart-raised) .recharts-line-curve").nth(1);

@@ -101,7 +101,12 @@ interface QuietLegendProps<T> {
  */
 function QuietLegend<T>({ series, raised, onRaise }: QuietLegendProps<T>) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-3">
+    <div
+      className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-3"
+      // Recharts reads focus anywhere in the chart as the keyboard reaching the plot and opens the tooltip on the
+      // first point, over the lines; a pressed legend name is not that.
+      onFocus={(event) => event.stopPropagation()}
+    >
       {series.map(({ key, label, color }) =>
         color === QUIET ? (
           <button
