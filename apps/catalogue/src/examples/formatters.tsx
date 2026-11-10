@@ -5,13 +5,13 @@ function Row({ label }: { label: string }) {
   return (
     <TableRow>
       <TableCell>{label}</TableCell>
-      <TableCell className="text-right">{count(153110)}</TableCell>
-      <TableCell className="text-right">{money(153110)}</TableCell>
-      <TableCell className="text-right">{moneyCompact(99999)}</TableCell>
-      <TableCell className="text-right">{moneyCompact(240000)}</TableCell>
-      <TableCell className="text-right">{moneyCompact(400000000)}</TableCell>
-      <TableCell className="text-right">{pct(0.1234)}</TableCell>
-      <TableCell className="text-right">{time("2026-10-20T09:00:00Z")}</TableCell>
+      <TableCell data-numeric>{count(153110)}</TableCell>
+      <TableCell data-numeric>{money(153110)}</TableCell>
+      <TableCell data-numeric>{moneyCompact(99999)}</TableCell>
+      <TableCell data-numeric>{moneyCompact(240000)}</TableCell>
+      <TableCell data-numeric>{moneyCompact(400000000)}</TableCell>
+      <TableCell data-numeric>{pct(0.1234)}</TableCell>
+      <TableCell data-numeric>{time("2026-10-20T09:00:00Z")}</TableCell>
     </TableRow>
   );
 }
@@ -22,13 +22,13 @@ export default function FormattersExample() {
       <TableHeader>
         <TableRow>
           <TableHead>Locale</TableHead>
-          <TableHead className="text-right">count</TableHead>
-          <TableHead className="text-right">money</TableHead>
-          <TableHead className="text-right">moneyCompact</TableHead>
-          <TableHead className="text-right">moneyCompact</TableHead>
-          <TableHead className="text-right">moneyCompact</TableHead>
-          <TableHead className="text-right">pct</TableHead>
-          <TableHead className="text-right">time</TableHead>
+          <TableHead data-numeric>count</TableHead>
+          <TableHead data-numeric>money</TableHead>
+          <TableHead data-numeric>moneyCompact</TableHead>
+          <TableHead data-numeric>moneyCompact</TableHead>
+          <TableHead data-numeric>moneyCompact</TableHead>
+          <TableHead data-numeric>pct</TableHead>
+          <TableHead data-numeric>time</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

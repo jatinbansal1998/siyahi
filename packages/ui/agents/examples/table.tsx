@@ -32,8 +32,8 @@ export default function TableExample() {
           <TableHeader>
             <TableRow>
               <TableHead>Month</TableHead>
-              <TableHead className="text-right">In</TableHead>
-              <TableHead className="text-right">Out</TableHead>
+              <TableHead data-numeric>In</TableHead>
+              <TableHead data-numeric>Out</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -41,16 +41,16 @@ export default function TableExample() {
               // August's spending needs a look: the page marks the row, and the theme washes it amber.
               <TableRow key={row.month} data-tone={row.out > 50000 ? "warning" : undefined}>
                 <TableCell>{row.month}</TableCell>
-                <TableCell className="text-right">{money(row.in)}</TableCell>
-                <TableCell className="text-right">{money(row.out)}</TableCell>
+                <TableCell data-numeric>{money(row.in)}</TableCell>
+                <TableCell data-numeric>{money(row.out)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
           <TableFooter>
             <TableRow>
               <TableCell>Total</TableCell>
-              <TableCell className="text-right">{money(total("in"))}</TableCell>
-              <TableCell className="text-right">{money(total("out"))}</TableCell>
+              <TableCell data-numeric>{money(total("in"))}</TableCell>
+              <TableCell data-numeric>{money(total("out"))}</TableCell>
             </TableRow>
           </TableFooter>
         </Table>

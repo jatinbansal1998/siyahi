@@ -244,6 +244,7 @@ const display: Entry[] = [
     rules: [
       "Anything to sort or filter uses the data table.",
       "Column heads are small monospaced capitals; the theme sets them.",
+      "Mark a figure's cell and its head data-numeric: the theme right-aligns it and sets it in the mono face. Alignment alone is not a figure.",
       "A total goes in TableFooter: one rule above it, a double rule under it, no band.",
       'A row that needs a look takes data-tone="negative" or "warning" on its TableRow, a faint wash of the colour. The page decides; never mark a row from its sign alone.',
     ],
@@ -279,7 +280,21 @@ const controls: Entry[] = [
     lead: "Text entry, with an icon in an input group when the field needs one.",
     imports: ["Input", "InputGroup", "InputGroupAddon", "InputGroupInput", "Textarea"],
     caption: "A plain input, a search input with its icon, and a textarea.",
-    more: [{ name: "input-states", caption: "Labelled, with a hint, invalid with its error, and disabled." }],
+    more: [
+      { name: "input-states", caption: "In a Field: labelled, with a hint, invalid with its error, and disabled." },
+    ],
+  },
+  {
+    id: "field",
+    title: "Field",
+    lead: "A form field: its label, the control, and a hint or an error under it, from shadcn's Field.",
+    imports: ["Field", "FieldLabel", "FieldDescription", "FieldError"],
+    rules: [
+      "Every field is a Field with a FieldLabel above the control; the theme sets the label in small muted mono capitals, so a page writes no label styles.",
+      "Focus is the control's own edge in the text colour, 2px thick; an invalid field keeps its red edge and takes a faint red wash, with its FieldError under it.",
+      "A checkbox or switch label sits beside it in a horizontal Field and keeps the sans face.",
+    ],
+    caption: "A form for adding a holding: a hint, an invalid field with its error, a toggle group, a disabled field.",
   },
   {
     id: "slider",

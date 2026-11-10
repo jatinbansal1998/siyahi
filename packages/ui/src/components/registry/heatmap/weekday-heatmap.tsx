@@ -21,6 +21,9 @@ import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { createContext, Fragment, use, useMemo } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 // Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
+// Siyahi edit: a focused cell shows the theme's focus outline, a square clear
+// of it, instead of a stroke in the ring colour, which matched a picked
+// cell's stroke once focus took the text colour.
 import { useHeatmapNavigation } from "@siyahi/ui/lib/heatmap-navigation";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
@@ -579,7 +582,7 @@ export const WeekdayHeatmapBlock = ({
         // The picked cell carries a ring in the text colour, as a Treemap tile does; the fill keeps its level.
         selected && "stroke-foreground stroke-2 hover:stroke-2",
         onCellClick &&
-          "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
+          "cursor-pointer",
         className,
       )}
       data-value={activity.value}

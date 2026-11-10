@@ -106,6 +106,11 @@ describe("contrast check", () => {
     );
   });
 
+  it("fails a focus outline too pale to read against a tab list or the sidebar", () => {
+    const broken = setVar(themeCss, "light", "ring", "oklch(0.75 0 0)");
+    expect(named(broken)).toEqual(expect.arrayContaining(["light --ring on --muted", "light --ring on --sidebar"]));
+  });
+
   it("fails a degraded day that a healthy day's grey swallows", () => {
     // A darker muted grey still reads as text, but its 30% healthy fill comes too close to the amber.
     const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.3 0 0)");
@@ -173,7 +178,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 282\/282 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 290\/290 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

@@ -2,6 +2,29 @@
 
 ## 0.1.9
 
+- Tables are dense: compact rows, a 1px rule in the text colour under the
+  column heads (on a data table's sticky header too), the first column in
+  medium weight, and figures (a cell marked `data-numeric`, and a `Delta` in a
+  cell) in the mono face. Mark a plain table's figure cells and their heads
+  `data-numeric` instead of `className="text-right"`; the attribute
+  right-aligns them.
+- Forms: shadcn's `Field`, `FieldLabel`, `FieldDescription`, `FieldError` (and
+  `Label`) ship in the package. A `FieldLabel` above its control is small
+  muted mono capitals. An invalid field keeps its red edge and takes a faint red
+  wash (`--field-wash`, 8% in light, 12% in dark).
+- Focus is in the text colour, not indigo: `--ring` and `--sidebar-ring` are
+  the text colour, and focus is drawn inside every control, so no neighbour or
+  clipping box covers it: a 2px ring in the text colour on its edge with a 2px
+  ring of the page colour inside it, on any fill (shadcn's half-strength halo
+  fell under 3:1 beside a hovered button). A field shows it as its own 2px
+  edge, an input group and the command search round the whole group; a
+  heatmap cell, treemap tile or scatter point as a dashed stroke, apart from a
+  picked one's solid stroke. Indigo is links, the selected sidebar item, the
+  first chart series and the accent callout.
+- The sidebar has compact rows and mono capital group labels; a
+  non-collapsible sidebar gets the page-side hairline a collapsible one already
+  has.
+
 - Siyahi's own look replaces stock shadcn's. Every corner is square
   (`--radius` is 0) and hairlines are a step firmer (`--border` is the text
   colour at 18% in light, white at 20% in dark). `surface="ruled"` is the

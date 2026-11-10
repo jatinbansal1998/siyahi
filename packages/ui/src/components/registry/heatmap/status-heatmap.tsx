@@ -89,6 +89,9 @@ export type StatusColorConfig = Record<number, string> & {
 // Siyahi edit: the defaults name the theme's colours instead of fixed Tailwind
 // values. Green and red mean gain and loss, so health is not green: a healthy
 // day is a quiet grey, degraded is the warning colour, critical the error one.
+// Siyahi edit: a focused cell shows the theme's focus outline, a square clear
+// of it, instead of a stroke in the ring colour, which matched a picked
+// cell's stroke once focus took the text colour.
 const DEFAULT_COLORS: Record<number, string> = {
   0: "var(--color-secondary)",
   1: "var(--destructive)", // critical
@@ -435,7 +438,7 @@ export const StatusHeatmapBlock = ({
         // not an inline style, so keyboard focus on the picked cell still draws its own ring over it.
         selected && "stroke-foreground stroke-2 hover:stroke-2",
         onCellClick &&
-          "cursor-pointer focus-visible:outline-none focus-visible:stroke-ring focus-visible:stroke-2",
+          "cursor-pointer",
         className,
       )}
       data-value={activity.value}
