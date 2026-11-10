@@ -91,12 +91,10 @@ const PAIRS = [
   ...["", "muted", "muted/50"].map((bg) => ({ fg: "input", bg, min: MARK })),
   { fg: "input", bg: "input/30", min: MARK, scheme: "dark" },
   ...["ring", "destructive"].map((fg) => ({ fg, bg: "", min: MARK })),
-  // Every control but a field shows focus as shadcn's 3px halo of the ring at
-  // half strength: the halo against the page under it, and against the fill
-  // of the control it surrounds (a pressed toggle's or a primary button's
-  // dark fill, a hovered one's muted fill).
-  { fg: "ring/50", bg: "", min: MARK },
-  ...["foreground", "primary", "muted"].map((fg) => ({ fg, bg: "ring/50", min: MARK })),
+  // Focus is a 2px outline of the ring, 2px clear of the control: it meets
+  // only what lies around the control, the page and the card (above), a tab
+  // list's muted fill and the sidebar.
+  ...["muted", "sidebar"].map((bg) => ({ fg: "ring", bg, min: MARK })),
   // An invalid field's red wash (--field-wash): the value and placeholder on
   // it, and its red edge against it.
   ...["foreground", "muted-foreground"].map((fg) => ({ fg, bg: "destructive@field-wash", min: TEXT })),

@@ -325,24 +325,54 @@
 }
 
 /*
- * Focus is in the text colour (--ring). Every control keeps shadcn's 3px halo
- * of it at half strength, which reaches 3:1 against the page, the card, a
- * hovered fill and a black-filled control alike, so a pressed toggle or a
- * primary button shows its focus as clearly as an outline one. A field, where
- * the reader types, shows it as its own edge: the edge turns to the text
- * colour and thickens to 2px, with no halo. The slider's thumb is a div around
- * a hidden range input, so it shows the input's focus.
+ * Focus is one rule for every control: a 2px outline in the text colour
+ * (--ring), 2px clear of the control, so it never touches a fill and reads at
+ * the text's contrast on the page or the card whatever the control looks like,
+ * pressed, hovered or selected, and on a chart mark as a square around it,
+ * apart from a selected mark's stroke. shadcn's half-strength ring halo is
+ * dropped: next to a dark or light fill it fell under 3:1. A field shows the
+ * outline on its own edge (offset -1px: its 1px edge plus 1px out), and an
+ * input group around its input. Something that fills a box that clips, such
+ * as a stat tile's picker button or a scroll area, draws it inside. Menu items
+ * and options show focus as their highlight, and popups as themselves, so they
+ * take none.
  */
+:focus-visible:not(
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="option"],
+  [role="dialog"],
+  [role="alertdialog"],
+  [role="menu"],
+  [role="listbox"],
+  [data-slot="input-group-control"]
+) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  --tw-ring-shadow: 0 0 #0000;
+}
 :is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]):focus-visible,
 [data-slot="input-group"]:has([data-slot="input-group-control"]:focus-visible) {
-  --tw-ring-shadow: 0 0 0 1px var(--ring);
+  outline: 2px solid var(--ring);
+  outline-offset: -1px;
+  --tw-ring-shadow: 0 0 #0000;
 }
 :is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"])[aria-invalid="true"]:focus-visible,
-[data-slot="input-group"]:has([data-slot="input-group-control"][aria-invalid="true"]:focus-visible) {
-  --tw-ring-shadow: 0 0 0 1px var(--destructive);
+[data-slot="input-group"]:has([data-slot="input-group-control"][aria-invalid="true"]:focus-visible),
+[class~="group/button"][class~="text-destructive"]:focus-visible {
+  outline-color: var(--destructive);
+}
+:is(
+  [data-slot="section-card"] button,
+  [data-slot="scroll-area-viewport"],
+  [data-slot="table-head"] button
+):focus-visible {
+  outline-offset: -2px;
 }
 [data-slot="slider-thumb"]:has(input:focus-visible) {
-  box-shadow: 0 0 0 3px var(--ring);
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 /*
@@ -368,11 +398,12 @@
 
 /*
  * A field's label sits above it in small monospaced capitals, muted, as the
- * labels over figures do: FieldLabel in a Field, the home a page gets it from.
- * A label beside a checkbox or a switch (a horizontal Field) reads as a
- * sentence and keeps the sans face.
+ * labels over figures do: FieldLabel in a Field (directly or in its
+ * FieldContent), the home a page gets it from. A label for a checkbox, a
+ * switch or a radio reads as a sentence and keeps the sans face, whatever the
+ * Field's orientation.
  */
-[data-slot="field"]:not([data-orientation="horizontal"]) > [data-slot="field-label"] {
+[data-slot="field"]:not(:has([role="checkbox"], [role="switch"], [role="radio"])) [data-slot="field-label"] {
   @apply font-mono text-2xs tracking-wider text-muted-foreground uppercase;
 }
 
@@ -422,8 +453,10 @@
  * under the column heads, the first column (what each row is) in medium
  * weight, and figures in the mono face, a size down so a column of them takes
  * no more room than the sans did. A figure is a cell marked data-numeric (the
- * data table's number columns) or right-aligned, the way a plain Table sets
- * one, and any Delta in a cell. Row hairlines stay; no stripes, no column rules.
+ * data table's number columns, or a plain TableCell the page marks), which
+ * also right-aligns it, and any Delta in a cell. Alignment alone says nothing:
+ * a right-aligned word stays in the sans. Row hairlines stay; no stripes, no
+ * column rules.
  */
 [data-slot="table-head"] {
   height: 1.75rem;
@@ -434,10 +467,14 @@
 [data-slot="table-header"] [data-slot="table-row"] {
   border-bottom-color: var(--foreground);
 }
+/* A data table's sticky header draws its rule as a line of its own, which stays when the rows scroll under it. */
+[data-slot="table-header"]::after {
+  background-color: var(--foreground);
+}
 [data-slot="table-body"] [data-slot="table-cell"]:first-child {
   font-weight: 500;
 }
-:is([data-slot="table-cell"]:is([data-numeric], .text-right), [data-slot="table-cell"] [data-slot="delta"]) {
+:is([data-slot="table-cell"][data-numeric], [data-slot="table-cell"] [data-slot="delta"]) {
   @apply font-mono;
   font-size: 0.8125rem;
 }
@@ -524,7 +561,8 @@
  * is, and its rows are compact. Fill, icons and the current-page mark stay as
  * shadcn draws them.
  */
-[data-slot="sidebar-container"] {
+/* shadcn edges a collapsible sidebar on its page side already; a non-collapsible one, set in the page's flow, has none. */
+div[data-slot="sidebar"]:not([data-side], [data-mobile]) {
   border-inline-end: 1px solid var(--sidebar-border);
 }
 [data-slot="sidebar-group-label"] {

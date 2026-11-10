@@ -438,7 +438,7 @@ function Dot<T extends ScatterPoint>({
       tabIndex={onSelect ? (key === focusKey ? 0 : -1) : undefined}
       aria-label={describe(payload)}
       aria-pressed={onSelect ? isSelected : undefined}
-      className={onSelect ? "cursor-pointer outline-none focus-visible:stroke-ring focus-visible:stroke-2" : undefined}
+      className={onSelect ? "cursor-pointer" : undefined}
       onKeyDown={(event) => onKeyDown(event, payload)}
       onClick={(event) => {
         if (!onSelect) return;

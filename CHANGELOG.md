@@ -3,20 +3,25 @@
 ## 0.1.9
 
 - Tables are dense: compact rows, a 1px rule in the text colour under the
-  column heads, the first column in medium weight, and figures (a cell with
-  `data-numeric` or right-aligned, and a `Delta` in a cell) in the mono face.
+  column heads (on a data table's sticky header too), the first column in
+  medium weight, and figures (a cell marked `data-numeric`, and a `Delta` in a
+  cell) in the mono face. Mark a plain table's figure cells and their heads
+  `data-numeric` instead of `className="text-right"`; the attribute
+  right-aligns them.
 - Forms: shadcn's `Field`, `FieldLabel`, `FieldDescription`, `FieldError` (and
   `Label`) ship in the package. A `FieldLabel` above its control is small
   muted mono capitals. An invalid field keeps its red edge and takes a faint red
   wash (`--field-wash`, 8% in light, 12% in dark).
 - Focus is in the text colour, not indigo: `--ring` and `--sidebar-ring` are
-  the text colour. A field shows focus as its own edge, 2px in the text colour;
-  every other control keeps shadcn's half-strength halo, which now reaches 3:1
-  beside a black-filled control too, so the opaque-ring overrides for toggles,
-  scroll areas and calendar days are gone. Indigo is links, the selected
+  the text colour, and every control shows focus as one 2px outline 2px clear
+  of it, so it never meets a fill (shadcn's half-strength halo fell under 3:1
+  beside a hovered button). A field shows it on its own edge; a heatmap cell
+  or a scatter point shows the square outline instead of a ring-coloured
+  stroke, apart from a picked one's stroke. Indigo is links, the selected
   sidebar item, the first chart series and the accent callout.
-- The sidebar has a hairline on its page-side edge, mono capital group labels
-  and compact rows.
+- The sidebar has compact rows and mono capital group labels; a
+  non-collapsible sidebar gets the page-side hairline a collapsible one already
+  has.
 
 - Siyahi's own look replaces stock shadcn's. Every corner is square
   (`--radius` is 0) and hairlines are a step firmer (`--border` is the text

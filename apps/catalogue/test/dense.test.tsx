@@ -58,21 +58,26 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
     expect(edge).toBe(await themeColor(page, "--destructive"));
   });
 
-  it("focuses a field as its own 2px edge in the text colour, with no indigo", async () => {
+  it("focuses a field as a 2px outline in the text colour on its own edge, with no halo", async () => {
     const form = await open("inputs/field");
     const name = form.getByLabel("Name");
     await name.focus();
     const ink = await themeColor(page, "--foreground");
-    // The field eases its edge and shadow in; read them once the transition has ended.
-    await expect.poll(async () => (await style(name, "border-top-color"))[0]).toBe(ink);
-    await expect.poll(async () => (await style(name, "box-shadow"))[0]).toContain("1px");
+    expect(await themeColor(page, "--ring")).toBe(ink);
+    await expect
+      .poll(async () =>
+        (await style(name, "outline-style", "outline-width", "outline-color", "outline-offset")).join(" "),
+      )
+      .toBe(`solid 2px ${ink} -1px`);
     const [shadow = ""] = await style(name, "box-shadow");
-    // One 1px ring of the text colour outside the 1px border; every other ring layer is empty.
-    const layers = shadow.split(/,(?![^(]*\))/).map((layer) => layer.trim());
-    expect(layers.filter((layer) => !layer.endsWith("0px 0px 0px 0px"))).toEqual([`${ink} 0px 0px 0px 1px`]);
+    expect(
+      shadow
+        .split(/,(?![^(]*\))/)
+        .every((layer) => layer.trim().endsWith("0px 0px 0px 0px") || layer.trim() === "none"),
+    ).toBe(true);
   });
 
-  it("focuses a pressed toggle with a half-strength halo of the text colour around its black fill", async () => {
+  it("focuses a pressed toggle with an outline 2px clear of its black fill, never a halo beside it", async () => {
     const form = await open("inputs/field");
     // Keyboard focus, so :focus-visible applies: Tab from the field before the group, then arrow to the pressed item.
     await form.getByLabel("Folio number").focus();
@@ -85,38 +90,83 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
     expect(await pressed.evaluate((el) => el === document.activeElement && el.getAttribute("aria-pressed"))).toBe(
       "true",
     );
-    const halo = () =>
-      pressed.evaluate((el) =>
-        getComputedStyle(el)
-          .boxShadow.split(/,(?![^(]*\))/)
-          .map((layer) => layer.trim())
-          .find((layer) => layer.endsWith("0px 0px 0px 3px")),
-      );
-    const expected = await page.evaluate(() => {
-      const probe = document.body.appendChild(document.createElement("div"));
-      probe.style.color = "color-mix(in oklab, var(--ring) 50%, transparent)";
-      const value = getComputedStyle(probe).color;
-      probe.remove();
-      return value;
-    });
-    await expect.poll(halo).toBe(`${expected} 0px 0px 0px 3px`);
-    expect(await themeColor(page, "--ring")).toBe(await themeColor(page, "--foreground"));
+    const ink = await themeColor(page, "--foreground");
+    await expect
+      .poll(async () =>
+        (await style(pressed, "outline-style", "outline-width", "outline-color", "outline-offset")).join(" "),
+      )
+      .toBe(`solid 2px ${ink} 2px`);
+    const [shadow = ""] = await style(pressed, "box-shadow");
+    expect(
+      shadow
+        .split(/,(?![^(]*\))/)
+        .every((layer) => layer.trim().endsWith("0px 0px 0px 0px") || layer.trim() === "none"),
+    ).toBe(true);
   });
 
-  it("parts the sidebar from the page with a hairline, its group label in mono capitals and its rows compact", async () => {
+  it("sets a label in a FieldContent in mono capitals, and a right-aligned word in the sans", async () => {
+    const form = await open("inputs/field");
+    const label = await form.locator('[data-slot="field-label"]', { hasText: "Name" }).evaluate((el) => {
+      const content = document.createElement("div");
+      content.dataset.slot = "field-content";
+      el.before(content);
+      content.append(el);
+      return [getComputedStyle(el).fontFamily.startsWith('"Geist Mono'), getComputedStyle(el).textTransform];
+    });
+    expect(label).toEqual([true, "uppercase"]);
+    const table = await open("components/table");
+    const word = await table
+      .locator('[data-slot="table-body"] [data-slot="table-cell"]')
+      .first()
+      .evaluate((el) => {
+        const cell = el.cloneNode() as HTMLElement;
+        cell.className = "text-right";
+        cell.textContent = "On track";
+        el.after(cell);
+        const family = getComputedStyle(cell).fontFamily;
+        cell.remove();
+        return family;
+      });
+    expect(word.startsWith('"Geist Mono')).toBe(false);
+  });
+
+  it("keeps the text-colour rule under a data table's sticky header", async () => {
+    const data = await open("data/data-table");
+    const rule = await data
+      .locator('[data-slot="table-header"]')
+      .first()
+      .evaluate((el) => {
+        // The sticky header draws its rule as an ::after line, which stays when the rows scroll under it.
+        el.classList.add(
+          "after:absolute",
+          "after:bottom-0",
+          "after:left-0",
+          "after:right-0",
+          "after:h-px",
+          "after:bg-border",
+        );
+        return getComputedStyle(el, "::after").backgroundColor;
+      });
+    expect(rule).toBe(await themeColor(page, "--foreground"));
+  });
+
+  it("parts a non-collapsible sidebar from the page with a hairline, its group label in mono capitals and its rows compact", async () => {
     await open("components/table");
-    const container = page.locator('[data-slot="sidebar-container"]');
-    expect(await style(container, "border-right-width", "border-right-color")).toEqual([
-      "1px",
-      await themeColor(page, "--sidebar-border"),
-    ]);
+    // A collapsible sidebar is edged by shadcn; a non-collapsible one, in the page's flow, by the theme.
+    const edge = await page.evaluate(() => {
+      const sidebar = document.body.appendChild(document.createElement("div"));
+      sidebar.dataset.slot = "sidebar";
+      const width = getComputedStyle(sidebar).borderRightWidth;
+      sidebar.remove();
+      return width;
+    });
+    expect(edge).toBe("1px");
     const [font, transform] = await style(
       page.locator('[data-slot="sidebar-group-label"]').first(),
       "font-family",
       "text-transform",
     );
     expect([font?.startsWith('"Geist Mono'), transform]).toEqual([true, "uppercase"]);
-    // A row, not the large header button, which keeps its height.
     // A row that opens a group: it renders as the group's collapsible trigger.
     const row = page.locator('[data-sidebar="menu-button"]:not([data-size="lg"])', { hasText: "Foundations" });
     expect(await style(row, "height")).toEqual(["28px"]);

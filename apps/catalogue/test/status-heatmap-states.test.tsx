@@ -20,7 +20,12 @@ afterAll(async () => {
 const paint = (selector: string) =>
   page.locator(selector).evaluate((el) => {
     const style = getComputedStyle(el);
-    return { opacity: style.opacity, stroke: style.stroke, width: style.strokeWidth };
+    return {
+      opacity: style.opacity,
+      stroke: style.stroke,
+      width: style.strokeWidth,
+      outline: `${style.outlineStyle} ${style.outlineWidth} ${style.outlineColor}`,
+    };
   });
 const token = (name: string) =>
   page.evaluate((variable) => {
@@ -40,22 +45,21 @@ describe("StatusHeatmap states", { timeout: 60_000 }, () => {
     expect((await paint(degraded)).opacity).toBe("1");
   });
 
-  it("rings a keyboard-focused day in the focus colour", async () => {
+  it("outlines a keyboard-focused day in the focus colour", async () => {
     const first = '[data-slot="status-heatmap-block"][tabindex="0"]';
     await page.locator(first).focus();
     await page.keyboard.press("ArrowRight");
     const focused = '[data-slot="status-heatmap-block"]:focus-visible';
-    await expect.poll(async () => (await paint(focused)).stroke).toBe(await token("--ring"));
-    expect((await paint(focused)).width).toBe("2px");
+    await expect.poll(async () => (await paint(focused)).outline).toBe(`solid 2px ${await token("--ring")}`);
   });
 
-  it("rings a picked day in the focus colour when the keyboard comes back to it", async () => {
+  it("outlines a picked day in the focus colour, apart from its picked stroke, when the keyboard comes back to it", async () => {
     await page.locator('[data-slot="status-heatmap-block"][tabindex="0"]').focus();
     await page.keyboard.press("Enter");
     await expect.poll(() => page.locator('[data-slot="status-heatmap-block"][aria-pressed="true"]').count()).toBe(1);
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
     const focused = '[data-slot="status-heatmap-block"][aria-pressed="true"]:focus-visible';
-    await expect.poll(async () => (await paint(focused)).stroke).toBe(await token("--ring"));
+    await expect.poll(async () => (await paint(focused)).outline).toBe(`solid 2px ${await token("--ring")}`);
   });
 });

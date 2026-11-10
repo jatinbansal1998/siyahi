@@ -244,6 +244,7 @@ const display: Entry[] = [
     rules: [
       "Anything to sort or filter uses the data table.",
       "Column heads are small monospaced capitals; the theme sets them.",
+      "Mark a figure's cell and its head data-numeric: the theme right-aligns it and sets it in the mono face. Alignment alone is not a figure.",
       "A total goes in TableFooter: one rule above it, a double rule under it, no band.",
       'A row that needs a look takes data-tone="negative" or "warning" on its TableRow, a faint wash of the colour. The page decides; never mark a row from its sign alone.',
     ],

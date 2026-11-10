@@ -33,10 +33,12 @@ a meaning:
   canvas and the card; dividers, card rings, gridlines and the outlines of
   buttons, toggles and code blocks are the `--border` hairline (the text colour
   at 18% in light, white at 20% in dark), firm enough to carry the page's
-  structure. Focus is in the text colour (`--ring`): a field's own edge turns
-  to it and thickens to 2px; any other control takes a halo of it at half
-  strength, which reads at 3:1 on the page and beside a black fill alike. A
-  destructive control focuses in the destructive red. A selected
+  structure. Focus is one 2px outline in the text colour (`--ring`), 2px clear
+  of every control, so it touches only the page or the card around it, never a
+  fill: it reads the same on a black button, a pressed toggle or a chart mark,
+  and a picked mark keeps its own stroke apart from it. A field shows it on its
+  own edge. A destructive control and an invalid field focus in the
+  destructive red. Menu items show focus as their highlight. A selected
   toggle or pill tab fills with the foreground. A chart bar that a selection
   dims keeps its full-colour outline and fades only inside.
 - **Destructive is not loss.** `--destructive` (delete, an invalid field) is a
@@ -107,9 +109,11 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 
 Tables are dense, as a ledger is: compact rows, a 1px rule in the text colour
 under the column heads, the first column (what the row is) in medium weight,
-and figures in the mono face. A figure is a cell marked `data-numeric` (the
-data table's number columns) or right-aligned, and any `Delta` in a cell. Row
-hairlines stay; never stripes, never column rules.
+and figures in the mono face. A figure is a cell marked `data-numeric`, which
+also right-aligns it (the data table marks its number columns; a plain
+`TableCell` or `TableHead` takes the attribute), and any `Delta` in a cell.
+Alignment alone is not a figure. Row hairlines stay; never stripes, never
+column rules.
 
 ## Forms
 

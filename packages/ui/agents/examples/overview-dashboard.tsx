@@ -75,8 +75,8 @@ function Holdings({ rows }: { rows: Holding[] }) {
             <TableRow>
               <TableHead>Holding</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Value</TableHead>
-              <TableHead className="text-right">12 months</TableHead>
+              <TableHead data-numeric>Value</TableHead>
+              <TableHead data-numeric>12 months</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -99,8 +99,8 @@ function Holdings({ rows }: { rows: Holding[] }) {
                 <TableCell>
                   <StatusBadge tone={row.tone}>{row.status}</StatusBadge>
                 </TableCell>
-                <TableCell className="text-right">{money(row.value)}</TableCell>
-                <TableCell className="text-right">
+                <TableCell data-numeric>{money(row.value)}</TableCell>
+                <TableCell data-numeric>
                   <Delta value={row.change} />
                 </TableCell>
               </TableRow>
@@ -109,8 +109,8 @@ function Holdings({ rows }: { rows: Holding[] }) {
           <TableFooter>
             <TableRow>
               <TableCell colSpan={2}>Total</TableCell>
-              <TableCell className="text-right">{money(total)}</TableCell>
-              <TableCell className="text-right">{yearAgo > 0 && pct(total / yearAgo - 1)}</TableCell>
+              <TableCell data-numeric>{money(total)}</TableCell>
+              <TableCell data-numeric>{yearAgo > 0 && pct(total / yearAgo - 1)}</TableCell>
             </TableRow>
           </TableFooter>
         </Table>
