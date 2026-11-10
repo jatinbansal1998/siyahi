@@ -35,3 +35,14 @@ export async function openCatalogue(route: string, options: BrowserContextOption
     throw error;
   }
 }
+
+/** A theme colour as the browser resolves it, to compare with a computed background. */
+export function themeColor(page: Page, token: string): Promise<string> {
+  return page.evaluate((name) => {
+    const probe = document.body.appendChild(document.createElement("div"));
+    probe.style.backgroundColor = `var(${name})`;
+    const value = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return value;
+  }, token);
+}

@@ -2,7 +2,7 @@
 // does not apply.
 import type { Locator, Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
-import { openCatalogue, type Catalogue } from "./catalogue";
+import { openCatalogue, themeColor, type Catalogue } from "./catalogue";
 
 let catalogue: Catalogue;
 let page: Page;
@@ -20,17 +20,9 @@ afterAll(async () => {
 const example = (): Locator => page.locator('[data-slot="example-preview"]').first();
 
 const style = (locator: Locator, ...names: string[]): Promise<string[]> =>
-  locator.evaluate((el, names) => names.map((name) => getComputedStyle(el).getPropertyValue(name)), names);
+  locator.evaluate((el, props) => props.map((prop) => getComputedStyle(el).getPropertyValue(prop)), names);
 
-/** A theme colour as the browser resolves it, to compare with a computed background. */
-const token = (name: string): Promise<string> =>
-  page.evaluate((name) => {
-    const probe = document.body.appendChild(document.createElement("div"));
-    probe.style.backgroundColor = `var(${name})`;
-    const value = getComputedStyle(probe).backgroundColor;
-    probe.remove();
-    return value;
-  }, name);
+const token = (name: string): Promise<string> => themeColor(page, name);
 
 const TRANSPARENT = "rgba(0, 0, 0, 0)";
 

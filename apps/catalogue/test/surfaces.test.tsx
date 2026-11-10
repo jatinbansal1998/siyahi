@@ -2,7 +2,7 @@
 // card looks comes from the theme's CSS, which happy-dom does not apply.
 import type { Locator, Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
-import { openCatalogue, type Catalogue } from "./catalogue";
+import { openCatalogue, themeColor, type Catalogue } from "./catalogue";
 
 let catalogue: Catalogue;
 let page: Page;
@@ -44,15 +44,7 @@ async function pick(surface: "Ruled" | "Open" | "Card"): Promise<void> {
 const NONE = "rgba(0, 0, 0, 0)";
 const transparentRing = (ring: string) => ring === "none" || /rgba\(0, 0, 0, 0\) 0px 0px 0px 1px/.test(ring);
 
-/** A theme colour as the browser resolves it, to compare with a computed background. */
-const token = (name: string): Promise<string> =>
-  page.evaluate((name) => {
-    const probe = document.body.appendChild(document.createElement("div"));
-    probe.style.backgroundColor = `var(${name})`;
-    const value = getComputedStyle(probe).backgroundColor;
-    probe.remove();
-    return value;
-  }, name);
+const token = (name: string): Promise<string> => themeColor(page, name);
 
 describe("surfaces", { timeout: 60_000 }, () => {
   it("fills every block with the card colour on a ruled page, with rules between the panels and none on the sides", async () => {
@@ -67,8 +59,8 @@ describe("surfaces", { timeout: 60_000 }, () => {
     }
     const panels = await example()
       .locator('[data-slot="panel"]')
-      .evaluateAll((panels) =>
-        panels.map((p) => [
+      .evaluateAll((els) =>
+        els.map((p) => [
           getComputedStyle(p).borderTopWidth,
           getComputedStyle(p).borderLeftWidth,
           getComputedStyle(p).backgroundColor,
