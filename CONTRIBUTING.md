@@ -66,8 +66,8 @@ the page, on its own fill, and on every tint the components put it on (muted
 text on Callout, StatusAlert, StatusBadge and Quote washes and code-line fills, destructive
 text on its tint at rest and on hover, the command placeholder, treemap labels
 on every heat step); 3:1 for a field's edge (`--input`) against the page and its
-own fill, the focus ring (also against a toggle's selected and hovered
-fill), a selected tab against its list, and chart and
+own fill, the focus ring and its half-strength halo (the halo also against a
+black-filled control and a hovered fill), a selected tab against its list, and chart and
 meaning colours against the page and the slots next to them, a waterfall's
 gain and loss edges against their own tint, every chart colour against the
 40% band a chart card lays behind a hovered category, and a StatusHeatmap's
@@ -88,9 +88,10 @@ runs the colour rules on them, so an add-on default must name a token.
 A new palette is an edit to `packages/ui/styles/siyahi.css` alone, as long as
 it keeps the same roles. Set every value in both blocks, as `oklch()`.
 
-- **The accent** is five tokens that move together: `--link`, `--ring`,
-  `--sidebar-ring`, `--sidebar-accent-foreground` and `--chart-1`. `--accent`
-  is shadcn's neutral hover fill, not the brand colour; leave it grey.
+- **The accent** is three tokens that move together: `--link`,
+  `--sidebar-accent-foreground` and `--chart-1`. `--ring` and `--sidebar-ring`
+  are focus, in the text colour, not the accent. `--accent` is shadcn's
+  neutral hover fill, not the brand colour; leave it grey.
 - **Chart slots** keep their order and their lightness pattern: each reaches
   3:1 against the page and the slot next to it, so a new hue usually needs its
   lightness tuned, not just its hue swapped.

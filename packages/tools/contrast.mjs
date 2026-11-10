@@ -91,9 +91,16 @@ const PAIRS = [
   ...["", "muted", "muted/50"].map((bg) => ({ fg: "input", bg, min: MARK })),
   { fg: "input", bg: "input/30", min: MARK, scheme: "dark" },
   ...["ring", "destructive"].map((fg) => ({ fg, bg: "", min: MARK })),
-  // A toggle's focus ring also meets the button it rings: a selected one's
-  // foreground fill, or a hovered one's muted fill.
-  ...["foreground", "muted"].map((bg) => ({ fg: "ring", bg, min: MARK })),
+  // Every control but a field shows focus as shadcn's 3px halo of the ring at
+  // half strength: the halo against the page under it, and against the fill
+  // of the control it surrounds (a pressed toggle's or a primary button's
+  // dark fill, a hovered one's muted fill).
+  { fg: "ring/50", bg: "", min: MARK },
+  ...["foreground", "primary", "muted"].map((fg) => ({ fg, bg: "ring/50", min: MARK })),
+  // An invalid field's red wash (--field-wash): the value and placeholder on
+  // it, and its red edge against it.
+  ...["foreground", "muted-foreground"].map((fg) => ({ fg, bg: "destructive@field-wash", min: TEXT })),
+  { fg: "destructive", bg: "destructive@field-wash", min: MARK },
   // A tone's icon or StatusBadge dot against the tone's own wash (lib/tone.ts).
   ...[
     ["link", "chart-1/8"],

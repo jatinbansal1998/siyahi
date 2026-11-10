@@ -2,6 +2,22 @@
 
 ## 0.1.9
 
+- Tables are dense: compact rows, a 1px rule in the text colour under the
+  column heads, the first column in medium weight, and figures (a cell with
+  `data-numeric` or right-aligned, and a `Delta` in a cell) in the mono face.
+- Forms: shadcn's `Field`, `FieldLabel`, `FieldDescription`, `FieldError` (and
+  `Label`) ship in the package. A `FieldLabel` above its control is small
+  muted mono capitals. An invalid field keeps its red edge and takes a faint red
+  wash (`--field-wash`, 8% in light, 12% in dark).
+- Focus is in the text colour, not indigo: `--ring` and `--sidebar-ring` are
+  the text colour. A field shows focus as its own edge, 2px in the text colour;
+  every other control keeps shadcn's half-strength halo, which now reaches 3:1
+  beside a black-filled control too, so the opaque-ring overrides for toggles,
+  scroll areas and calendar days are gone. Indigo is links, the selected
+  sidebar item, the first chart series and the accent callout.
+- The sidebar has a hairline on its page-side edge, mono capital group labels
+  and compact rows.
+
 - Siyahi's own look replaces stock shadcn's. Every corner is square
   (`--radius` is 0) and hairlines are a step firmer (`--border` is the text
   colour at 18% in light, white at 20% in dark). `surface="ruled"` is the

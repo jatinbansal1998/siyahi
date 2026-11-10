@@ -296,6 +296,16 @@
       ]
     },
     {
+      "need": "A form field with its label, a hint or an error",
+      "guidance": "`Field` with `FieldLabel`, the control, then `FieldDescription` or `FieldError`; `aria-invalid` on an invalid control",
+      "components": [
+        "Field",
+        "FieldLabel",
+        "FieldDescription",
+        "FieldError"
+      ]
+    },
+    {
       "need": "A command, file or identifier inside prose",
       "guidance": "`InlineCode`",
       "components": [
@@ -822,6 +832,34 @@
       ]
     },
     {
+      "file": "agents/examples/field.tsx",
+      "components": [
+        "Button",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Field",
+        "FieldDescription",
+        "FieldError",
+        "FieldLabel",
+        "Input",
+        "InputGroup",
+        "InputGroupAddon",
+        "InputGroupInput",
+        "Select",
+        "SelectContent",
+        "SelectGroup",
+        "SelectItem",
+        "SelectTrigger",
+        "SelectValue",
+        "Textarea",
+        "ToggleGroup",
+        "ToggleGroupItem"
+      ]
+    },
+    {
       "file": "agents/examples/formatters.tsx",
       "components": [
         "SiyahiProvider",
@@ -906,6 +944,10 @@
     {
       "file": "agents/examples/input-states.tsx",
       "components": [
+        "Field",
+        "FieldDescription",
+        "FieldError",
+        "FieldLabel",
         "Input"
       ]
     },

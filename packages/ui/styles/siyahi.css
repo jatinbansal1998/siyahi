@@ -1,9 +1,9 @@
 /*
  * Siyahi theme: the only file in the package that holds colour values.
  * shadcn/ui `neutral` greys for both schemes, with ink indigo (hue 275)
- * placed, not spread: links, focus rings, the selected sidebar item's text
- * and the first chart series. Buttons, badges and toggles stay monochrome,
- * where black and white read strongest. Plus three meaning
+ * placed, not spread: links, the selected sidebar item's text and the first
+ * chart series. Buttons, badges, toggles and focus stay monochrome, where
+ * black and white read strongest. Plus three meaning
  * colours and a five-hue chart palette. `packages/tools/contrast.mjs` checks every value
  * here in the build; when a check fails, change the value, never the bar.
  */
@@ -113,7 +113,8 @@
   --border: oklch(0.145 0 0 / 18%);
   /* The edge of a field (input, textarea, select, input group) at 3:1: --border stays faint for dividers. */
   --input: oklch(0.64 0 0);
-  --ring: oklch(0.62 0.16 275);
+  /* Focus is the text colour, as black reads strongest: a field's edge thickens in it, any other control takes a halo. */
+  --ring: oklch(0.145 0 0);
   /* Tailwind green-700, red-600, amber-700, with their chroma lowered to the sRGB edge. */
   --positive: oklch(0.527 0.145 150.069);
   --positive-foreground: oklch(0.985 0 0);
@@ -137,6 +138,8 @@
    */
   --wash: 7%;
   --wash-edge: 45%;
+  /* An invalid field's wash: this share of --destructive over the card. */
+  --field-wash: 8%;
   --link: oklch(0.51 0.2 275);
   /*
    * Indigo, amber, plum, sky, teal: no green or red, so no series reads as a
@@ -160,7 +163,7 @@
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.45 0.2 275);
   --sidebar-border: oklch(0.145 0 0 / 18%);
-  --sidebar-ring: oklch(0.62 0.16 275);
+  --sidebar-ring: oklch(0.145 0 0);
 
   @variant dark {
     /*
@@ -191,7 +194,7 @@
     --destructive: oklch(0.8 0.1 22.216);
     --border: oklch(1 0 0 / 20%);
     --input: oklch(0.62 0 0);
-    --ring: oklch(0.6 0.14 275);
+    --ring: oklch(0.922 0 0);
     /*
      * Green toned down from Tailwind green-400, below red-400's lightness so a
      * treemap's deepest green tile keeps its light label at 4.5:1; amber-400.
@@ -216,6 +219,7 @@
      */
     --wash: 12%;
     --wash-edge: 55%;
+    --field-wash: 12%;
     --link: oklch(0.75 0.128 275);
     --chart-1: oklch(0.58 0.2 275);
     --chart-2: oklch(0.88 0.08 75);
@@ -229,7 +233,7 @@
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.8 0.1 275);
     --sidebar-border: oklch(1 0 0 / 20%);
-    --sidebar-ring: oklch(0.6 0.14 275);
+    --sidebar-ring: oklch(0.922 0 0);
   }
 }
 
@@ -321,14 +325,21 @@
 }
 
 /*
- * Focus is opaque wherever the ring is the only sign of it: stock draws the
- * ring at half strength (under 2:1 on the canvas) and relies on an opaque
- * border these controls do not have. The slider's thumb is a div around a
- * hidden range input, so it shows the input's focus.
+ * Focus is in the text colour (--ring). Every control keeps shadcn's 3px halo
+ * of it at half strength, which reaches 3:1 against the page, the card, a
+ * hovered fill and a black-filled control alike, so a pressed toggle or a
+ * primary button shows its focus as clearly as an outline one. A field, where
+ * the reader types, shows it as its own edge: the edge turns to the text
+ * colour and thickens to 2px, with no halo. The slider's thumb is a div around
+ * a hidden range input, so it shows the input's focus.
  */
-:is([data-slot="toggle"], [data-slot="toggle-group-item"], [data-slot="scroll-area-viewport"]):focus-visible,
-[class~="group/button"][data-day]:focus-visible {
-  --tw-ring-color: var(--ring);
+:is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]):focus-visible,
+[data-slot="input-group"]:has([data-slot="input-group-control"]:focus-visible) {
+  --tw-ring-shadow: 0 0 0 1px var(--ring);
+}
+:is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"])[aria-invalid="true"]:focus-visible,
+[data-slot="input-group"]:has([data-slot="input-group-control"][aria-invalid="true"]:focus-visible) {
+  --tw-ring-shadow: 0 0 0 1px var(--destructive);
 }
 [data-slot="slider-thumb"]:has(input:focus-visible) {
   box-shadow: 0 0 0 3px var(--ring);
@@ -348,6 +359,21 @@
 )[aria-invalid="true"],
 [data-slot="input-group"]:has([data-slot][aria-invalid="true"]) {
   border-color: var(--destructive);
+}
+/* An invalid field also takes a faint wash of the red, so it reads as the one to fix before its message is read. */
+:is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"])[aria-invalid="true"],
+[data-slot="input-group"]:has([data-slot][aria-invalid="true"]) {
+  background-color: color-mix(in oklab, var(--destructive) var(--field-wash), var(--card));
+}
+
+/*
+ * A field's label sits above it in small monospaced capitals, muted, as the
+ * labels over figures do: FieldLabel in a Field, the home a page gets it from.
+ * A label beside a checkbox or a switch (a horizontal Field) reads as a
+ * sentence and keeps the sans face.
+ */
+[data-slot="field"]:not([data-orientation="horizontal"]) > [data-slot="field-label"] {
+  @apply font-mono text-2xs tracking-wider text-muted-foreground uppercase;
 }
 
 /* Progress is a bar, square as every bar is; stock draws it as a pill. */
@@ -390,6 +416,30 @@
     letter-spacing: inherit;
     text-transform: inherit;
   }
+}
+/*
+ * Tables are dense, as a ledger is: compact rows, a rule in the text colour
+ * under the column heads, the first column (what each row is) in medium
+ * weight, and figures in the mono face, a size down so a column of them takes
+ * no more room than the sans did. A figure is a cell marked data-numeric (the
+ * data table's number columns) or right-aligned, the way a plain Table sets
+ * one, and any Delta in a cell. Row hairlines stay; no stripes, no column rules.
+ */
+[data-slot="table-head"] {
+  height: 1.75rem;
+}
+[data-slot="table-cell"] {
+  padding-block: 0.2rem;
+}
+[data-slot="table-header"] [data-slot="table-row"] {
+  border-bottom-color: var(--foreground);
+}
+[data-slot="table-body"] [data-slot="table-cell"]:first-child {
+  font-weight: 500;
+}
+:is([data-slot="table-cell"]:is([data-numeric], .text-right), [data-slot="table-cell"] [data-slot="delta"]) {
+  @apply font-mono;
+  font-size: 0.8125rem;
 }
 [data-slot="table-footer"] {
   background: none;
@@ -466,6 +516,33 @@
  */
 [data-slot="chart"] .recharts-cartesian-grid line {
   stroke: var(--border);
+}
+
+/*
+ * The sidebar is parted from the page by a hairline on its page-side edge,
+ * its group labels are small monospaced capitals, as every label over content
+ * is, and its rows are compact. Fill, icons and the current-page mark stay as
+ * shadcn draws them.
+ */
+[data-slot="sidebar-container"] {
+  border-inline-end: 1px solid var(--sidebar-border);
+}
+[data-slot="sidebar-group-label"] {
+  @apply font-mono text-2xs tracking-wider uppercase;
+}
+[data-slot="sidebar-menu"] {
+  gap: 0;
+}
+/* A row that opens a group renders as its collapsible trigger, which takes that slot, so rows are found by data-sidebar. */
+[data-sidebar="menu-button"]:not([data-size="lg"]) {
+  height: 1.75rem;
+}
+[data-slot="sidebar-menu-sub"] {
+  gap: 0;
+  padding-block: 0.125rem;
+}
+[data-sidebar="menu-sub-button"] {
+  height: 1.5rem;
 }
 
 /*

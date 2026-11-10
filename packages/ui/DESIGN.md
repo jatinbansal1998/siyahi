@@ -10,8 +10,8 @@ component; this file says how to use them.
 Colour is placed, not spread. A page is neutral greys plus colour that carries
 a meaning:
 
-- **Ink indigo** is the accent: links, focus rings, the selected sidebar item,
-  the first chart series and an `accent` `Callout`. Buttons, badges and toggles
+- **Ink indigo** is the accent: links, the selected sidebar item, the first
+  chart series and an `accent` `Callout`. Buttons, badges, toggles and focus
   stay monochrome.
 - **Green and red** mean a gain and a loss. A signed figure is `Delta`: the figure in the text colour with its
   `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
@@ -33,8 +33,10 @@ a meaning:
   canvas and the card; dividers, card rings, gridlines and the outlines of
   buttons, toggles and code blocks are the `--border` hairline (the text colour
   at 18% in light, white at 20% in dark), firm enough to carry the page's
-  structure. Focus is an opaque
-  `--ring`, or the opaque destructive red on a destructive control. A selected
+  structure. Focus is in the text colour (`--ring`): a field's own edge turns
+  to it and thickens to 2px; any other control takes a halo of it at half
+  strength, which reads at 3:1 on the page and beside a black fill alike. A
+  destructive control focuses in the destructive red. A selected
   toggle or pill tab fills with the foreground. A chart bar that a selection
   dims keeps its full-colour outline and fades only inside.
 - **Destructive is not loss.** `--destructive` (delete, an invalid field) is a
@@ -93,9 +95,32 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 
 ## Labels and totals
 
-- **Labels over figures are small monospaced capitals**: a stat tile's label
-  and footer lines, a `MetricStrip` label, a table's column heads. The
-  components and the theme set them; never set a label in this style by hand
-  elsewhere, and never set a figure or a title in it.
+- **Labels are small monospaced capitals**: a stat tile's label and footer
+  lines, a `MetricStrip` label, a table's column heads, a sidebar group's
+  label, and a form field's label (muted, above the field). The components and
+  the theme set them; never set a label in this style by hand elsewhere, and
+  never set a figure or a title in it.
 - **A total row reads as a ledger's**: in `TableFooter`, one rule above it and
   a double rule under it in the text colour, no band.
+
+## Tables
+
+Tables are dense, as a ledger is: compact rows, a 1px rule in the text colour
+under the column heads, the first column (what the row is) in medium weight,
+and figures in the mono face. A figure is a cell marked `data-numeric` (the
+data table's number columns) or right-aligned, and any `Delta` in a cell. Row
+hairlines stay; never stripes, never column rules.
+
+## Forms
+
+- Every field is a `Field` with a `FieldLabel` above the control, a
+  `FieldDescription` hint or a `FieldError` under it. Never write a bare
+  `<label>` with its own styles.
+- An invalid field (`aria-invalid` on the control, `data-invalid` on its
+  `Field`) keeps its red edge and takes a faint red wash.
+
+## Sidebar
+
+The sidebar is parted from the page by a hairline on its page-side edge, its
+group labels are small monospaced capitals and its rows are compact. Its fill,
+icons and the current page's mark stay as shadcn draws them.

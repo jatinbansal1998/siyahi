@@ -11,7 +11,7 @@ const RULES = [
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws the dashed horizontal grid, the tooltip and the legend below; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
   "Tables are the registry data table, inside a Card. Column heads are small mono capitals; a total row sits between a rule and a double rule.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
-  "Ink indigo is placed, not spread: links, focus rings, the selected sidebar item and the first chart series. Three meaning colours, positive, negative and warning, carry gains, losses and caution. Buttons, badges and toggles stay black and white.",
+  "Ink indigo is placed, not spread: links, the selected sidebar item and the first chart series. Three meaning colours, positive, negative and warning, carry gains, losses and caution. Buttons, badges and toggles stay black and white.",
   "Notices are StatusAlert in a tone: information, a warning, an error or a success, the whole card washed in its colour; states are StatusBadge. Never a single coloured edge on any box.",
   "Stock sizes from the base-nova style: 16px panels, 36px table rows. Geist, tabular figures. Geist Mono only for identifiers, ticks, panel numbers and the small capital labels over figures.",
   "Indian grouping, compact rupees, IST with zone, signs beside colour, scheme follows the device, reduced motion honoured.",
