@@ -33,7 +33,7 @@ export default function ChartBarTeamsExample() {
   ];
   const gap = (row: Row) => {
     const points = Math.abs(row.actual - row.comparison) * 100;
-    return `${points.toFixed(1)} points ${row.actual >= row.comparison ? "over" : "under"}`;
+    return `${row.actual >= row.comparison ? "+" : "\u2212"}${points.toFixed(1)} points`;
   };
   return (
     <BarChartCard

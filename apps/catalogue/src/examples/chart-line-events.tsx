@@ -22,7 +22,7 @@ export default function ChartLineEventsExample() {
   return (
     <LineChartCard
       title="Memory pressure of a test group, %"
-      description="Share of time the group stalled waiting for memory, as the kernel's 10 s average (avg10), sampled every 15 s"
+      description="Share of time the group stalled waiting for memory, as the kernel's 10 s average (avg10), sampled every 15 s, times in IST"
       data={data}
       xKey="second"
       // A numeric axis: ticks fall on whole minutes, 2 s after the first sample.

@@ -21,7 +21,7 @@ export default function CardExample() {
         <CardAction>
           <Button variant="outline" size="sm">
             <DownloadIcon />
-            CSV
+            Export CSV
           </Button>
         </CardAction>
       </CardHeader>
@@ -29,7 +29,7 @@ export default function CardExample() {
         <p className="text-3xl font-semibold">{money(4512300)}</p>
       </CardContent>
       <CardFooter>
-        <p className="text-muted-foreground">Updated every night at midnight</p>
+        <p className="text-muted-foreground">Updated every night at midnight IST</p>
       </CardFooter>
     </Card>
   );

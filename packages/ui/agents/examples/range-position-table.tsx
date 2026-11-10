@@ -74,7 +74,7 @@ const columns: DataTableColumnDef<Service>[] = [
   {
     accessorKey: "today",
     header,
-    size: 120,
+    size: 170,
     meta: { label: "95th percentile today", variant: "number" },
     cell: ({ row }) => <Milliseconds value={row.original.today} />,
   },
@@ -93,7 +93,8 @@ export default function RangePositionTableExample() {
       <CardHeader>
         <CardTitle>Search is near its slowest of the month, login near its fastest</CardTitle>
         <CardDescription>
-          Each service's response time today on a track from its fastest day to its slowest; sort to rank them
+          Each service's 95th-percentile response time today (95 in 100 requests were faster) on a track from its
+          fastest day to its slowest; sort to rank them
         </CardDescription>
       </CardHeader>
       <CardContent>

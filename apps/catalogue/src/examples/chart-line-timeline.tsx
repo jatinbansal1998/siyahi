@@ -23,7 +23,7 @@ export default function ChartLineTimelineExample() {
   return (
     <LineChartCard
       title="Memory in use, GiB"
-      description="From sar -r. Used excludes the page cache; program memory is what sar calls anon."
+      description="From sar -r, times in IST. Used excludes the page cache; program memory is what sar calls anon."
       data={data}
       xKey="minute"
       // Ticks on both ends of the domain: the first sits at the plot's left edge.
