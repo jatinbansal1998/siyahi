@@ -19,8 +19,10 @@ afterAll(async () => {
 const style = (locator: Locator, ...names: string[]): Promise<string[]> =>
   locator.evaluate((el, props) => props.map((prop) => getComputedStyle(el).getPropertyValue(prop)), names);
 
-const open = async (route: string): Promise<Locator> => {
+/** Goes to a family's route and waits for its page, by its title, so no locator reads the page it left. */
+const open = async (route: string, title: string): Promise<Locator> => {
   await page.goto(page.url().replace(/#.*/, `#/${route}`));
+  await page.getByRole("heading", { level: 1, name: title, exact: true }).waitFor();
   const preview = page.locator('[data-slot="example-preview"]').first();
   await preview.waitFor();
   return preview;
@@ -28,7 +30,7 @@ const open = async (route: string): Promise<Locator> => {
 
 describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   it("draws a table dense: compact rows, a text-colour rule under the heads, a medium first column, mono figures", async () => {
-    const table = await open("components/table");
+    const table = await open("components/table", "Table");
     expect(await style(table.locator('[data-slot="table-head"]').first(), "height")).toEqual(["28px"]);
     expect(await style(table.locator('[data-slot="table-cell"]').first(), "padding-top")).toEqual(["3.2px"]);
     expect(
@@ -41,7 +43,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("sets a field's label above it in small muted mono capitals, and washes an invalid field red", async () => {
-    const form = await open("inputs/field");
+    const form = await open("inputs/field", "Field");
     const label = form.locator('[data-slot="field-label"]', { hasText: "Name" });
     const [font, transform, size, color] = await style(label, "font-family", "text-transform", "font-size", "color");
     expect([font?.startsWith('"Geist Mono'), transform, size, color]).toEqual([
@@ -59,7 +61,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("focuses a field as its own edge, 2px in the text colour, drawn inside it", async () => {
-    const form = await open("inputs/field");
+    const form = await open("inputs/field", "Field");
     const name = form.getByLabel("Name");
     await name.focus();
     const ink = await themeColor(page, "--foreground");
@@ -70,7 +72,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("focuses a pressed toggle with a text-colour ring and a page-colour ring inside its black fill", async () => {
-    const form = await open("inputs/field");
+    const form = await open("inputs/field", "Field");
     // Keyboard focus, so :focus-visible applies: Tab from the field before the group, then arrow to the pressed item.
     await form.getByLabel("Folio number").focus();
     await page.keyboard.press("Tab");
@@ -91,7 +93,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("keeps a focused toggle's ring inside it, so a pressed neighbour cannot swallow it", async () => {
-    await page.goto(page.url().replace(/#.*/, "#/components/toggle-group"));
+    await open("inputs/toggle-group", "Toggle group");
     const group = page.locator('[data-slot="example-preview"]').first().locator('[data-slot="toggle-group"]').first();
     await group.waitFor();
     const unpressed = group.locator('[data-slot="toggle-group-item"][aria-pressed="false"]').first();
@@ -106,7 +108,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("rings the whole command search, its icon included, when its input has focus", async () => {
-    await page.goto(page.url().replace(/#.*/, "#/inputs/command"));
+    await open("inputs/command", "Command");
     const input = page.locator('[data-slot="command-input"]').first();
     await input.focus();
     const ink = await themeColor(page, "--foreground");
@@ -116,7 +118,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("draws a focused treemap tile's ring as a dashed stroke inside it, apart from a picked tile's solid one", async () => {
-    await page.goto(page.url().replace(/#.*/, "#/data/treemap"));
+    await open("data/treemap", "Treemap");
     const tile = page.locator('[data-slot="treemap-tile"][tabindex="0"]').first();
     await tile.focus();
     await page.keyboard.press("ArrowRight");
@@ -127,7 +129,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("sets a label in a FieldContent in mono capitals, and a right-aligned word in the sans", async () => {
-    const form = await open("inputs/field");
+    const form = await open("inputs/field", "Field");
     const label = await form.locator('[data-slot="field-label"]', { hasText: "Name" }).evaluate((el) => {
       const content = document.createElement("div");
       content.dataset.slot = "field-content";
@@ -136,7 +138,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
       return [getComputedStyle(el).fontFamily.startsWith('"Geist Mono'), getComputedStyle(el).textTransform];
     });
     expect(label).toEqual([true, "uppercase"]);
-    const table = await open("components/table");
+    const table = await open("components/table", "Table");
     const word = await table
       .locator('[data-slot="table-body"] [data-slot="table-cell"]')
       .first()
@@ -153,7 +155,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("keeps the text-colour rule under a data table's sticky header", async () => {
-    const data = await open("data/data-table");
+    const data = await open("data/data-table", "Data table");
     const rule = await data
       .locator('[data-slot="table-header"]')
       .first()
@@ -173,7 +175,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
   });
 
   it("parts a non-collapsible sidebar from the page with a hairline, its group label in mono capitals and its rows compact", async () => {
-    await open("components/table");
+    await open("components/table", "Table");
     // A collapsible sidebar is edged by shadcn; a non-collapsible one, in the page's flow, by the theme.
     const edge = await page.evaluate(() => {
       const sidebar = document.body.appendChild(document.createElement("div"));
