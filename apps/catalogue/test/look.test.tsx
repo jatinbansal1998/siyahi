@@ -28,7 +28,7 @@ const TRANSPARENT = "rgba(0, 0, 0, 0)";
 
 describe("the look", { timeout: 60_000 }, () => {
   it("opens on a masthead: a 30px title, the actions at the right and a hairline under it", async () => {
-    const masthead = example().locator('[data-slot="page-hero"]');
+    const masthead = example().locator('[data-slot="page-header"]');
     expect(await style(masthead, "border-bottom-width", "border-radius", "background-color")).toEqual([
       "1px",
       "0px",

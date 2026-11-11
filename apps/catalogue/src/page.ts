@@ -36,8 +36,8 @@ export interface Page {
   /** The page's icon in the sidebar, all that shows when it collapses. */
   icon: ReactNode;
   lead: ReactNode;
-  /** Drawn in place of the title and lead: a front page's PageHero. */
-  hero?: ReactNode;
+  /** Drawn in place of the title and lead: a front page's PageHeader. */
+  header?: ReactNode;
   /**
    * "index" lists the families as cards, each opening on its own route; "stack" draws them all in one page, for
    * reference pages whose parts are short.

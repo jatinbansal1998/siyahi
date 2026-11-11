@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export interface PageHeroProps {
+export interface PageHeaderProps {
   /** A short line above the title in the mono face and the link colour, such as the app or a section name. */
   eyebrow?: ReactNode;
   /** The page's h1. */
@@ -20,9 +20,9 @@ export interface PageHeroProps {
  * the actions at the right, and a hairline under it all. One per page, above everything else; a section uses
  * PageSection.
  */
-export function PageHero({ eyebrow, title, lead, detail, actions, mark }: PageHeroProps) {
+export function PageHeader({ eyebrow, title, lead, detail, actions, mark }: PageHeaderProps) {
   return (
-    <header data-slot="page-hero" className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b pb-4">
+    <header data-slot="page-header" className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b pb-4">
       <div className="flex min-w-0 flex-col gap-1">
         {(mark || eyebrow) && (
           <p className="flex items-center gap-1.5 font-mono text-xs text-link">

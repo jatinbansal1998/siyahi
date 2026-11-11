@@ -1,7 +1,7 @@
-import { Button, PageHero } from "@siyahi/ui";
+import { Button, PageHeader } from "@siyahi/ui";
 import { ArrowRightIcon } from "lucide-react";
 
-// The catalogue's own ink drop, painted with currentColor so the hero tints it.
+// The catalogue's own ink drop, painted with currentColor so the header tints it.
 function InkDrop() {
   return (
     <svg viewBox="0 0 16 16">
@@ -14,9 +14,9 @@ function InkDrop() {
   );
 }
 
-export default function PageHeroExample() {
+export default function PageHeaderExample() {
   return (
-    <PageHero
+    <PageHeader
       eyebrow="@siyahi/ui"
       title="Siyahi"
       lead="Ink for numbers. A design system for pages people read figures from: dashboards, ledgers, reports."

@@ -99,7 +99,7 @@ mono face and the link colour, so the text can point to one.
 
 ## Page header
 
-An app page opens on its masthead, `PageHero`: a small mark and eyebrow in the
+An app page opens on its masthead, `PageHeader`: a small mark and eyebrow in the
 mono face and link colour, the title, one muted line saying what the page is,
 the actions at the right, and a hairline under it. One per page; no hero card.
 

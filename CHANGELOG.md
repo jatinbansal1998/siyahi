@@ -80,10 +80,12 @@
   double rule, with no band. `PanelGrid` numbers its blocks' titles 01, 02 in
   the mono face and link colour. A `ToggleGroup`'s items sit flush and share
   borders.
-- `PageHero` is a compact masthead: a small mark and eyebrow, the title, one
+- `PageHeader` is a compact masthead: a small mark and eyebrow, the title, one
   muted line (`lead` then `detail`), the actions at the right and a hairline
   under it, in place of the large hero card. Props are unchanged; `mark` is
   now a small icon before the eyebrow instead of a faint watermark.
+  It was `PageHero` (slot `page-hero`) in the 0.1.9-next prereleases and is
+  renamed with no alias: import `PageHeader` and select `[data-slot="page-header"]`.
 - Exceptions are marked by the page: `tone: "negative" | "warning"` on a
   `SectionCards` item, or `data-tone` on a `TableRow`, takes a faint wash of
   the colour (`--wash`, 7% in light, 12% in dark) and a tile an outline of it.
@@ -283,7 +285,7 @@
     item and `chart-1`; the dark chart palette keeps indigo saturated; dark
     muted text is a step brighter. The default surface is `card`.
   - New: `ChangeBar` with `DataTableFootnote`, `TargetRows`, `RangePosition`,
-    `PageHero`, `PageToc`, `WarningAlert`, `Callout` and `Quote`,
+    `PageHeader`, `PageToc`, `WarningAlert`, `Callout` and `Quote`,
     `defaultSidebarOpen`. A warning or callout is tinted across the whole box;
     the skill rules out one-sided coloured edges.
   - Heatmap blocks take `selected` (a ring and `aria-pressed`) and fill their
