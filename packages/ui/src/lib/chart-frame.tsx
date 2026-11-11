@@ -179,6 +179,33 @@ export function axisValues<T>(data: readonly T[], series: ChartSeries<T>, stackO
   });
 }
 
+/**
+ * A linear value axis that just covers what is drawn: the values (a stack's totals), the page's levels and ticks, and
+ * zero under bars, so no bar hangs from its smallest loss and no level falls off the plot.
+ */
+export function linearValueAxis<T>(
+  data: readonly T[],
+  series: ChartSeries<T>,
+  {
+    stackOffset,
+    referenceLines = NO_LINES,
+    yTicks = [],
+    bars = false,
+  }: {
+    stackOffset?: StackOffset | undefined;
+    referenceLines?: readonly ChartReferenceLine[] | undefined;
+    yTicks?: readonly number[] | undefined;
+    bars?: boolean | undefined;
+  },
+) {
+  return linearAxis([
+    ...axisValues(data, series, stackOffset),
+    ...referenceLines.flatMap(({ y }) => (y === undefined ? [] : [y])),
+    ...yTicks,
+    ...(bars ? [0] : []),
+  ]);
+}
+
 interface ChartFrameProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K>, NumericXProps, ValueScaleProps, LineMarksProps<T, K> {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
@@ -482,13 +509,13 @@ export function ChartFrame<T extends object, K extends keyof T>({
     logBlocked: logBlocked ?? (fitsLog(values) ? undefined : LOG_BLOCKED),
   });
   const log = valueAxis.scale === "log" ? logAxis(values, yDomain) : undefined;
-  // Unless the page fixes the range or the ticks, a linear value axis ends on the round ticks that just cover what is
-  // drawn, zero included under bars: a 46,800 peak ends at 50,000. Recharts' own nice ticks kept a count of five and
-  // ran on to 80,000.
+  // Unless the page fixes the range, a linear value axis ends on the round ticks that just cover what is drawn: the
+  // values, the page's levels and ticks, and zero under bars. A 46,800 peak ends at 50,000, where Recharts' own nice
+  // ticks kept a count of five and ran on to 80,000. A page's own ticks are the ones drawn.
   const linear =
-    log || yDomain !== undefined || yTicks !== undefined
+    log || yDomain !== undefined
       ? undefined
-      : linearAxis([...axisValues(data, series, stackOffset), ...(Chart === BarChart ? [0] : [])]);
+      : linearValueAxis(data, series, { stackOffset, referenceLines, yTicks, bars: Chart === BarChart });
   // Narrow panels need extra row space for complete quantitative details.
   const detailedRows = horizontal && xTickDetail !== undefined;
   const rowCount = (xTicks ?? data).length;
@@ -567,7 +594,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     niceTicks={linear ? undefined : "snap125"}
                     hide={!yTickFormatter}
                     domain={linear?.domain ?? yDomain}
-                    ticks={linear?.ticks ?? (yTicks as number[] | undefined)}
+                    ticks={(yTicks as number[] | undefined) ?? linear?.ticks}
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
@@ -607,7 +634,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     axisLine={false}
                     width="auto"
                     domain={log?.domain ?? linear?.domain ?? yDomain}
-                    ticks={log?.ticks ?? linear?.ticks ?? (yTicks as number[] | undefined)}
+                    ticks={log?.ticks ?? (yTicks as number[] | undefined) ?? linear?.ticks}
                     label={
                       yLabel
                         ? {

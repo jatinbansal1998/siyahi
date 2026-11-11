@@ -67,6 +67,12 @@ describe("linearAxis", () => {
     });
   });
 
+  it("covers 200,000 values, which Math.min(...values) could not take as arguments", () => {
+    const values = Array.from({ length: 200_000 }, (_, i) => i);
+    expect(linearAxis(values)?.domain).toEqual([0, 200000]);
+    expect(logAxis(values.map((i) => i + 1)).domain).toEqual([1, 200000]);
+  });
+
   it("leaves an axis with nothing to span to the chart", () => {
     expect(linearAxis([])).toBeUndefined();
     expect(linearAxis([3, 3])).toBeUndefined();

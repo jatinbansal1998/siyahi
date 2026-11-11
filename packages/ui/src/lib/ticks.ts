@@ -38,13 +38,24 @@ export function linearTicks(min: number, max: number, count = 5): number[] {
   return Array.from({ length: last - first + 1 }, (_, i) => clean((first + i) * step));
 }
 
+/** The smallest and largest value, by a loop: Math.min(...values) overflows the call stack past about 100,000. */
+function extent(values: readonly number[]): [number, number] {
+  let low = Number.POSITIVE_INFINITY;
+  let high = Number.NEGATIVE_INFINITY;
+  for (const value of values) {
+    low = Math.min(low, value);
+    high = Math.max(high, value);
+  }
+  return [low, high];
+}
+
 /**
  * A value axis' ends and ticks: the round ticks that just cover the values, and their outer two as the ends. About
  * six, not five, so a 46,800 peak ends at 50,000 by 10,000s rather than at 60,000 by 20,000s. None when the values
  * span no range (no values, or one), which leaves the axis to the chart.
  */
 export function linearAxis(values: readonly number[]): { domain: [number, number]; ticks: number[] } | undefined {
-  const ticks = linearTicks(Math.min(...values), Math.max(...values), 6);
+  const ticks = linearTicks(...extent(values), 6);
   const [low, high] = [ticks[0], ticks.at(-1)];
   return low !== undefined && high !== undefined && low < high ? { domain: [low, high], ticks } : undefined;
 }
@@ -71,8 +82,7 @@ export function logAxis(
     const [low, high] = range;
     return { domain: [low, high], ticks: logTicks(low, high).filter((tick) => tick >= low && tick <= high) };
   }
-  const low = Math.min(...values);
-  const high = Math.max(...values);
+  const [low, high] = extent(values);
   const ticks = logTicks(low, high);
   return { domain: [ticks[0] ?? low, ticks.at(-1) ?? high], ticks };
 }
