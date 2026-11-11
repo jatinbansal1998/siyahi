@@ -1,14 +1,14 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useLayoutEffect, useReducer, useRef } from "react";
 
-// How many font loads the page has finished, on the font set it was counted on.
+// How many font loads the page has finished, and the font sets counting them.
 let loads = 0;
-let counted: FontFaceSet | undefined;
+const counted = new WeakSet<FontFaceSet>();
 
 /** How many font loads the page has finished: a width a canvas measured before the last one may be the fallback's. */
 export function fontLoads(): number {
-  if (typeof document !== "undefined" && document.fonts && document.fonts !== counted) {
-    counted = document.fonts;
-    counted.addEventListener("loadingdone", () => loads++);
+  if (typeof document !== "undefined" && document.fonts && !counted.has(document.fonts)) {
+    counted.add(document.fonts);
+    document.fonts.addEventListener("loadingdone", () => loads++);
   }
   return loads;
 }
@@ -21,20 +21,22 @@ export function fontLoads(): number {
  */
 export function useRenderWhenFontsLoad(measure: () => number | string): void {
   const drawn = measure();
-  const latest = useRef(measure);
+  const seen = fontLoads();
+  const committed = useRef({ measure, drawn });
   const [, render] = useReducer((count: number) => count + 1, 0);
-  useEffect(() => {
-    latest.current = measure;
-  });
-  useEffect(() => {
+  // Layout effects run as the render commits, before any font event can: a load then sees this render's text.
+  useLayoutEffect(() => {
+    committed.current = { measure, drawn };
+    // A load that finished between the render and its commit.
+    if (fontLoads() !== seen && measure() !== drawn) render();
+  }, [measure, drawn, seen]);
+  useLayoutEffect(() => {
     const fonts = document.fonts;
     if (!fonts) return;
     const recheck = () => {
-      if (latest.current() !== drawn) render();
+      if (committed.current.measure() !== committed.current.drawn) render();
     };
-    // A load that finished between this render and now.
-    recheck();
     fonts.addEventListener("loadingdone", recheck);
     return () => fonts.removeEventListener("loadingdone", recheck);
-  }, [drawn]);
+  }, []);
 }

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act } from "react";
+import { act, useLayoutEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { fontLoads, useRenderWhenFontsLoad } from "../src/lib/use-render-when-fonts-load";
@@ -16,6 +16,12 @@ function Probe() {
   useRenderWhenFontsLoad(() => width);
   renders++;
   return null;
+}
+
+/** Shows what its text measures now, as a chart lays its names out by it. */
+function Measured({ measure }: { measure: () => number }) {
+  useRenderWhenFontsLoad(measure);
+  return <output>{measure()}</output>;
 }
 
 const root = createRoot(document.body.appendChild(document.createElement("div")));
@@ -42,6 +48,23 @@ describe("useRenderWhenFontsLoad", () => {
     const mounted = renders;
     await finishLoad();
     expect(renders).toBe(mounted);
+  });
+
+  it("measures with the newest render's text when a load lands as that render commits", async () => {
+    // A load can finish as the page commits a render with new names, before passive effects run; the check must use
+    // the names now on screen, not the last render's.
+    let answer = 100;
+    function Page({ next }: { next: boolean }) {
+      useLayoutEffect(() => {
+        if (!next) return;
+        answer = 92;
+        fonts.dispatchEvent(new Event("loadingdone"));
+      }, [next]);
+      return <Measured measure={next ? () => answer : () => 100} />;
+    }
+    await act(async () => root.render(<Page next={false} />));
+    await act(async () => root.render(<Page next />));
+    expect(document.querySelector("output")?.textContent).toBe("92");
   });
 
   it("counts finished loads, so a width measured before one is not kept after it", async () => {

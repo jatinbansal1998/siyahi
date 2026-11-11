@@ -142,13 +142,6 @@ export function ScatterChartCard<T extends ScatterPoint>({
   sizeFormatter,
 }: ScatterChartCardProps<T>) {
   const { numberLocale } = useLocale();
-  // The names are placed by widths measured on a canvas (labelType), again when a font load changes them.
-  useRenderWhenFontsLoad(() => {
-    const { measure } = labelType();
-    return [...points.map(({ name }) => name), ...Object.values(quadrants?.labels ?? {})]
-      .map((name) => (name ? measure(name) : 0))
-      .join();
-  });
   const plotRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   // The dot the keyboard is on. Recharts swaps the dots' elements when the chart re-renders, which drops focus, so
@@ -181,6 +174,14 @@ export function ScatterChartCard<T extends ScatterPoint>({
     () => points.filter((p) => p.y !== null && Number.isFinite(p.y) && Number.isFinite(p.x)),
     [points],
   );
+  // The names are placed by widths measured on a canvas (labelType), again when a font load changes them: the drawn
+  // points' names when any are named, and the corners'.
+  useRenderWhenFontsLoad(() => {
+    const { measure } = labelType();
+    return [...(labels > 0 ? drawn.map(({ name }) => name) : []), ...Object.values(quadrants?.labels ?? {})]
+      .map((name) => (name ? measure(name) : 0))
+      .join();
+  });
   // With a toggle on each axis, each pair of buttons shows its axis' name, so the two are told apart.
   const both = xScaleToggle && yScaleToggle;
   const across = useAxisScale({
