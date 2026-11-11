@@ -16,6 +16,8 @@
 // data-pinned, so the theme washes it with the rest of its row.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: the primary sorted column's head carries aria-sort, so a screen
+// reader reads the table's sort order from the table, not from a button's name.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
@@ -53,6 +55,8 @@ export type { ScrollEvent }
 // ============================================================================
 // DataTableHeader
 // ============================================================================
+
+const ARIA_SORT = { asc: "ascending", desc: "descending" } as const
 
 export interface DataTableHeaderProps {
   className?: string | undefined
@@ -107,10 +111,14 @@ export const DataTableHeader = React.memo(function DataTableHeader({
               ...getCommonPinningStyles(header.column, true, !isCompact),
             }
 
+            // ARIA puts aria-sort on one head per table: the primary sort, not a column that only breaks its ties.
+            const sorted = !header.isPlaceholder && header.column.getSortIndex() === 0 && header.column.getIsSorted()
+
             return (
               <TableHead
                 key={header.id}
                 data-col-id={header.column.id}
+                aria-sort={sorted ? ARIA_SORT[sorted] : undefined}
                 data-numeric={header.column.columnDef.meta?.variant === "number" || undefined}
                 style={headerStyle}
                 className={cn(
