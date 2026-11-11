@@ -35,9 +35,10 @@ import { readTheme } from "./theme.mjs";
 
 const TEXT = 4.5;
 const MARK = 3;
-// A fill told apart from the fill or card beside it, inside a 1px edge that already carries the mark's 3:1. No tint
-// reaches 3:1 against its neighbour's: the solid slots next to each other sit near 3:1, and mixing both into the card
-// only narrows that. At 25% a stack's pale segments sat at 1.2:1 against each other and read as one.
+// A fill told apart from the fill or card beside it, inside a 1px edge that already carries the mark's 3:1. Only a
+// nearly solid tint reaches 3:1 against its neighbour's: the solid slots next to each other sit just over 3:1, and
+// mixing both into the card narrows that. At 25% a stack's pale segments sat at 1.2:1 against each other and read as
+// one. 1.5:1 is a guard against sliding back there, not a published threshold.
 const FILL = 1.5;
 const SURFACES = ["background", "card"];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
