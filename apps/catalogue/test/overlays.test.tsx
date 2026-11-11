@@ -143,24 +143,23 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
   });
 
   it("squares heatmap cells, treemap tiles and their legend swatches, and keeps a signed loss day round", async () => {
-    const corners = (rects: Locator): Promise<string[]> =>
-      rects.evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute("rx") ?? "0"))]);
     await open("data/heatmaps", "Heatmaps");
-    // The heatmaps' cells and swatches, apart from a signed calendar's round loss days.
     const cells = page.locator('[data-slot="example-preview"] [data-slot="card"] svg rect:not([fill="none"])');
     await cells.first().waitFor();
+    // Each rounded rect, as a full circle (a signed calendar's loss day) or a box with softened corners.
     const rounded = await cells.evaluateAll((els) =>
       els
         .filter((el) => Number(el.getAttribute("rx") ?? 0) > 0)
-        .map((el) => Number(el.getAttribute("rx")) * 2 >= Number(el.getAttribute("width")) - 1),
+        .map((el) => (Number(el.getAttribute("rx")) * 2 >= Number(el.getAttribute("width")) - 1 ? "circle" : "box")),
     );
-    // Every rounded rect left is a full circle, a loss day: none is a box with softened corners.
-    expect(rounded.every(Boolean)).toBe(true);
+    expect([...new Set(rounded)]).toEqual(["circle"]);
     await open("data/treemap", "Treemap");
     const tiles = page.locator(
       '[data-slot="example-preview"] :is([data-slot="treemap-tile"], [data-slot="treemap-legend-swatch"]) rect',
     );
     await tiles.first().waitFor();
-    expect(await corners(tiles)).toEqual(["0"]);
+    expect(await tiles.evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute("rx") ?? "0"))])).toEqual([
+      "0",
+    ]);
   });
 });
