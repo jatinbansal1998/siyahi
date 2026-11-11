@@ -35,6 +35,7 @@ import {
   type ScatterQuadrants,
 } from "@siyahi/ui/lib/scatter";
 import { fitsLog, ticksFor, type AxisScale } from "@siyahi/ui/lib/ticks";
+import { fontLoads, useRenderWhenFontsLoad } from "@siyahi/ui/lib/use-render-when-fonts-load";
 
 export interface ScatterPoint {
   name: string;
@@ -173,6 +174,14 @@ export function ScatterChartCard<T extends ScatterPoint>({
     () => points.filter((p) => p.y !== null && Number.isFinite(p.y) && Number.isFinite(p.x)),
     [points],
   );
+  // The names are placed by widths measured on a canvas (labelType), again when a font load changes them: the drawn
+  // points' names when any are named, and the corners'.
+  useRenderWhenFontsLoad(() => {
+    const { measure } = labelType();
+    return [...(labels > 0 ? drawn.map(({ name }) => name) : []), ...Object.values(quadrants?.labels ?? {})]
+      .map((name) => (name ? measure(name) : 0))
+      .join();
+  });
   // With a toggle on each axis, each pair of buttons shows its axis' name, so the two are told apart.
   const both = xScaleToggle && yScaleToggle;
   const across = useAxisScale({
@@ -456,8 +465,12 @@ function Dot<T extends ScatterPoint>({
   );
 }
 
-/** A name's width in the labels' type, measured on a canvas once per font and name. */
+/**
+ * A name's width in the labels' type, measured on a canvas once per font and name, and again after each font load:
+ * the font string is the same before and after Geist arrives, and a width measured before was the fallback's.
+ */
 const widths = new Map<string, number>();
+let widthsAfter = 0;
 let canvas: CanvasRenderingContext2D | null | undefined;
 
 /** The labels' type as the page sets it: text-xs is three quarters of the root size, which a reader may enlarge. */
@@ -466,6 +479,10 @@ function labelType(): LabelType {
   const size = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) * 0.75;
   const font = `500 ${size}px ${getComputedStyle(document.body).fontFamily}`;
   canvas ??= document.createElement("canvas").getContext("2d");
+  if (fontLoads() !== widthsAfter) {
+    widths.clear();
+    widthsAfter = fontLoads();
+  }
   const measure = (text: string) => {
     const id = `${font}\n${text}`;
     let width = widths.get(id);

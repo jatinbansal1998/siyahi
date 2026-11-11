@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useId,
   useMemo,
   useState,
@@ -58,6 +57,7 @@ import type {
 import { EndLabels, QUIET, TimeMarks, endLabelRoom, endLabelsFit, linesEndAtEdge } from "@siyahi/ui/lib/chart-marks";
 import { fitsLog, linearAxis, logAxis } from "@siyahi/ui/lib/ticks";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
+import { useRenderWhenFontsLoad } from "@siyahi/ui/lib/use-render-when-fonts-load";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 // Recharts 3.8 draws tick labels in a layer of their own, which the core chart's
@@ -73,19 +73,6 @@ const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
  */
 export function barFill(color: string, dim = false): string {
   return `color-mix(in oklab, ${color} ${dim ? "10%" : "var(--bar-tint)"}, var(--card))`;
-}
-
-/** Renders the component again once the page's fonts load, so text measured on a canvas is measured in Geist. */
-function useRenderWhenFontsLoad(): void {
-  const [loaded, setLoaded] = useState(() => typeof document === "undefined" || document.fonts?.status === "loaded");
-  useEffect(() => {
-    if (loaded || !document.fonts) return;
-    let live = true;
-    void document.fonts.ready.then(() => live && setLoaded(true));
-    return () => {
-      live = false;
-    };
-  }, [loaded]);
 }
 
 interface QuietLegendProps<T> {
@@ -495,11 +482,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const { numberLocale } = useLocale();
   const clipId = useId();
   const [contentRef, contentWidth] = useElementWidth<HTMLDivElement>();
-  // The names are measured as drawn, again once Geist has loaded: the fallback's widths are not Geist's.
-  useRenderWhenFontsLoad();
   const [raisedKey, setRaisedKey] = useState<ChartSeriesItem<T>["key"]>();
   const names = endLabels ? series.map(({ label }) => label) : [];
   const labelRoom = endLabels ? endLabelRoom(names) : 0;
+  // The names are measured as drawn, and again when a font load changes their room: the fallback's widths are not
+  // Geist's.
+  useRenderWhenFontsLoad(() => (endLabels ? endLabelRoom(names) : 0));
   // The plot's height under the card's top margin and the x axis: the names must fit it 14px apart.
   const plotHeight = height - 12 - (xTickDetail ? 40 : 30) - (xLabel ? 18 : 0);
   const ends =
