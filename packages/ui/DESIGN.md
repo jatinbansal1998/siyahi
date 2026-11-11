@@ -24,9 +24,9 @@ a meaning:
   inside a 1px border of the same colour all round. Large marks follow the same
   rule: every bar is a tint inside a 1px full-colour edge, not a solid slab.
   A bar is read by its edge, which reaches 3:1 against the card; the tint is a
-  fill carried by that edge. A stack's segments take a stronger tint
-  (`--stack-tint`, 50% against a lone bar's 25%), since a segment a few pixels
-  tall is mostly edge and still needs its colour to tell it from the next.
+  fill carried by that edge: half its colour (`--bar-tint`, 50%), strong
+  enough that a thin stacked segment, mostly edge, still shows its colour
+  against the next, and a pale slot's bar does not read as the card.
 - **Never a stripe down one side.** Do not mark a notice, card, row or quote
   with a left (or any single-side) coloured border; tint the box or add an
   icon. 1px neutral dividers between columns are separators, not accents, and

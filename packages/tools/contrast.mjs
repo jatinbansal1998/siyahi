@@ -38,7 +38,8 @@ const MARK = 3;
 // A fill told apart from the fill or card beside it, inside a 1px edge that already carries the mark's 3:1. Only a
 // nearly solid tint reaches 3:1 against its neighbour's: the solid slots next to each other sit just over 3:1, and
 // mixing both into the card narrows that. At 25% a stack's pale segments sat at 1.2:1 against each other and read as
-// one. 1.5:1 is a guard against sliding back there, not a published threshold.
+// one, and a pale slot's lone bar at 1.3:1 against the card. 1.5:1 is a guard against sliding back there, not a
+// published threshold.
 const FILL = 1.5;
 const SURFACES = ["background", "card"];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
@@ -150,17 +151,18 @@ const PAIRS = [
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A bar is read by its full-colour
-  // edge, so these are the edges too; a lone bar's tint inside is carried by the
-  // edge and has no pair of its own, nor has a dimmed bar's fainter tint. A stale
-  // block's marks (greyed, at 65%) are exempt: stale is meant to read faintly.
+  // edge, so these are the edges too. A stale block's marks (greyed, at 65%)
+  // are exempt: stale is meant to read faintly.
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "", min: MARK })),
   ...CHARTS.slice(0, -1).map((fg, i) => ({ fg, bg: CHARTS[i + 1] ?? "", min: MARK })),
-  // A stack's segment a few pixels tall is mostly its edges, so its colour shows
-  // through its tint (--stack-tint): against the card and the next slot's tint.
-  ...CHARTS.map((slot) => ({ fg: `${slot}@stack-tint`, bg: "", min: FILL, surface: "card" })),
+  // A bar's tint (--bar-tint) carries its colour where the bar is short, such as
+  // a thin stacked segment that is mostly edge: every bar colour's tint against
+  // the card, and each slot's against the next slot's, its neighbour in a stack.
+  // A dimmed bar's fainter tint has no pair: a selection means it to fade.
+  ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg: `${fg}@bar-tint`, bg: "", min: FILL, surface: "card" })),
   ...CHARTS.slice(0, -1).map((slot, i) => ({
-    fg: `${slot}@stack-tint`,
-    bg: `${CHARTS[i + 1]}@stack-tint`,
+    fg: `${slot}@bar-tint`,
+    bg: `${CHARTS[i + 1]}@bar-tint`,
     min: FILL,
     surface: "card",
   })),

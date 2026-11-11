@@ -172,27 +172,12 @@ describe("chart ink", { timeout: 60_000 }, () => {
       path.getAttribute("stroke-width"),
     ]);
     expect([fill, stroke, width]).toEqual([
-      "color-mix(in oklab, var(--chart-1) 25%, var(--card))",
+      "color-mix(in oklab, var(--chart-1) var(--bar-tint), var(--card))",
       "var(--chart-1)",
       "1",
     ]);
-    expect(
-      await bars
-        .locator(".recharts-bar-rectangles")
-        .first()
-        .evaluate((g) => getComputedStyle(g).animationName),
-    ).toBe("chart-fade-in");
-  });
-
-  it("fills a stack's segments with the stronger --stack-tint, so a thin one keeps its colour", async () => {
-    const stack = card(await open("data/chart-panels", "Chart panels"), "Money added by kind and quarter").nth(1);
-    const segment = stack.locator(".recharts-bar-rectangle path").first();
-    await segment.waitFor();
-    expect(await segment.getAttribute("fill")).toBe(
-      "color-mix(in oklab, var(--chart-1) var(--stack-tint), var(--card))",
-    );
-    // The browser resolves the share from the theme: a 50% mix, not a lone bar's 25%.
-    const [painted, half] = await segment.evaluate((path) => {
+    // The browser resolves the theme's share: half the colour, which a thin stacked segment needs (#94).
+    const [painted, half] = await bar.evaluate((path) => {
       const probe = document.createElement("div");
       path.closest('[data-slot="card"]')!.append(probe);
       probe.style.backgroundColor = "color-mix(in oklab, var(--chart-1) 50%, var(--card))";
@@ -201,6 +186,12 @@ describe("chart ink", { timeout: 60_000 }, () => {
       return [getComputedStyle(path).fill, expected];
     });
     expect(painted).toBe(half);
+    expect(
+      await bars
+        .locator(".recharts-bar-rectangles")
+        .first()
+        .evaluate((g) => getComputedStyle(g).animationName),
+    ).toBe("chart-fade-in");
   });
 
   it("fades a line chart's names in after its lines draw, bars at once, and nothing under reduced motion", async () => {
