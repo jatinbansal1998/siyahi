@@ -40,4 +40,12 @@ describe("TargetRows layout", { timeout: 60_000 }, () => {
     // The track keeps its height when stacked, not just its width.
     expect(narrow.track.height).toBe(wide.track.height);
   });
+
+  it("writes every label and detail in full on a phone, wrapping rather than cutting", async () => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    const cut = await page
+      .locator('[data-slot="target-row"] *')
+      .evaluateAll((parts) => parts.filter((part) => part.scrollWidth > part.clientWidth).map((part) => part.textContent));
+    expect(cut).toEqual([]);
+  });
 });
