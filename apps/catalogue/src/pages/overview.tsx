@@ -1,12 +1,12 @@
 import { HouseIcon } from "lucide-react";
 import { InlineCode } from "@siyahi/ui";
 import { Code } from "../code";
-import PageHeroExample from "../examples/page-hero";
+import PageHeaderExample from "../examples/page-header";
 import type { Page } from "../page";
 
 const RULES = [
   "A panel holds data, prose sits on the page. By default a page is ruled on white: data blocks are filled with the card colour and parted by hairlines, with a rule above and below each group; a page of separate blocks asks for square cards, 8px apart, by setting surface to card. Every corner is square. One level of panel.",
-  "A page opens on its masthead, PageHero: eyebrow, title, one muted line, actions at the right, a hairline under it.",
+  "A page opens on its masthead, PageHeader: eyebrow, title, one muted line, actions at the right, a hairline under it.",
   "A stat tile is SectionCards from shadcn's dashboard block: label in small mono capitals, outline badge, value, footer lines. Many figures of equal weight go in one MetricStrip instead. The page marks the tile or table row that needs a look with a tone; colour marks exceptions only.",
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws a solid hairline grid and the tooltip, names lines at their ends (a legend below on a phone or for bars), draws bars as tints inside full-colour edges; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
   "Tables are the registry data table, inside a Card. Column heads are small mono capitals; a total row sits between a rule and a double rule.",
@@ -73,7 +73,7 @@ export const overview: Page = {
   title: "Siyahi",
   icon: <HouseIcon />,
   lead: "Siyahi (Hindi for ink) is stock shadcn/ui on Base UI and Tailwind v4, shipped as @siyahi/ui with a theme for figures, a few compositions, locale-aware formatters, a lint and this catalogue.",
-  hero: <PageHeroExample />,
+  header: <PageHeaderExample />,
   // Overview is the front page: a live dashboard and the setup, read top to bottom.
   layout: "stack",
   families: [

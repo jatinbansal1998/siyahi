@@ -1,5 +1,5 @@
 import { FamilyIndex, FamilyView, Section } from "./example";
-import { PageHero, PageToc } from "@siyahi/ui";
+import { PageHeader, PageToc } from "@siyahi/ui";
 import { Suspense } from "react";
 import type { Page } from "./page";
 import { blocks } from "./pages/blocks";
@@ -51,7 +51,7 @@ export function App() {
   return (
     <Shell nav={nav} trail={trail} actions={<CatalogueSearch pages={PAGES} />}>
       {/* The title and lead show at once; only the examples wait for their code. */}
-      {!family && page.hero ? page.hero : <PageHero eyebrow={family && page.title} title={title} lead={lead} />}
+      {!family && page.header ? page.header : <PageHeader eyebrow={family && page.title} title={title} lead={lead} />}
       <Suspense fallback={<p role="status">Loading examples…</p>}>
         {family ? <FamilyView page={page} family={family} /> : <PageBody page={page} />}
       </Suspense>

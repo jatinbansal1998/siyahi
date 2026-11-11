@@ -85,10 +85,15 @@ mono face and the link colour, so the text can point to one.
 ## Shape
 
 - **Square corners everywhere**: panels, cards, buttons, fields, badges,
-  toggles, menus, and bars and tracks (data bars, progress) alike (`--radius`
-  is 0). Only a dot, an avatar, a slider, a spinner or a scrollbar is round;
-  the stock chart tooltip's colour chips keep shadcn's 2px. Never add a
-  `rounded-*` class to a box.
+  toggles, menus, bars and tracks (data bars, progress, a slider's track and
+  thumb, a scrollbar's thumb), heatmap cells, treemap tiles and the colour
+  chips of charts and legends alike (`--radius` is 0). Only what is round by
+  nature stays round: an avatar, a status dot, a line's end dot, a spinner,
+  and a signed calendar heatmap's loss day, whose shape carries its sign.
+  Never add a `rounded-*` class to a box.
+- **Floating surfaces lie flat.** A menu, a select's list, a popover, a
+  dialog, a sheet and a chart's tooltip take no drop shadow and the card's
+  hairline for their edge, so they read as a sheet of the page.
 - **Joined toggles.** The items of a `ToggleGroup` sit flush and share their
   borders, one control; the pressed item fills with the foreground.
 - **A code block's copy button sits in a header row** (`CodeBlockHeader`),
@@ -99,7 +104,7 @@ mono face and the link colour, so the text can point to one.
 
 ## Page header
 
-An app page opens on its masthead, `PageHero`: a small mark and eyebrow in the
+An app page opens on its masthead, `PageHeader`: a small mark and eyebrow in the
 mono face and link colour, the title, one muted line saying what the page is,
 the actions at the right, and a hairline under it. One per page; no hero card.
 
@@ -188,7 +193,8 @@ from the catalogue.
 
 - **Labels are small monospaced capitals**: a stat tile's label and footer
   lines, a `MetricStrip` label, a table's column heads, a sidebar group's
-  label, and a form field's label (muted, above the field). The components and
+  label, a group's label in a menu, a select's list or the command palette,
+  and a form field's label (muted, above the field). The components and
   the theme set them; never set a label in this style by hand elsewhere, and
   never set a figure or a title in it.
 - **A total row reads as a ledger's**: in `TableFooter`, one rule above it and

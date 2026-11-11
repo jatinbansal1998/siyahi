@@ -52,7 +52,7 @@ export function RangePosition({
       <div
         data-slot="range-thumb"
         className={cn(
-          "absolute top-1/2 -translate-1/2 rounded-full border-2 border-foreground bg-card",
+          "absolute top-1/2 -translate-1/2 border-2 border-foreground bg-card",
           variant === "full" ? "size-3.5" : "size-2.5",
         )}
         style={{ left: at }}

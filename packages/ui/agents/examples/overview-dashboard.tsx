@@ -9,7 +9,7 @@ import {
   CardTitle,
   Delta,
   Input,
-  PageHero,
+  PageHeader,
   PanelGrid,
   StatusBadge,
   Table,
@@ -126,7 +126,7 @@ export default function OverviewDashboard() {
   const shown = holdings.filter((row) => row.name.toLowerCase().includes(query.trim().toLowerCase()));
   return (
     <div className="flex flex-col gap-6">
-      <PageHero
+      <PageHeader
         mark={<InkDrop />}
         eyebrow="The Book"
         title="Holdings"

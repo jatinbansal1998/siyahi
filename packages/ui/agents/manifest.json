@@ -727,7 +727,9 @@
       "components": [
         "ContextMenu",
         "ContextMenuContent",
+        "ContextMenuGroup",
         "ContextMenuItem",
+        "ContextMenuLabel",
         "ContextMenuTrigger"
       ]
     },
@@ -1048,7 +1050,7 @@
         "CardTitle",
         "Delta",
         "Input",
-        "PageHero",
+        "PageHeader",
         "PanelGrid",
         "StatusBadge",
         "Table",
@@ -1064,10 +1066,10 @@
       ]
     },
     {
-      "file": "agents/examples/page-hero.tsx",
+      "file": "agents/examples/page-header.tsx",
       "components": [
         "Button",
-        "PageHero"
+        "PageHeader"
       ]
     },
     {
@@ -1218,6 +1220,7 @@
         "SelectContent",
         "SelectGroup",
         "SelectItem",
+        "SelectLabel",
         "SelectTrigger",
         "SelectValue"
       ]

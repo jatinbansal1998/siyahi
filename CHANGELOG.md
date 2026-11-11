@@ -2,6 +2,18 @@
 
 ## 0.1.9
 
+- The look reaches the last parts. A menu, a select's list, a popover, a
+  dialog, a sheet and a chart's tooltip lie flat: no drop shadow, edged in the
+  card's hairline. Heatmap cells and swatches (`blockRadius` now defaults to
+  0), treemap tiles, a slider's track and thumb, a scroll area's and a data
+  table's scrollbar thumb, `RangePosition`'s thumb, a sort-order badge, the
+  sidebar's current-page mark and the chart tooltip's and legend's colour
+  chips are square; a signed calendar's loss days stay round. A group's label
+  in a menu, a select or the command palette is set in small mono capitals,
+  and a selected pill tab drops its shadow. The data table's filter chip has a
+  solid hairline. `NavUser`'s account header is a plain block, not a
+  `DropdownMenuLabel`, so it keeps its sans face.
+
 - Charts: `LineChartCard` and overlapping `AreaChartCard` series are named at
   their line ends (a legend below on a card under 400px wide or where names
   would take over 30% of it or not fit its height). Series in
@@ -80,10 +92,12 @@
   double rule, with no band. `PanelGrid` numbers its blocks' titles 01, 02 in
   the mono face and link colour. A `ToggleGroup`'s items sit flush and share
   borders.
-- `PageHero` is a compact masthead: a small mark and eyebrow, the title, one
+- `PageHeader` is a compact masthead: a small mark and eyebrow, the title, one
   muted line (`lead` then `detail`), the actions at the right and a hairline
   under it, in place of the large hero card. Props are unchanged; `mark` is
   now a small icon before the eyebrow instead of a faint watermark.
+  It was `PageHero` (slot `page-hero`) in the 0.1.9-next prereleases and is
+  renamed with no alias: import `PageHeader` and select `[data-slot="page-header"]`.
 - Exceptions are marked by the page: `tone: "negative" | "warning"` on a
   `SectionCards` item, or `data-tone` on a `TableRow`, takes a faint wash of
   the colour (`--wash`, 7% in light, 12% in dark) and a tile an outline of it.
@@ -283,7 +297,7 @@
     item and `chart-1`; the dark chart palette keeps indigo saturated; dark
     muted text is a step brighter. The default surface is `card`.
   - New: `ChangeBar` with `DataTableFootnote`, `TargetRows`, `RangePosition`,
-    `PageHero`, `PageToc`, `WarningAlert`, `Callout` and `Quote`,
+    `PageHeader`, `PageToc`, `WarningAlert`, `Callout` and `Quote`,
     `defaultSidebarOpen`. A warning or callout is tinted across the whole box;
     the skill rules out one-sided coloured edges.
   - Heatmap blocks take `selected` (a ring and `aria-pressed`) and fill their

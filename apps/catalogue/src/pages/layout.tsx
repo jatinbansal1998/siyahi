@@ -9,10 +9,10 @@ export const layout: Page = {
   layout: "stack",
   families: [
     {
-      id: "page-hero",
+      id: "page-header",
       title: "Masthead",
-      lead: "PageHero is the page's masthead: a small mark and eyebrow, the title, one muted line saying what the page is, the actions at the right, and a hairline under it.",
-      imports: ["PageHero"],
+      lead: "PageHeader is the page's masthead: a small mark and eyebrow, the title, one muted line saying what the page is, the actions at the right, and a hairline under it.",
+      imports: ["PageHeader"],
       props: [
         { name: "title", type: "ReactNode", purpose: "The page's h1." },
         {
@@ -48,7 +48,7 @@ export const layout: Page = {
       ],
       examples: [
         {
-          name: "page-hero",
+          name: "page-header",
           caption: "The catalogue's own front page: its ink drop and eyebrow, title, lead, detail and two actions.",
         },
       ],

@@ -12,6 +12,7 @@
 // column remains reachable without a pointer.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: the scrollbar's thumb is square, as every box is (was rounded-full).
 "use client"
 
 /**
@@ -202,7 +203,7 @@ export function DataTable({
         // Scrollbar visible but subtle by default, more prominent on hover
         "[&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar]:w-2.5",
         "[&::-webkit-scrollbar-track]:bg-transparent",
-        "[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/40",
+        "[&::-webkit-scrollbar-thumb]:bg-border/40",
         "hover:[&::-webkit-scrollbar-thumb]:bg-border",
         "[&::-webkit-scrollbar-thumb:hover]:bg-border/80!",
         // Firefox scrollbar styling

@@ -4,6 +4,7 @@
 // Copied: 2026-10-20, sha256 11b008fb0691ce787f9033af5ad89fd8fd38ca80bbae77a5dda3078a6a872437
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: the resize line has square ends, as every box has (was rounded).
 "use client"
 
 /**
@@ -270,7 +271,7 @@ export function DataTableColumnResizeHandle<TData extends RowData>({
           and drifts 1–2px from real cell `border-r`. Show on hover/focus/drag. */}
       <div
         className={cn(
-          "my-1.5 w-px rounded bg-border opacity-0 transition-all",
+          "my-1.5 w-px bg-border opacity-0 transition-all",
           "group-hover/resize:my-0 group-hover/resize:w-0.5 group-hover/resize:bg-primary group-hover/resize:opacity-100",
           "group-focus-visible/resize:my-0 group-focus-visible/resize:w-0.5 group-focus-visible/resize:bg-primary group-focus-visible/resize:opacity-100",
           isResizing && "my-0 w-0.5 bg-primary opacity-100",

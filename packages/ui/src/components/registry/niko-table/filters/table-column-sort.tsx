@@ -7,6 +7,7 @@
 // which crashed the menu on open.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: a sort-order number sits in a square box, as a badge does (was a round one).
 "use client"
 
 /**
@@ -141,7 +142,7 @@ export function TableColumnSortOptions<TData extends RowData, TValue>({
             <span>Column Sort</span>
             {showSortBadge && (
               <Tooltip>
-                <TooltipTrigger render={<span className="flex size-4 cursor-help items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground" />}>{sortIndex + 1}</TooltipTrigger>
+                <TooltipTrigger render={<span className="flex size-4 cursor-help items-center justify-center bg-primary text-[10px] font-medium text-primary-foreground" />}>{sortIndex + 1}</TooltipTrigger>
                 <TooltipContent side="right">
                   Sort priority (order in which columns are sorted)
                 </TooltipContent>
@@ -247,7 +248,7 @@ export function TableColumnSortMenu<TData extends RowData, TValue>({
                     )} />}><div className="relative flex items-center justify-center">
                       <SortIcon className="size-4" />
                       {showSortBadge && (
-                        <span className="absolute -top-1 -right-2 flex size-3 items-center justify-center rounded-full bg-primary text-[9px] text-primary-foreground">
+                        <span className="absolute -top-1 -right-2 flex size-3 items-center justify-center bg-primary text-[9px] text-primary-foreground">
                           {sortIndex + 1}
                         </span>
                       )}

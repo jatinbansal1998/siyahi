@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@siyahi/ui";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@siyahi/ui";
 
 const stores = [
   { label: "All stores", value: "all" },
@@ -15,6 +15,7 @@ export default function SelectExample() {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
+          <SelectLabel>Sales channel</SelectLabel>
           {stores.map((store) => (
             <SelectItem key={store.value} value={store.value}>
               {store.label}
