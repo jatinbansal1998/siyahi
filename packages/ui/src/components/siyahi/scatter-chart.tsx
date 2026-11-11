@@ -35,7 +35,7 @@ import {
   type ScatterQuadrants,
 } from "@siyahi/ui/lib/scatter";
 import { fitsLog, ticksFor, type AxisScale } from "@siyahi/ui/lib/ticks";
-import { useRenderWhenFontsLoad } from "@siyahi/ui/lib/use-render-when-fonts-load";
+import { fontLoads, useRenderWhenFontsLoad } from "@siyahi/ui/lib/use-render-when-fonts-load";
 
 export interface ScatterPoint {
   name: string;
@@ -142,7 +142,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
   sizeFormatter,
 }: ScatterChartCardProps<T>) {
   const { numberLocale } = useLocale();
-  // The names are placed by widths measured on a canvas, again once Geist has loaded (labelType).
+  // The names are placed by widths measured on a canvas, again each time a font finishes loading (labelType).
   useRenderWhenFontsLoad();
   const plotRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
@@ -459,27 +459,31 @@ function Dot<T extends ScatterPoint>({
   );
 }
 
-/** A name's width in the labels' type, measured on a canvas once per font and name, in the font once it has loaded. */
+/**
+ * A name's width in the labels' type, measured on a canvas once per font and name, and again after each font load:
+ * the font string is the same before and after Geist arrives, and a width measured before was the fallback's.
+ */
 const widths = new Map<string, number>();
+let widthsAfter = 0;
 let canvas: CanvasRenderingContext2D | null | undefined;
 
 /** The labels' type as the page sets it: text-xs is three quarters of the root size, which a reader may enlarge. */
 function labelType(): LabelType {
   if (typeof document === "undefined") return { size: 12, measure: (text) => text.length * 7 };
   const size = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) * 0.75;
-  const family = getComputedStyle(document.body).fontFamily;
-  const font = `500 ${size}px ${family}`;
+  const font = `500 ${size}px ${getComputedStyle(document.body).fontFamily}`;
   canvas ??= document.createElement("canvas").getContext("2d");
+  if (fontLoads() !== widthsAfter) {
+    widths.clear();
+    widthsAfter = fontLoads();
+  }
   const measure = (text: string) => {
     const id = `${font}\n${text}`;
     let width = widths.get(id);
     if (width === undefined && canvas) {
       canvas.font = font;
       width = canvas.measureText(text).width;
-      // Until the page's face loads the canvas measures the fallback, under the same font string: such a width is
-      // not kept, so the names are placed again in the face once it loads. Only the first family is asked about, as
-      // the fallbacks after it are local faces that never load.
-      if (document.fonts?.check(`500 ${size}px ${family.split(",")[0]}`) ?? true) widths.set(id, width);
+      widths.set(id, width);
     }
     return width ?? text.length * size * 0.6;
   };

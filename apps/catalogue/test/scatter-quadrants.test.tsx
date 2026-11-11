@@ -26,9 +26,9 @@ const dots = () =>
     .evaluateAll((els) => els.map((el) => ({ key: el.getAttribute("data-key"), r: Number(el.getAttribute("r")) })));
 
 /**
- * Resizes the page and waits until the chart has redrawn at the new width in its loaded font. Under load the page
+ * Resizes the page and waits until the chart has redrawn at the new width in its loaded fonts. Under load the page
  * takes up to a second to lay out again, and a poll for four corner names, which the old layout already had, timed
- * out before its first read came back.
+ * out before its first read came back. The chart draws again once a font load finishes; two frames let that land.
  */
 async function resize(width: number) {
   await page.setViewportSize({ width, height: 1000 });
@@ -40,6 +40,7 @@ async function resize(width: number) {
       box.querySelector('[data-slot="scatter-quadrant-names"] text') !== null,
     plot,
   );
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
 }
 
 /** The corner names', points' names' and dots' boxes, read at one moment, so no redraw falls between them. */
@@ -111,11 +112,6 @@ describe("ScatterChartCard with size and quadrants", { timeout: 60_000 }, () => 
     try {
       await page.reload();
       await resize(390);
-      // The chart draws again once the fonts are ready; two frames let that render land.
-      await page.evaluate(async () => {
-        await document.fonts.ready;
-        await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
-      });
       // A right-hand name is placed at the plot's right edge less 6px and its measured width, so its drawn right
       // edge lands on that line only if it was measured in the face it is drawn in.
       const gaps = await chart.evaluate((card) => {
