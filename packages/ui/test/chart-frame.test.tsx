@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
-import { QuietLegend, axisValues, linearValueAxis, seriesFill, seriesRow } from "../src/lib/chart-frame";
+import { QuietLegend, axisValues, linearValueAxis, logValueAxis, seriesFill, seriesRow } from "../src/lib/chart-frame";
 
 const row = seriesRow<{ month: string; value: number | null }>(
   [{ key: "value", label: "Value", color: "var(--chart-1)" }],
@@ -100,5 +100,11 @@ describe("linearValueAxis", () => {
   it("reaches the page's own ticks, so each one it gives is drawn", () => {
     const ticked = linearValueAxis([{ a: 41 }, { a: 46 }], series, { yTicks: [0, 25, 50, 75, 100] });
     expect(ticked?.domain).toEqual([0, 100]);
+  });
+});
+
+describe("logValueAxis", () => {
+  it("reaches a level past the data, and leaves out one at zero, which log cannot draw", () => {
+    expect(logValueAxis([41, 46], [{ y: 10 }, { y: 60 }, { y: 0 }]).domain).toEqual([10, 100]);
   });
 });

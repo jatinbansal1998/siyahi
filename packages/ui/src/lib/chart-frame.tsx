@@ -179,6 +179,21 @@ export function axisValues<T>(data: readonly T[], series: ChartSeries<T>, stackO
   });
 }
 
+/** The value levels a page marks with reference lines. */
+const levelsOf = (lines: readonly ChartReferenceLine[]) => lines.flatMap(({ y }) => (y === undefined ? [] : [y]));
+
+/**
+ * A log value axis over the values and the page's levels above zero: a level at or under zero has no place on it, and
+ * must not turn Log off.
+ */
+export function logValueAxis(
+  values: readonly number[],
+  referenceLines: readonly ChartReferenceLine[],
+  range?: readonly [number, number],
+) {
+  return logAxis([...values, ...levelsOf(referenceLines).filter((level) => level > 0)], range);
+}
+
 /**
  * A linear value axis that just covers what is drawn: the values (a stack's totals), the page's levels and ticks, and
  * zero under bars, so no bar hangs from its smallest loss and no level falls off the plot.
@@ -200,7 +215,7 @@ export function linearValueAxis<T>(
 ) {
   return linearAxis([
     ...axisValues(data, series, stackOffset),
-    ...referenceLines.flatMap(({ y }) => (y === undefined ? [] : [y])),
+    ...levelsOf(referenceLines),
     ...yTicks,
     ...(bars ? [0] : []),
   ]);
@@ -508,7 +523,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
     label: yLabel ? `${yLabel} scale` : "Value axis scale",
     logBlocked: logBlocked ?? (fitsLog(values) ? undefined : LOG_BLOCKED),
   });
-  const log = valueAxis.scale === "log" ? logAxis(values, yDomain) : undefined;
+  const log = valueAxis.scale === "log" ? logValueAxis(values, referenceLines, yDomain) : undefined;
   // Unless the page fixes the range, a linear value axis ends on the round ticks that just cover what is drawn: the
   // values, the page's levels and ticks, and zero under bars. A 46,800 peak ends at 50,000, where Recharts' own nice
   // ticks kept a count of five and ran on to 80,000. A page's own ticks are the ones drawn.
