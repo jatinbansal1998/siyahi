@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useId,
   useMemo,
   useState,
@@ -58,6 +57,7 @@ import type {
 import { EndLabels, QUIET, TimeMarks, endLabelRoom, endLabelsFit, linesEndAtEdge } from "@siyahi/ui/lib/chart-marks";
 import { fitsLog, linearAxis, logAxis } from "@siyahi/ui/lib/ticks";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
+import { useRenderWhenFontsLoad } from "@siyahi/ui/lib/use-render-when-fonts-load";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 // Recharts 3.8 draws tick labels in a layer of their own, which the core chart's
@@ -73,19 +73,6 @@ const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
  */
 export function barFill(color: string, dim = false): string {
   return `color-mix(in oklab, ${color} ${dim ? "10%" : "var(--bar-tint)"}, var(--card))`;
-}
-
-/** Renders the component again once the page's fonts load, so text measured on a canvas is measured in Geist. */
-function useRenderWhenFontsLoad(): void {
-  const [loaded, setLoaded] = useState(() => typeof document === "undefined" || document.fonts?.status === "loaded");
-  useEffect(() => {
-    if (loaded || !document.fonts) return;
-    let live = true;
-    void document.fonts.ready.then(() => live && setLoaded(true));
-    return () => {
-      live = false;
-    };
-  }, [loaded]);
 }
 
 interface QuietLegendProps<T> {

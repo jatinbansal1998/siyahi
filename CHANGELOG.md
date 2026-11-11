@@ -162,6 +162,11 @@
 - `ScatterChartCard`: a linear x axis ticks in round steps of 1, 2, 2.5 or 5,
   as the y axis does, from the step at or below the smallest value. Shares of
   0.4% to 14.7% read 0%, 5%, 10%, 15% (were 0.5%, 5.5%, 10.5%, 14.7%).
+- `ScatterChartCard` places point and corner names by Geist's widths however
+  late Geist loads. A width measured in the fallback before Geist arrived was
+  cached for the page's life, so names were drawn in Geist up to 8px short of
+  their place; the card now keeps a width only once the font has loaded and
+  draws again when it does.
 - `WeekdayHeatmap` outlines a hovered, highlighted or keyboard-focused cell
   instead of fading it, as CalendarHeatmap and StatusHeatmap do, and a
   focused cell's ring now draws, also on the picked cell.
