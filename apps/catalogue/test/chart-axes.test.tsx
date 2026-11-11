@@ -108,7 +108,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await settled(bars);
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
     // Every tick in the unit of the largest, so the axis does not switch from lakh to thousands half way down.
-    expect(await ticks.allTextContents()).toEqual(["-₹1L", "-₹0.75L", "-₹0.5L", "-₹0.25L", "₹0"]);
+    expect(await ticks.allTextContents()).toEqual(["-₹1L", "-₹0.8L", "-₹0.6L", "-₹0.4L", "-₹0.2L", "₹0"]);
     // Zero ends the value axis, so every bar hangs from the plot's top edge (the grid's box adds half a stroke).
     const plot = await chart.locator(".recharts-cartesian-grid").boundingBox();
     if (!plot) throw new Error("not laid out");

@@ -40,6 +40,12 @@
   `SectionCards` item greys the block and draws its chart or sparkline at 65%,
   mutes a tile's figure and badge, and shows a boxed "Stale · 3 Nov" note; `StaleNote` is exported for
   other blocks.
+- The value axis of `LineChartCard`, `AreaChartCard`, `BarChartCard`,
+  `HistogramChart` and `WaterfallChart` ends on the round tick just past the
+  data when the page gives no `yDomain` or `yTicks`: a 46,800 peak ends at
+  50,000 by 10,000s, where Recharts kept five ticks and ran on to 80,000. A
+  stack's axis covers its totals. Bars and stacks reach zero; lines and
+  overlapping areas no longer do, so they fill the plot.
 
 - Tables are dense: compact rows, a 1px rule in the text colour under the
   column heads (on a data table's sticky header too), the first column in

@@ -23,7 +23,6 @@ import {
   useChartWidth,
   useXAxisTicks,
   useYAxisTicks,
-  type YAxisProps,
 } from "recharts";
 import { LOG_BLOCKED, useAxisScale } from "@siyahi/ui/components/siyahi/scale-toggle";
 import { StaleNote } from "@siyahi/ui/components/siyahi/stale-note";
@@ -57,7 +56,7 @@ import type {
   ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series";
 import { EndLabels, QUIET, TimeMarks, endLabelRoom, endLabelsFit, linesEndAtEdge } from "@siyahi/ui/lib/chart-marks";
-import { fitsLog, logAxis } from "@siyahi/ui/lib/ticks";
+import { fitsLog, linearAxis, logAxis } from "@siyahi/ui/lib/ticks";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 const AXIS_TITLE = "fill-muted-foreground text-xs";
@@ -156,11 +155,33 @@ function haloLine({ x1, y1, x2, y2, stroke, strokeDasharray }: SVGProps<SVGLineE
   );
 }
 
+type StackOffset = "none" | "sign";
+
+const sum = (values: readonly number[]) => values.reduce((total, value) => total + value, 0);
+
+/**
+ * The values a value axis must reach: each one drawn, or a stack's running totals, where its segments end. A "sign"
+ * stack runs a row's losses down from zero and its gains up, so the row reaches its two sums.
+ */
+export function axisValues<T>(data: readonly T[], series: ChartSeries<T>, stackOffset?: StackOffset): number[] {
+  return data.flatMap((row) => {
+    const values = series
+      .map(({ key }): unknown => row[key as keyof T])
+      .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+    if (stackOffset === "none") {
+      let total = 0;
+      return [0, ...values.map((value) => (total += value))];
+    }
+    if (stackOffset === "sign") {
+      return [sum(values.filter((value) => value < 0)), sum(values.filter((value) => value > 0))];
+    }
+    return values;
+  });
+}
+
 interface ChartFrameProps<T extends object, K extends keyof T>
-  extends Omit<SeriesChartProps<T, K>, "yDomain">, NumericXProps, ValueScaleProps, LineMarksProps<T, K> {
+  extends SeriesChartProps<T, K>, NumericXProps, ValueScaleProps, LineMarksProps<T, K> {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
-  /** The value axis' range: a page's fixed one, or a card's rule such as bars reaching zero. */
-  yDomain?: YAxisProps["domain"] | undefined;
   /** One Bar, Area or Line per series. */
   children: ReactNode;
   /**
@@ -169,8 +190,11 @@ interface ChartFrameProps<T extends object, K extends keyof T>
    * otherwise. x and y keep their meaning: x is the category, y the value.
    */
   horizontal?: boolean | undefined;
-  /** "sign" stacks negative values below zero and positive ones above, rather than on one running total. */
-  stackOffset?: "sign" | undefined;
+  /**
+   * The series stack: "none" adds each onto the running total, as a stacked area does; "sign" stacks negative values
+   * below zero and positive ones above.
+   */
+  stackOffset?: StackOffset | undefined;
   onClick?: ComponentProps<typeof BarChart>["onClick"] | undefined;
   /** A tooltip row per hovered mark; by default each series' colour, label and formatted value (seriesRow). */
   tooltipRow?: ComponentProps<typeof ChartTooltipContent>["formatter"] | undefined;
@@ -447,10 +471,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
   );
   const config: ChartConfig = Object.fromEntries(series.map(({ key, label, color }) => [key, { label, color }]));
   const crossesZero = data.some((row) => series.some(({ key }) => Number(row[key as keyof T]) < 0));
-  const [low, high] = Array.isArray(yDomain) ? yDomain : [];
-  const range = typeof low === "number" && typeof high === "number" ? ([low, high] as const) : undefined;
   // A page's fixed range must fit the log axis too, so its ends count as values.
-  const values = [...data.flatMap((row) => series.map(({ key }) => row[key as keyof T])), ...(range ?? [])].filter(
+  const values = [...data.flatMap((row) => series.map(({ key }) => row[key as keyof T])), ...(yDomain ?? [])].filter(
     (value): value is number => typeof value === "number" && Number.isFinite(value),
   );
   const valueAxis = useAxisScale({
@@ -459,7 +481,14 @@ export function ChartFrame<T extends object, K extends keyof T>({
     label: yLabel ? `${yLabel} scale` : "Value axis scale",
     logBlocked: logBlocked ?? (fitsLog(values) ? undefined : LOG_BLOCKED),
   });
-  const log = valueAxis.scale === "log" ? logAxis(values, range) : undefined;
+  const log = valueAxis.scale === "log" ? logAxis(values, yDomain) : undefined;
+  // Unless the page fixes the range or the ticks, a linear value axis ends on the round ticks that just cover what is
+  // drawn, zero included under bars: a 46,800 peak ends at 50,000. Recharts' own nice ticks kept a count of five and
+  // ran on to 80,000.
+  const linear =
+    log || yDomain !== undefined || yTicks !== undefined
+      ? undefined
+      : linearAxis([...axisValues(data, series, stackOffset), ...(Chart === BarChart ? [0] : [])]);
   // Narrow panels need extra row space for complete quantitative details.
   const detailedRows = horizontal && xTickDetail !== undefined;
   const rowCount = (xTicks ?? data).length;
@@ -535,10 +564,10 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   {/* The value axis shows along the bottom once a page gives it a tick format to read by. */}
                   <XAxis
                     type="number"
-                    niceTicks="snap125"
+                    niceTicks={linear ? undefined : "snap125"}
                     hide={!yTickFormatter}
-                    domain={yDomain}
-                    ticks={yTicks as number[] | undefined}
+                    domain={linear?.domain ?? yDomain}
+                    ticks={linear?.ticks ?? (yTicks as number[] | undefined)}
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
@@ -573,12 +602,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   {/* Value ticks step by 1, 2, 2.5 or 5 × 10ⁿ: ₹0.5L, ₹1L, ₹1.5L, never ₹0.95L. */}
                   <YAxis
                     scale={valueAxis.scale}
-                    niceTicks={log ? undefined : "snap125"}
+                    niceTicks={log || linear ? undefined : "snap125"}
                     tickLine={false}
                     axisLine={false}
                     width="auto"
-                    domain={log?.domain ?? yDomain}
-                    ticks={log?.ticks ?? (yTicks as number[] | undefined)}
+                    domain={log?.domain ?? linear?.domain ?? yDomain}
+                    ticks={log?.ticks ?? linear?.ticks ?? (yTicks as number[] | undefined)}
                     label={
                       yLabel
                         ? {

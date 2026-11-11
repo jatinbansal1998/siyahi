@@ -58,7 +58,8 @@ describe("scale toggle", () => {
     await page.keyboard.press("Space");
 
     await expect.poll(() => scale.getByRole("button", { name: "Linear" }).getAttribute("aria-pressed")).toBe("true");
-    await expect.poll(async () => (await ticks(users, "y"))[0]).toBe("0");
+    // On linear the axis just covers the 46,800 peak (issue #84); Recharts' own five ticks ran on to 80,000.
+    await expect.poll(() => ticks(users, "y")).toEqual(["0", "10,000", "20,000", "30,000", "40,000", "50,000"]);
   });
 
   it("opens an area chart on linear when the page sets no scale, with the range toggle beside the buttons", async () => {

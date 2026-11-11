@@ -89,8 +89,9 @@ const SERIES_PROPS: PropRow[] = [
   {
     name: "yDomain",
     type: "[number, number]",
-    default: "fits the data",
-    purpose: "A fixed value axis, such as [0, 100].",
+    default: "round ticks just over the data",
+    purpose:
+      "A fixed value axis, such as [0, 100]. Without it the axis ends on the tick just past the data (46,800 at 50,000); bars and stacks reach zero.",
   },
   { name: "yTicks", type: "number[]", default: "—", purpose: "Where the value axis puts its ticks." },
   {

@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
-import { QuietLegend, seriesFill, seriesRow } from "../src/lib/chart-frame";
+import { QuietLegend, axisValues, seriesFill, seriesRow } from "../src/lib/chart-frame";
 
 const row = seriesRow<{ month: string; value: number | null }>(
   [{ key: "value", label: "Value", color: "var(--chart-1)" }],
@@ -66,5 +66,25 @@ describe("QuietLegend", () => {
     expect(html).not.toContain("<button");
     expect(html).toContain("Debt");
     expect(html).toContain("Liquid");
+  });
+});
+
+describe("axisValues", () => {
+  const rows = [
+    { q: "Q1", a: 30, b: -10, c: 5 },
+    { q: "Q2", a: 20, b: null, c: -15 },
+  ];
+  const series = (["a", "b", "c"] as const).map((key) => ({ key, label: key, color: "var(--chart-1)" as const }));
+
+  it("reaches each value drawn when the series overlap", () => {
+    expect(axisValues(rows, series)).toEqual([30, -10, 5, 20, -15]);
+  });
+
+  it("reaches a stack's running totals, from zero", () => {
+    expect(axisValues(rows, series, "none")).toEqual([0, 30, 20, 25, 0, 20, 5]);
+  });
+
+  it("reaches each row's sum of losses below zero and of gains above it on a signed stack", () => {
+    expect(axisValues(rows, series, "sign")).toEqual([-10, 35, -15, 20]);
   });
 });

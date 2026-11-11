@@ -22,6 +22,8 @@
 // Siyahi edit: yScale and yScaleToggle put the value axis on a log scale, with
 // Linear and Log buttons in the header (lib/chart-frame), for values that run
 // from tiny to large. Stacked areas add up from zero, so their Log is off.
+// Siyahi edit: a stack's value axis ends on round ticks just over its totals
+// (lib/chart-frame).
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
@@ -72,6 +74,8 @@ export function AreaChartCard<T extends object, K extends keyof T>({
       chart={AreaChart}
       // A stack's layers add up from zero, which a log axis has no place for.
       logBlocked={stacked ? "Log cannot show stacked areas" : undefined}
+      // The value axis covers the stack's totals, not each band's own values.
+      stackOffset={stacked ? "none" : undefined}
       endLabels={!stacked}
       forecastHatch={!stacked}
       curve={curve}

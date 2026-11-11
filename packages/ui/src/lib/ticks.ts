@@ -38,6 +38,17 @@ export function linearTicks(min: number, max: number, count = 5): number[] {
   return Array.from({ length: last - first + 1 }, (_, i) => clean((first + i) * step));
 }
 
+/**
+ * A value axis' ends and ticks: the round ticks that just cover the values, and their outer two as the ends. About
+ * six, not five, so a 46,800 peak ends at 50,000 by 10,000s rather than at 60,000 by 20,000s. None when the values
+ * span no range (no values, or one), which leaves the axis to the chart.
+ */
+export function linearAxis(values: readonly number[]): { domain: [number, number]; ticks: number[] } | undefined {
+  const ticks = linearTicks(Math.min(...values), Math.max(...values), 6);
+  const [low, high] = [ticks[0], ticks.at(-1)];
+  return low !== undefined && high !== undefined && low < high ? { domain: [low, high], ticks } : undefined;
+}
+
 /** How an axis spaces its values: evenly, or by powers of ten for values that run from tiny to large. */
 export type AxisScale = "linear" | "log";
 

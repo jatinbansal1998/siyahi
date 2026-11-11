@@ -219,6 +219,11 @@ from the catalogue.
   a stack's grey bands read in the legend's order, bottom to top.
 - **No fill under overlapping areas**: from three series on, fills bury each
   other. A stack fills each band with a flat tint, never a gradient.
+- **The value axis just covers the data.** Unless the page fixes it, it ends
+  on the round tick just past what is drawn (a 46,800 peak at 50,000, by
+  10,000s), a stack's totals for a stack. Bars and stacks reach zero, since
+  their length is the value; lines and overlapping areas need not, so a
+  revenue line from ₹38L to ₹45L fills the plot rather than its top fifth.
 - **Forecast and today.** `forecastFrom` dashes every line from that point,
   hatches the stretch faintly behind lines on card-coloured halos, labels it
   FORECAST and hollows the end dots (a stack keeps solid edges and no hatching:
