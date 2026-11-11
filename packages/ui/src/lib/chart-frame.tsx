@@ -482,11 +482,12 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const { numberLocale } = useLocale();
   const clipId = useId();
   const [contentRef, contentWidth] = useElementWidth<HTMLDivElement>();
-  // The names are measured as drawn, again once Geist has loaded: the fallback's widths are not Geist's.
-  useRenderWhenFontsLoad();
   const [raisedKey, setRaisedKey] = useState<ChartSeriesItem<T>["key"]>();
   const names = endLabels ? series.map(({ label }) => label) : [];
   const labelRoom = endLabels ? endLabelRoom(names) : 0;
+  // The names are measured as drawn, and again when a font load changes their room: the fallback's widths are not
+  // Geist's.
+  useRenderWhenFontsLoad(() => (endLabels ? endLabelRoom(names) : 0));
   // The plot's height under the card's top margin and the x axis: the names must fit it 14px apart.
   const plotHeight = height - 12 - (xTickDetail ? 40 : 30) - (xLabel ? 18 : 0);
   const ends =

@@ -165,8 +165,9 @@
 - `ScatterChartCard` places point and corner names by Geist's widths however
   late Geist loads. A width measured in the fallback before Geist arrived was
   cached for the page's life, so names were drawn in Geist up to 8px short of
-  their place; the card now keeps a width only once the font has loaded and
-  draws again when it does.
+  their place; the card now measures the names again after each font load and
+  draws again when their widths change. A chart whose text a font load leaves
+  unchanged does not redraw, so its end dots do not fade in again.
 - `WeekdayHeatmap` outlines a hovered, highlighted or keyboard-focused cell
   instead of fading it, as CalendarHeatmap and StatusHeatmap do, and a
   focused cell's ring now draws, also on the picked cell.

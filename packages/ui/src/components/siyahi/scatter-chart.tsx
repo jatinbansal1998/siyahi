@@ -142,8 +142,13 @@ export function ScatterChartCard<T extends ScatterPoint>({
   sizeFormatter,
 }: ScatterChartCardProps<T>) {
   const { numberLocale } = useLocale();
-  // The names are placed by widths measured on a canvas, again each time a font finishes loading (labelType).
-  useRenderWhenFontsLoad();
+  // The names are placed by widths measured on a canvas (labelType), again when a font load changes them.
+  useRenderWhenFontsLoad(() => {
+    const { measure } = labelType();
+    return [...points.map(({ name }) => name), ...Object.values(quadrants?.labels ?? {})]
+      .map((name) => (name ? measure(name) : 0))
+      .join();
+  });
   const plotRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   // The dot the keyboard is on. Recharts swaps the dots' elements when the chart re-renders, which drops focus, so
