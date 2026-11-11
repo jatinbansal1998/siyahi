@@ -672,6 +672,16 @@
       ]
     },
     {
+      "file": "agents/examples/chart-panels-three.tsx",
+      "components": [
+        "AreaChartCard",
+        "BarChartCard",
+        "LineChartCard",
+        "PanelGrid",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/chart-panels.tsx",
       "components": [
         "AreaChartCard",

@@ -113,6 +113,10 @@
   `"descending"`), so a screen reader reads the sort order from the table, not
   only from the sort button's name; an unsorted head has none. Under a sort by
   more than one column, only the first column's head carries it.
+- `PanelGrid columns={3}` goes three across from 42rem, as `2` goes two
+  across, so three short blocks sit side by side in a reading column (an
+  article's 55rem). It went two across at 42rem and three only from 64rem,
+  leaving 2 + 1 in such a column.
 
 - Charts offer their own Linear and Log buttons. `xScaleToggle` and
   `yScaleToggle` on `ScatterChartCard`, and `yScaleToggle` on `LineChartCard`
