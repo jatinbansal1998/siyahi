@@ -65,7 +65,11 @@ function Example({ name, caption }: ExampleSpec) {
         <div className="flex items-center justify-between gap-2 border-b px-3 py-1.5">
           <div className="flex min-w-0 flex-col">
             <span className="text-sm">{caption}</span>
-            <code className="truncate font-mono text-xs text-muted-foreground">examples/{name}.tsx</code>
+            {/* Wrapped, never cut: on a phone the file name drops whole under the folder, and breaks inside only when
+              it is wider than the line on its own. */}
+            <code data-slot="example-file" className="font-mono text-xs text-muted-foreground wrap-anywhere">
+              examples/<span className="inline-block">{name}.tsx</span>
+            </code>
           </div>
           <CollapsibleTrigger render={<Button variant="ghost" size="sm" />}>
             <CodeIcon />

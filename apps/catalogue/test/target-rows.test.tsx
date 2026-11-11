@@ -40,4 +40,25 @@ describe("TargetRows layout", { timeout: 60_000 }, () => {
     // The track keeps its height when stacked, not just its width.
     expect(narrow.track.height).toBe(wide.track.height);
   });
+
+  it("writes every label and detail in full on a phone, wrapping rather than cutting", async () => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    const cut = await page
+      .locator('[data-slot="target-row"] *')
+      .evaluateAll((parts) =>
+        parts.filter((part) => part.scrollWidth > part.clientWidth).map((part) => part.textContent),
+      );
+    expect(cut).toEqual([]);
+
+    // A word longer than the column wraps too, rather than pushing the target past the row's edge.
+    const overrun = await page
+      .locator('[data-slot="target-row"]')
+      .first()
+      .evaluate((row) => {
+        const [detail, target] = row.children[0]!.children[1]!.children;
+        detail!.textContent = "Cloudhostingtoolscontractorsandsupportsubscriptions";
+        return target!.getBoundingClientRect().right - row.getBoundingClientRect().right;
+      });
+    expect(overrun).toBeLessThanOrEqual(0);
+  });
 });

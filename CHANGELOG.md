@@ -102,6 +102,9 @@
   `recommended`.
 - `SiyahiProvider` keeps the default for a `locale` setting passed as
   `undefined` (`{ currency: undefined }` set the currency to undefined).
+- `TargetRows` wraps a long label or detail onto a second line instead of
+  cutting it with an ellipsis, on a phone and in the wide layout's label
+  column alike.
 - A data table on an open surface paints its pinned cells and sticky header in
   the page colour, not the card's, which drew a stripe down the pinned column
   there (in dark mode most). The theme sets `--table-fill`, the colour under

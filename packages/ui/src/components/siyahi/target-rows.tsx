@@ -57,11 +57,11 @@ export function TargetRows({ rows, domain, valueFormatter, className }: TargetRo
         >
           <div className="flex min-w-0 flex-col text-sm @lg/target:w-64 @lg/target:shrink-0">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="truncate font-medium">{row.label}</span>
+              <span className="min-w-0 font-medium wrap-anywhere">{row.label}</span>
               <span className="shrink-0 text-base font-semibold tabular-nums">{write(row.value)}</span>
             </div>
             <div className="flex justify-between gap-3 text-muted-foreground">
-              <span className="truncate">{row.detail}</span>
+              <span className="min-w-0 wrap-anywhere">{row.detail}</span>
               <span className="shrink-0 tabular-nums">Target {write(row.target)}</span>
             </div>
             {row.status && (

@@ -66,6 +66,29 @@ describe("catalogue families", { timeout: 60_000 }, () => {
     );
   });
 
+  it("wraps each example's file name on a phone rather than cutting it, keeping the name whole", async () => {
+    await go("#/data/scatter-chart", "Scatter chart");
+    await page.setViewportSize({ width: 390, height: 844 });
+    try {
+      const files = await page.locator('[data-slot="example-file"]').evaluateAll((codes) =>
+        codes.map((code) => ({
+          text: code.textContent,
+          cut: code.scrollWidth > code.clientWidth,
+          // The text's own line boxes: the inline-block around it is one box however many lines it holds.
+          nameLines: (() => {
+            const range = document.createRange();
+            range.selectNodeContents(code.querySelector("span")!);
+            return new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size;
+          })(),
+        })),
+      );
+      expect(files.map(({ text }) => text)).toContain("examples/scatter-chart-quadrants.tsx");
+      for (const file of files) expect(file).toEqual({ text: file.text, cut: false, nameLines: 1 });
+    } finally {
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
+  });
+
   it("finds every family by its title, and a family by an export it ships", async () => {
     // The sidebar opens the current page's group, so visit each page to read all of its families.
     const families: string[] = [];
