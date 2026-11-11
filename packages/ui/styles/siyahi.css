@@ -522,7 +522,7 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
   [data-slot="slider-track"],
   [data-slot="slider-thumb"],
   [data-slot="scroll-area-thumb"],
-  [data-slot="chart"] :is(.recharts-tooltip-wrapper, .recharts-legend-wrapper) [class*="rounded-"]
+  [data-slot="chart"] :is(.recharts-tooltip-wrapper, .recharts-legend-wrapper) [class~="rounded-[2px]"]
 ) {
   border-radius: 0;
 }

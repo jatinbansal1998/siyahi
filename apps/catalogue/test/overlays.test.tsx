@@ -115,7 +115,7 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
   it("draws a chart's tooltip flat in the card's hairline, and its tooltip and legend chips square", async () => {
     const border = await themeColor(page, "--border");
     const preview = await open("data/bar-chart", "Bar chart");
-    const chips = preview.locator('.recharts-legend-wrapper [class*="rounded-"]');
+    const chips = preview.locator('.recharts-legend-wrapper [class~="rounded-[2px]"]');
     await chips.first().waitFor();
     expect(await chips.evaluateAll((els) => [...new Set(els.map((el) => getComputedStyle(el).borderRadius))])).toEqual([
       "0px",
@@ -127,6 +127,17 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
     const tooltip = chart.locator(".recharts-tooltip-wrapper > div");
     expect((await edge(tooltip)).layers).toEqual([]);
     expect(await style(tooltip, "border-top-color")).toEqual([border]);
+    // Siyahi's cards write their own tooltip rows, so core's chip shows only in a page's stock ChartTooltipContent:
+    // lay one in, with core's classes, beside a round status dot that must stay round.
+    const [chip, dot] = await tooltip.evaluate((box) =>
+      ["h-2.5 w-2.5 shrink-0 rounded-[2px]", "size-1.5 rounded-full"].map((className) => {
+        const el = box.appendChild(document.createElement("div"));
+        el.className = className;
+        return getComputedStyle(el).borderTopLeftRadius;
+      }),
+    );
+    expect(chip).toBe("0px");
+    expect(dot).not.toBe("0px");
   });
 
   it("squares a slider, a scroll area's thumb and a range position's thumb", async () => {
@@ -153,6 +164,14 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
         .map((el) => (Number(el.getAttribute("rx")) * 2 >= Number(el.getAttribute("width")) - 1 ? "circle" : "box")),
     );
     expect([...new Set(rounded)]).toEqual(["circle"]);
+    // The signed calendar's loss days themselves, apart from its legend's swatches.
+    const lossDays = page
+      .locator('[data-slot="calendar-heatmap-block"]')
+      .evaluateAll(
+        (els) =>
+          els.filter((el) => Number(el.getAttribute("rx") ?? 0) * 2 >= Number(el.getAttribute("width")) - 1).length,
+      );
+    expect(await lossDays).toBeGreaterThan(0);
     await open("data/treemap", "Treemap");
     const tiles = page.locator(
       '[data-slot="example-preview"] :is([data-slot="treemap-tile"], [data-slot="treemap-legend-swatch"]) rect',
