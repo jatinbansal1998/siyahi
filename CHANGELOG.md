@@ -106,6 +106,9 @@
   the page colour, not the card's, which drew a stripe down the pinned column
   there (in dark mode most). The theme sets `--table-fill`, the colour under
   the table, for both.
+- A data table's sorted column head carries `aria-sort` (`"ascending"` or
+  `"descending"`), so a screen reader reads the sort order from the table, not
+  only from the sort button's name; an unsorted head has none.
 
 - Charts offer their own Linear and Log buttons. `xScaleToggle` and
   `yScaleToggle` on `ScatterChartCard`, and `yScaleToggle` on `LineChartCard`
