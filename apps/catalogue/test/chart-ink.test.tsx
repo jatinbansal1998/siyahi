@@ -172,10 +172,20 @@ describe("chart ink", { timeout: 60_000 }, () => {
       path.getAttribute("stroke-width"),
     ]);
     expect([fill, stroke, width]).toEqual([
-      "color-mix(in oklab, var(--chart-1) 25%, var(--card))",
+      "color-mix(in oklab, var(--chart-1) var(--bar-tint), var(--card))",
       "var(--chart-1)",
       "1",
     ]);
+    // The browser resolves the theme's share: half the colour, which a thin stacked segment needs (#94).
+    const [painted, half] = await bar.evaluate((path) => {
+      const probe = document.createElement("div");
+      path.closest('[data-slot="card"]')!.append(probe);
+      probe.style.backgroundColor = "color-mix(in oklab, var(--chart-1) 50%, var(--card))";
+      const expected = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return [getComputedStyle(path).fill, expected];
+    });
+    expect(painted).toBe(half);
     expect(
       await bars
         .locator(".recharts-bar-rectangles")

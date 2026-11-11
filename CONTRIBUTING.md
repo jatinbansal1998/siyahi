@@ -103,7 +103,10 @@ sit inside sRGB. When a component paints a token on a new fill, add the pair to
 
 A bar is read by its edge: its 1px full-colour edge must reach 3:1 against the
 card, and its tint is a fill carried by that edge, so the tint inside needs no
-pair against the edge. Marks in a block the page marks stale are exempt from
+pair against the edge. It still carries the colour where a bar is short, such
+as a thin stacked segment that is mostly edge, so each bar colour's tint
+(`--bar-tint`) must reach 1.5:1 against the card, and each slot's against the
+next slot's. Marks in a block the page marks stale are exempt from
 the 3:1 mark bar, since a stale block is meant to be harder to read; its
 "Stale" note and its figures keep their text contrast.
 
@@ -130,6 +133,8 @@ it keeps the same roles. Set every value in both blocks, as `oklch()`.
 - **Heat steps** are `--heat-1` to `--heat-5`, the share of `--positive` or
   `--negative` each step mixes into the card, light and dark apart. Treemap,
   ChangeGrid, a signed CalendarHeatmap and the contrast check all read them.
+- **Bar tint** is `--bar-tint`, the share of its colour every bar mixes into
+  the card inside its full-colour edge; the contrast check reads it.
 - **Tints that stay in components** (a signed bar's 35% interior, Callout and
   StatusAlert washes in `lib/tone.ts`) are shares, not colours, so they follow
   a new palette; a change to one of those shares also needs its pair in

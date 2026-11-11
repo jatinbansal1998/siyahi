@@ -12,13 +12,18 @@
   with hollow end dots; new `today` draws a 1px rule in the link colour.
   Overlapping areas have no fill (they had a gradient on the first series); a
   stack's bands are a flat 25% tint. Gridlines are solid. Every bar,
-  `HistogramChart`'s and `WaterfallChart`'s totals included, is a 25% tint
+  `HistogramChart`'s and `WaterfallChart`'s totals included, is a tint
   inside a 1px edge of its colour, square, fading in rather than growing; a
   selection dims the others to a 10% tint (was a 55% mix). Lines draw in over
   1.3s, a stack's fills revealed with them, then the names fade in; reduced
   motion shows all at once. Names at the line ends need every line to end on
   the plot's right edge; otherwise the legend stays. A forecast's dashed lines and its labels sit on card-coloured
   halos over the hatching.
+- Every bar's tint is 50% of its colour (the theme's new `--bar-tint`), was
+  25% since next.30: at 25% a stacked segment of 2–3% was two edge lines with
+  no colour between them, the palest bars sat at 1.3:1 against the card, and
+  dark bars were dim. `siyahi-contrast` holds every bar colour's tint at 1.5:1
+  against the card and each slot's against the next slot's.
 - Stale data: `stale` (since when, such as "3 Nov") on any chart card and on a
   `SectionCards` item greys the block and draws its chart or sparkline at 65%,
   mutes a tile's figure and badge, and shows a boxed "Stale · 3 Nov" note; `StaleNote` is exported for

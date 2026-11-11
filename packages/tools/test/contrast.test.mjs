@@ -134,6 +134,19 @@ describe("contrast check", () => {
     expect(named(broken)).toContain("light --chart-3 on --card");
   });
 
+  it("fails bars at the old 25% tint: pale neighbours in light, dim ones on the dark card", () => {
+    // Issue #94: at 25% a thin --chart-4 segment read as one with --chart-5 beside it, and dark bars read as the card.
+    expect(named(setVar(themeCss, "light", "bar-tint", "25%"))).toEqual(
+      expect.arrayContaining([
+        "light --chart-4 25% in --card on --chart-5 25% in --card",
+        "light --chart-4 25% in --card on --card",
+      ]),
+    );
+    expect(named(setVar(themeCss, "dark", "bar-tint", "25%"))).toEqual(
+      expect.arrayContaining(["dark --chart-1 25% in --card on --card", "dark --chart-5 25% in --card on --card"]),
+    );
+  });
+
   it("fails a foreground that does not stand out on its fill", () => {
     const broken = setVar(themeCss, "dark", "positive-foreground", "oklch(0.9 0 0)");
     expect(named(broken)).toEqual(["dark --positive-foreground on --positive"]);
@@ -173,7 +186,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 288\/288 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 310\/310 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

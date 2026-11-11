@@ -204,7 +204,9 @@ describe("chart cards", { timeout: 60_000 }, () => {
       "var(--positive)",
       "var(--negative)",
     ]);
-    expect(await bars.nth(2).getAttribute("fill")).toBe("color-mix(in oklab, var(--negative) 25%, var(--card))");
+    expect(await bars.nth(2).getAttribute("fill")).toBe(
+      "color-mix(in oklab, var(--negative) var(--bar-tint), var(--card))",
+    );
     const { x, y } = await center(bars.nth(2));
     await tooltipAt(chart, x, y, "FY24");
     const swatch = chart.locator(".recharts-tooltip-wrapper span").first();

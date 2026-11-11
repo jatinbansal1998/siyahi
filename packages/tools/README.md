@@ -178,6 +178,7 @@ the surface under it. It fails unless text reaches 4.5:1 on the page, on its own
 fill and on the tints Siyahi's components put it on (Callout washes, the
 destructive tint and its hover, code-line fills, treemap heat steps), a field's
 edge, the focus ring, a selected tab and every chart and meaning colour reach
-3:1 against what is next to them, and every colour sits inside sRGB. Slots two
+3:1 against what is next to them, every bar colour's tint (`--bar-tint`) reaches
+1.5:1 against the card and each slot's against the next slot's, and every colour sits inside sRGB. Slots two
 apart share a lightness and are told apart by hue, so series take slots in
 order.
