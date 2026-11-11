@@ -6,12 +6,15 @@ import { useSurface } from "@siyahi/ui/components/siyahi/siyahi-provider";
 const COLUMNS = {
   1: "",
   2: "@2xl/panels:grid-cols-2",
-  3: "@2xl/panels:grid-cols-2 @5xl/panels:grid-cols-3",
+  3: "@2xl/panels:grid-cols-3",
   4: "@2xl/panels:grid-cols-2 @5xl/panels:grid-cols-4",
 } as const;
 
 export interface PanelGridProps {
-  /** Blocks across on a wide page; two on a medium one, and one on a phone. */
+  /**
+   * Blocks across from a 42rem grid, so three short ones fit a reading column (an article's 55rem); 4 goes two across
+   * there and four from 64rem. Below 42rem they sit one under another.
+   */
   columns?: keyof typeof COLUMNS | undefined;
   children: ReactNode;
   className?: string | undefined;

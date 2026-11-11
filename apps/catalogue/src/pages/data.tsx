@@ -288,6 +288,11 @@ export const data: Page = {
           caption:
             "Five funds with a forecast, five kinds as lines, and money added by quarter, side by side and stacked.",
         },
+        {
+          name: "chart-panels-three",
+          caption:
+            "Three short panels across a 56rem reading column (max-w-4xl): columns={3} goes three across from 42rem.",
+        },
       ],
     },
     {
