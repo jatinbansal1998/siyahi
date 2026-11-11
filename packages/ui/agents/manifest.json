@@ -727,7 +727,9 @@
       "components": [
         "ContextMenu",
         "ContextMenuContent",
+        "ContextMenuGroup",
         "ContextMenuItem",
+        "ContextMenuLabel",
         "ContextMenuTrigger"
       ]
     },
@@ -1218,6 +1220,7 @@
         "SelectContent",
         "SelectGroup",
         "SelectItem",
+        "SelectLabel",
         "SelectTrigger",
         "SelectValue"
       ]

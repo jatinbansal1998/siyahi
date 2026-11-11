@@ -8,6 +8,8 @@
 // and wrap long labels without squeezing checkboxes or counts.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: the trigger is an outline button with a solid hairline (was dashed), as
+// every other outline control is.
 "use client"
 
 /**
@@ -202,7 +204,7 @@ export function TableFacetedFilter<TData extends RowData, TValue>({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={trigger || (
-          <Button variant="outline" size="sm" className="h-8 border-dashed">
+          <Button variant="outline" size="sm" className="h-8">
             {selectedValues?.size > 0 ? (
               <div
                 role="button"

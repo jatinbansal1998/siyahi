@@ -483,8 +483,47 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
   @apply font-mono text-2xs tracking-wider text-muted-foreground uppercase;
 }
 
-/* Progress is a bar, square as every bar is; stock draws it as a pill. */
-[data-slot="progress-track"] {
+/* A group's label in a menu, a select's list or the command palette is a label over its items, set as one. */
+:is(
+  [data-slot="dropdown-menu-label"],
+  [data-slot="context-menu-label"],
+  [data-slot="select-label"],
+  [data-slot="command-group"] [cmdk-group-heading]
+) {
+  @apply font-mono text-2xs tracking-wider text-muted-foreground uppercase;
+}
+
+/*
+ * A menu, a select's list, a popover, a dialog, a sheet and a chart's tooltip read as a sheet of the page, not a
+ * bubble floating over it: no drop shadow, and the card's hairline for an edge (stock rings them fainter).
+ */
+:is(
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"],
+  [data-slot="context-menu-content"],
+  [data-slot="context-menu-sub-content"],
+  [data-slot="select-content"],
+  [data-slot="popover-content"],
+  [data-slot="dialog-content"],
+  [data-slot="sheet-content"],
+  [data-slot="chart"] .recharts-tooltip-wrapper > div
+) {
+  --tw-shadow: 0 0 #0000;
+  --tw-ring-color: var(--border);
+  border-color: var(--border);
+}
+
+/*
+ * Square as every box is: progress, a slider's track and thumb, a scrollbar's thumb, and the colour chips core's
+ * chart tooltip and legend draw at a fixed 2px, which no radius token reaches.
+ */
+:is(
+  [data-slot="progress-track"],
+  [data-slot="slider-track"],
+  [data-slot="slider-thumb"],
+  [data-slot="scroll-area-thumb"],
+  [data-slot="chart"] :is(.recharts-tooltip-wrapper, .recharts-legend-wrapper) [class*="rounded-"]
+) {
   border-radius: 0;
 }
 
@@ -757,7 +796,6 @@ div[data-slot="sidebar"]:not([data-side], [data-mobile]) {
   inset-block: 2px;
   left: -11px;
   width: 2px;
-  border-radius: 1px;
   background: var(--sidebar-accent-foreground);
 }
 

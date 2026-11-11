@@ -17,6 +17,7 @@
 // never drew. The picked cell's ring is a class, so focus outranks it.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: cells and legend swatches are square (blockRadius 0, was 2), as every box is.
 import type { Locale, Day as WeekDay } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -287,7 +288,7 @@ export const WeekdayHeatmap = ({
   use12Hour = false,
   blockSize: blockSizeProp,
   blockMargin = 4,
-  blockRadius = 2,
+  blockRadius = 0,
   blockAspectRatio = 1,
   levels: levelsProp = 5,
   isNormalized = false,

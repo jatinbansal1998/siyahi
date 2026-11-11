@@ -272,8 +272,8 @@ const controls: Entry[] = [
     id: "select",
     title: "Select",
     lead: "Pick one option from a short list.",
-    imports: ["Select", "SelectTrigger", "SelectValue", "SelectContent", "SelectGroup", "SelectItem"],
-    caption: "Pick one store from a short list.",
+    imports: ["Select", "SelectTrigger", "SelectValue", "SelectContent", "SelectGroup", "SelectLabel", "SelectItem"],
+    caption: "Pick one store from a short list, under its group's label.",
   },
   {
     id: "input",
@@ -368,8 +368,15 @@ const controls: Entry[] = [
     id: "context-menu",
     title: "Context menu",
     lead: "The same actions on right-click or long-press.",
-    imports: ["ContextMenu", "ContextMenuTrigger", "ContextMenuContent", "ContextMenuItem"],
-    caption: "Copy order number and Open order on right-click.",
+    imports: [
+      "ContextMenu",
+      "ContextMenuTrigger",
+      "ContextMenuContent",
+      "ContextMenuGroup",
+      "ContextMenuLabel",
+      "ContextMenuItem",
+    ],
+    caption: "Copy order number and Open order on right-click, under the Order label.",
   },
   {
     id: "command",

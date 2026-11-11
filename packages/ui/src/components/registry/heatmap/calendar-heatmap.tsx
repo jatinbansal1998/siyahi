@@ -25,6 +25,8 @@
 // class too, so focus outranks it.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: cells and legend swatches are square (blockRadius 0, was 2), as every
+// box is; a signed loss day stays round, since its shape carries the sign.
 import type { Locale, Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
@@ -507,7 +509,7 @@ export const CalendarHeatmap = ({
   hasEmptyColumn = false,
   blockSize: blockSizeProp,
   blockMargin = 4,
-  blockRadius = 2,
+  blockRadius = 0,
   blockAspectRatio = 1,
   levels: levelsProp = 5,
   isNormalized = false,

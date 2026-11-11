@@ -140,14 +140,13 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
               onPointerEnter={(event) => event.pointerType === "mouse" && onHover?.(item)}
               onClick={() => onSelect?.(key === selectedKey ? null : item)}
             >
-              <rect width="100%" height="100%" rx={4} style={{ fill: heat(item.change, range) }} />
+              <rect width="100%" height="100%" style={{ fill: heat(item.change, range) }} />
               {key === selectedKey && (
                 <rect
                   x={1}
                   y={1}
                   width={box.width - 2}
                   height={box.height - 2}
-                  rx={3}
                   fill="none"
                   strokeWidth={2}
                   className="stroke-foreground"
@@ -181,7 +180,7 @@ function Swatch({ label, fill }: { label: string; fill: string }) {
   return (
     <svg data-slot="treemap-legend-swatch" className="h-3 flex-1">
       <title>{label}</title>
-      <rect width="100%" height="100%" rx={2} style={{ fill }} />
+      <rect width="100%" height="100%" style={{ fill }} />
     </svg>
   );
 }

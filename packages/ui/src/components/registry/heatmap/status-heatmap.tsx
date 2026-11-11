@@ -29,6 +29,7 @@
 // wraps, so four states fit a narrow phone.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: bars and legend swatches are square (blockRadius 0, was 2), as every box is.
 import type { Locale } from "date-fns";
 import { format } from "date-fns";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
@@ -266,7 +267,7 @@ export const StatusHeatmap = ({
   dateFormat = "MMM d",
   blockSize = 40,
   blockMargin = 2,
-  blockRadius = 2,
+  blockRadius = 0,
   blockAspectRatio: blockAspectRatioProp,
   colors,
   locale,

@@ -1,4 +1,11 @@
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@siyahi/ui";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuTrigger,
+} from "@siyahi/ui";
 
 export default function ContextMenuExample() {
   return (
@@ -9,8 +16,11 @@ export default function ContextMenuExample() {
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem>Copy order number</ContextMenuItem>
-        <ContextMenuItem>Open order</ContextMenuItem>
+        <ContextMenuGroup>
+          <ContextMenuLabel>Order</ContextMenuLabel>
+          <ContextMenuItem>Copy order number</ContextMenuItem>
+          <ContextMenuItem>Open order</ContextMenuItem>
+        </ContextMenuGroup>
       </ContextMenuContent>
     </ContextMenu>
   );
