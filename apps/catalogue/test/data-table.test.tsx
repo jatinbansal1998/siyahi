@@ -9,6 +9,7 @@ import {
   DataTableColumnTitle,
   DataTableHeader,
   DataTableRoot,
+  DataTableSortHeader,
   type DataTableColumnDef,
 } from "@siyahi/ui";
 import { act, type ReactNode } from "react";
@@ -213,5 +214,43 @@ describe("data table toolbar and sort header", () => {
     });
     expect(firstColumn()).toEqual(["Office chair", "Kids chair"]);
     expect(rowCount()).toBe("2 of 6");
+  });
+});
+
+const sortHeader = () => <DataTableSortHeader />;
+
+describe("data table sort state", () => {
+  it("marks only the primary sort column's head with aria-sort when a second column breaks its ties", async () => {
+    const columns: DataTableColumnDef<{ team: string; points: number }>[] = [
+      { accessorKey: "team", header: sortHeader, meta: { label: "Team" } },
+      { accessorKey: "points", header: sortHeader, meta: { label: "Points", variant: "number" } },
+    ];
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <DataTableRoot
+          data={[
+            { team: "Kestrels", points: 9 },
+            { team: "Herons", points: 12 },
+          ]}
+          columns={columns}
+          initialState={{
+            sorting: [
+              { id: "points", desc: true },
+              { id: "team", desc: false },
+            ],
+          }}
+        >
+          <DataTable>
+            <DataTableHeader />
+            <DataTableBody />
+          </DataTable>
+        </DataTableRoot>,
+      ),
+    );
+    const sorted = [...document.querySelectorAll("th[aria-sort]")];
+    expect(sorted.map((th) => [th.getAttribute("data-col-id"), th.getAttribute("aria-sort")])).toEqual([
+      ["points", "descending"],
+    ]);
   });
 });

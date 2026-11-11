@@ -108,7 +108,8 @@
   the table, for both.
 - A data table's sorted column head carries `aria-sort` (`"ascending"` or
   `"descending"`), so a screen reader reads the sort order from the table, not
-  only from the sort button's name; an unsorted head has none.
+  only from the sort button's name; an unsorted head has none. Under a sort by
+  more than one column, only the first column's head carries it.
 
 - Charts offer their own Linear and Log buttons. `xScaleToggle` and
   `yScaleToggle` on `ScatterChartCard`, and `yScaleToggle` on `LineChartCard`
