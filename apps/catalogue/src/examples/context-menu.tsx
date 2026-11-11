@@ -11,7 +11,7 @@ export default function ContextMenuExample() {
   return (
     <ContextMenu>
       <ContextMenuTrigger className="w-full">
-        <div className="flex h-24 items-center justify-center rounded-lg border border-dashed text-muted-foreground">
+        <div className="flex h-24 items-center justify-center border text-muted-foreground">
           Right-click or long-press here
         </div>
       </ContextMenuTrigger>

@@ -2,6 +2,18 @@
 
 ## 0.1.9
 
+- The look reaches the last parts. A menu, a select's list, a popover, a
+  dialog, a sheet and a chart's tooltip lie flat: no drop shadow, edged in the
+  card's hairline. Heatmap cells and swatches (`blockRadius` now defaults to
+  0), treemap tiles, a slider's track and thumb, a scroll area's and a data
+  table's scrollbar thumb, `RangePosition`'s thumb, a sort-order badge, the
+  sidebar's current-page mark and the chart tooltip's and legend's colour
+  chips are square; a signed calendar's loss days stay round. A group's label
+  in a menu, a select or the command palette is set in small mono capitals,
+  and a selected pill tab drops its shadow. The data table's filter chip has a
+  solid hairline. `NavUser`'s account header is a plain block, not a
+  `DropdownMenuLabel`, so it keeps its sans face.
+
 - Charts: `LineChartCard` and overlapping `AreaChartCard` series are named at
   their line ends (a legend below on a card under 400px wide or where names
   would take over 30% of it or not fit its height). Series in

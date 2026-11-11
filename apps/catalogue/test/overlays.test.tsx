@@ -140,6 +140,15 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
     expect(dot).not.toBe("0px");
   });
 
+  it("fills a selected pill tab with no drop shadow under it", async () => {
+    const preview = await open("components/tabs", "Tabs");
+    const tab = preview
+      .locator('[data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active]')
+      .first();
+    const [shadow = ""] = await style(tab, "box-shadow");
+    expect(drawnLayers(shadow)).toEqual([]);
+  });
+
   it("squares a slider, a scroll area's thumb and a range position's thumb", async () => {
     let preview = await open("inputs/slider", "Slider");
     for (const slot of ["slider-track", "slider-thumb"]) {

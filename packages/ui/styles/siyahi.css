@@ -272,13 +272,15 @@
  * foreground, black on white and white on black, so the reader sees at once
  * what is on; stock shadcn marks it with a faint grey. A default (pill) tab
  * selects the same way: stock fills it with the canvas colour, 1.05:1 against
- * its grey list. Unlayered, to outrank the stock aria-pressed:bg-muted.
+ * its grey list, lifted on a drop shadow, which the fill makes needless. Unlayered, to outrank the stock
+ * aria-pressed:bg-muted.
  */
 :is([data-slot="toggle"], [data-slot="toggle-group-item"]):is([aria-pressed="true"], [data-pressed]),
 [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active] {
   background-color: var(--foreground);
   color: var(--background);
   border-color: var(--foreground);
+  --tw-shadow: 0 0 #0000;
 }
 
 /*
