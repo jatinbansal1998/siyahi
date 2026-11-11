@@ -184,6 +184,25 @@ describe("chart ink", { timeout: 60_000 }, () => {
     ).toBe("chart-fade-in");
   });
 
+  it("fills a stack's segments with the stronger --stack-tint, so a thin one keeps its colour", async () => {
+    const stack = card(await open("data/chart-panels", "Chart panels"), "Money added by kind and quarter").nth(1);
+    const segment = stack.locator(".recharts-bar-rectangle path").first();
+    await segment.waitFor();
+    expect(await segment.getAttribute("fill")).toBe(
+      "color-mix(in oklab, var(--chart-1) var(--stack-tint), var(--card))",
+    );
+    // The browser resolves the share from the theme: a 50% mix, not a lone bar's 25%.
+    const [painted, half] = await segment.evaluate((path) => {
+      const probe = document.createElement("div");
+      path.closest('[data-slot="card"]')!.append(probe);
+      probe.style.backgroundColor = "color-mix(in oklab, var(--chart-1) 50%, var(--card))";
+      const expected = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return [getComputedStyle(path).fill, expected];
+    });
+    expect(painted).toBe(half);
+  });
+
   it("fades a line chart's names in after its lines draw, bars at once, and nothing under reduced motion", async () => {
     const panels = await open("data/chart-panels", "Chart panels");
     const names = card(panels, "Growth by fund").locator('[data-slot="end-labels"]');

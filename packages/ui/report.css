@@ -38,6 +38,7 @@
   --wash: 7%;
   --wash-edge: 45%;
   --field-wash: 8%;
+  --stack-tint: 50%;
   --link: oklch(0.51 0.2 275);
   --chart-1: oklch(0.4 0.17 275);
   --chart-2: oklch(0.66 0.13 70);

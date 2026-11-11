@@ -228,7 +228,7 @@ export const data: Page = {
         'Series take --chart-1 to --chart-5 in order and never skip a slot: each reaches 3:1 against the card and its neighbours, and slots two apart share a lightness and differ by hue. Past five, fold the rest into "Other" in --muted-foreground.',
         "A gain and a loss take var(--positive) and var(--negative): give the series color and negativeColor, and each bar takes the one its sign calls for.",
         "The value axis always includes zero, so a series of losses runs down from it.",
-        "Every bar is a tint of its colour inside a 1px full-colour edge, square; bars fade in rather than grow.",
+        "Every bar is a tint of its colour inside a 1px full-colour edge, square; a stack's segments take a stronger tint, so a thin one keeps its colour. Bars fade in rather than grow.",
         "The page owns the pick: hold selected in its state and set it from onSelect.",
       ],
       examples: [

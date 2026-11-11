@@ -19,6 +19,8 @@
 // Siyahi edit: every bar is a tint of its colour inside a 1px full-colour
 // edge (lib/chart-frame barFill), a gain or a loss in its meaning colour;
 // solid slabs were the loudest thing on the page.
+// Siyahi edit: a stack's segments take the stronger --stack-tint, so a
+// segment of a few percent still shows its colour between its edges (#94).
 // Siyahi edit: a stack runs negative values down from zero and positive ones
 // up, so money out sits below the line rather than hanging from money in.
 // Siyahi edit: while a category is selected every bar keeps its full-colour
@@ -106,7 +108,9 @@ export function BarChartCard<T extends object, K extends keyof T>({
                   ? negativeColor
                   : color
               const dim = selected !== null && row[props.xKey] !== selected
-              return <Cell key={i} fill={barFill(tone, dim)} stroke={tone} strokeWidth={1} />
+              return (
+                <Cell key={i} fill={barFill(tone, { stacked, dim })} stroke={tone} strokeWidth={1} />
+              )
             })}
           </Bar>
         )

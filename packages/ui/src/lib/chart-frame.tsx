@@ -69,11 +69,16 @@ const NO_LINES: readonly ChartReferenceLine[] = [];
 const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
 
 /**
- * A bar's fill: a tint of its colour, inside a 1px edge of the full colour the bar is drawn with. A selection dims
+ * A bar's fill: a tint of its colour, inside a 1px edge of the full colour the bar is drawn with. A stack's segments
+ * take the theme's stronger --stack-tint, so a thin one still shows its colour between its edges. A selection dims
  * the bars it leaves out to a fainter tint; their edges stay, so they keep 3:1 against the card.
  */
-export function barFill(color: string, dim = false): string {
-  return `color-mix(in oklab, ${color} ${dim ? 10 : 25}%, var(--card))`;
+export function barFill(
+  color: string,
+  { stacked = false, dim = false }: { stacked?: boolean | undefined; dim?: boolean | undefined } = {},
+): string {
+  const share = dim ? "10%" : stacked ? "var(--stack-tint)" : "25%";
+  return `color-mix(in oklab, ${color} ${share}, var(--card))`;
 }
 
 /** Renders the component again once the page's fonts load, so text measured on a canvas is measured in Geist. */

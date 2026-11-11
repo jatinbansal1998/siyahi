@@ -19,6 +19,11 @@
   motion shows all at once. Names at the line ends need every line to end on
   the plot's right edge; otherwise the legend stays. A forecast's dashed lines and its labels sit on card-coloured
   halos over the hatching.
+- A stacked `BarChartCard`'s segments take a 50% tint (the theme's new
+  `--stack-tint`), where a lone bar keeps 25%: at 25% a segment of 2–3% was two
+  edge lines with no colour between them, and dark stacks read as the card.
+  `siyahi-contrast` holds each slot's stack tint at 1.5:1 against the card and
+  the next slot's tint.
 - Stale data: `stale` (since when, such as "3 Nov") on any chart card and on a
   `SectionCards` item greys the block and draws its chart or sparkline at 65%,
   mutes a tile's figure and badge, and shows a boxed "Stale · 3 Nov" note; `StaleNote` is exported for

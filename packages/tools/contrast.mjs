@@ -35,6 +35,10 @@ import { readTheme } from "./theme.mjs";
 
 const TEXT = 4.5;
 const MARK = 3;
+// A fill told apart from the fill or card beside it, inside a 1px edge that already carries the mark's 3:1. No tint
+// reaches 3:1 against its neighbour's: the solid slots next to each other sit near 3:1, and mixing both into the card
+// only narrows that. At 25% a stack's pale segments sat at 1.2:1 against each other and read as one.
+const FILL = 1.5;
 const SURFACES = ["background", "card"];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
 
@@ -145,11 +149,20 @@ const PAIRS = [
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A bar is read by its full-colour
-  // edge, so these are the edges too; the tint inside is carried by the edge and
-  // has no pair of its own, nor has a dimmed bar's fainter tint. A stale
+  // edge, so these are the edges too; a lone bar's tint inside is carried by the
+  // edge and has no pair of its own, nor has a dimmed bar's fainter tint. A stale
   // block's marks (greyed, at 65%) are exempt: stale is meant to read faintly.
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "", min: MARK })),
   ...CHARTS.slice(0, -1).map((fg, i) => ({ fg, bg: CHARTS[i + 1] ?? "", min: MARK })),
+  // A stack's segment a few pixels tall is mostly its edges, so its colour shows
+  // through its tint (--stack-tint): against the card and the next slot's tint.
+  ...CHARTS.map((slot) => ({ fg: `${slot}@stack-tint`, bg: "", min: FILL, surface: "card" })),
+  ...CHARTS.slice(0, -1).map((slot, i) => ({
+    fg: `${slot}@stack-tint`,
+    bg: `${CHARTS[i + 1]}@stack-tint`,
+    min: FILL,
+    surface: "card",
+  })),
   // Every bar colour against the 40% muted band a chart card lays behind a
   // hovered category (lib/chart-frame).
   ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "muted/40", min: MARK, surface: "card" })),
