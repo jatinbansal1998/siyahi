@@ -74,8 +74,9 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
    */
   yTickFormatter?: ((value: number, scale: number) => string) | undefined;
   /**
-   * A fixed range for the value axis, such as [0, 100] for a percentage. By default it fits the data; a bar
-   * chart's always reaches zero.
+   * A fixed range for the value axis, such as [0, 100] for a percentage. By default the axis ends on the round
+   * ticks that just cover the data (a 46,800 peak ends at 50,000), a stack's totals for a stack, and a bar chart's
+   * always reaches zero.
    */
   yDomain?: [number, number] | undefined;
   /** Where the value axis puts its ticks, such as [0, 25, 50, 75, 100]. */

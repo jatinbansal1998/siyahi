@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { fitsLog, linearTicks, logAxis, logTicks, ticksFor } from "../src/lib/ticks";
+import { fitsLog, linearAxis, linearTicks, logAxis, logTicks, ticksFor } from "../src/lib/ticks";
 
 describe("logTicks", () => {
   it("runs 1, 2, 5 from the largest at or under the smallest value to the smallest at or over the largest", () => {
@@ -56,5 +56,25 @@ describe("logAxis", () => {
 
   it("ends on the ticks that just cover the values without a fixed range", () => {
     expect(logAxis([12, 75])).toEqual({ domain: [10, 100], ticks: [10, 20, 50, 100] });
+  });
+});
+
+describe("linearAxis", () => {
+  it("ends a value axis on the round tick just over the data: 46,800 at 50,000, not 80,000 (#84)", () => {
+    expect(linearAxis([240, 9800, 46800])).toEqual({
+      domain: [0, 50000],
+      ticks: [0, 10000, 20000, 30000, 40000, 50000],
+    });
+  });
+
+  it("covers 200,000 values, which Math.min(...values) could not take as arguments", () => {
+    const values = Array.from({ length: 200_000 }, (_, i) => i);
+    expect(linearAxis(values)?.domain).toEqual([0, 200000]);
+    expect(logAxis(values.map((i) => i + 1)).domain).toEqual([1, 200000]);
+  });
+
+  it("leaves an axis with nothing to span to the chart", () => {
+    expect(linearAxis([])).toBeUndefined();
+    expect(linearAxis([3, 3])).toBeUndefined();
   });
 });
