@@ -64,9 +64,10 @@ A part a component lifts with a z-index (a button laid over a tile, a sticky
 header, a badge) must rank only inside its component, never against a page's
 sticky header or section strip, which are z-10 too. Add the component's root
 slot to the `isolation: isolate` list in `siyahi.css` (for a part that must
-sit over a neighbour, such as an avatar's badge in a group, the group's slot), and its page to
+sit over a neighbour, such as an avatar's badge in a group, the group's slot), and its page and that slot to
 `apps/catalogue/test/page-chrome.test.tsx`, which fails on any lifted part
-outside such a root.
+whose nearest isolated ancestor is not that root (an example's card isolates
+too, so being inside some isolated box proves nothing).
 
 ## Charts
 
