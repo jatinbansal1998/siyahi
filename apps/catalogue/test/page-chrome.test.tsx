@@ -56,27 +56,29 @@ describe("page chrome", { timeout: 60_000 }, () => {
     ).toBe("avatar-badge");
   });
 
-  // Every part a component lifts with a z-index, on the pages that show such parts: each must rank inside a stacking
-  // context of its own component, never against the page's header or section strip.
+  // Every part a component lifts with a z-index, on the pages that show such parts: each must rank inside the stacking
+  // context of its component's own root, never against the page's header or section strip. The nearest isolated
+  // ancestor must be that root: an example's card isolates too, and would otherwise hide a root that does not.
   it.each([
-    ["blocks/section-cards", "SectionCards"],
-    ["data/data-table", "Data table"],
-    ["components/avatar", "Avatar"],
-    ["inputs/calendar", "Calendar"],
-    ["inputs/toggle-group", "Toggle group"],
-    ["data/price-chart", "PriceChart"],
-  ])("keeps every lifted part on %s inside its own component", async (route, title) => {
+    ["blocks/section-cards", "SectionCards", "card"],
+    ["data/data-table", "Data table", "table-container"],
+    ["components/avatar", "Avatar", "avatar-group"],
+    ["inputs/calendar", "Calendar", "calendar"],
+    ["inputs/toggle-group", "Toggle group", "toggle-group"],
+    ["data/price-chart", "PriceChart", "price-chart"],
+  ])("keeps every lifted part on %s inside its own component", async (route, title, root) => {
     await open(route, title);
     // A toggle lifts itself only while focused.
     if (route === "inputs/toggle-group") await page.locator('main [data-slot="toggle-group-item"]').first().focus();
-    const { lifted, loose } = await page.evaluate(() => {
+    const { lifted, loose } = await page.evaluate((rootSlot) => {
       const main = document.querySelector("main main") ?? document.querySelector("main");
       const chrome = '[data-slot="page-toc"], header';
-      const contained = (el: Element): boolean => {
+      // The slot of the nearest isolated ancestor, or "nothing".
+      const isolatedBy = (el: Element): string => {
         for (let node = el.parentElement; node && node !== main; node = node.parentElement) {
-          if (getComputedStyle(node).isolation === "isolate") return true;
+          if (getComputedStyle(node).isolation === "isolate") return node.getAttribute("data-slot") ?? node.tagName;
         }
-        return false;
+        return "nothing";
       };
       const raised = [...(main?.querySelectorAll("*") ?? [])].filter(
         (el) => getComputedStyle(el).zIndex !== "auto" && !el.closest(chrome) && !el.closest("svg"),
@@ -84,10 +86,12 @@ describe("page chrome", { timeout: 60_000 }, () => {
       return {
         lifted: raised.length,
         loose: raised
-          .filter((el) => !contained(el))
-          .map((el) => `${el.tagName.toLowerCase()}[${el.getAttribute("data-slot") ?? el.className}]`),
+          .filter((el) => isolatedBy(el) !== rootSlot)
+          .map(
+            (el) => `${el.tagName.toLowerCase()}[${el.getAttribute("data-slot") ?? el.className}] in ${isolatedBy(el)}`,
+          ),
       };
-    });
+    }, root);
     // The page shows at least one lifted part, so the check has something to hold.
     expect(lifted).toBeGreaterThan(0);
     expect(loose).toEqual([]);
