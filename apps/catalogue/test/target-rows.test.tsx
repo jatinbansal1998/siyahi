@@ -47,5 +47,16 @@ describe("TargetRows layout", { timeout: 60_000 }, () => {
       .locator('[data-slot="target-row"] *')
       .evaluateAll((parts) => parts.filter((part) => part.scrollWidth > part.clientWidth).map((part) => part.textContent));
     expect(cut).toEqual([]);
+
+    // A word longer than the column wraps too, rather than pushing the target past the row's edge.
+    const overrun = await page
+      .locator('[data-slot="target-row"]')
+      .first()
+      .evaluate((row) => {
+        const [detail, target] = row.children[0]!.children[1]!.children;
+        detail!.textContent = "Cloudhostingtoolscontractorsandsupportsubscriptions";
+        return target!.getBoundingClientRect().right - row.getBoundingClientRect().right;
+      });
+    expect(overrun).toBeLessThanOrEqual(0);
   });
 });

@@ -74,7 +74,12 @@ describe("catalogue families", { timeout: 60_000 }, () => {
         codes.map((code) => ({
           text: code.textContent,
           cut: code.scrollWidth > code.clientWidth,
-          nameLines: code.querySelector("span")!.getClientRects().length,
+          // The text's own line boxes: the inline-block around it is one box however many lines it holds.
+          nameLines: (() => {
+            const range = document.createRange();
+            range.selectNodeContents(code.querySelector("span")!);
+            return new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size;
+          })(),
         })),
       );
       expect(files.map(({ text }) => text)).toContain("examples/scatter-chart-quadrants.tsx");
