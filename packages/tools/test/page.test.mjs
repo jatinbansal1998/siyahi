@@ -1,4 +1,5 @@
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -59,6 +60,21 @@ export default function Flows() {
       expect(html).toContain(".tracking-widest");
       // The type-only import, which TypeScript erases before the build sees it, is listed too.
       expect(sources).toEqual([page, data, types, css, extra, more, dot, logo].toSorted());
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  it("builds through a symlink, as npx runs the siyahi-page bin", () => {
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), "siyahi-page-bin-")));
+    try {
+      const page = path.join(dir, "bin-page.tsx");
+      writeFileSync(page, `export default function BinPage() { return <h1>Bin</h1>; }\n`);
+      const bin = path.join(dir, "siyahi-page");
+      symlinkSync(fileURLToPath(new URL("../page.mjs", import.meta.url)), bin);
+      const out = path.join(dir, "bin-page.html");
+      execFileSync(process.execPath, [bin, page, "--out", out], { cwd: project });
+      expect(readFileSync(out, "utf8")).toContain("<title>bin page</title>");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

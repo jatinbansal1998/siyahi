@@ -171,7 +171,8 @@ createRoot(document.getElementById("root")).render(
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// npx runs a bin through a symlink, so compare real paths, as contrast.mjs does.
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
     options: { out: { type: "string" }, title: { type: "string" } },
