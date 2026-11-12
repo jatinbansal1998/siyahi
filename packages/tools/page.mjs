@@ -27,12 +27,12 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 /** @typedef {{ html: string, sources: string[] }} BuiltPage */
 
 // A page's own files are found from their text, before TypeScript erases a type-only import. In a script:
-// `from "./x"`, `import "./x"`, `import("./x")` and `new URL("./x", import.meta.url)`; in a stylesheet:
-// `@import "./x"` and `url(./x)`.
-const REFERENCES = [
-  { file: /\.[cm]?[jt]sx?$/, reference: /(?:\bfrom|\bimport|\bnew URL)\s*\(?\s*(["'])(\.{1,2}\/[^"']+)\1/g },
-  { file: /\.css$/, reference: /(?:@import\s+(?:url\(\s*)?|url\(\s*)(["']?)(\.{1,2}\/[^"')\s;]+)\1/g },
-];
+// `from "./x"`, `import "./x"`, `import("./x")` and `new URL("./x", import.meta.url)`. In a stylesheet:
+// `@import "x"` and `url(x)`, where a path without "./" is relative too.
+const SCRIPT = /\.[cm]?[jt]sx?$/;
+const SCRIPT_REFERENCE = /(?:\bfrom|\bimport|\bnew URL)\s*\(?\s*(["'])(\.{1,2}\/[^"']+)\1/g;
+const STYLE = /\.css$/;
+const STYLE_REFERENCE = /(?:@import\s+(?:url\(\s*)?|url\(\s*)(["']?)([^"')\s;]+)\1/g;
 
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
 const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
@@ -114,11 +114,19 @@ createRoot(document.getElementById("root")).render(
           enforce: "pre",
           async buildStart() {
             for (const file of sources) {
-              const { reference } = REFERENCES.find((kind) => kind.file.test(file)) ?? {};
-              if (!reference) continue;
-              for (const [, , specifier = ""] of readFileSync(file, "utf8").matchAll(reference)) {
-                const resolved = await this.resolve(specifier, file, { skipSelf: true });
-                if (resolved && !resolved.external) sources.add(resolved.id.replace(/\?.*$/, ""));
+              if (SCRIPT.test(file)) {
+                for (const [, , specifier = ""] of readFileSync(file, "utf8").matchAll(SCRIPT_REFERENCE)) {
+                  const resolved = await this.resolve(specifier, file, { skipSelf: true });
+                  if (resolved && !resolved.external) sources.add(resolved.id.replace(/\?.*$/, ""));
+                }
+              } else if (STYLE.test(file)) {
+                for (const [, , specifier = ""] of readFileSync(file, "utf8").matchAll(STYLE_REFERENCE)) {
+                  // A scheme, an absolute path or a fragment is not the page's file; a bare name is, when it sits
+                  // beside the stylesheet (`@import "tailwindcss"` names a package and does not).
+                  if (/^[a-z][a-z0-9+.-]*:|^[/#]/i.test(specifier)) continue;
+                  const target = path.resolve(path.dirname(file), specifier.replace(/[?#].*$/, ""));
+                  if (existsSync(target)) sources.add(realpathSync(target));
+                }
               }
             }
           },

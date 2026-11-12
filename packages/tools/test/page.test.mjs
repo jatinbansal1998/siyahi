@@ -26,8 +26,11 @@ describe("siyahi-page", () => {
       const extra = path.join(dir, "extra.css");
       const dot = path.join(dir, "dot.svg");
       const logo = path.join(dir, "logo.svg");
-      writeFileSync(css, `@import "./extra.css";\n`);
-      writeFileSync(extra, `.flows-dot { background: url(./dot.svg); }\n`);
+      // CSS reads a path without "./" as relative too; "tailwindcss" is a package, not a file beside it.
+      const more = path.join(dir, "more.css");
+      writeFileSync(css, `@import "tailwindcss";\n@import "extra.css";\n@import "./more.css";\n`);
+      writeFileSync(extra, `.flows-dot { background: url(dot.svg); }\n`);
+      writeFileSync(more, `.flows-more { color: inherit; }\n`);
       writeFileSync(dot, `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>`);
       writeFileSync(logo, `<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"/>`);
       writeFileSync(
@@ -54,7 +57,7 @@ export default function Flows() {
       // Tailwind read the page's folder.
       expect(html).toContain(".tracking-widest");
       // The type-only import, which TypeScript erases before the build sees it, is listed too.
-      expect(sources).toEqual([page, data, types, css, extra, dot, logo].toSorted());
+      expect(sources).toEqual([page, data, types, css, extra, more, dot, logo].toSorted());
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
