@@ -13,7 +13,7 @@
 // The page may live anywhere, a scratch folder included: its packages
 // (@siyahi/ui, React, charts) resolve from the project siyahi-page runs in,
 // which has them installed. The project's own vite.config is not used.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Buffer } from "node:buffer";
 import process from "node:process";
@@ -21,18 +21,8 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { transform } from "lightningcss";
 import { build } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
-
-/** @typedef {{ html: string, sources: string[] }} BuiltPage */
-
-// A page's own files are found from their text, before TypeScript erases a type-only import. In a script:
-// `from "./x"`, `import "./x"`, `import("./x")` and `new URL("./x", import.meta.url)`. A stylesheet is read by
-// lightningcss, a CSS parser, for its `@import` and `url()` paths.
-const SCRIPT = /\.[cm]?[jt]sx?$/;
-const SCRIPT_REFERENCE = /(?:\bfrom|\bimport|\bnew URL)\s*\(?\s*(["'])(\.{1,2}\/[^"']+)\1/g;
-const STYLE = /\.css$/;
 
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
 const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
@@ -41,11 +31,9 @@ const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:
 const escapeHtml = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /**
- * Builds the page at `page` with the packages installed in `project`.
- * `sources` lists the page's own files that went into the build (the page and
- * the local modules it imports), so a caller can keep them next to the HTML.
+ * Builds the page at `page` with the packages installed in `project`, and returns the page as one HTML file.
  * @param {{ page: string, title: string, project: string }} options
- * @returns {Promise<BuiltPage>}
+ * @returns {Promise<string>}
  */
 export async function buildPage({ page, title, project }) {
   const pagePath = path.resolve(page);
@@ -96,10 +84,6 @@ createRoot(document.getElementById("root")).render(
 `,
     );
 
-    // The page's own files: the page and every file it reaches through relative
-    // imports, read from the source text before TypeScript erases a type-only
-    // import, so a pulled page is complete.
-    const sources = new Set([realpathSync(pagePath)]);
     const pageDir = path.dirname(realpathSync(pagePath));
     const output = await build({
       configFile: false,
@@ -112,47 +96,12 @@ createRoot(document.getElementById("root")).render(
         {
           name: "siyahi-page:resolve",
           enforce: "pre",
-          async buildStart() {
-            for (const file of sources) {
-              if (SCRIPT.test(file)) {
-                for (const [, , specifier = ""] of readFileSync(file, "utf8").matchAll(SCRIPT_REFERENCE)) {
-                  const resolved = await this.resolve(specifier, file, { skipSelf: true });
-                  if (resolved && !resolved.external) sources.add(resolved.id.replace(/\?.*$/, ""));
-                }
-              } else if (STYLE.test(file)) {
-                const { dependencies = [] } = transform({
-                  filename: file,
-                  code: readFileSync(file),
-                  analyzeDependencies: true,
-                  // Tailwind's own at-rules (@theme, @source) are not standard CSS; reading past them is enough.
-                  errorRecovery: true,
-                });
-                for (const dependency of dependencies) {
-                  if (!("url" in dependency)) continue;
-                  const { url } = dependency;
-                  // A scheme, an absolute path or a fragment is not the page's file. CSS reads a path without "./"
-                  // as relative too, so a bare name is the page's when it sits beside the stylesheet;
-                  // `@import "tailwindcss"` names a package and does not.
-                  if (/^[a-z][a-z0-9+.-]*:|^[/#]/i.test(url)) continue;
-                  const target = path.resolve(path.dirname(file), url.replace(/[?#].*$/, ""));
-                  if (existsSync(target)) sources.add(realpathSync(target));
-                }
-              }
-            }
-          },
           async resolveId(source, importer) {
-            if (!importer || !sources.has(importer) || /^[./\0]|^[a-z]+:/i.test(source)) return null;
-            // A page outside the project would otherwise look for its packages
-            // beside itself; resolving them as if the entry imported them also
-            // keeps one copy of React.
+            if (!importer?.startsWith(pageDir + path.sep) || /^[./\0]|^[a-z]+:/i.test(source)) return null;
+            // A page's folder may sit outside the project, where its packages
+            // are not; resolving them as if the entry imported them also keeps
+            // one copy of React.
             return this.resolve(source, entry, { skipSelf: true });
-          },
-          // Anything else the build read from the page's folder, which the text did not name.
-          generateBundle() {
-            for (const id of this.getModuleIds()) {
-              const file = id.replace(/\?.*$/, "");
-              if (file.startsWith(pageDir + path.sep) && existsSync(file)) sources.add(file);
-            }
           },
         },
       ],
@@ -163,7 +112,7 @@ createRoot(document.getElementById("root")).render(
       .flatMap((result) => ("output" in result ? result.output : []))
       .find((file) => file.fileName === "index.html");
     if (html?.type !== "asset") throw new Error("The build wrote no index.html");
-    return { html: String(html.source), sources: [...sources].toSorted() };
+    return String(html.source);
   } finally {
     if (nodeEnv === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = nodeEnv;
@@ -184,7 +133,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
   }
   const name = path.basename(page).replace(/\.[jt]sx?$/, "");
   const out = path.resolve(values.out ?? `${name}.html`);
-  const { html } = await buildPage({
+  const html = await buildPage({
     page,
     // 2026-11-12-gold-flows reads as "gold flows".
     title: values.title ?? name.replace(/^\d{4}-\d{2}-\d{2}-?/, "").replace(/-/g, " "),

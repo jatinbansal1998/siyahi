@@ -310,7 +310,7 @@ for (const arg of positionals) {
   }
   const { buildPage } = await import("./page.mjs");
   const name = path.basename(arg).replace(/\.[jt]sx$/, "");
-  const { html } = await buildPage({ page: arg, title: name, project: process.cwd() });
+  const html = await buildPage({ page: arg, title: name, project: process.cwd() });
   const file = path.join(outDir, `${name}.html`);
   writeFileSync(file, html);
   urls.push(pathToFileURL(file).href);

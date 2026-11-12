@@ -101,12 +101,11 @@ page itself may live anywhere, a scratch folder included: every package it
 imports resolves from that project. The project's own `vite.config` is not
 used. `--title` defaults to the file name without its date, `gold flows`.
 
-A host that keeps a page's source beside it calls the function instead, which
-also lists the page's own files (the page and the local modules it imports):
+A host calls the function instead, which returns the HTML:
 
 ```ts
 import { buildPage } from "@siyahi/tools/page";
-const { html, sources } = await buildPage({ page, title: "Gold flows", project: process.cwd() });
+const html = await buildPage({ page, title: "Gold flows", project: process.cwd() });
 ```
 
 ## siyahi-cls
