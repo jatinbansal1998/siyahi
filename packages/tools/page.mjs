@@ -110,7 +110,7 @@ createRoot(document.getElementById("root")).render(
           async buildStart() {
             for (const file of sources) {
               if (!SCRIPT.test(file)) continue;
-              for (const [, , specifier] of readFileSync(file, "utf8").matchAll(RELATIVE_IMPORT)) {
+              for (const [, , specifier = ""] of readFileSync(file, "utf8").matchAll(RELATIVE_IMPORT)) {
                 const resolved = await this.resolve(specifier, file, { skipSelf: true });
                 if (resolved && !resolved.external) sources.add(resolved.id.replace(/\?.*$/, ""));
               }
