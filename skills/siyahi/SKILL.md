@@ -1,7 +1,7 @@
 ---
 name: siyahi
 description: >-
-  Build coherent React UI and static HTML reports with @siyahi/ui. Use when
+  Build coherent React UI and self-contained pages with @siyahi/ui. Use when
   using Siyahi, asking for house style, or building data-heavy pages
   in a project that uses the package.
 ---
@@ -100,8 +100,3 @@ To host or hand over one page as a single file, build it with
 `npx --no-install siyahi-page <page.tsx>`; check it first with
 `npx --no-install siyahi-shots <page.tsx>`. The build frames the page with
 the house gutter, so the page sets no padding and no `<main>` of its own.
-
-## Static HTML reports
-
-For self-contained HTML instead of React, read
-[references/reports.md](references/reports.md).

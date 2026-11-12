@@ -24,10 +24,10 @@ describe("catalogue shell", { timeout: 60_000 }, () => {
     const sidebar = page.locator('[data-slot="sidebar"][data-collapsible="icon"]');
     await sidebar.waitFor();
     const buttons = sidebar.locator('[data-slot="sidebar-group"] [data-sidebar="menu-button"]');
-    await expect.poll(() => buttons.count()).toBe(8);
+    await expect.poll(() => buttons.count()).toBe(7);
     // The page's icon comes first; every item with sections also ends in a chevron, which is not the icon.
     const icons = await buttons.evaluateAll((els) => els.map((el) => el.firstElementChild?.tagName === "svg"));
-    expect(icons).toEqual(Array.from({ length: 8 }, () => true));
+    expect(icons).toEqual(Array.from({ length: 7 }, () => true));
     await page.locator('[data-slot="sidebar-trigger"]').click();
   });
 

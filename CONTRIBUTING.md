@@ -141,10 +141,10 @@ it keeps the same roles. Set every value in both blocks, as `oklch()`.
   `packages/tools/contrast.mjs` updated.
 
 Then run `pnpm check`: a failing pair names both colours and its ratio, and
-the fix is the value, never the bar. Run `pnpm generate` for `report.css`.
-Update the hue names in `DESIGN.md`, the catalogue's Foundations page and
-`skills/siyahi/SKILL.md`, release, and rebuild the apps. A static report already
-sent keeps the stylesheet it was built with.
+the fix is the value, never the bar. Update the hue names in `DESIGN.md`, the
+catalogue's Foundations page and `skills/siyahi/SKILL.md`, release, and rebuild
+the apps. A page already built into one file with `siyahi-page` keeps the
+theme it was built with.
 
 ## Before a pull request
 

@@ -23,7 +23,6 @@ export default async function serveCatalogue(): Promise<() => Promise<void>> {
       alias: [
         { find: /^@siyahi\/ui$/, replacement: at("../../../packages/ui/src/index.ts") },
         { find: /^@siyahi\/ui\/styles\.css$/, replacement: at("./from-source.css") },
-        { find: /^@siyahi\/ui\/report\.css/, replacement: at("../../../packages/ui/report.css") },
         { find: /^@siyahi\/ui\/(.*)$/, replacement: at("../../../packages/ui/src/$1") },
       ],
     },

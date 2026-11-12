@@ -22,7 +22,6 @@
     "agents",
     "dist",
     "styles",
-    "report.css",
     "registry.lock.json",
     "README.md",
     "DESIGN.md",
@@ -40,7 +39,6 @@
       "default": "./dist/index.js"
     },
     "./styles.css": "./styles/siyahi.css",
-    "./report.css": "./report.css",
     "./registry.lock.json": "./registry.lock.json",
     "./package.json": "./package.json"
   },

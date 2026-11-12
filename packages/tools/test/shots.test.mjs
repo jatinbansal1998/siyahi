@@ -222,20 +222,13 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.output).toContain("console error: no rows for the chart");
   });
 
-  // A page that names Geist and loads no font file: an app whose font CSS
-  // never arrived, or a static report on report.css.
+  // A page that names Geist and loads no font file: its font CSS never arrived.
   const UNLOADED = `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`;
 
   it("fails a page that names the font and loads no font file", async () => {
     const run = await shoot(`<main style="padding: 16px"><h1>No font</h1></main>`, UNLOADED);
     expect(run.status, run.output).toBe(1);
     expect(run.output).toContain("Geist is named but never loaded");
-  });
-
-  it("passes the same page with --report, and says the flag allowed the fallback", async () => {
-    const run = await shoot(`<main style="padding: 16px"><h1>Report</h1></main>`, UNLOADED, ["--report"]);
-    expect(run.status, run.output).toBe(0);
-    expect(run.output).toContain("font=Geist (report, system fallback allowed)");
   });
 
   it("fails a page whose @font-face for the font never loads", async () => {

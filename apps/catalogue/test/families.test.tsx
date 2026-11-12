@@ -22,7 +22,6 @@ const PAGES: [id: string, title: string][] = [
   ["layout", "Page layout"],
   ["data", "Data"],
   ["blocks", "Blocks"],
-  ["reports", "Reports"],
 ];
 
 /** Opens a route and waits for its page: the header's last breadcrumb names it once it has rendered. */

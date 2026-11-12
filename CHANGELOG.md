@@ -2,6 +2,13 @@
 
 ## 0.1.9
 
+- **Breaking:** the hand-written HTML report path is gone: `report.css`,
+  `agents/report-rules.json`, the manifest's `report` and `reportRules`, the
+  catalogue's Reports page and `siyahi-shots --report`. A page meant to be
+  hosted as one file is a React page built with `siyahi-page`, so it gets the
+  components, the lint rules and Geist. `@siyahi/tools/theme`, which only the
+  report generator imported, is no longer exported.
+
 - `@siyahi/tools` builds one page into one file: `siyahi-page page.tsx`
   writes a self-contained HTML file (scripts, styles and fonts inline) that
   any static host can serve. The page may sit in a scratch folder; its

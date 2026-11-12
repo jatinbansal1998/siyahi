@@ -3,7 +3,6 @@ import {
   BlocksIcon,
   ChartAreaIcon,
   CodeIcon,
-  FileTextIcon,
   HouseIcon,
   LayersIcon,
   PaletteIcon,
@@ -18,7 +17,6 @@ const views = [
   { title: "Inputs and overlays", url: "#/inputs", icon: <SlidersHorizontalIcon /> },
   { title: "Data", url: "#/data", icon: <ChartAreaIcon /> },
   { title: "Blocks", url: "#/blocks", icon: <BlocksIcon />, isActive: true },
-  { title: "Reports", url: "#/reports", icon: <FileTextIcon /> },
   // linkProps go onto the anchor: here a new tab, in an app often onMouseEnter to prefetch the view's data.
   {
     title: "Source",

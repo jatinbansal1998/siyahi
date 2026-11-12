@@ -6,8 +6,8 @@
   },
   {
     "skill": "siyahi",
-    "question": "How do I add Siyahi styling to a static HTML report?",
-    "answer": "Paste the whole of node_modules/@siyahi/ui/report.css at the start of the report's <style> at write time; never <link> or trim it. One <h1>, Intl.NumberFormat('en-IN'), IST times with zone, colour only via variables, nothing loaded from the network."
+    "question": "How do I hand over one Siyahi page as a single self-contained HTML file?",
+    "answer": "Write it as a React page that default-exports a component, check it with 'npx --no-install siyahi-shots page.tsx', and build it with 'npx --no-install siyahi-page page.tsx'. The build frames it with the house gutter, so the page sets no padding and no <main>; there is no hand-written HTML or report.css path."
   },
   {
     "skill": "siyahi",

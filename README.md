@@ -58,8 +58,8 @@ createRoot(root).render(
 
 `preloadFonts()` loads Geist and Geist Mono with the scripts. Add `lucide-react`
 only when your own code imports icons. Next.js compiles the stylesheet through
-`@tailwindcss/postcss` instead of the Vite plugin. Static HTML reports inline the
-package's `report.css` and follow `agents/report-rules.json`.
+`@tailwindcss/postcss` instead of the Vite plugin. To host one page as a single
+HTML file, build it with `siyahi-page` from `@siyahi/tools`.
 
 If npm is unreachable, both package tarballs are attached to
 [GitHub releases](https://github.com/jatinbansal1998/siyahi/releases).
