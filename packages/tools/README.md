@@ -80,6 +80,32 @@ own HTML, add preload tags for the build's hashed URLs of
 `geist-latin-wght-normal.woff2`, `geist-latin-ext-wght-normal.woff2` and
 `geist-mono-latin-wght-normal.woff2`.
 
+## siyahi-page
+
+```sh
+npx siyahi-page /path/to/2026-11-12-gold-flows.tsx [--out gold-flows.html] [--title "Gold flows"]
+```
+
+Builds one React page into a single HTML file with its scripts, styles and
+fonts inline, so the file can be hosted anywhere or opened with nothing beside
+it. About 600 KB for a page with a chart; most of it is React, Recharts and
+Geist. The page module's default export renders inside `SiyahiProvider` with
+Siyahi's stylesheet, and Tailwind reads class names from the page's folder.
+
+Run it in a project that has `@siyahi/ui`, `react`, `react-dom`,
+`tailwindcss`, `@tailwindcss/vite` and `@vitejs/plugin-react` installed. The
+page itself may live anywhere, a scratch folder included: every package it
+imports resolves from that project. The project's own `vite.config` is not
+used. `--title` defaults to the file name without its date, `gold flows`.
+
+A host that keeps a page's source beside it calls the function instead, which
+also lists the page's own files (the page and the local modules it imports):
+
+```ts
+import { buildPage } from "@siyahi/tools/page";
+const { html, sources } = await buildPage({ page, title: "Gold flows", project: process.cwd() });
+```
+
 ## siyahi-cls
 
 ```sh
