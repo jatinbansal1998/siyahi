@@ -15,7 +15,12 @@ describe("siyahi-page", () => {
     try {
       const page = path.join(dir, "2026-11-12-flows.tsx");
       const data = path.join(dir, "flows.data.ts");
-      writeFileSync(data, `export const marker: string = "flows-marker-" + 42;\n`);
+      const types = path.join(dir, "flows.types.ts");
+      writeFileSync(types, `export interface Row { label: string }\n`);
+      writeFileSync(
+        data,
+        `import type { Row } from "./flows.types";\nexport const rows: Row[] = [];\nexport const marker: string = "flows-marker-" + 42;\n`,
+      );
       writeFileSync(
         page,
         `import { PageHeader } from "@siyahi/ui";
@@ -37,7 +42,8 @@ export default function Flows() {
       expect(html).not.toContain("jsxDEV");
       // Tailwind read the page's folder.
       expect(html).toContain(".tracking-widest");
-      expect(sources).toEqual([page, data]);
+      // The type-only import, which TypeScript erases before the build sees it, is listed too.
+      expect(sources).toEqual([page, data, types]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

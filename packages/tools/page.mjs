@@ -13,7 +13,7 @@
 // The page may live anywhere, a scratch folder included: its packages
 // (@siyahi/ui, React, charts) resolve from the project siyahi-page runs in,
 // which has them installed. The project's own vite.config is not used.
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Buffer } from "node:buffer";
 import process from "node:process";
@@ -25,6 +25,10 @@ import { build } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
 /** @typedef {{ html: string, sources: string[] }} BuiltPage */
+
+const SCRIPT = /\.[cm]?[jt]sx?$/;
+// `from "./x"`, `import "./x"` and `import("./x")`, type-only imports included.
+const RELATIVE_IMPORT = /(?:\bfrom|\bimport)\s*\(?\s*(["'])(\.{1,2}\/[^"']+)\1/g;
 
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
 const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
@@ -88,7 +92,9 @@ createRoot(document.getElementById("root")).render(
 `,
     );
 
-    // The page's own files are the ones it reaches through relative imports.
+    // The page's own files: the page and every file it reaches through relative
+    // imports, read from the source text before TypeScript erases a type-only
+    // import, so a pulled page is complete.
     const sources = new Set([realpathSync(pagePath)]);
     const output = await build({
       configFile: false,
@@ -101,13 +107,17 @@ createRoot(document.getElementById("root")).render(
         {
           name: "siyahi-page:resolve",
           enforce: "pre",
-          async resolveId(source, importer) {
-            if (!importer || !sources.has(importer) || /^[/\0]|^[a-z]+:/i.test(source)) return null;
-            if (source.startsWith(".")) {
-              const resolved = await this.resolve(source, importer, { skipSelf: true });
-              if (resolved && !resolved.external) sources.add(resolved.id.replace(/\?.*$/, ""));
-              return resolved;
+          async buildStart() {
+            for (const file of sources) {
+              if (!SCRIPT.test(file)) continue;
+              for (const [, , specifier] of readFileSync(file, "utf8").matchAll(RELATIVE_IMPORT)) {
+                const resolved = await this.resolve(specifier, file, { skipSelf: true });
+                if (resolved && !resolved.external) sources.add(resolved.id.replace(/\?.*$/, ""));
+              }
             }
+          },
+          async resolveId(source, importer) {
+            if (!importer || !sources.has(importer) || /^[./\0]|^[a-z]+:/i.test(source)) return null;
             // A page outside the project would otherwise look for its packages
             // beside itself; resolving them as if the entry imported them also
             // keeps one copy of React.
