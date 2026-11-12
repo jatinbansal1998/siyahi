@@ -48,13 +48,17 @@ async function edge(surface: Locator): Promise<{ layers: string[]; ring: string 
   return { layers, ring: layers.find((layer) => layer.endsWith("0px 0px 0px 1px")) };
 }
 
-/** Lays stock markup into the page and reads [selector, CSS property, pseudo-element?] off it, then removes it. */
+/**
+ * Lays stock markup into the page, focuses its [data-focus] element if any, and reads [selector, CSS property,
+ * pseudo-element?] off it, then removes it.
+ */
 const probe = async (html: string, reads: [string, string, string?][]): Promise<string[]> => {
   const preview = await open("inputs/dropdown-menu", "Dropdown menu");
   return preview.evaluate(
     (host, [markup, list]) => {
       const box = host.appendChild(document.createElement("div"));
       box.innerHTML = markup;
+      box.querySelector<HTMLElement>("[data-focus]")?.focus();
       const values = list.map(([selector, property, pseudo]) =>
         getComputedStyle(box.querySelector(selector)!, pseudo ?? null).getPropertyValue(property),
       );
@@ -207,6 +211,15 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
     expect(plain).not.toBe("rgba(0, 0, 0, 0)");
     expect(chips).toBe(plain);
     expect(inner).not.toBe(plain);
+  });
+
+  it("edges a box in red when the invalid field it holds has the focus", async () => {
+    const destructive = await themeColor(page, "--destructive");
+    const [boxEdge] = await probe(
+      `<div id="chips" data-slot="combobox-chips" class="border"><input aria-invalid="true" data-focus /></div>`,
+      [["#chips", "border-top-color"]],
+    );
+    expect(boxEdge).toBe(destructive);
   });
 
   it("sets a menubar's group label as a label, and faded muted text at the muted colour", async () => {
