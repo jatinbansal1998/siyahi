@@ -117,6 +117,9 @@ importers:
       '@shadcn/lint':
         specifier: 0.2.3
         version: 0.2.3
+      lightningcss:
+        specifier: ^1.33.0
+        version: 1.33.0
       playwright:
         specifier: ^1.64.1
         version: 1.64.1

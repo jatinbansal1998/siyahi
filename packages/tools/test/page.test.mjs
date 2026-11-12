@@ -23,13 +23,14 @@ describe("siyahi-page", () => {
       );
       // Files reached only through a stylesheet or new URL(), which the build inlines.
       const css = path.join(dir, "flows.css");
-      const extra = path.join(dir, "extra.css");
-      const dot = path.join(dir, "dot.svg");
+      const extra = path.join(dir, "extra style.css");
+      const dot = path.join(dir, "dot image.svg");
       const logo = path.join(dir, "logo.svg");
-      // CSS reads a path without "./" as relative too; "tailwindcss" is a package, not a file beside it.
+      // CSS reads a path without "./" as relative too, and a quoted one may hold spaces; "tailwindcss" is a
+      // package, not a file beside it.
       const more = path.join(dir, "more.css");
-      writeFileSync(css, `@import "tailwindcss";\n@import "extra.css";\n@import "./more.css";\n`);
-      writeFileSync(extra, `.flows-dot { background: url(dot.svg); }\n`);
+      writeFileSync(css, `@import "tailwindcss";\n@import "extra style.css";\n@import "./more.css";\n`);
+      writeFileSync(extra, `.flows-dot { background: url("dot image.svg"); }\n`);
       writeFileSync(more, `.flows-more { color: inherit; }\n`);
       writeFileSync(dot, `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>`);
       writeFileSync(logo, `<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"/>`);
