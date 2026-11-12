@@ -2,6 +2,20 @@
 
 ## 0.1.9
 
+- Every shadcn component, unedited: alert dialog, aspect ratio, button group,
+  carousel, checkbox, combobox, direction, drawer, empty, hover card, input
+  OTP, item, kbd, menubar, native select, navigation menu, pagination, radio
+  group, resizable, spinner, switch, toast, and the chat set (attachment,
+  bubble, marker, message, message scroller, questionnaire, trace). `cn` is
+  exported.
+- The look is global, so a component needs no styling of its own: the theme
+  has no shadow sizes (nothing casts a shadow, Siyahi's scatter tooltip
+  included), stock shadcn's faint `ring-foreground/10` edge takes the card's
+  hairline, and every `rounded-full` or `rounded-[…]` is squared except what
+  is round by nature (avatar, radio, status dot, spinner). **Breaking** for a
+  page that relied on `rounded-full` for its own round element: mark it
+  `data-slot="status-dot"` or draw it in SVG.
+
 - **Breaking:** the hand-written HTML report path is gone: `report.css`,
   `agents/report-rules.json`, the manifest's `report` and `reportRules`, the
   catalogue's Reports page and `siyahi-shots --report`. A page meant to be

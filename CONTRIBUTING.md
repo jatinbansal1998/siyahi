@@ -4,12 +4,28 @@
 
 For any UI need, take the first of these that works:
 
-1. A shadcn/ui component: `pnpm --filter @siyahi/ui exec shadcn add <name>`.
+1. A shadcn/ui component. The package carries every one in shadcn's
+   `base-nova` style, unedited; `pnpm --filter @siyahi/ui exec shadcn add --all`
+   adds any shadcn ships later (answer no to each overwrite), and
+   `shadcn add --overwrite <name>` refreshes one.
 2. An item from a shadcn-format registry in the
    [directory](https://ui.shadcn.com/r/registries.json).
 3. A composition of those with props, shown in the catalogue.
 4. Our own component in `packages/ui/src/components/siyahi`, kept under about
    60 lines. Say in the pull request why nothing above would do.
+
+## The look is global
+
+A component added from shadcn needs no styling of its own. The theme sets the
+look for every component at once: `--radius` is 0, the theme has no shadow
+sizes (`shadow-md` draws nothing), stock shadcn's faint edge
+(`ring-foreground/10`) takes the card's hairline, and any `rounded-full` or
+`rounded-[…]` is squared unless the part is round by nature (an avatar, a
+radio, a status dot, a spinner: listed in `siyahi.css`). Write a new rule
+for a family (all menus' labels by `[data-slot$="menu-label"]`), not for one
+component, so the next component of that family is covered too. Two things
+still name each component: a field (its focus edge and invalid wash) and a
+part raised with a z-index (Stacking, below).
 
 ## Never edit shadcn core
 

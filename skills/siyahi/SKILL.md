@@ -46,6 +46,9 @@ layouts and product-specific logic belong in the consuming app.
 
 - Prefer existing components and their props, slots and children. Use
   `className` for layout; keep colours and typography on the theme.
+  `@siyahi/ui` exports every shadcn component (checkbox, switch, hover card,
+  combobox, drawer, pagination, and the rest), already in the house look, and
+  `cn` for merging classes.
 - Charts use the chart cards and their supported props, not page-local
   Recharts axes, grids or tooltips. Match charts to the manifest's `needs`.
 - Use semantic colour tokens; categories remain neutral. No gradients. Ink

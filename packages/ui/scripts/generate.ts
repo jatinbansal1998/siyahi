@@ -260,6 +260,8 @@ function barrel(): string {
     "src/lib/chart-series.ts",
     "src/lib/format.ts",
     "src/lib/locale.ts",
+    // cn, so a component a page carries itself merges classes as the package's do.
+    "src/lib/utils.ts",
   ];
   const taken = new Set<string>();
   const lines = modules.map((file) => {

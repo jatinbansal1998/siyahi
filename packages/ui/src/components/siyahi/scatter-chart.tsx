@@ -379,7 +379,7 @@ function PointTooltip<T extends ScatterPoint>({
   const point = active ? payload?.[0]?.payload : undefined;
   if (!point) return null;
   return (
-    <div className="grid min-w-32 gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
+    <div className="grid min-w-32 gap-1.5 border border-border bg-background px-2.5 py-1.5 text-xs">
       <span className="font-medium">{point.name}</span>
       {details(point).map(([label, value]) => (
         <div key={label} className="flex justify-between gap-4">

@@ -128,16 +128,37 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
     expect((await edge(tooltip)).layers).toEqual([]);
     expect(await style(tooltip, "border-top-color")).toEqual([border]);
     // Siyahi's cards write their own tooltip rows, so core's chip shows only in a page's stock ChartTooltipContent:
-    // lay one in, with core's classes, beside a round status dot that must stay round.
+    // lay one in, with core's classes, beside a StatusBadge's dot, round by nature, which must stay round.
     const [chip, dot] = await tooltip.evaluate((box) =>
-      ["h-2.5 w-2.5 shrink-0 rounded-[2px]", "size-1.5 rounded-full"].map((className) => {
+      [
+        { className: "h-2.5 w-2.5 shrink-0 rounded-[2px]", slot: "" },
+        { className: "size-1.5 rounded-full", slot: "status-dot" },
+      ].map(({ className, slot }) => {
         const el = box.appendChild(document.createElement("div"));
         el.className = className;
+        if (slot) el.dataset.slot = slot;
         return getComputedStyle(el).borderTopLeftRadius;
       }),
     );
     expect(chip).toBe("0px");
     expect(dot).not.toBe("0px");
+  });
+
+  it("gives a component Siyahi does not list the look: no shadow, the hairline edge, square corners", async () => {
+    const border = await themeColor(page, "--border");
+    const preview = await open("inputs/dropdown-menu", "Dropdown menu");
+    // A surface written with stock shadcn classes, as a component added later (a hover card, a menubar) is.
+    const box = await preview.evaluateHandle((host) => {
+      const el = host.appendChild(document.createElement("div"));
+      el.className = "size-8 rounded-full bg-popover shadow-md ring-1 ring-foreground/10";
+      return el;
+    });
+    const surface = preview.locator(":scope > div.ring-1").last();
+    const { layers, ring } = await edge(surface);
+    expect(layers).toEqual([ring]);
+    expect(ring).toContain(border);
+    expect(await style(surface, "border-top-left-radius")).toEqual(["0px"]);
+    await box.evaluate((el) => (el as Element).remove());
   });
 
   it("fills a selected pill tab with no drop shadow under it", async () => {
