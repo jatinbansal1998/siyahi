@@ -17,15 +17,18 @@ For any UI need, take the first of these that works:
 ## The look is global
 
 A component added from shadcn needs no styling of its own. The theme sets the
-look for every component at once: `--radius` is 0, the theme has no shadow
-sizes (`shadow-md` draws nothing), stock shadcn's faint edge
-(`ring-foreground/10`) takes the card's hairline, and any `rounded-full` or
-`rounded-[…]` is squared unless the part is round by nature (an avatar, a
-radio, a status dot, a spinner: listed in `siyahi.css`). Write a new rule
-for a family (all menus' labels by `[data-slot$="menu-label"]`), not for one
-component, so the next component of that family is covered too. Two things
-still name each component: a field (its focus edge and invalid wash) and a
-part raised with a z-index (Stacking, below).
+look for every component at once: `--radius` is 0; every shadow size is
+transparent, so `shadow-md` draws nothing; stock shadcn's faint edge
+(`ring-foreground/10`, behind any variant) takes the card's hairline; every
+element and its `::before` and `::after` are square unless round by nature
+(an avatar, `role="radio"` and a radio's dot, a status dot, a spinner); a
+faded muted text class reads at the muted colour; and a field is what HTML
+makes one (`input`, `textarea`, `select`, plus Base UI's select trigger), so a
+new field takes the focus edge and invalid wash, shown on the box when it
+sits in an input group or a combobox's chips. Write a new rule by meaning or
+family, not for one component, so the next one is covered too. Parts raised
+with a z-index still name their component (Stacking, below), and a menu's
+group label is listed by slot name.
 
 ## Never edit shadcn core
 

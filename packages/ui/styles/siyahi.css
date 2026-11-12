@@ -25,11 +25,18 @@
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 /*
- * Nothing casts a drop shadow (DESIGN.md, "Floating surfaces lie flat"): every shadow size is unset, so shadow-md
- * and the rest draw nothing, on a component added later as on the ones here.
+ * Nothing casts a drop shadow (DESIGN.md, "Floating surfaces lie flat"): every shadow size is transparent, so
+ * shadow-md and the rest draw nothing, on a component added later as on the ones here. The sizes stay defined, so
+ * a stock shadow class is still a known utility to Tailwind and the lint.
  */
 @theme {
-  --shadow-*: initial;
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
 }
 
 @theme inline {
@@ -335,7 +342,7 @@
   [data-slot="code-block"],
   [data-slot="price-chart"],
   [data-slot="button-group"],
-  [data-slot="input-otp"],
+  [data-slot="input-otp-group"],
   [data-slot="resizable-panel-group"],
   [data-slot="attachment"],
   [data-slot="bubble"],
@@ -423,12 +430,20 @@
   [role="alertdialog"],
   [role="menu"],
   [role="listbox"],
-  [data-slot="input"],
-  [data-slot="textarea"],
-  [data-slot="select-trigger"],
-  [data-slot="native-select"],
-  [data-slot="input-group-control"],
-  [data-slot="command-input"]
+  input:not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="hidden"],
+    [type="file"],
+    [type="button"],
+    [type="submit"],
+    [type="reset"],
+    [type="color"]
+  ),
+  textarea,
+  select,
+  [data-slot="select-trigger"]
 ),
 [data-slot="slider-thumb"]:has(input:focus-visible) {
   outline: none;
@@ -436,24 +451,66 @@
     inset 0 0 0 2px var(--ring),
     inset 0 0 0 4px var(--background);
 }
+/*
+ * A field is what HTML makes one, a text input, a textarea or a select, plus Base UI's select trigger, so a field in
+ * a component added later is covered without naming it. A field inside a box that holds it (an input group, a
+ * combobox's chips) shows its state on that box.
+ */
 :is(
-  [data-slot="input"],
-  [data-slot="textarea"],
-  [data-slot="select-trigger"],
-  [data-slot="native-select"]
-):focus-visible,
-[data-slot="input-group"]:has(:is([data-slot="input-group-control"], [data-slot="command-input"]):focus-visible) {
+    input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="hidden"],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="color"]
+    ),
+    textarea,
+    select,
+    [data-slot="select-trigger"]
+  ):not(:is([data-slot="input-group"], [data-slot="combobox-chips"]) *):focus-visible,
+:is([data-slot="input-group"], [data-slot="combobox-chips"]):has(
+  :is(
+    input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="hidden"],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="color"]
+    ),
+    textarea,
+    select,
+    [data-slot="select-trigger"]
+  ):focus-visible
+) {
   outline: none;
   border-color: var(--ring);
   box-shadow: inset 0 0 0 1px var(--ring);
 }
 :is(
-    [data-slot="input"],
-    [data-slot="textarea"],
-    [data-slot="select-trigger"],
-    [data-slot="native-select"]
-  )[aria-invalid="true"]:focus-visible,
-[data-slot="input-group"]:has([data-slot="input-group-control"][aria-invalid="true"]:focus-visible) {
+    input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="hidden"],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="color"]
+    ),
+    textarea,
+    select,
+    [data-slot="select-trigger"]
+  ):not(:is([data-slot="input-group"], [data-slot="combobox-chips"]) *)[aria-invalid="true"]:focus-visible,
+:is([data-slot="input-group"], [data-slot="combobox-chips"]):has([aria-invalid="true"]:focus-visible) {
   border-color: var(--destructive);
   box-shadow: inset 0 0 0 1px var(--destructive);
 }
@@ -485,23 +542,43 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 [class~="group/button"][class~="text-destructive"]:focus-visible,
 [data-slot="code-block"][data-variant="destructive"]:has(> [data-slot="code-block-content"]:focus-visible),
 :is(
-  [data-slot="input"],
-  [data-slot="textarea"],
-  [data-slot="select-trigger"],
-  [data-slot="native-select"],
-  [class~="group/button"]
-)[aria-invalid="true"],
-[data-slot="input-group"]:has([data-slot][aria-invalid="true"]) {
+    input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="hidden"],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="color"]
+    ),
+    textarea,
+    select,
+    [data-slot="select-trigger"]
+  ):not(:is([data-slot="input-group"], [data-slot="combobox-chips"]) *)[aria-invalid="true"],
+[class~="group/button"][aria-invalid="true"],
+:is([data-slot="input-group"], [data-slot="combobox-chips"]):has([aria-invalid="true"]) {
   border-color: var(--destructive);
 }
 /* An invalid field also takes a faint wash of the red, so it reads as the one to fix before its message is read. */
 :is(
-  [data-slot="input"],
-  [data-slot="textarea"],
-  [data-slot="select-trigger"],
-  [data-slot="native-select"]
-)[aria-invalid="true"],
-[data-slot="input-group"]:has([data-slot][aria-invalid="true"]) {
+    input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="hidden"],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="color"]
+    ),
+    textarea,
+    select,
+    [data-slot="select-trigger"]
+  ):not(:is([data-slot="input-group"], [data-slot="combobox-chips"]) *)[aria-invalid="true"],
+:is([data-slot="input-group"], [data-slot="combobox-chips"]):has([aria-invalid="true"]) {
   background-color: color-mix(in oklab, var(--destructive) var(--field-wash), var(--card));
 }
 
@@ -517,11 +594,12 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * A group's label in a menu (any *menu-label: dropdown, context, menubar), a select's or a combobox's list or the
+ * A group's label in a menu (dropdown, context, menubar), a select's or a combobox's list or the
  * command palette is a label over its items, set as one.
  */
 :is(
   [data-slot$="menu-label"],
+  [data-slot="menubar-label"],
   [data-slot="select-label"],
   [data-slot="combobox-label"],
   [data-slot="command-group"] [cmdk-group-heading]
@@ -532,10 +610,11 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 /*
  * A floating surface reads as a sheet of the page, not a bubble over it: no shadow (the theme has none) and the
  * card's hairline for an edge. Stock shadcn edges a menu, a list, a popover, a dialog or a card with a fainter ring
- * (ring-foreground/10); that class takes the hairline wherever it appears, on a component added later too. The
+ * (ring-foreground/10, also behind a variant such as data-open:); it takes the hairline wherever it appears, on
+ * a component added later too. The
  * chart's tooltip, which Recharts draws, is named.
  */
-[class~="ring-foreground/10"] {
+[class*="ring-foreground/10"] {
   --tw-ring-color: var(--border);
 }
 [data-slot="chart"] .recharts-tooltip-wrapper > div {
@@ -543,20 +622,57 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * Square corners everywhere (DESIGN.md). --radius is 0, but a full rounding (rounded-full: a progress track, a
- * slider, a switch) or a fixed one (rounded-[2px]: a chart's colour chips, a checkbox) does not read it, so either
- * is squared here, on a component added later too. Only what is round by nature stays round: an avatar, a radio,
- * a status dot and a spinner.
+ * Square corners everywhere (DESIGN.md): every element and its ::before and ::after are square, whatever rounding
+ * a component asks for (rounded-full, rounded-[4px], hover:rounded-full, after:rounded-full), on a component added
+ * later too. Only what is round by nature stays round, by what it is rather than its classes: an avatar, a radio
+ * and a radio's dot (a questionnaire's radio choice too), a status dot and a spinner. A chart draws its round marks
+ * in SVG, which this does not touch.
  */
-:is([class~="rounded-full"], [class*="rounded-["]):not(
+:not(
   [data-slot^="avatar"],
   [data-slot="message-avatar"],
-  [data-slot="radio-group-item"],
-  [data-slot="radio-group-indicator"] *,
+  [role="radio"],
+  [role="radio"] *,
+  [data-type="radio"] [data-slot$="indicator"],
+  [data-type="radio"] [data-slot$="indicator-dot"],
   [data-slot="status-dot"],
   .animate-spin
-) {
+),
+:not(
+  [data-slot^="avatar"],
+  [data-slot="message-avatar"],
+  [role="radio"],
+  [role="radio"] *,
+  [data-type="radio"] [data-slot$="indicator"],
+  [data-type="radio"] [data-slot$="indicator-dot"],
+  [data-slot="status-dot"],
+  .animate-spin
+)::before,
+:not(
+  [data-slot^="avatar"],
+  [data-slot="message-avatar"],
+  [role="radio"],
+  [role="radio"] *,
+  [data-type="radio"] [data-slot$="indicator"],
+  [data-type="radio"] [data-slot$="indicator-dot"],
+  [data-slot="status-dot"],
+  .animate-spin
+)::after {
   border-radius: 0;
+}
+
+/*
+ * Muted text is already the faintest that reads at 4.5:1 (contrast.mjs). Stock shadcn fades it further on some
+ * parts (text-muted-foreground/70 on a trace's description), under that bar, so a faded muted class reads as the
+ * muted colour itself.
+ */
+:is(
+  [class~="text-muted-foreground/50"],
+  [class~="text-muted-foreground/60"],
+  [class~="text-muted-foreground/70"],
+  [class~="text-muted-foreground/80"]
+) {
+  color: var(--muted-foreground);
 }
 
 /*

@@ -48,6 +48,23 @@ async function edge(surface: Locator): Promise<{ layers: string[]; ring: string 
   return { layers, ring: layers.find((layer) => layer.endsWith("0px 0px 0px 1px")) };
 }
 
+/** Lays stock markup into the page and reads [selector, CSS property, pseudo-element?] off it, then removes it. */
+const probe = async (html: string, reads: [string, string, string?][]): Promise<string[]> => {
+  const preview = await open("inputs/dropdown-menu", "Dropdown menu");
+  return preview.evaluate(
+    (host, [markup, list]) => {
+      const box = host.appendChild(document.createElement("div"));
+      box.innerHTML = markup;
+      const values = list.map(([selector, property, pseudo]) =>
+        getComputedStyle(box.querySelector(selector)!, pseudo ?? null).getPropertyValue(property),
+      );
+      box.remove();
+      return values;
+    },
+    [html, reads] as const,
+  );
+};
+
 const LABEL = { mono: true, transform: "uppercase", size: "11px" };
 
 const labelType = async (label: Locator): Promise<typeof LABEL> => {
@@ -159,6 +176,54 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
     expect(ring).toContain(border);
     expect(await style(surface, "border-top-left-radius")).toEqual(["0px"]);
     await box.evaluate((el) => (el as Element).remove());
+  });
+
+  it("squares any rounding, behind a variant or on ::after too, but keeps a radio round", async () => {
+    const [pseudo, radio, choice] = await probe(
+      `<div id="pseudo" class="relative size-4 after:absolute after:inset-0 after:rounded-full"></div>
+       <div id="radio" role="radio" class="size-4 rounded-full"></div>
+       <div data-type="radio"><span id="choice" data-slot="questionnaire-choice-indicator" class="size-4 rounded-[4px]"></span></div>`,
+      [
+        ["#pseudo", "border-top-left-radius", "::after"],
+        ["#radio", "border-top-left-radius"],
+        ["#choice", "border-top-left-radius"],
+      ],
+    );
+    expect(pseudo).toBe("0px");
+    expect(radio).not.toBe("0px");
+    expect(choice).not.toBe("0px");
+  });
+
+  it("washes any invalid field, and a box that holds one, though neither is named", async () => {
+    const [plain, chips, inner] = await probe(
+      `<input id="plain" aria-invalid="true" />
+       <div id="chips" data-slot="combobox-chips"><input id="inner" aria-invalid="true" /></div>`,
+      [
+        ["#plain", "background-color"],
+        ["#chips", "background-color"],
+        ["#inner", "background-color"],
+      ],
+    );
+    expect(plain).not.toBe("rgba(0, 0, 0, 0)");
+    expect(chips).toBe(plain);
+    expect(inner).not.toBe(plain);
+  });
+
+  it("sets a menubar's group label as a label, and faded muted text at the muted colour", async () => {
+    const [font = "", transform, faded, muted] = await probe(
+      `<div id="label" data-slot="menubar-label">Group</div>
+       <p id="faded" class="text-muted-foreground/70">Faded</p>
+       <p id="muted" class="text-muted-foreground">Muted</p>`,
+      [
+        ["#label", "font-family"],
+        ["#label", "text-transform"],
+        ["#faded", "color"],
+        ["#muted", "color"],
+      ],
+    );
+    expect(font.startsWith('"Geist Mono')).toBe(true);
+    expect(transform).toBe("uppercase");
+    expect(faded).toBe(muted);
   });
 
   it("fills a selected pill tab with no drop shadow under it", async () => {
