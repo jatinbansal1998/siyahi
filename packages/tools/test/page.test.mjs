@@ -21,7 +21,7 @@ describe("siyahi-page", () => {
         `import { PageHeader } from "@siyahi/ui";
 import { marker } from "./flows.data";
 export default function Flows() {
-  return <main className="tracking-widest"><PageHeader title={marker} /></main>;
+  return <div className="tracking-widest"><PageHeader title={marker} /></div>;
 }
 `,
       );
@@ -33,6 +33,8 @@ export default function Flows() {
       // Scripts, styles and fonts are inline: nothing for the browser to fetch.
       expect(html).not.toMatch(/<script[^>]+src=|<link[^>]+rel="?(stylesheet|modulepreload)/);
       expect(html).toContain("font/woff2;base64");
+      // A production build, though the test runner sets NODE_ENV=test.
+      expect(html).not.toContain("jsxDEV");
       // Tailwind read the page's folder.
       expect(html).toContain(".tracking-widest");
       expect(sources).toEqual([page, data]);

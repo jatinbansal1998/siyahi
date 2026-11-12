@@ -90,7 +90,10 @@ Builds one React page into a single HTML file with its scripts, styles and
 fonts inline, so the file can be hosted anywhere or opened with nothing beside
 it. About 600 KB for a page with a chart; most of it is React, Recharts and
 Geist. The page module's default export renders inside `SiyahiProvider` with
-Siyahi's stylesheet, and Tailwind reads class names from the page's folder.
+Siyahi's stylesheet, in the catalogue's page frame: one centred `<main>` with
+the house gutter (16px on a phone, 32px from 768px) that stacks the page's
+blocks 24px apart. The page sets no padding and renders no `<main>` of its
+own. Tailwind reads class names from the page's folder.
 
 Run it in a project that has `@siyahi/ui`, `react`, `react-dom`,
 `tailwindcss`, `@tailwindcss/vite` and `@vitejs/plugin-react` installed. The
@@ -131,8 +134,12 @@ counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx p
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390] [--script probe.mjs]
+npx siyahi-shots http://localhost:5173/#/page [more URLs or page.tsx files] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390] [--script probe.mjs]
 ```
+
+A `.tsx` or `.jsx` argument is a page file: it is built with `siyahi-page`
+into `--out`, from the project the command runs in, and shot as that one
+file, as it will be hosted.
 
 Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
 writes one full-page PNG per mode to `shots/`. A page taller than 16,000 pixels

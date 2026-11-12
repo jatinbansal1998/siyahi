@@ -7,7 +7,9 @@
 //   siyahi-page <page.tsx> [--out <page>.html] [--title <title>]
 //
 // The page module's default export renders inside SiyahiProvider with
-// Siyahi's stylesheet, and Tailwind reads class names from the page's folder.
+// Siyahi's stylesheet, in the page frame the catalogue uses: one <main> with
+// the house gutter, stacking the page's blocks 24px apart. Tailwind reads
+// class names from the page's folder.
 // The page may live anywhere, a scratch folder included: its packages
 // (@siyahi/ui, React, charts) resolve from the project siyahi-page runs in,
 // which has them installed. The project's own vite.config is not used.
@@ -23,6 +25,9 @@ import { build } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
 /** @typedef {{ html: string, sources: string[] }} BuiltPage */
+
+// The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
+const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
 
 /** @param {string} text */
 const escapeHtml = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -44,6 +49,10 @@ export async function buildPage({ page, title, project }) {
   mkdirSync(modules, { recursive: true });
   const root = mkdtempSync(path.join(modules, ".siyahi-page-"));
   const entry = path.join(root, "main.js");
+  // Vite and the React plugin read NODE_ENV from the environment when it is
+  // set; a test runner's or a dev shell's would build a development page.
+  const nodeEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = "production";
   try {
     writeFileSync(
       path.join(root, "index.html"),
@@ -64,7 +73,7 @@ export async function buildPage({ page, title, project }) {
     );
     writeFileSync(
       path.join(root, "page.css"),
-      `@import "@siyahi/ui/styles.css";\n@source ${JSON.stringify(path.dirname(pagePath))};\n`,
+      `@import "@siyahi/ui/styles.css";\n@source ${JSON.stringify(path.dirname(pagePath))};\n@source inline(${JSON.stringify(FRAME)});\n`,
     );
     writeFileSync(
       entry,
@@ -73,7 +82,9 @@ import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { SiyahiProvider } from "@siyahi/ui";
 import Page from ${JSON.stringify(pagePath)};
-createRoot(document.getElementById("root")).render(createElement(SiyahiProvider, null, createElement(Page)));
+createRoot(document.getElementById("root")).render(
+  createElement(SiyahiProvider, null, createElement("main", { className: ${JSON.stringify(FRAME)} }, createElement(Page))),
+);
 `,
     );
 
@@ -83,9 +94,6 @@ createRoot(document.getElementById("root")).render(createElement(SiyahiProvider,
       configFile: false,
       root,
       logLevel: "warn",
-      // Vite takes NODE_ENV from the shell when it is set; a test runner's or
-      // a dev shell's would ship React's development build.
-      define: { "process.env.NODE_ENV": JSON.stringify("production") },
       plugins: [
         react(),
         tailwindcss(),
@@ -116,6 +124,8 @@ createRoot(document.getElementById("root")).render(createElement(SiyahiProvider,
     if (html?.type !== "asset") throw new Error("The build wrote no index.html");
     return { html: String(html.source), sources: [...sources].toSorted() };
   } finally {
+    if (nodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = nodeEnv;
     rmSync(root, { recursive: true, force: true });
   }
 }

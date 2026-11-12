@@ -5,7 +5,7 @@
 // PNG per page and mode. A page taller than 16,000px is written as segments
 // <name>-1.png, <name>-2.png, … of equal height, which together cover it.
 //
-//   siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist]
+//   siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font Geist]
 //                [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report]
 //                [--widths 1920,390] [--script probe.mjs]
 //
@@ -40,7 +40,7 @@
 // stitched full-page capture catches them mid-animation. Segments are cut
 // from that one full-height render, so sticky and fixed parts sit where they
 // would in a single shot.
-import { mkdirSync, readdirSync, rmSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
@@ -70,7 +70,7 @@ const { values, positionals } = parseArgs({
 });
 if (positionals.length === 0) {
   console.error(
-    "usage: siyahi-shots <url>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390] [--script probe.mjs]",
+    "usage: siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390] [--script probe.mjs]",
   );
   process.exit(2);
 }
@@ -298,9 +298,27 @@ function problemsOf(p, ready, browserErrors) {
   return problems;
 }
 
+// A page file (.tsx, .jsx) is built by siyahi-page into one HTML file in
+// --out and shot as that file, as it will be hosted. Imported only then, so
+// shooting URLs needs no Vite.
+/** @type {string[]} */
+const urls = [];
+for (const arg of positionals) {
+  if (!/\.[jt]sx$/.test(arg)) {
+    urls.push(arg);
+    continue;
+  }
+  const { buildPage } = await import("./page.mjs");
+  const name = path.basename(arg).replace(/\.[jt]sx$/, "");
+  const { html } = await buildPage({ page: arg, title: name, project: process.cwd() });
+  const file = path.join(outDir, `${name}.html`);
+  writeFileSync(file, html);
+  urls.push(pathToFileURL(file).href);
+}
+
 const browser = await chromium.launch();
 let failed = false;
-for (const url of positionals) {
+for (const url of urls) {
   for (const mode of MODES) {
     const { probe, ready, height, files, data, browserErrors } = await shoot(browser, url, mode);
     const problems = problemsOf(probe, ready, browserErrors);

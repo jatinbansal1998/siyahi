@@ -247,3 +247,32 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.output).toContain("Geist is named but never loaded");
   });
 });
+
+describe("siyahi-shots on a page file", () => {
+  it("builds the page and shoots it inside the page frame's gutter", async () => {
+    // A page with no padding of its own, outside any project.
+    const dir = mkdtempSync(path.join(tmpdir(), "siyahi-shots-page-"));
+    const page = path.join(dir, "flows.tsx");
+    writeFileSync(
+      page,
+      `import { PageHeader } from "@siyahi/ui";
+export default function Flows() {
+  return <div><PageHeader title="Flows" /><p>Rows reach the edge without a frame.</p></div>;
+}
+`,
+    );
+    const out = path.join(dir, "shots");
+    // Run in this package, which has @siyahi/ui installed, as a consumer's project.
+    const run = await execFileAsync(process.execPath, [shots, page, "--out", out, "--widths", "390"], {
+      cwd: fileURLToPath(new URL("..", import.meta.url)),
+    }).then(
+      ({ stdout }) => ({ status: 0, output: stdout }),
+      (/** @type {{ code: number, stdout: string, stderr: string }} */ error) => ({
+        status: error.code,
+        output: error.stdout + error.stderr,
+      }),
+    );
+    expect(run.output).toMatch(/^ok +390-light +gutter=16\/16 /m);
+    expect(run.status).toBe(0);
+  }, 60_000);
+});

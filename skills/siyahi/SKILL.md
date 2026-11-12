@@ -97,7 +97,9 @@ After changing fonts, loading state or content above the fold, run
 `npx --no-install siyahi-cls` against the build or deployed page, not a development server.
 
 To host or hand over one page as a single file, build it with
-`npx --no-install siyahi-page <page.tsx>` and run `siyahi-shots` on the result.
+`npx --no-install siyahi-page <page.tsx>`; check it first with
+`npx --no-install siyahi-shots <page.tsx>`. The build frames the page with
+the house gutter, so the page sets no padding and no `<main>` of its own.
 
 ## Static HTML reports
 
