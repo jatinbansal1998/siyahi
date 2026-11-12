@@ -21,10 +21,21 @@ describe("siyahi-page", () => {
         data,
         `import type { Row } from "./flows.types";\nexport const rows: Row[] = [];\nexport const marker: string = "flows-marker-" + 42;\n`,
       );
+      // Files reached only through a stylesheet or new URL(), which the build inlines.
+      const css = path.join(dir, "flows.css");
+      const extra = path.join(dir, "extra.css");
+      const dot = path.join(dir, "dot.svg");
+      const logo = path.join(dir, "logo.svg");
+      writeFileSync(css, `@import "./extra.css";\n`);
+      writeFileSync(extra, `.flows-dot { background: url(./dot.svg); }\n`);
+      writeFileSync(dot, `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>`);
+      writeFileSync(logo, `<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"/>`);
       writeFileSync(
         page,
         `import { PageHeader } from "@siyahi/ui";
+import "./flows.css";
 import { marker } from "./flows.data";
+export const logo = new URL("./logo.svg", import.meta.url).href;
 export default function Flows() {
   return <div className="tracking-widest"><PageHeader title={marker} /></div>;
 }
@@ -43,7 +54,7 @@ export default function Flows() {
       // Tailwind read the page's folder.
       expect(html).toContain(".tracking-widest");
       // The type-only import, which TypeScript erases before the build sees it, is listed too.
-      expect(sources).toEqual([page, data, types]);
+      expect(sources).toEqual([page, data, types, css, extra, dot, logo].toSorted());
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

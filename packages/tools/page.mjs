@@ -26,9 +26,13 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 /** @typedef {{ html: string, sources: string[] }} BuiltPage */
 
-const SCRIPT = /\.[cm]?[jt]sx?$/;
-// `from "./x"`, `import "./x"` and `import("./x")`, type-only imports included.
-const RELATIVE_IMPORT = /(?:\bfrom|\bimport)\s*\(?\s*(["'])(\.{1,2}\/[^"']+)\1/g;
+// A page's own files are found from their text, before TypeScript erases a type-only import. In a script:
+// `from "./x"`, `import "./x"`, `import("./x")` and `new URL("./x", import.meta.url)`; in a stylesheet:
+// `@import "./x"` and `url(./x)`.
+const REFERENCES = [
+  { file: /\.[cm]?[jt]sx?$/, reference: /(?:\bfrom|\bimport|\bnew URL)\s*\(?\s*(["'])(\.{1,2}\/[^"']+)\1/g },
+  { file: /\.css$/, reference: /(?:@import\s+(?:url\(\s*)?|url\(\s*)(["']?)(\.{1,2}\/[^"')\s;]+)\1/g },
+];
 
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
 const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
@@ -96,6 +100,7 @@ createRoot(document.getElementById("root")).render(
     // imports, read from the source text before TypeScript erases a type-only
     // import, so a pulled page is complete.
     const sources = new Set([realpathSync(pagePath)]);
+    const pageDir = path.dirname(realpathSync(pagePath));
     const output = await build({
       configFile: false,
       root,
@@ -109,8 +114,9 @@ createRoot(document.getElementById("root")).render(
           enforce: "pre",
           async buildStart() {
             for (const file of sources) {
-              if (!SCRIPT.test(file)) continue;
-              for (const [, , specifier = ""] of readFileSync(file, "utf8").matchAll(RELATIVE_IMPORT)) {
+              const { reference } = REFERENCES.find((kind) => kind.file.test(file)) ?? {};
+              if (!reference) continue;
+              for (const [, , specifier = ""] of readFileSync(file, "utf8").matchAll(reference)) {
                 const resolved = await this.resolve(specifier, file, { skipSelf: true });
                 if (resolved && !resolved.external) sources.add(resolved.id.replace(/\?.*$/, ""));
               }
@@ -122,6 +128,13 @@ createRoot(document.getElementById("root")).render(
             // beside itself; resolving them as if the entry imported them also
             // keeps one copy of React.
             return this.resolve(source, entry, { skipSelf: true });
+          },
+          // Anything else the build read from the page's folder, which the text did not name.
+          generateBundle() {
+            for (const id of this.getModuleIds()) {
+              const file = id.replace(/\?.*$/, "");
+              if (file.startsWith(pageDir + path.sep) && existsSync(file)) sources.add(file);
+            }
           },
         },
       ],
