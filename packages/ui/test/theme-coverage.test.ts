@@ -22,7 +22,7 @@ function uncovered(utility: string): string | undefined {
   if (/^(drop-shadow|inset-shadow|text-shadow)(-|$)/.test(utility)) return "a shadow kind the theme does not flatten";
   const arbitrary = /^shadow-\[(.+)\]$/.exec(utility)?.[1];
   // A 1px outline with no blur, as the sidebar draws, is an edge, not a shadow.
-  if (arbitrary !== undefined) return /^0_0_0_1px_/.test(arbitrary) ? undefined : "an arbitrary shadow";
+  if (arbitrary !== undefined) return arbitrary.startsWith("0_0_0_1px_") ? undefined : "an arbitrary shadow";
   const size = /^shadow-([\w-]+)$/.exec(utility)?.[1];
   if (size !== undefined && size !== "none" && !shadowSizes.has(size) && !size.startsWith("("))
     return "a shadow size the theme does not set";
