@@ -53,8 +53,11 @@ jobs:
             const routes = categories.map((category) => `#/${category}`);
             for (const category of categories) {
               await page.goto(`${base}#/${category}`);
-              await page.waitForLoadState("networkidle");
-              const links = await page.locator(`main a[href^="#/${category}/"]`).evaluateAll((anchors) => anchors.map((anchor) => anchor.getAttribute("href")));
+              // Only the hash changes, so the page does not reload: wait for the links of this category to render.
+              // A category drawn as one page (Foundations) has none, and waits out the timeout.
+              const anchors = page.locator(`main a[href^="#/${category}/"]`);
+              await anchors.first().waitFor({ timeout: 10000 }).catch(() => {});
+              const links = await anchors.evaluateAll((all) => all.map((anchor) => anchor.getAttribute("href")));
               for (const link of links) if (link && !routes.includes(link)) routes.push(link);
             }
             await browser.close();
