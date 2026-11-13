@@ -27,6 +27,17 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
 const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
 
+/**
+ * Whether Vite's warning is about a local file: it names the reference first, or the whole `new URL(...)`.
+ * A URL with a scheme (https:, data:), a protocol-relative one or a #fragment is not a file to find.
+ * @param {string} message
+ */
+function isLocal(message) {
+  const text = message.trim();
+  const reference = /^new URL\(\s*(["'`])(.*?)\1/.exec(text)?.[2] ?? text.split(/\s/)[0] ?? "";
+  return !/^([a-z][a-z0-9+.-]*:|\/\/|#)/i.test(reference);
+}
+
 /** @param {string} text */
 const escapeHtml = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -93,7 +104,7 @@ createRoot(document.getElementById("root")).render(
     for (const method of /** @type {const} */ (["warn", "warnOnce"])) {
       const original = logger[method];
       logger[method] = (message, options) => {
-        if (/(didn't resolve|doesn't exist) at build time/.test(message)) unresolved.push(message);
+        if (/(didn't resolve|doesn't exist) at build time/.test(message) && isLocal(message)) unresolved.push(message);
         else original(message, options);
       };
     }

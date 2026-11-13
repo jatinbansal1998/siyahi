@@ -79,6 +79,23 @@ export default function Parent() { return <img src={image} alt="" />; }
     }
   }, 60_000);
 
+  it("builds a page that refers to an external image and a fragment, which are no files to find", async () => {
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), "siyahi-page-external-")));
+    try {
+      const page = path.join(dir, "external.tsx");
+      writeFileSync(
+        page,
+        `const image = new URL("https://assets.example.test/image.svg", import.meta.url).href;
+const mark = new URL("#identity", import.meta.url).href;
+export default function External() { return <img src={image} alt={mark} />; }
+`,
+      );
+      expect(await buildPage({ page, title: "External", project })).toContain("assets.example.test/image.svg");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
   it("builds through a symlink, as npx runs the siyahi-page bin", () => {
     const dir = realpathSync(mkdtempSync(path.join(tmpdir(), "siyahi-page-bin-")));
     try {
