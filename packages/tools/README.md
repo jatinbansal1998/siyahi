@@ -80,6 +80,43 @@ own HTML, add preload tags for the build's hashed URLs of
 `geist-latin-wght-normal.woff2`, `geist-latin-ext-wght-normal.woff2` and
 `geist-mono-latin-wght-normal.woff2`.
 
+## siyahi-page
+
+```sh
+npx siyahi-page /path/to/2026-11-12-gold-flows.tsx [--out gold-flows.html] [--title "Gold flows"]
+```
+
+Builds one React page into a single HTML file with its scripts, styles and
+fonts inline, so the file can be hosted anywhere or opened with nothing beside
+it. About 600 KB for a page with a chart; most of it is React, Recharts and
+Geist. The page module's default export renders inside `SiyahiProvider` with
+Siyahi's stylesheet, in the catalogue's page frame: one centred `<main>` with
+the house gutter (16px on a phone, 32px from 768px) that stacks the page's
+blocks 24px apart. The page sets no padding and renders no `<main>` of its
+own. Tailwind reads class names from the page's folder.
+
+A page uses only its own folder and the installed packages, by relative
+paths, so the folder is the whole of its source: a host that keeps the folder
+can rebuild the page from it (dash builds each page from a copy of its stored
+folder, so a page that reaches outside it fails to publish). The build fails
+on a reference it cannot find, such as a `new URL("../image.svg", …)` or a
+stylesheet `url()` whose file is not there, and on a page that builds to more
+than one file, such as one with a Web Worker. An absolute path is not checked;
+a page never uses one.
+
+Run it in a project that has `@siyahi/ui`, `react`, `react-dom`,
+`tailwindcss`, `@tailwindcss/vite` and `@vitejs/plugin-react` installed. The
+page itself may live anywhere, a scratch folder included: every package it
+imports resolves from that project. The project's own `vite.config` is not
+used. `--title` defaults to the file name without its date, `gold flows`.
+
+A host calls the function instead, which returns the HTML:
+
+```ts
+import { buildPage } from "@siyahi/tools/page";
+const html = await buildPage({ page, title: "Gold flows", project: process.cwd() });
+```
+
 ## siyahi-cls
 
 ```sh
@@ -105,8 +142,12 @@ counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx p
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390] [--script probe.mjs]
+npx siyahi-shots http://localhost:5173/#/page [more URLs or page.tsx files] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390] [--script probe.mjs]
 ```
+
+A `.tsx` or `.jsx` argument is a page file: it is built with `siyahi-page`
+into `--out`, from the project the command runs in, and shot as that one
+file, as it will be hosted.
 
 Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
 writes one full-page PNG per mode to `shots/`. A page taller than 16,000 pixels

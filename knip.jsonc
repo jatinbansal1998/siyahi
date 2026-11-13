@@ -19,8 +19,9 @@
     "packages/tools": {
       "entry": ["*.mjs", "lint/index.mjs", "test/**/*.test.mjs"],
       // oxlint is the plugin's host and siyahi-contrast this package's own bin;
-      // the tests run both by path.
-      "ignoreDependencies": ["oxlint", "siyahi-contrast"],
+      // the tests run both by path. siyahi-page's test builds a page that
+      // imports @siyahi/ui, React and Tailwind from this package as its project.
+      "ignoreDependencies": ["oxlint", "siyahi-contrast", "@siyahi/ui", "react", "react-dom", "tailwindcss"],
     },
     "apps/catalogue": {
       // Examples are loaded with import.meta.glob.

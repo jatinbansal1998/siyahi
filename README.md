@@ -136,8 +136,8 @@ Set `color-scheme` on `<html>` as well so native controls match.
 ## Tools
 
 `@siyahi/tools` provides theme lint rules, font preload, layout screenshots
-(`siyahi-shots`), loading-shift checks (`siyahi-cls`) and contrast checks
-(`siyahi-contrast`). See the
+(`siyahi-shots`), loading-shift checks (`siyahi-cls`), contrast checks
+(`siyahi-contrast`) and a one-file page build (`siyahi-page`). See the
 [tools guide](https://github.com/jatinbansal1998/siyahi/blob/main/packages/tools/README.md)
 for configuration and commands.
 

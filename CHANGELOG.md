@@ -2,6 +2,15 @@
 
 ## 0.1.9
 
+- `@siyahi/tools` builds one page into one file: `siyahi-page page.tsx`
+  writes a self-contained HTML file (scripts, styles and fonts inline) that
+  any static host can serve. The page may sit in a scratch folder; its
+  packages resolve from the project the command runs in, and the page sits in
+  the catalogue's frame (a centred `<main>`, 16px gutter, 32px from 768px).
+  `buildPage()` from `@siyahi/tools/page` does the same and returns the HTML. The build fails on a page that
+  builds to more than one file (a Web Worker). `siyahi-shots page.tsx` builds the page that way and
+  shoots the result.
+
 - The look reaches the last parts. A menu, a select's list, a popover, a
   dialog, a sheet and a chart's tooltip lie flat: no drop shadow, edged in the
   card's hairline. Heatmap cells and swatches (`blockRadius` now defaults to

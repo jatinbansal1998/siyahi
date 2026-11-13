@@ -80,5 +80,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: true
+      # siyahi-page's test builds a page against @siyahi/ui as a consumer
+      # would, through the package's dist.
+      - name: Build @siyahi/ui
+        run: vp run --filter @siyahi/ui build
       - name: Test
         run: vp test
