@@ -74,7 +74,7 @@ export const blocks: Page = {
       ],
       rules: [
         "No box and no rules: space parts the figures, and each figure's text lines up with its neighbours' and the title's.",
-        "The columns follow the count, so up to eight figures none sits alone under a full row: five run 3 + 2, seven 4 + 3, and up to eight sit in one row on a wide strip.",
+        "The columns follow the count, so no figure sits alone under a full row, up to eight of them: five run 3 + 2, seven 4 + 3, and eight fit one row on a wide strip.",
         "A sparkline sits under its figure at the figure's width; a run of gains or losses takes var(--positive) or var(--negative) from the change's sign.",
         "Set tone on the one or two figures that need a look. The page decides: a falling figure is not an exception when it is a cost.",
       ],
