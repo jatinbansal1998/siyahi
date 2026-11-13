@@ -62,6 +62,7 @@ async function recordingReads(work) {
     [fs, "open"],
     [fs.promises, "readFile"],
     [fs.promises, "open"],
+    [fs, "openAsBlob"],
   ];
   const originals = targets.map(([owner, name]) => /** @type {Function} */ (owner[name]));
   targets.forEach(([owner, name], i) => {
@@ -69,6 +70,7 @@ async function recordingReads(work) {
     owner[name] = function (/** @type {unknown} */ file, /** @type {unknown[]} */ ...rest) {
       if (typeof file === "string") reads.add(path.resolve(file));
       else if (file instanceof URL) reads.add(fileURLToPath(file));
+      else if (file instanceof Uint8Array) reads.add(path.resolve(Buffer.from(file).toString()));
       return original.call(this, file, ...rest);
     };
   });
@@ -170,24 +172,35 @@ createRoot(document.getElementById("root")).render(
       }),
     );
     // A page reads only its folder and installed packages, so the folder is the whole of its source; a host that
-    // keeps the folder can rebuild the page from it. Node and Vite read package.json files up the tree to learn a
-    // module's type, which is not the page's content.
+    // keeps the folder can rebuild the page from it. Node and Vite read the package.json files in the folders above
+    // the page and the entry to learn a module's type, which is not the page's content; a package.json anywhere else
+    // is read as content. Not seen here, so not checked: what Tailwind's native scanner reads for an absolute
+    // @source, and what a plugin reads from another thread.
     const allowed = [pageDir, root, ...packageRoots(modules)];
-    const outside = [...reads, ...modulesRead].find(
+    /** @param {string} file */
+    const isTypeLookup = (file) =>
+      path.basename(file) === "package.json" &&
+      [pageDir, root].some((dir) => !path.relative(path.dirname(file), dir).startsWith(".."));
+    const outsideReads = [...reads, ...modulesRead].filter(
       (file) =>
         path.isAbsolute(file) &&
-        path.basename(file) !== "package.json" &&
+        !isTypeLookup(file) &&
         !file.includes(`${path.sep}node_modules${path.sep}`) &&
         !allowed.some((dir) => file === dir || file.startsWith(dir + path.sep)),
     );
+    // Name the file the page asked for, not the package.json Node looked up beside it.
+    const outside = outsideReads.find((file) => path.basename(file) !== "package.json") ?? outsideReads[0];
     if (outside)
       throw new Error(
         `The page reads ${outside}, outside its folder and the installed packages; keep everything it uses in its folder`,
       );
     const outputs = Array.isArray(output) ? output : [output];
-    const html = outputs
-      .flatMap((result) => ("output" in result ? result.output : []))
-      .find((file) => file.fileName === "index.html");
+    const files = outputs.flatMap((result) => ("output" in result ? result.output : []));
+    // The page is one file; anything else the build wrote (a Web Worker's script) would be missing where it is hosted.
+    const extra = files.find((file) => file.fileName !== "index.html");
+    if (extra)
+      throw new Error(`The page built to more than one file (${extra.fileName}); a Web Worker is not supported`);
+    const html = files.find((file) => file.fileName === "index.html");
     if (html?.type !== "asset") throw new Error("The build wrote no index.html");
     return String(html.source);
   } finally {
