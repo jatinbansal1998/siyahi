@@ -179,22 +179,33 @@ Use `tests/skills/siyahi/cases.json` for independent behavioral reviews: answer 
 the skill and its references, then compare against the expected decisions.
 
 ```sh
-pnpm check
+pnpm check:static                               # every check but the tests
+pnpm test packages/ui/test/format.test.ts       # the tests your change touches
+gh pr checks <number> --watch                   # the full suite, on GitHub
+gh run download <run-id> -n shots               # the Screenshots run's images
+```
+
+The full suite and the catalogue screenshots run on GitHub's runners, which
+this public repository uses for free: CI splits the tests into three parallel
+parts, and the Screenshots workflow shoots every catalogue page, 1920 and 390
+wide in light and dark, on any pull request touching `packages/ui`,
+`packages/tools`, `apps/catalogue` or `DESIGN.md`. To shoot one page or an
+interaction locally:
+
+```sh
 pnpm --filter @siyahi/catalogue build && pnpm --filter @siyahi/catalogue preview
-pnpm shots http://localhost:4173/#/data   # in another shell
-pnpm shots http://localhost:4173/#/data/bar-chart --script hover.mjs
+pnpm shots http://localhost:4173/#/data/bar-chart --script hover.mjs   # in another shell
 ```
 
 To check a control, hover or tooltip, give `pnpm shots` a `--script` (see
 `packages/tools/README.md`) rather than writing a Playwright script.
 
-`pnpm check` formats, lints (including the colour pass over the add-ons),
-looks for unused code, fails on stale generated files, builds (with the
-contrast check), typechecks and tests. While you work, run the tests you are
-changing (`pnpm test packages/ui/test/format.test.ts`) and `pnpm check:static`,
-which is every check but the tests; run the full `pnpm check` once before the
-pull request. It takes about four minutes: start it as a background job and let
-your host tell you when it ends, rather than polling it with `sleep`.
+`pnpm check:static` formats, lints (including the colour pass over the
+add-ons), looks for unused code, fails on stale generated files, builds (with
+the contrast check) and typechecks; `pnpm check` adds the tests. Run the static
+checks and the tests you are changing locally, and let the pull request's CI
+run the full suite: on a busy machine the catalogue's browser suites time out,
+which proves nothing about the change.
 
 Tests under `packages/` start no catalogue server, so one of them runs in
 seconds. A component test that needs no real browser belongs there, in
@@ -202,8 +213,9 @@ happy-dom, and imports the component's own file, not `@siyahi/ui`: the barrel
 loads every component, which costs each run several seconds
 (`barrel.test.ts` checks the public exports). The catalogue suites open the
 catalogue in a browser and fail on any page or console error; no tool can tell
-which of them a source change reaches, so the full run is the proof. Put the shots
-for every page you changed in the pull request, light and dark, 1920 and 390.
+which of them a source change reaches, so the full CI run is the proof. Open
+the Screenshots run's images for every page you changed and put them in the
+pull request, light and dark, 1920 and 390.
 
 ## Releases
 

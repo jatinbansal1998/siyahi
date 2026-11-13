@@ -44,10 +44,11 @@ description: >
    ("Published as `0.1.x-next.<n>` pre-releases."). Skip it when the PR changes
    only tests (`packages/*/test/**`, `apps/*/test/**`) or `.agents/**`: no
    consumer gets anything new.
-3. Run CONTRIBUTING.md "Before a pull request" (`pnpm check`, plus shots for
-   UI changes).
-4. Several PRs for one base: merge one, rebase the next on `main`, re-run
-   `pnpm check`. The usual conflict is `CHANGELOG.md`: keep both entries under
+3. Run CONTRIBUTING.md "Before a pull request": `pnpm check:static` and the
+   touched tests locally; the full suite and the Screenshots run on the PR's
+   GitHub checks (`gh pr checks <n> --watch`).
+4. Several PRs for one base: merge one, rebase the next on `main`, and wait
+   for its checks again. The usual conflict is `CHANGELOG.md`: keep both entries under
    one heading.
 
 ## Release the merged batch

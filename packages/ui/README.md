@@ -146,7 +146,7 @@ for configuration and commands.
 ```sh
 pnpm install
 pnpm --filter @siyahi/tools exec playwright install chromium
-pnpm check
+pnpm check:static   # the full suite runs on each pull request's CI
 pnpm dev
 ```
 
