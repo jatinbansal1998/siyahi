@@ -42,7 +42,7 @@ jobs:
         run: vp run lint:registry
       - name: Unused files, exports and dependencies
         run: vp run knip:check
-      # Fails when shadcn.css, report.css, registry.lock.json or the barrel
+      # Fails when shadcn.css, registry.lock.json or the barrel
       # differ from what packages/ui/scripts/generate.ts would write.
       - name: Generated files are current
         run: vp run generate:check

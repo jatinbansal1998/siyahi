@@ -142,7 +142,7 @@ counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx p
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs or page.tsx files] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report] [--widths 1920,390] [--script probe.mjs]
+npx siyahi-shots http://localhost:5173/#/page [more URLs or page.tsx files] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--widths 1920,390] [--script probe.mjs]
 ```
 
 A `.tsx` or `.jsx` argument is a page file: it is built with `siyahi-page`
@@ -165,12 +165,8 @@ sideways, when text or a control (a heading, paragraph, cell, link, button or
 field) is cut off at the side by a box that hides its overflow, such as a card,
 or when the body font is not a loaded `--font` family. The cut-off check names
 each element and the pixels it loses, `button "Monthly return" by 56px`; the
-page never scrolls sideways in that case, so the scroll check cannot see it. Pass
-`--report` for a static HTML report on `report.css`, which loads no font file
-by design: the body must still name `--font` first, but the viewer's installed
-font or the system fallback may draw it, and the run prints
-`font=Geist (report, system fallback allowed)`. Without `--report`, a page that
-names Geist and loads no font fails. Content that
+page never scrolls sideways in that case, so the scroll check cannot see it. A
+page that names Geist and loads no font fails. Content that
 scrolls sideways inside its own box is exempt from the gutter, and so is
 anything inside `--chrome` (by default the shadcn sidebar, which sits flush to
 the edge by design). The font default, Geist, is Siyahi's; pass another family

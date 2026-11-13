@@ -34,10 +34,6 @@
       "types": "./types/contrast.d.mts",
       "default": "./contrast.mjs"
     },
-    "./theme": {
-      "types": "./types/theme.d.mts",
-      "default": "./theme.mjs"
-    },
     "./vite": {
       "types": "./types/vite.d.mts",
       "default": "./vite.mjs"

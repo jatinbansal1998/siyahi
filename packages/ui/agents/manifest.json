@@ -4,8 +4,6 @@
   "props": "dist/index.d.ts",
   "setup": "README.md#install",
   "layout": "README.md#surfaces",
-  "report": "report.css",
-  "reportRules": "agents/report-rules.json",
   "recipes": {
     "dashboard": "agents/examples/surfaces.tsx",
     "table": "agents/examples/data-table.tsx",

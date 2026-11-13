@@ -3,7 +3,6 @@
 //
 //   styles/shadcn.css     shadcn's tailwind.css, so the shadcn CLI is not a
 //                         runtime dependency
-//   report.css            the theme as plain CSS for static HTML reports
 //   registry.lock.json    origin, licence and hash of each registry add-on,
 //                         read from the header every copied file carries
 //   src/index.ts          the barrel behind `import { … } from "@siyahi/ui"`
@@ -15,7 +14,6 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { readTheme, type Variables } from "@siyahi/tools/theme";
 
 const root = path.resolve(import.meta.dirname, "..");
 const repo = path.resolve(root, "../..");
@@ -34,75 +32,6 @@ function shadcnCss(): string {
  * sha256: ${sha256(source)}
  */
 ${source}`;
-}
-
-const SANS = `"Geist", "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
-const MONO = `"Geist Mono", "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace`;
-
-const block = (vars: Variables, indent: string): string =>
-  Object.entries(vars)
-    .map(([name, value]) => `${indent}--${name}: ${value};`)
-    .join("\n");
-
-function reportCss(): string {
-  const { light, dark } = readTheme(read("styles/siyahi.css"));
-  const darkOnly = Object.fromEntries(Object.entries(dark).filter(([name, value]) => light[name] !== value));
-  return `/*
- * Siyahi report stylesheet, generated from @siyahi/ui styles/siyahi.css.
- * Inline it into a report's <style>. It makes no network requests: Geist is
- * used when the viewer has it installed, and the system font otherwise.
- */
-:root {
-  color-scheme: light dark;
-${block(light, "  ")}
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-${block(darkOnly, "    ")}
-  }
-}
-
-*,
-::before,
-::after {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  padding: 16px;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ${SANS};
-  font-size: 14px;
-  line-height: 1.5;
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
-}
-
-code,
-kbd,
-pre,
-samp {
-  font-family: ${MONO};
-}
-
-a {
-  color: var(--link);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-`;
 }
 
 // Font metrics in font units, as @capsizecss/metrics 4.4.0 reads them from the
@@ -399,8 +328,6 @@ function agentManifest(): string {
       props: "dist/index.d.ts",
       setup: "README.md#install",
       layout: "README.md#surfaces",
-      report: "report.css",
-      reportRules: "agents/report-rules.json",
       recipes: {
         dashboard: "agents/examples/surfaces.tsx",
         table: "agents/examples/data-table.tsx",
@@ -420,11 +347,9 @@ function agentManifest(): string {
 const outputs: Record<string, () => string> = {
   "styles/shadcn.css": shadcnCss,
   "styles/fallback-fonts.css": fallbackFontsCss,
-  "report.css": reportCss,
   "registry.lock.json": registryLock,
   "src/index.ts": barrel,
   "agents/manifest.json": agentManifest,
-  "agents/report-rules.json": fromRepo("apps/catalogue/src/report-rules.json"),
   ...Object.fromEntries(examples.map(({ file }) => [file, fromRepo(`${exampleDir}/${path.basename(file)}`)])),
   "README.md": fromRepo("README.md"),
   "DESIGN.md": fromRepo("DESIGN.md"),

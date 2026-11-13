@@ -6,7 +6,7 @@
 // <name>-1.png, <name>-2.png, … of equal height, which together cover it.
 //
 //   siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font Geist]
-//                [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--report]
+//                [--chrome '[data-slot="sidebar"]'] [--wait-for h1]
 //                [--widths 1920,390] [--script probe.mjs]
 //
 // --script names a module whose default export, async (page, mode) => data,
@@ -27,10 +27,7 @@
 // cards, no sideways document scroll (also with a classic scrollbar taking its
 // width), no text or control cut off at the side by a box that hides its
 // overflow (a card does; the document scroll check cannot see what it cuts),
-// and --font as the loaded body font. --report is for static HTML
-// reports, which load no font file by design: the body must still name --font
-// first, but the viewer's installed font or the system fallback may draw it.
-// Exempt from the gutter: content
+// and --font as the loaded body font. Exempt from the gutter: content
 // inside a box that scrolls sideways, and anything inside --chrome, which by
 // default is only the shadcn sidebar, flush to the edge by design. The font
 // default is Siyahi's; other pages pass their own family.
@@ -63,14 +60,13 @@ const { values, positionals } = parseArgs({
     font: { type: "string", default: "Geist" },
     chrome: { type: "string", default: '[data-slot="sidebar"]' },
     "wait-for": { type: "string", default: "h1" },
-    report: { type: "boolean", default: false },
     widths: { type: "string", default: "1920,390" },
     script: { type: "string" },
   },
 });
 if (positionals.length === 0) {
   console.error(
-    "usage: siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--report] [--widths 1920,390] [--script probe.mjs]",
+    "usage: siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--widths 1920,390] [--script probe.mjs]",
   );
   process.exit(2);
 }
@@ -294,7 +290,7 @@ function problemsOf(p, ready, browserErrors) {
   problems.push(...p.frozen);
   if (p.clipped.length > 5) problems.push(`and ${p.clipped.length - 5} more cut off`);
   if (!p.font.startsWith(values.font)) problems.push(`body font is ${p.font}, not ${values.font}`);
-  else if (!p.fontLoaded && !values.report) problems.push(`${p.font} is named but never loaded`);
+  else if (!p.fontLoaded) problems.push(`${p.font} is named but never loaded`);
   return problems;
 }
 
@@ -323,10 +319,9 @@ for (const url of urls) {
     const { probe, ready, height, files, data, browserErrors } = await shoot(browser, url, mode);
     const problems = problemsOf(probe, ready, browserErrors);
     failed ||= problems.length > 0;
-    const font = values.report && !probe.fontLoaded ? `${probe.font} (report, system fallback allowed)` : probe.font;
     console.log(
       `${problems.length ? "FAIL" : "ok  "} ${mode.name.padEnd(10)} gutter=${probe.gutterLeft}/${probe.gutterRight} ` +
-        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} clipped=${probe.clipped.length} font=${font} h1=${JSON.stringify(probe.h1)} ` +
+        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} clipped=${probe.clipped.length} font=${probe.font} h1=${JSON.stringify(probe.h1)} ` +
         `height=${height} ${files.join(" ")}`,
     );
     if (data !== undefined) console.log(`     data=${JSON.stringify(data)}`);

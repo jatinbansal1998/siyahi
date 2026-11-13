@@ -11,7 +11,6 @@ const SHADCN_CORE = ["packages/ui/src/components/ui/**", "packages/ui/src/hooks/
 const REGISTRY = "packages/ui/src/components/registry/**";
 const GENERATED = [
   "packages/ui/agents/**",
-  "packages/ui/report.css",
   "packages/ui/styles/shadcn.css",
   "packages/ui/styles/fallback-fonts.css",
   "packages/ui/registry.lock.json",
