@@ -1,0 +1,74 @@
+name: Screenshots
+
+# For a pull request that can change how the catalogue looks: every catalogue
+# page and every component family's page shot by siyahi-shots at 1920 and 390 wide, light and dark, attached to
+# the run as the "shots" artifact. The images are for a person to open; the run
+# also fails on siyahi-shots' layout checks.
+on:
+  pull_request:
+    paths:
+      - "packages/ui/**"
+      - "packages/tools/**"
+      - "apps/catalogue/**"
+      - "DESIGN.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shots-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  shots:
+    name: Screenshots
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    # Same Playwright image as the CI test jobs; its tag must match the lockfile.
+    container: mcr.microsoft.com/playwright:v1.64.1-noble
+    steps:
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.21.2
+        with:
+          node-version-file: package.json
+          cache: true
+      - name: Build
+        run: vp run -r build
+      - name: Shoot every catalogue page and family
+        run: |
+          pnpm --filter @siyahi/catalogue preview --port 4173 --strictPort &
+          # Up to a minute for the preview server to answer.
+          for attempt in $(seq 60); do
+            node -e "fetch('http://localhost:4173/').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))" && break
+            sleep 1
+          done
+          # A category's index shows each family's first example, clipped; its cards link every family's own
+          # page (#/<category>/<id>), which shows the whole family. Run from packages/tools, where playwright is.
+          (cd packages/tools && node --input-type=module -e '
+            import { chromium } from "playwright";
+            const base = "http://localhost:4173/";
+            const categories = ["overview", "foundations", "components", "inputs", "layout", "data", "blocks"];
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            const routes = categories.map((category) => `#/${category}`);
+            for (const category of categories) {
+              await page.goto(`${base}#/${category}`);
+              // Only the hash changes, so the page does not reload: wait for the links of this category to render.
+              // A category drawn as one page (Foundations) has none, and waits out the timeout.
+              const anchors = page.locator(`main a[href^="#/${category}/"]`);
+              await anchors.first().waitFor({ timeout: 10000 }).catch(() => {});
+              const links = await anchors.evaluateAll((all) => all.map((anchor) => anchor.getAttribute("href")));
+              for (const link of links) if (link && !routes.includes(link)) routes.push(link);
+            }
+            await browser.close();
+            console.log(routes.map((route) => base + route).join("\n"));
+          ') > routes.txt
+          echo "Shooting $(wc -l < routes.txt) pages"
+          pnpm shots --out shots $(cat routes.txt)
+      - name: Attach the images
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shots
+          path: shots/
+          retention-days: 14

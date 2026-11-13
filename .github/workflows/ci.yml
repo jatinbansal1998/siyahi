@@ -64,10 +64,16 @@ jobs:
       - name: Typecheck
         run: vp run -r typecheck
 
-  test:
-    name: Test
+  test-shard:
+    name: Test ${{ matrix.shard }}/3
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    # The suite runs in three parallel parts on GitHub's runners, so a pull
+    # request's full run returns sooner and no laptop has to carry it.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     # The browser suites render the catalogue in Playwright's headless Chromium.
     # Its image ships the browser and its system packages, so a run no longer
     # downloads them from the Ubuntu mirror, which once took the whole timeout.
@@ -85,4 +91,16 @@ jobs:
       - name: Build @siyahi/ui
         run: vp run --filter @siyahi/ui build
       - name: Test
-        run: vp test
+        run: vp test --shard=${{ matrix.shard }}/3
+
+  # The "Protect main" ruleset requires a check named Test; it passes only when
+  # every part of the suite passed.
+  test:
+    name: Test
+    needs: test-shard
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Every part passed
+        run: test "${{ needs.test-shard.result }}" = success
