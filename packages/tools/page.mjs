@@ -34,13 +34,17 @@ const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:
  * @param {string} modules
  */
 function packageRoots(modules) {
-  return readdirSync(modules)
-    .flatMap((name) =>
-      name.startsWith("@") ? readdirSync(path.join(modules, name)).map((scoped) => path.join(name, scoped)) : [name],
-    )
-    .map((entry) => path.join(modules, entry))
-    .filter((entry) => existsSync(entry))
-    .map((entry) => realpathSync(entry));
+  return (
+    readdirSync(modules)
+      // Hidden entries (.bin, .pnpm, another build's .siyahi-page-*) are not packages, and one may vanish mid-listing.
+      .filter((name) => !name.startsWith("."))
+      .flatMap((name) =>
+        name.startsWith("@") ? readdirSync(path.join(modules, name)).map((scoped) => path.join(name, scoped)) : [name],
+      )
+      .map((entry) => path.join(modules, entry))
+      .filter((entry) => existsSync(entry))
+      .map((entry) => realpathSync(entry))
+  );
 }
 
 /**
@@ -180,7 +184,7 @@ createRoot(document.getElementById("root")).render(
     /** @param {string} file */
     const isTypeLookup = (file) =>
       path.basename(file) === "package.json" &&
-      [pageDir, root].some((dir) => !path.relative(path.dirname(file), dir).startsWith(".."));
+      [pageDir, root, realpathSync(root)].some((dir) => !path.relative(path.dirname(file), dir).startsWith(".."));
     const outsideReads = [...reads, ...modulesRead].filter(
       (file) =>
         path.isAbsolute(file) &&

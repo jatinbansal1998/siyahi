@@ -117,6 +117,22 @@ export default function () {}
     ).rejects.toThrow(/outside\.txt, outside its folder/);
   }, 60_000);
 
+  it("builds a normal page in a project whose node_modules links to another project's", async () => {
+    // Node reads the linked project's package.json by its real path: a type lookup, not the page's content.
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), "siyahi-page-linked-")));
+    try {
+      mkdirSync(path.join(dir, "host"));
+      symlinkSync(path.join(project, "node_modules"), path.join(dir, "host", "node_modules"));
+      mkdirSync(path.join(dir, "page"));
+      const page = path.join(dir, "page", "linked.tsx");
+      writeFileSync(page, `export default function Linked() { return <h1>Linked</h1>; }\n`);
+      const html = await buildPage({ page, title: "Linked", project: path.join(dir, "host") });
+      expect(html).toContain("<title>Linked</title>");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
   it("builds through a symlink, as npx runs the siyahi-page bin", () => {
     const dir = realpathSync(mkdtempSync(path.join(tmpdir(), "siyahi-page-bin-")));
     try {
