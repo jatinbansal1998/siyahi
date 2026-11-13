@@ -187,7 +187,7 @@ gh run download <run-id> -n shots               # the Screenshots run's images
 
 The full suite and the catalogue screenshots run on GitHub's runners, which
 this public repository uses for free: CI splits the tests into three parallel
-parts, and the Screenshots workflow shoots every catalogue page, 1920 and 390
+parts, and the Screenshots workflow shoots every catalogue page and family page, 1920 and 390
 wide in light and dark, on any pull request touching `packages/ui`,
 `packages/tools`, `apps/catalogue` or `DESIGN.md`. To shoot one page or an
 interaction locally:
