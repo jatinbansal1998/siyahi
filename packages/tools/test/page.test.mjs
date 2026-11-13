@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,6 +37,21 @@ export default function Flows() {
       expect(html).not.toContain("jsxDEV");
       // Tailwind read the page's folder.
       expect(html).toContain(".tracking-widest");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  it("fails a page that reads a file outside its folder, so its folder is the whole of its source", async () => {
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), "siyahi-page-outside-")));
+    try {
+      mkdirSync(path.join(dir, "page"));
+      writeFileSync(path.join(dir, "outside.css"), `.outside { color: inherit; }\n`);
+      // An absolute path, which a copy of the folder would still reach.
+      writeFileSync(path.join(dir, "page", "page.css"), `@import ${JSON.stringify(path.join(dir, "outside.css"))};\n`);
+      const page = path.join(dir, "page", "outside.tsx");
+      writeFileSync(page, `import "./page.css";\nexport default function Outside() { return <h1>Outside</h1>; }\n`);
+      await expect(buildPage({ page, title: "Outside", project })).rejects.toThrow(/outside\.css, outside its folder/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

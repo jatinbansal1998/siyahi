@@ -13,7 +13,8 @@
 // The page may live anywhere, a scratch folder included: its packages
 // (@siyahi/ui, React, charts) resolve from the project siyahi-page runs in,
 // which has them installed. The project's own vite.config is not used.
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import fs, { existsSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
 import path from "node:path";
 import { Buffer } from "node:buffer";
 import process from "node:process";
@@ -26,6 +27,60 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
 const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
+
+/**
+ * Where installed packages live: each entry of the project's node_modules by its real path, since a workspace links
+ * a package from elsewhere in its repository.
+ * @param {string} modules
+ */
+function packageRoots(modules) {
+  return readdirSync(modules)
+    .flatMap((name) =>
+      name.startsWith("@") ? readdirSync(path.join(modules, name)).map((scoped) => path.join(name, scoped)) : [name],
+    )
+    .map((entry) => path.join(modules, entry))
+    .filter((entry) => existsSync(entry))
+    .map((entry) => realpathSync(entry));
+}
+
+/**
+ * Runs `work` and returns every file it opened through node:fs: Tailwind reads stylesheets and Vite reads url()
+ * assets this way. Rolldown reads modules natively, so those come from the module graph instead.
+ * @template T
+ * @param {() => Promise<T>} work
+ * @returns {Promise<{ result: T, reads: Set<string> }>}
+ */
+async function recordingReads(work) {
+  /** @type {Set<string>} */
+  const reads = new Set();
+  /** @type {[Record<string, unknown>, string][]} */
+  const targets = [
+    [fs, "readFileSync"],
+    [fs, "readFile"],
+    [fs, "createReadStream"],
+    [fs, "openSync"],
+    [fs, "open"],
+    [fs.promises, "readFile"],
+    [fs.promises, "open"],
+  ];
+  const originals = targets.map(([owner, name]) => /** @type {Function} */ (owner[name]));
+  targets.forEach(([owner, name], i) => {
+    const original = /** @type {Function} */ (originals[i]);
+    owner[name] = function (/** @type {unknown} */ file, /** @type {unknown[]} */ ...rest) {
+      if (typeof file === "string") reads.add(path.resolve(file));
+      else if (file instanceof URL) reads.add(fileURLToPath(file));
+      return original.call(this, file, ...rest);
+    };
+  });
+  // The named exports of node:fs that other modules imported follow the patched functions only after a sync.
+  syncBuiltinESMExports();
+  try {
+    return { result: await work(), reads };
+  } finally {
+    targets.forEach(([owner, name], i) => (owner[name] = originals[i]));
+    syncBuiltinESMExports();
+  }
+}
 
 /** @param {string} text */
 const escapeHtml = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -85,28 +140,50 @@ createRoot(document.getElementById("root")).render(
     );
 
     const pageDir = path.dirname(realpathSync(pagePath));
-    const output = await build({
-      configFile: false,
-      root,
-      logLevel: "warn",
-      plugins: [
-        react(),
-        tailwindcss(),
-        viteSingleFile(),
-        {
-          name: "siyahi-page:resolve",
-          enforce: "pre",
-          async resolveId(source, importer) {
-            if (!importer?.startsWith(pageDir + path.sep) || /^[./\0]|^[a-z]+:/i.test(source)) return null;
-            // A page's folder may sit outside the project, where its packages
-            // are not; resolving them as if the entry imported them also keeps
-            // one copy of React.
-            return this.resolve(source, entry, { skipSelf: true });
+    /** @type {Set<string>} */
+    const modulesRead = new Set();
+    const { result: output, reads } = await recordingReads(() =>
+      build({
+        configFile: false,
+        root,
+        logLevel: "warn",
+        plugins: [
+          react(),
+          tailwindcss(),
+          viteSingleFile(),
+          {
+            name: "siyahi-page:resolve",
+            enforce: "pre",
+            async resolveId(source, importer) {
+              if (!importer?.startsWith(pageDir + path.sep) || /^[./\0]|^[a-z]+:/i.test(source)) return null;
+              // A page's folder may sit outside the project, where its packages
+              // are not; resolving them as if the entry imported them also keeps
+              // one copy of React.
+              return this.resolve(source, entry, { skipSelf: true });
+            },
+            generateBundle() {
+              for (const id of this.getModuleIds()) modulesRead.add(id.replace(/\?.*$/, ""));
+            },
           },
-        },
-      ],
-      build: { write: false, emptyOutDir: false },
-    });
+        ],
+        build: { write: false, emptyOutDir: false },
+      }),
+    );
+    // A page reads only its folder and installed packages, so the folder is the whole of its source; a host that
+    // keeps the folder can rebuild the page from it. Node and Vite read package.json files up the tree to learn a
+    // module's type, which is not the page's content.
+    const allowed = [pageDir, root, ...packageRoots(modules)];
+    const outside = [...reads, ...modulesRead].find(
+      (file) =>
+        path.isAbsolute(file) &&
+        path.basename(file) !== "package.json" &&
+        !file.includes(`${path.sep}node_modules${path.sep}`) &&
+        !allowed.some((dir) => file === dir || file.startsWith(dir + path.sep)),
+    );
+    if (outside)
+      throw new Error(
+        `The page reads ${outside}, outside its folder and the installed packages; keep everything it uses in its folder`,
+      );
     const outputs = Array.isArray(output) ? output : [output];
     const html = outputs
       .flatMap((result) => ("output" in result ? result.output : []))
