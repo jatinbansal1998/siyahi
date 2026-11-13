@@ -4,12 +4,31 @@
 
 For any UI need, take the first of these that works:
 
-1. A shadcn/ui component: `pnpm --filter @siyahi/ui exec shadcn add <name>`.
+1. A shadcn/ui component. The package carries every one in shadcn's
+   `base-nova` style, unedited; `pnpm --filter @siyahi/ui exec shadcn add --all`
+   adds any shadcn ships later (answer no to each overwrite), and
+   `shadcn add --overwrite <name>` refreshes one.
 2. An item from a shadcn-format registry in the
    [directory](https://ui.shadcn.com/r/registries.json).
 3. A composition of those with props, shown in the catalogue.
 4. Our own component in `packages/ui/src/components/siyahi`, kept under about
    60 lines. Say in the pull request why nothing above would do.
+
+## The look is global
+
+A component added from shadcn needs no styling of its own. The theme sets the
+look for every component at once: `--radius` is 0; every shadow size is
+transparent, so `shadow-md` draws nothing; stock shadcn's faint edge
+(`ring-foreground/10`, behind any variant) takes the card's hairline; every
+element and its `::before` and `::after` are square unless round by nature
+(an avatar, `role="radio"` and a radio's dot, a status dot, a spinner); a
+faded muted text class reads at the muted colour; and a field is what HTML
+makes one (`input`, `textarea`, `select`, plus Base UI's select trigger), so a
+new field takes the focus edge and invalid wash, shown on the box when it
+sits in an input group or a combobox's chips. Write a new rule by meaning or
+family, not for one component, so the next one is covered too. Parts raised
+with a z-index still name their component (Stacking, below), and a menu's
+group label is listed by slot name.
 
 ## Never edit shadcn core
 

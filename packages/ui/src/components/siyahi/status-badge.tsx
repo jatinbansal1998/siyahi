@@ -16,7 +16,7 @@ export interface StatusBadgeProps extends Omit<ComponentProps<typeof Badge>, "va
 export function StatusBadge({ tone = "neutral", className, children, ...props }: StatusBadgeProps) {
   return (
     <Badge variant="outline" data-tone={tone} className={cn(TONES[tone].box, className)} {...props}>
-      <span aria-hidden="true" className={cn("size-1.5 rounded-full", TONES[tone].dot)} />
+      <span aria-hidden="true" data-slot="status-dot" className={cn("size-1.5 rounded-full", TONES[tone].dot)} />
       {children}
     </Badge>
   );

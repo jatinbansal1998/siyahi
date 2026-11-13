@@ -88,12 +88,13 @@ mono face and the link colour, so the text can point to one.
   toggles, menus, bars and tracks (data bars, progress, a slider's track and
   thumb, a scrollbar's thumb), heatmap cells, treemap tiles and the colour
   chips of charts and legends alike (`--radius` is 0). Only what is round by
-  nature stays round: an avatar, a status dot, a line's end dot, a spinner,
-  and a signed calendar heatmap's loss day, whose shape carries its sign.
+  nature stays round: an avatar, a radio, a status dot, a line's end dot, a
+  spinner, and a signed calendar heatmap's loss day, whose shape carries its
+  sign. The theme squares every other rounding, on any component.
   Never add a `rounded-*` class to a box.
-- **Floating surfaces lie flat.** A menu, a select's list, a popover, a
-  dialog, a sheet and a chart's tooltip take no drop shadow and the card's
-  hairline for their edge, so they read as a sheet of the page.
+- **Floating surfaces lie flat.** Nothing casts a drop shadow: a menu, a
+  list, a popover, a dialog, a sheet, a hover card and a chart's tooltip take
+  the card's hairline for their edge, so they read as a sheet of the page.
 - **Joined toggles.** The items of a `ToggleGroup` sit flush and share their
   borders, one control; the pressed item fills with the foreground.
 - **A code block's copy button sits in a header row** (`CodeBlockHeader`),

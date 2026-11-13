@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -103,6 +103,24 @@ describe("siyahi lint rules", () => {
         `${IMPORT}export const A = () => <Card className="bg-card text-sm text-positive" style={{ color: "var(--chart-1)" }} />;`,
       ),
     ).toEqual([]);
+  });
+
+  it("accepts a stock shadow class, which the theme keeps as a size that draws nothing", () => {
+    // A project whose stylesheet imports the theme, as a consumer's does, so the rule reads Siyahi's tokens.
+    const dir = mkdtempSync(path.join(tools, ".lint-theme-"));
+    try {
+      writeFileSync(
+        path.join(dir, "index.css"),
+        `@import "tailwindcss";\n@import ${JSON.stringify(path.join(tools, "../ui/styles/siyahi.css"))};\n`,
+      );
+      writeFileSync(path.join(dir, "components.json"), JSON.stringify({ tailwind: { css: "index.css" } }));
+      const page = (/** @type {string} */ className) =>
+        `${IMPORT}export const A = () => <div className="${className}" />;`;
+      expect(lint(page("bg-madeup"), {}, recommended, [], dir)).toEqual(["no-raw-colors"]);
+      expect(lint(page("shadow-md"), {}, recommended, [], dir)).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("reports a component restyled with spacing, colour or shape, and lets layout through", () => {

@@ -48,6 +48,27 @@ async function edge(surface: Locator): Promise<{ layers: string[]; ring: string 
   return { layers, ring: layers.find((layer) => layer.endsWith("0px 0px 0px 1px")) };
 }
 
+/**
+ * Lays stock markup into the page, focuses its [data-focus] element if any, and reads [selector, CSS property,
+ * pseudo-element?] off it, then removes it.
+ */
+const probe = async (html: string, reads: [string, string, string?][]): Promise<string[]> => {
+  const preview = await open("inputs/dropdown-menu", "Dropdown menu");
+  return preview.evaluate(
+    (host, [markup, list]) => {
+      const box = host.appendChild(document.createElement("div"));
+      box.innerHTML = markup;
+      box.querySelector<HTMLElement>("[data-focus]")?.focus();
+      const values = list.map(([selector, property, pseudo]) =>
+        getComputedStyle(box.querySelector(selector)!, pseudo ?? null).getPropertyValue(property),
+      );
+      box.remove();
+      return values;
+    },
+    [html, reads] as const,
+  );
+};
+
 const LABEL = { mono: true, transform: "uppercase", size: "11px" };
 
 const labelType = async (label: Locator): Promise<typeof LABEL> => {
@@ -128,16 +149,94 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
     expect((await edge(tooltip)).layers).toEqual([]);
     expect(await style(tooltip, "border-top-color")).toEqual([border]);
     // Siyahi's cards write their own tooltip rows, so core's chip shows only in a page's stock ChartTooltipContent:
-    // lay one in, with core's classes, beside a round status dot that must stay round.
+    // lay one in, with core's classes, beside a StatusBadge's dot, round by nature, which must stay round.
     const [chip, dot] = await tooltip.evaluate((box) =>
-      ["h-2.5 w-2.5 shrink-0 rounded-[2px]", "size-1.5 rounded-full"].map((className) => {
+      [
+        { className: "h-2.5 w-2.5 shrink-0 rounded-[2px]", slot: "" },
+        { className: "size-1.5 rounded-full", slot: "status-dot" },
+      ].map(({ className, slot }) => {
         const el = box.appendChild(document.createElement("div"));
         el.className = className;
+        if (slot) el.dataset.slot = slot;
         return getComputedStyle(el).borderTopLeftRadius;
       }),
     );
     expect(chip).toBe("0px");
     expect(dot).not.toBe("0px");
+  });
+
+  it("gives a component Siyahi does not list the look: no shadow, the hairline edge, square corners", async () => {
+    const border = await themeColor(page, "--border");
+    const preview = await open("inputs/dropdown-menu", "Dropdown menu");
+    // A surface written with stock shadcn classes, as a component added later (a hover card, a menubar) is.
+    const box = await preview.evaluateHandle((host) => {
+      const el = host.appendChild(document.createElement("div"));
+      el.className = "size-8 rounded-full bg-popover shadow-md ring-1 ring-foreground/10";
+      return el;
+    });
+    const surface = preview.locator(":scope > div.ring-1").last();
+    const { layers, ring } = await edge(surface);
+    expect(layers).toEqual([ring]);
+    expect(ring).toContain(border);
+    expect(await style(surface, "border-top-left-radius")).toEqual(["0px"]);
+    await box.evaluate((el) => (el as Element).remove());
+  });
+
+  it("squares any rounding, behind a variant or on ::after too, but keeps a radio round", async () => {
+    const [pseudo, radio, choice] = await probe(
+      `<div id="pseudo" class="relative size-4 after:absolute after:inset-0 after:rounded-full"></div>
+       <div id="radio" role="radio" class="size-4 rounded-full"></div>
+       <div data-type="radio"><span id="choice" data-slot="questionnaire-choice-indicator" class="size-4 rounded-[4px]"></span></div>`,
+      [
+        ["#pseudo", "border-top-left-radius", "::after"],
+        ["#radio", "border-top-left-radius"],
+        ["#choice", "border-top-left-radius"],
+      ],
+    );
+    expect(pseudo).toBe("0px");
+    expect(radio).not.toBe("0px");
+    expect(choice).not.toBe("0px");
+  });
+
+  it("washes any invalid field, and a box that holds one, though neither is named", async () => {
+    const [plain, chips, inner] = await probe(
+      `<input id="plain" aria-invalid="true" />
+       <div id="chips" data-slot="combobox-chips"><input id="inner" aria-invalid="true" /></div>`,
+      [
+        ["#plain", "background-color"],
+        ["#chips", "background-color"],
+        ["#inner", "background-color"],
+      ],
+    );
+    expect(plain).not.toBe("rgba(0, 0, 0, 0)");
+    expect(chips).toBe(plain);
+    expect(inner).not.toBe(plain);
+  });
+
+  it("edges a box in red when the invalid field it holds has the focus", async () => {
+    const destructive = await themeColor(page, "--destructive");
+    const [boxEdge] = await probe(
+      `<div id="chips" data-slot="combobox-chips" class="border"><input aria-invalid="true" data-focus /></div>`,
+      [["#chips", "border-top-color"]],
+    );
+    expect(boxEdge).toBe(destructive);
+  });
+
+  it("sets a menubar's group label as a label, and faded muted text at the muted colour", async () => {
+    const [font = "", transform, faded, muted] = await probe(
+      `<div id="label" data-slot="menubar-label">Group</div>
+       <p id="faded" class="text-muted-foreground/70">Faded</p>
+       <p id="muted" class="text-muted-foreground">Muted</p>`,
+      [
+        ["#label", "font-family"],
+        ["#label", "text-transform"],
+        ["#faded", "color"],
+        ["#muted", "color"],
+      ],
+    );
+    expect(font.startsWith('"Geist Mono')).toBe(true);
+    expect(transform).toBe("uppercase");
+    expect(faded).toBe(muted);
   });
 
   it("fills a selected pill tab with no drop shadow under it", async () => {
