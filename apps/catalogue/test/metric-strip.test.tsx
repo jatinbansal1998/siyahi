@@ -119,4 +119,24 @@ describe("MetricStrip alignment", { timeout: 60_000 }, () => {
     const [fresh, stale] = await tops(strip);
     expect(stale).toEqual(fresh);
   });
+
+  it("shows a stale figure's whole label on a phone, its note under the value", async () => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    try {
+      await page.goto(page.url().replace(/#.*/, "#/data/stale-data"));
+      await page.getByRole("heading", { level: 1, name: "Stale data", exact: true }).waitFor();
+      const stale = page.locator('[data-slot="metric-strip-item"]', { hasText: "Gift cards" }).first();
+      const label = stale.locator('[data-slot="metric-strip-label"]');
+      // Two figures share a phone's row, so a note beside the label cut it to "GIF…".
+      expect(await label.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+      const [value, note] = await Promise.all(
+        ['[data-slot="metric-strip-value"]', '[data-slot="stale-note"]'].map((slot) =>
+          stale.locator(slot).evaluate((el) => el.getBoundingClientRect().top),
+        ),
+      );
+      expect(note).toBeGreaterThan(value ?? 0);
+    } finally {
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
+  });
 });

@@ -18,10 +18,10 @@
 // header action, so the header's own @max-sm overrides go.
 // Siyahi edit: no box, no rule. Figures sit on the page in a grid whose
 // columns follow the count, parted by space (24px across, 20px down), each
-// figure's text in line with the title above it. The sparkline always sits
-// under the figure at the figure's full width, on the foot of its row, so a
-// row of figures reads as aligned columns rather than charts beside some
-// figures, under others, and lower where a note took a second line.
+// figure's text in line with the title above it. Each figure is a subgrid of
+// four shared rows (label, value, change, sparkline), so a label or note that
+// wraps lowers its row for the whole row of figures: every value and
+// sparkline stays level, and a label wraps rather than being cut short.
 // Siyahi edit: the title is optional, for a strip of figures heading a page.
 // Siyahi edit: each figure's label is small monospaced capitals.
 // Siyahi edit: `tone` marks a figure as the exception: the theme washes it in
@@ -138,7 +138,12 @@ function MetricStrip({
                 data-tone={item.tone}
                 data-stale={item.stale ? "" : undefined}
                 data-picked={onSelect && item.label === selected ? "" : undefined}
-                className={cn("relative flex min-w-0 flex-col gap-1", onSelect && item.disabled && "opacity-60")}
+                // Each figure takes four rows of the strip's grid (label, value, change, sparkline) as a subgrid, so a label
+                // or note that wraps in one figure lowers that row for its neighbours too and every part stays level.
+                className={cn(
+                  "relative row-span-4 grid min-w-0 grid-rows-subgrid gap-y-1",
+                  onSelect && item.disabled && "opacity-60",
+                )}
               >
                 {/* The figure is a div, which a button cannot hold, so the button lies over it, out to the wash's edge. */}
                 {onSelect && (
@@ -151,30 +156,25 @@ function MetricStrip({
                     className="absolute -inset-2 z-10 outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                 )}
-                {/*
-                 * The stale note shares the label's line, a fixed 16px its boxed note centres on, so a stale figure's value
-                 * stays level with its neighbours'.
-                 */}
-                <div className="flex h-4 min-w-0 items-center gap-2">
-                  <div
-                    data-slot="metric-strip-label"
-                    className="truncate font-mono text-2xs tracking-wider text-muted-foreground uppercase"
-                  >
-                    {item.label}
-                  </div>
-                  {item.stale && <StaleNote since={item.stale} />}
+                <div
+                  data-slot="metric-strip-label"
+                  className="font-mono text-2xs tracking-wider break-words text-muted-foreground uppercase"
+                >
+                  {item.label}
                 </div>
                 <div data-slot="metric-strip-value" className="text-xl font-semibold tracking-tight tabular-nums">
                   {item.value}
                 </div>
-                {(item.change !== undefined || item.note) && (
-                  <div className="flex flex-wrap items-center gap-x-1.5 text-xs">
-                    {item.change !== undefined && <Delta value={item.change} format={item.changeFormat} />}
-                    {item.note && <span className="text-muted-foreground">{item.note}</span>}
-                  </div>
-                )}
-                {item.trend && item.trend.length > 1 && (
-                  <Sparkline data={item.trend} variant="line" color={trendColor(item.change)} className="mt-auto h-8 w-full" />
+                {/* The change's line, which may wrap, also holds the stale note, so the label is never cut short. */}
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 self-start text-xs">
+                  {item.change !== undefined && <Delta value={item.change} format={item.changeFormat} />}
+                  {item.note && <span className="text-muted-foreground">{item.note}</span>}
+                  {item.stale && <StaleNote since={item.stale} />}
+                </div>
+                {item.trend && item.trend.length > 1 ? (
+                  <Sparkline data={item.trend} variant="line" color={trendColor(item.change)} className="mt-1 h-8 w-full" />
+                ) : (
+                  <div />
                 )}
               </div>
             ))}

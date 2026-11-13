@@ -316,7 +316,7 @@ export const data: Page = {
       ],
       rules: [
         "The page decides what is stale, as it decides a tone; nothing is inferred from dates.",
-        "A stale block's colours turn grey, its chart or sparkline draws at about 65%, and a tile's figure turns muted: stale is meant to read faintly, so its marks are exempt from the 3:1 mark bar, while the note and figure keep their text contrast. Another kind of block can show StaleNote on its own.",
+        "A stale block's colours turn grey, its chart or sparkline draws at about 65%, and a MetricStrip figure turns muted: stale is meant to read faintly, so its marks are exempt from the 3:1 mark bar, while the note and figure keep their text contrast. Another kind of block can show StaleNote on its own.",
       ],
       examples: [
         {
