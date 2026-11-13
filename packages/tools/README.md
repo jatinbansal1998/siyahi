@@ -95,14 +95,12 @@ the house gutter (16px on a phone, 32px from 768px) that stacks the page's
 blocks 24px apart. The page sets no padding and renders no `<main>` of its
 own. Tailwind reads class names from the page's folder.
 
-A page reads only its own folder and the installed packages, so the folder is
-the whole of its source: a host that keeps the folder can rebuild the page
-from it. The build fails on a read anywhere else (an absolute path in a
-stylesheet, a `new URL()` or a plugin) and on a page that builds to more than
-one file, such as one with a Web Worker. It sees reads through Rolldown's
-module graph and Node's file functions; it does not see what Tailwind's
-native scanner reads for an absolute `@source`, or what a plugin reads from
-another thread, so a page uses neither.
+A page uses only its own folder and the installed packages, by relative
+paths, so the folder is the whole of its source: a host that keeps the folder
+can rebuild the page from it (dash builds each page from a copy of its stored
+folder, so a page that reaches outside it fails to publish). An absolute path
+is not checked here; a page never uses one. The build fails on a page that
+builds to more than one file, such as one with a Web Worker.
 
 Run it in a project that has `@siyahi/ui`, `react`, `react-dom`,
 `tailwindcss`, `@tailwindcss/vite` and `@vitejs/plugin-react` installed. The

@@ -7,9 +7,8 @@
   any static host can serve. The page may sit in a scratch folder; its
   packages resolve from the project the command runs in, and the page sits in
   the catalogue's frame (a centred `<main>`, 16px gutter, 32px from 768px).
-  `buildPage()` from `@siyahi/tools/page` does the same and returns the HTML. A page may read only its folder
-  and the installed packages; the build fails on any other read, and on a page
-  that builds to more than one file (a Web Worker). `siyahi-shots page.tsx` builds the page that way and
+  `buildPage()` from `@siyahi/tools/page` does the same and returns the HTML. The build fails on a page that
+  builds to more than one file (a Web Worker). `siyahi-shots page.tsx` builds the page that way and
   shoots the result.
 
 - The look reaches the last parts. A menu, a select's list, a popover, a
