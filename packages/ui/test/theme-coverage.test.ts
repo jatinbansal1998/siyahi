@@ -13,12 +13,13 @@ const shadowSizes = new Set([...theme.matchAll(/--shadow-([\w-]+): 0 0 #0000;/g)
 const edges = new Set([...theme.matchAll(/\[class\*="(ring-foreground\/\d+)"\]/g)].map(([, edge]) => edge));
 const fadedMuted = new Set([...theme.matchAll(/\[class~="(text-muted-foreground\/\d+)"\]/g)].map(([, cls]) => cls));
 
-/** The utility each class names, without its variants: `data-open:shadow-md` is `shadow-md`. */
-const utilities = (source: string) =>
-  [...source.matchAll(/[\w:[\]/.\-()&=*>]+/g)].map(([token]) => token.slice(token.lastIndexOf(":") + 1));
+/** The class names in a component's source, variants included (`data-open:shadow-md`). */
+const classes = (source: string) => [...source.matchAll(/[\w:[\]/.\-()&=*>#]+/g)].map(([token]) => token);
 
-/** Why the theme leaves this utility uncovered, or undefined when it covers it. */
-function uncovered(utility: string): string | undefined {
+/** Why the theme leaves this class uncovered, or undefined when it covers it. */
+function uncovered(token: string): string | undefined {
+  // The utility without its variants: `data-open:shadow-md` is `shadow-md`.
+  const utility = token.slice(token.lastIndexOf(":") + 1);
   if (/^(drop-shadow|inset-shadow|text-shadow)(-|$)/.test(utility)) return "a shadow kind the theme does not flatten";
   const arbitrary = /^shadow-\[(.+)\]$/.exec(utility)?.[1];
   // A 1px outline with no blur, as the sidebar draws, is an edge, not a shadow.
@@ -27,7 +28,8 @@ function uncovered(utility: string): string | undefined {
   if (size !== undefined && size !== "none" && !shadowSizes.has(size) && !size.startsWith("("))
     return "a shadow size the theme does not set";
   if (/^ring-foreground\/\d+$/.test(utility) && !edges.has(utility)) return "an edge the theme does not recolour";
-  if (/^text-muted-foreground\/\d+$/.test(utility) && !fadedMuted.has(utility))
+  // The theme restores the whole class name, so a faded class behind a variant (hover:) stays faded.
+  if (/^text-muted-foreground\/\d+$/.test(utility) && !(token === utility && fadedMuted.has(utility)))
     return "faded muted text the theme does not restore";
   return undefined;
 }
@@ -43,9 +45,9 @@ describe("the theme covers every shadcn component", () => {
     const gaps = readdirSync(ui)
       .filter((file) => file.endsWith(".tsx"))
       .flatMap((file) =>
-        utilities(readFileSync(path.join(ui, file), "utf8")).flatMap((utility) => {
-          const reason = uncovered(utility);
-          return reason ? [`${file}: ${utility} is ${reason}`] : [];
+        classes(readFileSync(path.join(ui, file), "utf8")).flatMap((token) => {
+          const reason = uncovered(token);
+          return reason ? [`${file}: ${token} is ${reason}`] : [];
         }),
       );
     expect(gaps).toEqual([]);
