@@ -98,9 +98,11 @@ own. Tailwind reads class names from the page's folder.
 A page uses only its own folder and the installed packages, by relative
 paths, so the folder is the whole of its source: a host that keeps the folder
 can rebuild the page from it (dash builds each page from a copy of its stored
-folder, so a page that reaches outside it fails to publish). An absolute path
-is not checked here; a page never uses one. The build fails on a page that
-builds to more than one file, such as one with a Web Worker.
+folder, so a page that reaches outside it fails to publish). The build fails
+on a reference it cannot find, such as a `new URL("../image.svg", …)` or a
+stylesheet `url()` whose file is not there, and on a page that builds to more
+than one file, such as one with a Web Worker. An absolute path is not checked;
+a page never uses one.
 
 Run it in a project that has `@siyahi/ui`, `react`, `react-dom`,
 `tailwindcss`, `@tailwindcss/vite` and `@vitejs/plugin-react` installed. The

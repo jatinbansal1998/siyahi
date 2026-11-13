@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { build } from "vite";
+import { build, createLogger } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
@@ -85,10 +85,23 @@ createRoot(document.getElementById("root")).render(
     );
 
     const pageDir = path.dirname(realpathSync(pagePath));
+    // A local reference Vite cannot resolve (a ../ image, a missing url()) would stay in the page as a dead path.
+    // Vite only warns about one, so the warning fails the build.
+    const logger = createLogger("warn");
+    /** @type {string[]} */
+    const unresolved = [];
+    for (const method of /** @type {const} */ (["warn", "warnOnce"])) {
+      const original = logger[method];
+      logger[method] = (message, options) => {
+        if (/(didn't resolve|doesn't exist) at build time/.test(message)) unresolved.push(message);
+        else original(message, options);
+      };
+    }
     const output = await build({
       configFile: false,
       root,
       logLevel: "warn",
+      customLogger: logger,
       plugins: [
         react(),
         tailwindcss(),
@@ -107,6 +120,10 @@ createRoot(document.getElementById("root")).render(
       ],
       build: { write: false, emptyOutDir: false },
     });
+    if (unresolved.length > 0)
+      throw new Error(
+        `The page refers to a file the build could not find; keep everything it uses in its folder:\n${unresolved.join("\n")}`,
+      );
     const outputs = Array.isArray(output) ? output : [output];
     const files = outputs.flatMap((result) => ("output" in result ? result.output : []));
     // The page is one file; anything else the build wrote (a Web Worker's script) would be missing where it is hosted.

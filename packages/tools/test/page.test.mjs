@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,6 +54,26 @@ export default function WorkerPage() { return <h1>{String(Boolean(work))}</h1>; 
 `,
       );
       await expect(buildPage({ page, title: "Worker", project })).rejects.toThrow(/more than one file/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  it("fails a page that refers to a file outside its folder by a relative path", async () => {
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), "siyahi-page-parent-")));
+    try {
+      writeFileSync(path.join(dir, "image.svg"), `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>`);
+      mkdirSync(path.join(dir, "page"));
+      const page = path.join(dir, "page", "parent.tsx");
+      // Built from a copy of the folder, as dash builds it, the image above it is not there.
+      rmSync(path.join(dir, "image.svg"));
+      writeFileSync(
+        page,
+        `const image = new URL("../image.svg", import.meta.url).href;
+export default function Parent() { return <img src={image} alt="" />; }
+`,
+      );
+      await expect(buildPage({ page, title: "Parent", project })).rejects.toThrow(/could not find/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
