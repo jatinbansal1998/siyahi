@@ -60,9 +60,11 @@ layouts and product-specific logic belong in the consuming app.
   before designing or changing UI: its rules on colour, emphasis, surfaces,
   shape, labels and words are binding. In short, colour carries meaning and emphasis
   tints the whole box (`StatusAlert`, `StatusBadge`, `Callout`, `Quote`), never
-  a stripe down one side. A page is ruled on white by default: set no surface
-  unless the page is a set of separate blocks (`surface="card"`), and add no
-  rounded corners, shadows or gaps of your own between data blocks.
+  a stripe down one side. A page is open by default, blocks on the page with
+  no box or rule: set no surface unless the page is a set of separate blocks
+  (`surface="card"`), and add no rounded corners, shadows, boxes or gaps of
+  your own between data blocks. Leave chart heights out so they follow the
+  chart's width.
 - The installed README owns surfaces, chart colours, locale and dark mode.
   Include `<meta name="color-scheme" content="light dark">` in app HTML.
   Follow the package's reduced-motion behaviour; JavaScript-started motion

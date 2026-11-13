@@ -51,12 +51,13 @@ a meaning:
 - Categories (a team, a region, a product line) stay neutral: outline badges,
   never a hue each. Ordered buckets (largest 5, next 5, rest) use steps of one
   colour, not separate hues.
-- **Colour marks exceptions.** The one stat tile or table row that needs a look
-  is marked by the page: `tone: "negative"` or `"warning"` on a `SectionCards`
-  or `MetricStrip` item, `data-tone="negative"` or `"warning"` on a `TableRow`,
+- **Colour marks exceptions.** The one figure or table row that needs a look
+  is marked by the page: `tone: "negative"` or `"warning"` on a `MetricStrip`
+  item, `data-tone="negative"` or `"warning"` on a `TableRow`,
   and `getRowTone` on a `DataTableBody`, returning the tone for the row. It
   takes a faint wash of the colour over the card (7% in light, 12% in dark),
-  and a tile or figure an outline of it. The page decides, never the sign: a falling cost is good news.
+  and a figure an outline of it, reaching 8px past the figure so its text
+  stays in line with its neighbours'. The page decides, never the sign: a falling cost is good news.
   Mark one or two; a page where every row is washed marks nothing.
 
 ## Surfaces
@@ -64,20 +65,37 @@ a meaning:
 `SiyahiProvider`'s `surface` sets how a data block sits on the page. The page
 and card colours are fixed: never tint the canvas.
 
-- **`ruled`** (the default, with or without a provider): ruled on white. The
-  blocks of a `PanelGrid`, the tiles of a `SectionCards` row and the figures
-  of a `MetricStrip` are filled with the card colour and parted by hairlines,
-  with a rule above and below the group and none on its left and right edges.
-  A card standing alone (a `MetricStrip`, a table's card) takes the same rules
-  above and below itself. A short last row ends in a blank cell, ruled off
-  like the rest. A stat tile keeps its footer's top rule and faint band. Set
-  nothing to get it.
+- **`open`** (the default, with or without a provider): no fill, no ring and
+  no padding, so a block's content sits level with the page's text. Space, not
+  a box or a rule, parts the blocks: 24px across and 16px down in a
+  `PanelGrid`, 24px between `MetricStrip` figures. A lighter box on the canvas
+  cuts off abruptly and spends room on its own padding, so data sits on the
+  page. Set nothing to get it.
 - **`card`**: tight square cards, for a page of separate blocks, such as an
   index of links. Each block is filled with the card colour inside a hairline
-  ring, with no shadow, 8px from the next in a `PanelGrid` or a row of
-  `SectionCards`. Ask for it with `surface="card"`.
-- **`open`**: no fill, no lines and no padding, so a block sits level with the
-  page's text, for pages read top to bottom.
+  ring, with no shadow, 8px from the next in a `PanelGrid`. Ask for it with
+  `surface="card"`.
+
+## Density
+
+A page is read on a phone, a laptop and a large monitor, and each gets more of
+the page, not bigger type.
+
+- **Lay out by the room, not the device.** `PanelGrid` and the tile rows step
+  their columns by their own width (container queries), so a block inside a
+  sidebar layout or a one-file page steps the same way. Below 42rem blocks
+  stack; from 42rem they sit two or three across.
+- **A large monitor shows more blocks, not wider ones.** From a 140rem grid a
+  `PanelGrid` of 2 takes a third block across, and from 180rem a grid of 2 or
+  3 a fourth, when it holds that many. Text stays at its size.
+- **A chart's height follows its width** unless the page fixes one: 45% of
+  its width, from 240px on a phone to 420px, so a chart on a wide screen
+  stays a chart and one on a phone keeps room for its marks. Fix a height
+  only where the block must line up with a neighbour.
+- **Gaps are set, not invented.** Stack a page's blocks 16px apart
+  (`gap-4`) and its `PageSection`s 24px apart (`gap-6`), the room each
+  section keeps under its rule; add no padding or gap of your own around a
+  block.
 
 Every `PanelGrid` numbers its blocks 01, 02 before their card title, in the
 mono face and the link colour, so the text can point to one.
@@ -192,8 +210,7 @@ from the catalogue.
 
 ## Labels and totals
 
-- **Labels are small monospaced capitals**: a stat tile's label and footer
-  lines, a `MetricStrip` label, a table's column heads, a sidebar group's
+- **Labels are small monospaced capitals**: a `MetricStrip` figure's label, a table's column heads, a sidebar group's
   label, a group's label in a menu, a select's list or the command palette,
   and a form field's label (muted, above the field). The components and
   the theme set them; never set a label in this style by hand elsewhere, and
@@ -235,9 +252,8 @@ from the catalogue.
   each end dot as its line finishes; bars fade in rather than grow. Reduced
   motion shows them at once.
 - **Stale data is marked by the page**: `stale` on a chart card or a
-  `SectionCards` tile, with since when ("3 Nov"). The block greys and its
-  chart or sparkline draws at about 65% strength, a tile's figure and badge
-  turn muted, and a small "Stale · 3 Nov" note says so. A stale block is meant
+  `MetricStrip` item, with since when ("3 Nov"). The block greys and its
+  chart or sparkline draws at about 65% strength, a figure turns muted, and a small "Stale · 3 Nov" note says so. A stale block is meant
   to be harder to read, so its marks are exempt from the 3:1 mark bar; the
   note and the figure keep their text contrast. Never infer it from dates.
 

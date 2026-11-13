@@ -214,7 +214,7 @@ describe("chart ink", { timeout: 60_000 }, () => {
     }
   });
 
-  it("lays a forecast's dashed lines and its labels on card-coloured halos over the hatching", async () => {
+  it("lays a forecast's dashed lines and its labels on page-coloured halos over the hatching", async () => {
     const chart = card(await open("data/forecast-and-today", "Forecast and today"), "Growth against plan");
     const halos = chart.locator('.recharts-line.chart-forecast .recharts-line-curve[stroke="var(--card)"]');
     await expect.poll(() => halos.count()).toBe(2);
@@ -227,27 +227,22 @@ describe("chart ink", { timeout: 60_000 }, () => {
     const labels = await chart
       .locator('[data-slot="time-marks"] text')
       .evaluateAll((texts) => texts.map((text) => [getComputedStyle(text).paintOrder, getComputedStyle(text).stroke]));
-    const cardColor = await chart.evaluate(() => {
-      const probe = document.body.appendChild(document.createElement("div"));
-      probe.style.color = "var(--card)";
-      const value = getComputedStyle(probe).color;
-      probe.remove();
-      return value;
-    });
+    // var(--card) inside an open card is the page colour: the halos match the canvas under them, not a grey.
+    const canvas = await themeColor(page, "--background");
     expect(labels).toEqual([
-      ["stroke", cardColor],
-      ["stroke", cardColor],
+      ["stroke", canvas],
+      ["stroke", canvas],
     ]);
   });
 
   it("greys a block the page marks stale and says since when", async () => {
     const stale = await open("data/stale-data", "Stale data");
-    const tile = stale.locator('[data-slot="section-card"] [data-slot="card"]', { hasText: "Gift cards" });
+    const tile = stale.locator('[data-slot="metric-strip-item"]', { hasText: "Gift cards" });
     expect(await tile.locator('[data-slot="stale-note"]').textContent()).toBe("Stale · 3 Nov");
-    expect(await tile.locator('[data-slot="card-title"]').evaluate((el) => getComputedStyle(el).color)).toBe(
+    expect(await tile.locator('[data-slot="metric-strip-value"]').evaluate((el) => getComputedStyle(el).color)).toBe(
       await themeColor(page, "--muted-foreground"),
     );
-    const fresh = stale.locator('[data-slot="section-card"] [data-slot="card"]', { hasText: "Revenue" });
+    const fresh = stale.locator('[data-slot="metric-strip-item"]', { hasText: "Revenue" });
     expect(await fresh.locator('[data-slot="stale-note"]').count()).toBe(0);
     const chart = card(stale, "Value by kind");
     expect(await chart.locator('[data-slot="stale-note"]').textContent()).toBe("Stale · 3 Nov");
@@ -258,13 +253,11 @@ describe("chart ink", { timeout: 60_000 }, () => {
         .evaluate((el) => [getComputedStyle(el).filter, getComputedStyle(el).opacity]),
     ).toEqual(["grayscale(1)", "0.65"]);
     expect(await tile.locator('[data-slot="sparkline"]').evaluate((el) => getComputedStyle(el).opacity)).toBe("0.65");
-    // The notes, the tile's figure and its badge keep their text contrast: drawn at full strength, nothing above
-    // them faded either.
+    // The notes and the figure keep their text contrast: drawn at full strength, nothing above them faded either.
     for (const text of [
       chart.locator('[data-slot="stale-note"]'),
       tile.locator('[data-slot="stale-note"]'),
-      tile.locator('[data-slot="card-title"]'),
-      tile.locator('[data-slot="badge"]'),
+      tile.locator('[data-slot="metric-strip-value"]'),
     ]) {
       expect(await text.evaluate(strength)).toBe(1);
     }

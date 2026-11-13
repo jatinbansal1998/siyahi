@@ -36,6 +36,8 @@ import {
 } from "@siyahi/ui/lib/scatter";
 import { fitsLog, ticksFor, type AxisScale } from "@siyahi/ui/lib/ticks";
 import { fontLoads, useRenderWhenFontsLoad } from "@siyahi/ui/lib/use-render-when-fonts-load";
+import { fittedChartHeight } from "@siyahi/ui/lib/chart-series";
+import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 
 export interface ScatterPoint {
   name: string;
@@ -64,8 +66,8 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
   action?: ReactNode;
   /** Most important first: earlier points take the labels. */
   points: T[];
-  /** Height of the plot, in pixels. */
-  height: number;
+  /** Height of the plot, in pixels. Left out, it follows the plot's width (fittedChartHeight). */
+  height?: number | undefined;
   /** What the x axis measures, under it, such as "Share of sales". */
   xLabel: string;
   /** What the y axis measures, beside it, such as "Growth on last year". */
@@ -123,7 +125,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
   description,
   action,
   points,
-  height,
+  height: fixedHeight,
   xLabel,
   yLabel,
   xScale = "linear",
@@ -142,7 +144,8 @@ export function ScatterChartCard<T extends ScatterPoint>({
   sizeFormatter,
 }: ScatterChartCardProps<T>) {
   const { numberLocale } = useLocale();
-  const plotRef = useRef<HTMLDivElement>(null);
+  const [plotRef, plotWidth] = useElementWidth<HTMLDivElement>();
+  const height = fixedHeight ?? fittedChartHeight(plotWidth);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   // The dot the keyboard is on. Recharts swaps the dots' elements when the chart re-renders, which drops focus, so
   // it goes back to this dot after each render until focus leaves the chart.

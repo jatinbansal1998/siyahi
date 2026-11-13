@@ -4,22 +4,21 @@ import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
 import type { Optional } from "@siyahi/ui/lib/optional";
 
 /**
- * How a data block sits on the page. "ruled", the default: blocks filled with the card colour and parted by hairlines,
- * with a rule above and below each group and none on its sides. "card": a filled square card in a hairline ring, 8px
- * from the next, for a page of separate blocks. "open": no fill and no lines, the block's content level with the
- * page's text.
+ * How a data block sits on the page. "open", the default: no fill, no lines and no padding, the block's content level
+ * with the page's text and parted from the next by space. "card": a filled square card in a hairline ring, 8px from
+ * the next, for a page of separate blocks.
  */
-export type Surface = "ruled" | "card" | "open";
+export type Surface = "open" | "card";
 
 const LocaleContext = createContext<SiyahiLocale>(defaultLocale);
-const SurfaceContext = createContext<Surface>("ruled");
+const SurfaceContext = createContext<Surface>("open");
 
 export interface SiyahiProviderProps {
   /** Any setting left out keeps its default: en-IN, INR, Asia/Kolkata. */
   locale?: Optional<SiyahiLocale> | undefined;
   /**
    * Set it on a nested provider for one part of a page. Left out, a provider keeps the surface around it, so a
-   * provider that only changes the locale changes nothing else; the outermost default is "ruled".
+   * provider that only changes the locale changes nothing else; the outermost default is "open".
    */
   surface?: Surface | undefined;
   children: ReactNode;

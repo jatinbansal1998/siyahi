@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 import { QuietLegend, axisValues, linearValueAxis, logValueAxis, seriesFill, seriesRow } from "../src/lib/chart-frame";
+import { fittedChartHeight } from "../src/lib/chart-series";
 
 const row = seriesRow<{ month: string; value: number | null }>(
   [{ key: "value", label: "Value", color: "var(--chart-1)" }],
@@ -106,5 +107,11 @@ describe("linearValueAxis", () => {
 describe("logValueAxis", () => {
   it("reaches a level past the data, and leaves out one at zero, which log cannot draw", () => {
     expect(logValueAxis([41, 46], [{ y: 10 }, { y: 60 }, { y: 0 }]).domain).toEqual([10, 100]);
+  });
+});
+
+describe("fittedChartHeight", () => {
+  it("is 45% of the width, from 240px on a phone to 420px on a wide screen", () => {
+    expect([0, 358, 700, 1500, 3000].map(fittedChartHeight)).toEqual([240, 240, 315, 420, 420]);
   });
 });

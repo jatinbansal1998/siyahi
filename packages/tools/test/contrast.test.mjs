@@ -68,6 +68,17 @@ describe("contrast check", () => {
     expect(named(broken)).toContain("light --chart-4 on --muted/40 over --card");
   });
 
+  it("checks a tint mixed into the canvas, as an open card with no fill paints it, not only into the card", () => {
+    // The hover band was checked on the card alone, where this slot passed; on the open page's canvas it does not.
+    const broken = setVar(themeCss, "light", "chart-4", "oklch(0.65 0.11 235)");
+    expect(named(broken)).toEqual(["light --chart-4 on --muted/40 over --background"]);
+    // A heat step's label is checked on the step mixed into each surface.
+    const heat = checkContrast(readTheme(themeCss)).filter(
+      (c) => c.bg.startsWith("--positive") && c.bg.includes(" in --"),
+    );
+    expect(new Set(heat.map((c) => c.bg.split(" in ")[1]))).toEqual(new Set(["--background", "--card"]));
+  });
+
   it("starts dark mode's heat at a quarter tint, so the first step does not read as the card", () => {
     // Moved from the treemap test when the shares became theme tokens.
     expect(readTheme(themeCss).dark["heat-1"]).toBe("25%");
@@ -186,7 +197,7 @@ describe("siyahi-contrast command", () => {
   it("exits 0 and reports the closest pair for the shipped theme", () => {
     const result = run(themeCss);
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/^contrast: 310\/310 pairs pass/);
+    expect(result.stdout).toMatch(/^contrast: 398\/398 pairs pass/);
   });
 
   it("exits 1 and names the failing pair for a broken theme", () => {

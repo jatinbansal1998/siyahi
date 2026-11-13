@@ -308,7 +308,7 @@ function Preview({ name }: { name: string }) {
           className="pointer-events-none absolute inset-4 flex flex-col justify-center-safe [&_[data-slot=card-header]]:hidden"
         >
           {/* The preview shows the example as its own page draws it, on the default surface, not the index's cards. */}
-          <SiyahiProvider surface="ruled">
+          <SiyahiProvider surface="open">
             <Suspense>
               <Component />
             </Suspense>
@@ -322,7 +322,7 @@ function Preview({ name }: { name: string }) {
 /** A category's families as cards to pick from, so the page is a map rather than every example at once. */
 export function FamilyIndex({ page }: { page: Page }) {
   return (
-    // A map of separate links, each its own box: the card surface, not the ruled default.
+    // A map of separate links, each its own box: the card surface, not the open default.
     <SiyahiProvider surface="card">
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {page.families.map((family) => {

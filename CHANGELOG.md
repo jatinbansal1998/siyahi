@@ -2,6 +2,23 @@
 
 ## 0.1.9
 
+- **Breaking:** the `ruled` surface is gone and `open` is the default: a
+  card has no fill, ring, padding or rule, and space parts the blocks (24px
+  across, 16px down in a `PanelGrid`). `surface` is `"open" | "card"`. Inside
+  an open card `--card` is the page colour, so chart halos, dot rings, bar
+  tints, washes and sticky table cells match the canvas; the contrast check
+  now mixes tints into the canvas too, and light `--chart-4` is a step darker
+  to keep 3:1 there.
+- **Breaking:** `SectionCards` is gone; `MetricStrip` is the one row of
+  figures. It has no box or rules, keeps each figure's text in line, draws
+  every sparkline under its figure on one baseline, and takes SectionCards'
+  picker (`selected`, `onSelect`, `disabled`) and `stale`. A tile's `badge`
+  becomes `change`, and `headline` and `detail` become `note`.
+- Density: a `PanelGrid` of 2 takes a third block across from a 140rem grid
+  and a grid of 2 or 3 a fourth from 180rem, when it holds that many. A chart
+  card's or scatter chart's `height` is optional: left out, it is 45% of the
+  chart's width, from 240px to 420px.
+
 - Every shadcn component, unedited: alert dialog, aspect ratio, button group,
   carousel, checkbox, combobox, direction, drawer, empty, hover card, input
   OTP, item, kbd, menubar, native select, navigation menu, pagination, radio

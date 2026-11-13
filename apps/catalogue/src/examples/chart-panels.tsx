@@ -56,7 +56,6 @@ export default function ChartPanelsExample() {
         today="Oct"
         forecastFrom="Oct"
         valueFormatter={pct}
-        height={256}
       />
       <AreaChartCard
         title="Value by kind"
@@ -66,7 +65,6 @@ export default function ChartPanelsExample() {
         series={kinds}
         valueFormatter={money}
         yTickFormatter={moneyCompact}
-        height={256}
       />
       <BarChartCard
         title="Money added by kind and quarter"
@@ -76,7 +74,6 @@ export default function ChartPanelsExample() {
         series={kinds}
         valueFormatter={money}
         yTickFormatter={moneyCompact}
-        height={256}
       />
       <BarChartCard
         title="Money added by kind and quarter"
@@ -87,7 +84,6 @@ export default function ChartPanelsExample() {
         stacked
         valueFormatter={money}
         yTickFormatter={moneyCompact}
-        height={256}
       />
     </PanelGrid>
   );

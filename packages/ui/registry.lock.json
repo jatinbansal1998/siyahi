@@ -26,14 +26,6 @@
       "sha256": "20c708ac3e313e275a84119970b6046142f24c869a9355caec5483aa4feb6ddd"
     },
     {
-      "file": "src/components/registry/dashboard-01/section-cards.tsx",
-      "registry": "@shadcn/dashboard-01",
-      "origin": "https://ui.shadcn.com/r/styles/base-vega/dashboard-01.json",
-      "licence": "MIT, Copyright (c) 2023 shadcn, https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
-      "copied": "2026-10-20",
-      "sha256": "541786ede835855602687f210c82f0ce13f9c486c3210f749f13671702ecb06c"
-    },
-    {
       "file": "src/components/registry/dashboardcn/bar-list.tsx",
       "registry": "@dashboardcn/bar-list",
       "origin": "https://dashboardcn.com/r/bar-list.json",

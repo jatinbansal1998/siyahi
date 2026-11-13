@@ -227,23 +227,20 @@ export const foundations: Page = {
       props: [
         {
           name: "surface",
-          type: '"ruled" | "card" | "open"',
-          default: '"ruled"',
+          type: '"open" | "card"',
+          default: '"open"',
           purpose: "Set on a nested provider for one part of a page; left out, a provider keeps the surface around it.",
         },
       ],
       rules: [
-        "ruled, the default with or without a provider, is ruled on white: the blocks of a PanelGrid, a row of SectionCards and a MetricStrip's figures are filled with the card colour and parted by hairlines, with a rule above and below the group and none on its left and right edges; a card standing alone takes the same rules. No boxes, no wasted gaps, and the data still stands off the page.",
+        "open, the default with or without a provider, drops every card's fill, ring and padding, so a block's content sits level with the page's text and space parts it from the next: 24px across and 16px down in a PanelGrid. No box cuts off against the page and no rule parts the blocks.",
         "card is tight square cards, for a page of separate blocks such as an index of links: each block filled with the card colour inside a hairline, 8px from the next, with no shadow.",
-        "open drops the fill and the lines, and the card's padding, so a block's content sits level with the page's text, for pages read top to bottom.",
         "Every PanelGrid numbers its blocks' titles 01, 02 in the mono face and the link colour, on every surface.",
-        "A picked SectionCards tile keeps its ring on every surface.",
       ],
       examples: [
         {
           name: "surfaces",
-          caption:
-            "A toggle switching one set of figures, a chart and a table between ruled (the default), card and open.",
+          caption: "A toggle switching one set of figures, a chart and a table between open (the default) and card.",
         },
       ],
     },

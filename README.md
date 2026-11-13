@@ -100,24 +100,22 @@ and support one keyboard entry with arrow navigation. `WeekdayHeatmap` accepts
 
 `SiyahiProvider` sets how data blocks sit on the page:
 
-- `surface="ruled"` (default, even outside a provider): ruled on white.
-  `PanelGrid`, `SectionCards` and `MetricStrip` fill their blocks with the card
-  colour and part them with hairlines, with a rule above and below each group
-  and none on the sides; a card standing alone takes the rules above and below
-  itself.
+- `surface="open"` (default, even outside a provider): no fill, box or rule,
+  and no card padding, so a block's content sits level with the page's text.
+  Space parts the blocks: 24px across and 16px down in a `PanelGrid`.
 - `surface="card"`: tight square cards, each filled inside a hairline, 8px
   apart, no shadow, for a page of separate blocks.
-- `surface="open"`: no fill, boxes or rules; card padding is removed.
 
 `DESIGN.md` has the rest of the look: square corners, mono capital labels,
 ledger totals, the masthead and exception tones.
 
 Nest a provider to change one section. A dialog, sheet or popover renders
-outside the page's provider element: `PanelGrid` and `SectionCards` carry
-their surface into it, but a lone `Card` there is ruled unless the popup's
+outside the page's provider element: `PanelGrid` carries
+their surface into it, but a lone `Card` there is open unless the popup's
 content sits in its own provider with an explicit surface, such as
 `<SiyahiProvider surface="card">`; a provider without one draws no element. Stack `PageSection` blocks with
-`flex flex-col gap-6`; use `PanelGrid` for blocks side by side. Categories use
+`flex flex-col gap-6` and the blocks inside one with `gap-4`; use `PanelGrid`
+for blocks side by side. Categories use
 neutral outline badges, leaving colour for meaning and chart series.
 
 ## Dark mode

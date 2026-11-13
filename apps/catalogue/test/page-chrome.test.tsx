@@ -8,7 +8,7 @@ let catalogue: Catalogue;
 let page: Page;
 
 beforeAll(async () => {
-  catalogue = await openCatalogue("blocks/section-cards", { viewport: { width: 390, height: 844 }, hasTouch: true });
+  catalogue = await openCatalogue("blocks/metric-strip", { viewport: { width: 390, height: 844 }, hasTouch: true });
   page = catalogue.page;
 }, 60_000);
 
@@ -23,13 +23,17 @@ const open = async (route: string, title: string): Promise<void> => {
 };
 
 describe("page chrome", { timeout: 60_000 }, () => {
-  it("keeps a picker tile's button under the sticky header, so a tap on the header is the header's", async () => {
-    await open("blocks/section-cards", "SectionCards");
-    const picker = page.locator('[data-slot="example-preview"] [data-slot="card"] > button[aria-pressed]').first();
+  it("keeps a picker figure's button under the sticky header, so a tap on the header is the header's", async () => {
+    await open("blocks/metric-strip", "MetricStrip");
+    const picker = page
+      .locator('[data-slot="example-preview"] [data-slot="metric-strip-item"] > button[aria-pressed]')
+      .first();
     await picker.waitFor();
     const header = page.locator("header").first();
     const bar = await header.boundingBox();
-    // Scroll until the tile's button runs under the middle of the header.
+    // The picker is the page's last example, too near its foot on a phone to scroll under the header; give it room.
+    await page.evaluate(() => (document.body.style.paddingBottom = "100vh"));
+    // Scroll until the figure's button runs under the middle of the header.
     await picker.evaluate(
       (el, middle) => {
         scrollTo({ top: scrollY + el.getBoundingClientRect().top + 8 - middle, behavior: "instant" });
@@ -40,6 +44,7 @@ describe("page chrome", { timeout: 60_000 }, () => {
     const point = { x: (box?.x ?? 0) + (box?.width ?? 0) / 2, y: (bar?.y ?? 0) + (bar?.height ?? 0) / 2 };
     expect(box && box.y < point.y && box.y + box.height > point.y).toBe(true);
     expect(await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest("header"), point)).toBe(true);
+    await page.evaluate(() => (document.body.style.paddingBottom = ""));
   });
 
   it("keeps an avatar's badge over the next avatar in its group", async () => {
@@ -60,7 +65,8 @@ describe("page chrome", { timeout: 60_000 }, () => {
   // context of its component's own root, never against the page's header or section strip. The nearest isolated
   // ancestor must be that root: an example's card isolates too, and would otherwise hide a root that does not.
   it.each([
-    ["blocks/section-cards", "SectionCards", "card"],
+    // A strip's picker buttons rank in its card; its period toggle's pressed item in the toggle group.
+    ["blocks/metric-strip", "MetricStrip", "card toggle-group"],
     ["data/data-table", "Data table", "table-container"],
     ["components/avatar", "Avatar", "avatar-group"],
     ["inputs/calendar", "Calendar", "calendar"],
@@ -86,7 +92,7 @@ describe("page chrome", { timeout: 60_000 }, () => {
       return {
         lifted: raised.length,
         loose: raised
-          .filter((el) => isolatedBy(el) !== rootSlot)
+          .filter((el) => !rootSlot.split(" ").includes(isolatedBy(el)))
           .map(
             (el) => `${el.tagName.toLowerCase()}[${el.getAttribute("data-slot") ?? el.className}] in ${isolatedBy(el)}`,
           ),

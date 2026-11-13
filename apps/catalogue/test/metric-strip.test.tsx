@@ -16,9 +16,12 @@ afterAll(async () => {
   await catalogue?.close();
 });
 
-/** The MetricStrip tile with this label. */
+/** The first example, six figures for October: the page's other examples reuse some of its labels. */
+const october = (): Locator => page.locator('[data-slot="example-preview"]').first();
+
+/** The figure in the October strip with this label. */
 const tile = (label: string): Locator =>
-  page.locator('[data-slot="metric-strip-item"]', { has: page.getByText(label, { exact: true }) });
+  october().locator('[data-slot="metric-strip-item"]', { has: page.getByText(label, { exact: true }) });
 
 /** The colour of a tile's sparkline's last step, the part that carries its sign. */
 const stroke = (label: string): Promise<string | null> =>
@@ -48,19 +51,20 @@ describe("MetricStrip sparklines", { timeout: 60_000 }, () => {
 });
 
 describe("MetricStrip tones", { timeout: 60_000 }, () => {
-  it("washes only the figure the page marks, as a SectionCards tile, and outlines it on the hairlines around it", async () => {
-    const fills = await page
-      .locator('[data-slot="metric-strip-item"]')
-      .evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor));
-    const tileWash = await page.evaluate(() => {
-      const probe = document.body.appendChild(document.createElement("div"));
-      probe.style.backgroundColor = "color-mix(in oklab, var(--negative) var(--wash), var(--card))";
+  it("washes only the figure the page marks, in the page's colour, and outlines it 8px out so its text stays in line", async () => {
+    const figures = october().locator('[data-slot="metric-strip-item"]');
+    const fills = await figures.evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor));
+    // The wash as the theme mixes it, probed inside the strip's own card: an open card has no fill, so the tone mixes
+    // into the page colour there, not into a grey no box shows.
+    const wash = await tile("Cash flow").evaluate((el) => {
+      const probe = (el.parentElement as Element).appendChild(document.createElement("div"));
+      probe.style.backgroundColor = "color-mix(in oklab, var(--negative) var(--wash), var(--background))";
       const value = getComputedStyle(probe).backgroundColor;
       probe.remove();
       return value;
     });
-    // Cash flow, the fourth figure, is marked negative; the others show the card through.
-    expect(fills.map((fill) => (fill === "rgba(0, 0, 0, 0)" ? "clear" : fill === tileWash ? "wash" : fill))).toEqual([
+    // Cash flow, the fourth figure, is marked negative; the others show the page through.
+    expect(fills.map((fill) => (fill === "rgba(0, 0, 0, 0)" ? "clear" : fill === wash ? "wash" : fill))).toEqual([
       "clear",
       "clear",
       "clear",
@@ -68,25 +72,51 @@ describe("MetricStrip tones", { timeout: 60_000 }, () => {
       "clear",
       "clear",
     ]);
-    const outline = await tile("Cash flow").evaluate((el) => {
-      const box = el.getBoundingClientRect();
-      const ring = getComputedStyle(el, "::after");
+    const marked = await tile("Cash flow").evaluate((el) => {
+      const style = getComputedStyle(el);
+      const label = el.querySelector('[data-slot="metric-strip-label"]') as Element;
+      const neighbour = el.nextElementSibling?.querySelector('[data-slot="metric-strip-label"]') as Element;
       return {
-        // Its start and top, and how much wider and taller than the figure's box it is.
-        box: [
-          Number.parseFloat(ring.left),
-          Number.parseFloat(ring.top),
-          Number.parseFloat(ring.width) - box.width,
-          Number.parseFloat(ring.height) - box.height,
-        ],
-        border: ring.borderTopWidth,
-        colour: ring.borderTopColor,
+        outline: [style.outlineWidth, style.outlineOffset],
+        shadow: style.boxShadow.endsWith("0px 0px 0px 8px"),
+        // The label's top against its neighbour's: the wash reaches out, the text does not move in.
+        offset: label.getBoundingClientRect().top - neighbour.getBoundingClientRect().top,
       };
     });
-    // It starts on the rule before the figure and the one above it, and ends on the figure's own end and bottom rules.
-    // Chromium writes a computed width to three decimals, so the box is compared to a hundredth of a pixel.
-    expect(outline.box.map((edge) => Math.round(edge * 100) / 100)).toEqual([-1, -1, 1, 1]);
-    expect(outline.border).toBe("1px");
-    expect(outline.colour).not.toBe("rgba(0, 0, 0, 0)");
+    expect(marked).toEqual({ outline: ["1px", "8px"], shadow: true, offset: 0 });
+  });
+});
+
+/** Each figure's row top, value top and sparkline top, in page pixels. */
+const tops = (strip: Locator) =>
+  strip.locator('[data-slot="metric-strip-item"]').evaluateAll((els) =>
+    els.map((el) => ({
+      row: Math.round(el.getBoundingClientRect().top),
+      value: Math.round((el.querySelector('[data-slot="metric-strip-value"]') as Element).getBoundingClientRect().top),
+      trend: Math.round((el.querySelector('[data-slot="sparkline"]') as Element).getBoundingClientRect().top),
+    })),
+  );
+
+describe("MetricStrip alignment", { timeout: 60_000 }, () => {
+  it("keeps a row's values and sparklines level when one figure's note wraps", async () => {
+    // Revenue's note, made long enough to wrap onto lines of its own at any width the strip takes.
+    await tile("Revenue")
+      .locator('[data-slot="delta"] + span')
+      .evaluate((note) => (note.textContent = "against September, the best month of the year by far so far"));
+    const rows = Map.groupBy(await tops(october()), (figure) => figure.row);
+    for (const row of rows.values()) {
+      expect(new Set(row.map((figure) => figure.value)).size).toBe(1);
+      expect(new Set(row.map((figure) => figure.trend)).size).toBe(1);
+    }
+  });
+
+  it("keeps a stale figure's value and sparkline level with a fresh neighbour's", async () => {
+    await page.goto(page.url().replace(/#.*/, "#/data/stale-data"));
+    // The old page stays up until the new one's examples load, so wait for the new page's heading.
+    await page.getByRole("heading", { level: 1, name: "Stale data", exact: true }).waitFor();
+    const strip = page.locator('[data-slot="metric-strip"]').first();
+    await strip.waitFor();
+    const [fresh, stale] = await tops(strip);
+    expect(stale).toEqual(fresh);
   });
 });
