@@ -5,11 +5,11 @@ import PageHeaderExample from "../examples/page-header";
 import type { Page } from "../page";
 
 const RULES = [
-  "A panel holds data, prose sits on the page. By default a page is open: data blocks sit on the page with no box, no fill and no rule, parted by space; a page of separate blocks asks for square cards, 8px apart, by setting surface to card. Every corner is square. One level of panel.",
+  "A panel holds data, prose sits on the page. Data blocks sit open on the page, with no box, no fill and no rule, parted by space. Corners are square (--radius is 0); the rest of each component is stock shadcn. One level of panel.",
   "A page opens on its masthead, PageHeader: eyebrow, title, one muted line, actions at the right, a hairline under it.",
   "Figures are a MetricStrip: label in small mono capitals, value, change and note, a sparkline under each, no box. Three headline figures or eight small ones, it is the same component. The page marks the figure or table row that needs a look with a tone; colour marks exceptions only.",
   "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws a solid hairline grid and the tooltip, names lines at their ends (a legend below on a phone or for bars), draws bars as tints inside full-colour edges; a range or mode toggle goes top right as its action. Height follows the width unless the page fixes it. Ranked categories are BarList.",
-  "Tables are the registry data table, inside a Card. Column heads are small mono capitals; a total row sits between a rule and a double rule.",
+  "Tables are the registry data table, inside a Card: compact rows, number columns right-aligned, a total row in the footer.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
   "Ink indigo is placed, not spread: links, the selected sidebar item and the first chart series. Three meaning colours, positive, negative and warning, carry gains, losses and caution. Buttons, badges and toggles stay black and white.",
   "Notices are StatusAlert in a tone: information, a warning, an error or a success, the whole card washed in its colour; states are StatusBadge. Never a single coloured edge on any box.",
@@ -20,7 +20,7 @@ const RULES = [
 ];
 
 const START: [href: string, title: string, use: string][] = [
-  ["#/foundations", "Foundations", "Colours, type, spacing and surfaces: the tokens every page names."],
+  ["#/foundations", "Foundations", "Colours, type, spacing and how blocks sit: the tokens every page names."],
   ["#/components", "Components", "Buttons, badges, cards, tabs and the other shadcn parts, as shipped."],
   ["#/inputs", "Inputs and overlays", "Forms, menus, dialogs and sheets."],
   ["#/layout", "Page layout", "Sections, headings, facts and code in a long page."],

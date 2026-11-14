@@ -2,8 +2,9 @@
 // @ts-check
 // Fails when a theme colour is too faint where Siyahi's components paint it:
 // 4.5:1 for text, 3:1 for a mark a reader needs (a control's edge, a focus
-// ring, a selected tab, a chart mark). Each pair is checked on both surfaces a
-// block can sit on, the canvas and the card, with translucent fills blended
+// ring, a selected tab, a chart mark). Each pair is checked on both surfaces
+// anything sits on, the page and a popover (a menu, a dialog, a tooltip), whose
+// fill sits a step off the page; a card has none. Translucent fills are blended
 // over that surface as the browser paints them. Chart slots two apart share a
 // lightness and are told apart by hue, so they are not compared. Every colour
 // must also sit inside sRGB, so the browser paints what was scored.
@@ -40,7 +41,7 @@ const MARK = 3;
 // one, and a pale slot's lone bar at 1.3:1 against the card. 1.5:1 is a guard against sliding back there, not a
 // published threshold.
 const FILL = 1.5;
-const SURFACES = ["background", "card"];
+const SURFACES = ["background", "popover"];
 const CHARTS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
 
 /**

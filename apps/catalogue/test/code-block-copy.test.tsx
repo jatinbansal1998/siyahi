@@ -17,8 +17,6 @@ afterAll(async () => {
   await catalogue?.close();
 });
 
-const shadow = (button: Locator): Promise<string> => button.evaluate((el) => getComputedStyle(el).boxShadow);
-
 /** Whether the copy button's box clears the code's: it sits wholly above the first line, not over it. */
 const clearsCode = (block: Locator): Promise<boolean> =>
   block.evaluate((el) => {
@@ -41,7 +39,7 @@ it("puts every snippet's copy button in a header row above the code", async () =
   }
 });
 
-it("gives a copy button written straight in the block a row of its own, under the sticky section strip", async () => {
+it("keeps a copy button written straight in the block under the sticky section strip", async () => {
   // Core's markup allows CodeBlockActions straight in the block, which core floats over the code; a page may write it.
   const block = page.locator('main [data-slot="code-block"]').first();
   await block.evaluate((el) => {
@@ -51,25 +49,6 @@ it("gives a copy button written straight in the block a row of its own, under th
     header?.remove();
   });
   const actions = block.locator('> [data-slot="code-block-actions"]');
-  expect(await actions.evaluate((el) => [getComputedStyle(el).position, getComputedStyle(el).opacity])).toEqual([
-    "static",
-    "1",
-  ]);
-  expect(await clearsCode(block)).toBe(true);
-  // It keeps the button's own focus ring: only core's floating fill and resting ring go.
-  const moved = actions.locator("button");
-  const header = page.locator('main [data-slot="code-block-header"] [data-slot="code-block-copy-button"]').first();
-  // The ring eases in; this reads where it settles, not the animation.
-  const still = await page.addStyleTag({ content: "* { transition: none !important; }" });
-  // A key press first, so focus() shows as keyboard focus (:focus-visible), as a Tab would.
-  await page.keyboard.press("Shift");
-  await header.focus();
-  const ring = await shadow(header);
-  await moved.focus();
-  expect(await moved.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
-  // The same ring as a header's button, not core's faint floating one.
-  expect(await shadow(moved)).toBe(ring);
-  await still.evaluate((tag) => (tag as Element).remove());
   // Scrolled under the stuck strip, whatever paints at the button's middle belongs to the strip.
   await actions.evaluate((el) => {
     const toc = document.querySelector('[data-slot="page-toc"]') as Element;

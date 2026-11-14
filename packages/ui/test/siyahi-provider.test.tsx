@@ -1,6 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
-import { PanelGrid } from "../src/components/siyahi/panel-grid";
 import { SiyahiProvider, useLocale } from "../src/components/siyahi/siyahi-provider";
 
 /** The locale a provider hands down, as text. */
@@ -10,7 +9,7 @@ function Shown() {
 }
 
 describe("SiyahiProvider", () => {
-  it("draws no element of its own when it sets no surface, so it can sit inside a table body", () => {
+  it("draws no element of its own, so it can sit inside a table body", () => {
     const html = renderToStaticMarkup(
       <table>
         <tbody>
@@ -32,32 +31,5 @@ describe("SiyahiProvider", () => {
       </SiyahiProvider>,
     );
     expect(html).toBe("en-US INR Asia/Kolkata");
-  });
-
-  it("keeps the surface around it when it only changes the locale", () => {
-    const html = renderToStaticMarkup(
-      <SiyahiProvider surface="card">
-        <SiyahiProvider locale={{ numberLocale: "en-US" }}>
-          <PanelGrid>
-            <p>Block</p>
-          </PanelGrid>
-        </SiyahiProvider>
-      </SiyahiProvider>,
-    );
-    // Card sets its boxes 8px apart; the open default would part them with wider space.
-    expect(html).toContain('data-surface="card"');
-    expect(html).toContain("gap-2");
-  });
-
-  it("lays a page that sets no surface out open, with or without a provider", () => {
-    const grid = (
-      <PanelGrid>
-        <p>Block</p>
-      </PanelGrid>
-    );
-    for (const html of [renderToStaticMarkup(grid), renderToStaticMarkup(<SiyahiProvider>{grid}</SiyahiProvider>)]) {
-      expect(html).toContain('data-surface="open"');
-      expect(html).toContain("gap-x-6 gap-y-4");
-    }
   });
 });

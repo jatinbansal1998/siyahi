@@ -29,29 +29,14 @@ const open = async (route: string, title: string): Promise<Locator> => {
 };
 
 describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
-  it("draws a table dense: compact rows, a text-colour rule under the heads, a medium first column, mono figures", async () => {
+  it("draws a table dense: compact heads and rows", async () => {
     const table = await open("components/table", "Table");
     expect(await style(table.locator('[data-slot="table-head"]').first(), "height")).toEqual(["28px"]);
     expect(await style(table.locator('[data-slot="table-cell"]').first(), "padding-top")).toEqual(["3.2px"]);
-    expect(
-      await style(table.locator('[data-slot="table-header"] [data-slot="table-row"]'), "border-bottom-color"),
-    ).toEqual([await themeColor(page, "--foreground")]);
-    const firstRow = table.locator('[data-slot="table-body"] [data-slot="table-row"]').first();
-    expect(await style(firstRow.locator('[data-slot="table-cell"]').first(), "font-weight")).toEqual(["500"]);
-    const [font, size] = await style(firstRow.locator('[data-slot="table-cell"]').nth(1), "font-family", "font-size");
-    expect([font?.startsWith('"Geist Mono'), size]).toEqual([true, "13px"]);
   });
 
-  it("sets a field's label above it in small muted mono capitals, and washes an invalid field red", async () => {
+  it("washes an invalid field red", async () => {
     const form = await open("inputs/field", "Field");
-    const label = form.locator('[data-slot="field-label"]', { hasText: "Name" });
-    const [font, transform, size, color] = await style(label, "font-family", "text-transform", "font-size", "color");
-    expect([font?.startsWith('"Geist Mono'), transform, size, color]).toEqual([
-      true,
-      "uppercase",
-      "11px",
-      await themeColor(page, "--muted-foreground"),
-    ]);
     const card = await themeColor(page, "--card");
     const [plain] = await style(form.getByLabel("Name"), "background-color");
     const [invalid, edge] = await style(form.getByLabel("Folio number"), "background-color", "border-top-color");
@@ -71,7 +56,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
     expect(await style(name, "outline-style")).toEqual(["none"]);
   });
 
-  it("focuses a pressed toggle with a text-colour ring and a page-colour ring inside its black fill", async () => {
+  it("focuses a pressed toggle with a text-colour ring and a page-colour ring inside it", async () => {
     const form = await open("inputs/field", "Field");
     // Keyboard focus, so :focus-visible applies: Tab from the field before the group, then arrow to the pressed item.
     await form.getByLabel("Folio number").focus();
@@ -136,53 +121,7 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
     expect(await style(rect, "stroke")).toEqual([await themeColor(page, "--ring")]);
   });
 
-  it("sets a label in a FieldContent in mono capitals, and a right-aligned word in the sans", async () => {
-    const form = await open("inputs/field", "Field");
-    const label = await form.locator('[data-slot="field-label"]', { hasText: "Name" }).evaluate((el) => {
-      const content = document.createElement("div");
-      content.dataset.slot = "field-content";
-      el.before(content);
-      content.append(el);
-      return [getComputedStyle(el).fontFamily.startsWith('"Geist Mono'), getComputedStyle(el).textTransform];
-    });
-    expect(label).toEqual([true, "uppercase"]);
-    const table = await open("components/table", "Table");
-    const word = await table
-      .locator('[data-slot="table-body"] [data-slot="table-cell"]')
-      .first()
-      .evaluate((el) => {
-        const cell = el.cloneNode() as HTMLElement;
-        cell.className = "text-right";
-        cell.textContent = "On track";
-        el.after(cell);
-        const family = getComputedStyle(cell).fontFamily;
-        cell.remove();
-        return family;
-      });
-    expect(word.startsWith('"Geist Mono')).toBe(false);
-  });
-
-  it("keeps the text-colour rule under a data table's sticky header", async () => {
-    const data = await open("data/data-table", "Data table");
-    const rule = await data
-      .locator('[data-slot="table-header"]')
-      .first()
-      .evaluate((el) => {
-        // The sticky header draws its rule as an ::after line, which stays when the rows scroll under it.
-        el.classList.add(
-          "after:absolute",
-          "after:bottom-0",
-          "after:left-0",
-          "after:right-0",
-          "after:h-px",
-          "after:bg-border",
-        );
-        return getComputedStyle(el, "::after").backgroundColor;
-      });
-    expect(rule).toBe(await themeColor(page, "--foreground"));
-  });
-
-  it("parts a non-collapsible sidebar from the page with a hairline, its group label in mono capitals and its rows compact", async () => {
+  it("parts a non-collapsible sidebar from the page with a hairline, and keeps its rows compact", async () => {
     await open("components/table", "Table");
     // A collapsible sidebar is edged by shadcn; a non-collapsible one, in the page's flow, by the theme.
     const edge = await page.evaluate(() => {
@@ -193,12 +132,6 @@ describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
       return width;
     });
     expect(edge).toBe("1px");
-    const [font, transform] = await style(
-      page.locator('[data-slot="sidebar-group-label"]').first(),
-      "font-family",
-      "text-transform",
-    );
-    expect([font?.startsWith('"Geist Mono'), transform]).toEqual([true, "uppercase"]);
     // A row that opens a group: it renders as the group's collapsible trigger.
     const row = page.locator('[data-sidebar="menu-button"]:not([data-size="lg"])', { hasText: "Foundations" });
     expect(await style(row, "height")).toEqual(["28px"]);

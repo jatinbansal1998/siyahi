@@ -7,7 +7,6 @@ import type { Page } from "../page";
 const SURFACES = [
   { name: "background", swatch: "bg-background" },
   { name: "foreground", swatch: "bg-foreground" },
-  { name: "card", swatch: "bg-card" },
   { name: "muted", swatch: "bg-muted" },
   { name: "muted-foreground", swatch: "bg-muted-foreground" },
   { name: "primary", swatch: "bg-primary" },
@@ -203,8 +202,8 @@ export const foundations: Page = {
       title: "Spacing and corners",
       lead: "Tailwind's 4px scale, and square corners: --radius is 0.",
       rules: [
-        'Cards pad 16px (12px for size="sm"); page gutters are 16px on a phone.',
-        "Every corner is square: panels, cards, buttons, fields, badges, toggles, menus, data bars and progress. Only a dot, an avatar, a slider, a spinner or a scrollbar is round.",
+        "Page gutters are 16px on a phone; a card has no padding of its own.",
+        "--radius is 0, so every corner a component takes from the theme is square: cards, buttons, fields, menus. A part shadcn rounds fully, a dot, a pill or a switch, stays round.",
       ],
       body: (
         <div className="flex flex-col gap-2">
@@ -222,25 +221,17 @@ export const foundations: Page = {
     {
       id: "surfaces",
       title: "Surfaces",
-      lead: "How a data block sits on the page, set by SiyahiProvider's surface.",
-      imports: ["SiyahiProvider", "PanelGrid", "type Surface"],
-      props: [
-        {
-          name: "surface",
-          type: '"open" | "card"',
-          default: '"open"',
-          purpose: "Set on a nested provider for one part of a page; left out, a provider keeps the surface around it.",
-        },
-      ],
+      lead: "How a data block sits on the page: open, with no box.",
+      imports: ["PanelGrid"],
       rules: [
-        "open, the default with or without a provider, drops every card's fill, ring and padding, so a block's content sits level with the page's text and space parts it from the next: 24px across and 16px down in a PanelGrid. No box cuts off against the page and no rule parts the blocks.",
-        "card is tight square cards, for a page of separate blocks such as an index of links: each block filled with the card colour inside a hairline, 8px from the next, with no shadow.",
-        "Every PanelGrid numbers its blocks' titles 01, 02 in the mono face and the link colour, on every surface.",
+        "A card drops its fill, ring and padding, so a block's content sits level with the page's text and space parts it from the next: 24px across and 16px down in a PanelGrid. No box cuts off against the page and no rule parts the blocks.",
+        "What a block's marks mix into, a forecast's halo, a bar's tint or an exception's wash, is the page colour: --card is set to it.",
+        "Every PanelGrid numbers its blocks' titles 01, 02 in the mono face and the link colour.",
       ],
       examples: [
         {
           name: "surfaces",
-          caption: "A toggle switching one set of figures, a chart and a table between open (the default) and card.",
+          caption: "Figures, a chart and a table in a PanelGrid, open on the page.",
         },
       ],
     },

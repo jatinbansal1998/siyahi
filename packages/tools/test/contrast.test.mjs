@@ -41,42 +41,42 @@ describe("contrast check", () => {
     expect(failures(themeCss)).toEqual([]);
   });
 
-  it("fails text between 3:1 and 4.5:1 on the canvas and the card", () => {
+  it("fails text between 3:1 and 4.5:1 on the page and a popover", () => {
     // About 3.7:1 on white: enough for a chart mark, not for text.
     const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.62 0 0)");
     expect(named(broken)).toEqual(
-      expect.arrayContaining(["light --muted-foreground on --background", "light --muted-foreground on --card"]),
+      expect.arrayContaining(["light --muted-foreground on --background", "light --muted-foreground on --popover"]),
     );
   });
 
   it("blends a translucent tint over the surface under it", () => {
-    // shadcn's red passes on the plain card (4.8:1) but not on its own 20% hover tint over it (3.3:1).
+    // shadcn's red passes on a plain popover (4.8:1) but not on its own 20% hover tint over it (3.3:1).
     const broken = setVar(themeCss, "light", "destructive", "oklch(0.577 0.235 27.325)");
-    expect(named(broken)).toContain("light --destructive on --destructive/20 over --card");
-    expect(named(broken)).not.toContain("light --destructive on --card");
+    expect(named(broken)).toContain("light --destructive on --destructive/20 over --popover");
+    expect(named(broken)).not.toContain("light --destructive on --popover");
   });
 
   it("fails muted text on a Callout's tint", () => {
-    // shadcn's muted grey: 4.7:1 on the card, 4.1:1 on the accent Callout's indigo wash over it.
+    // shadcn's muted grey: 4.7:1 on a popover, 4.1:1 on the accent Callout's indigo wash over it.
     const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.556 0 0)");
-    expect(named(broken)).toContain("light --muted-foreground on --chart-1/8 over --card");
-    expect(named(broken)).not.toContain("light --muted-foreground on --card");
+    expect(named(broken)).toContain("light --muted-foreground on --chart-1/8 over --popover");
+    expect(named(broken)).not.toContain("light --muted-foreground on --popover");
   });
 
   it("fails a pale chart slot against the band behind a hovered category", () => {
     const broken = setVar(themeCss, "light", "chart-4", "oklch(0.66 0.11 235)");
-    expect(named(broken)).toContain("light --chart-4 on --muted/40 over --card");
+    expect(named(broken)).toContain("light --chart-4 on --muted/40 over --popover");
   });
 
-  it("checks a tint mixed into the canvas, as an open card with no fill paints it, not only into the card", () => {
-    // The hover band was checked on the card alone, where this slot passed; on the open page's canvas it does not.
+  it("checks a tint mixed into the page, not only into a popover", () => {
+    // The hover band was checked on the card alone, where this slot passed; on the page it does not.
     const broken = setVar(themeCss, "light", "chart-4", "oklch(0.65 0.11 235)");
     expect(named(broken)).toEqual(["light --chart-4 on --muted/40 over --background"]);
     // A heat step's label is checked on the step mixed into each surface.
     const heat = checkContrast(readTheme(themeCss)).filter(
       (c) => c.bg.startsWith("--positive") && c.bg.includes(" in --"),
     );
-    expect(new Set(heat.map((c) => c.bg.split(" in ")[1]))).toEqual(new Set(["--background", "--card"]));
+    expect(new Set(heat.map((c) => c.bg.split(" in ")[1]))).toEqual(new Set(["--background", "--popover"]));
   });
 
   it("starts dark mode's heat at a quarter tint, so the first step does not read as the card", () => {
@@ -87,7 +87,7 @@ describe("contrast check", () => {
 
   it("reads each heat step's share from the theme, so a deeper dark step fails its label", () => {
     const broken = setVar(themeCss, "dark", "heat-5", "75%");
-    expect(named(broken)).toContain("dark --foreground on --positive 75% in --card");
+    expect(named(broken)).toContain("dark --foreground on --positive 75% in --popover");
   });
 
   it("reads an exception's wash from the theme, and lays a StatusBadge's tint over it", () => {
@@ -95,8 +95,8 @@ describe("contrast check", () => {
     const broken = setVar(themeCss, "light", "wash", "20%");
     expect(named(broken)).toEqual(
       expect.arrayContaining([
-        "light --muted-foreground on --negative 20% in --card",
-        "light --muted-foreground on --negative/wash over --card",
+        "light --muted-foreground on --negative 20% in --popover",
+        "light --muted-foreground on --negative/wash over --popover",
         "light --negative on --negative/8 over --negative/wash over --background",
       ]),
     );
@@ -106,8 +106,8 @@ describe("contrast check", () => {
     const broken = setVar(themeCss, "dark", "wash", "15%");
     expect(named(broken)).toEqual(
       expect.arrayContaining([
-        "dark --chart-1 on --warning 15% in --card",
-        "dark --chart-1 on --warning/wash over --card",
+        "dark --chart-1 on --warning 15% in --popover",
+        "dark --chart-1 on --warning/wash over --popover",
       ]),
     );
   });
@@ -120,18 +120,18 @@ describe("contrast check", () => {
   it("fails a degraded day that a healthy day's grey swallows", () => {
     // A darker muted grey still reads as text, but its 30% healthy fill comes too close to the amber.
     const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.3 0 0)");
-    expect(named(broken)).toContain("light --warning on --muted-foreground/30 over --card");
+    expect(named(broken)).toContain("light --warning on --muted-foreground/30 over --popover");
   });
 
   it("fails a treemap label on its deepest heat step", () => {
     const broken = setVar(themeCss, "dark", "positive", "oklch(0.74 0.16 151.711)");
-    expect(named(broken)).toEqual(["dark --foreground on --positive 60% in --card"]);
+    expect(named(broken)).toEqual(["dark --foreground on --positive 60% in --popover"]);
   });
 
   it("fails a field edge under 3:1, translucent or not", () => {
-    expect(named(setVar(themeCss, "light", "input", "oklch(0.922 0 0)"))).toContain("light --input on --card");
+    expect(named(setVar(themeCss, "light", "input", "oklch(0.922 0 0)"))).toContain("light --input on --popover");
     expect(named(setVar(themeCss, "dark", "input", "oklch(1 0 0 / 15%)"))).toContain(
-      "dark --input over --card on --card",
+      "dark --input over --popover on --popover",
     );
   });
 
@@ -140,21 +140,24 @@ describe("contrast check", () => {
     expect(named(broken)).toEqual(["dark --chart-1 on --chart-2", "dark --chart-2 on --chart-3"]);
   });
 
-  it("fails a chart colour too faint against the card", () => {
+  it("fails a chart colour too faint against a popover", () => {
     const broken = setVar(themeCss, "light", "chart-3", "oklch(0.85 0.1 60)");
-    expect(named(broken)).toContain("light --chart-3 on --card");
+    expect(named(broken)).toContain("light --chart-3 on --popover");
   });
 
-  it("fails bars at the old 25% tint: pale neighbours in light, dim ones on the dark card", () => {
+  it("fails bars at the old 25% tint: pale neighbours in light, dim ones on a dark popover", () => {
     // Issue #94: at 25% a thin --chart-4 segment read as one with --chart-5 beside it, and dark bars read as the card.
     expect(named(setVar(themeCss, "light", "bar-tint", "25%"))).toEqual(
       expect.arrayContaining([
-        "light --chart-4 25% in --card on --chart-5 25% in --card",
-        "light --chart-4 25% in --card on --card",
+        "light --chart-4 25% in --popover on --chart-5 25% in --popover",
+        "light --chart-4 25% in --popover on --popover",
       ]),
     );
     expect(named(setVar(themeCss, "dark", "bar-tint", "25%"))).toEqual(
-      expect.arrayContaining(["dark --chart-1 25% in --card on --card", "dark --chart-5 25% in --card on --card"]),
+      expect.arrayContaining([
+        "dark --chart-1 25% in --popover on --popover",
+        "dark --chart-5 25% in --popover on --popover",
+      ]),
     );
   });
 

@@ -16,17 +16,16 @@ For any UI need, take the first of these that works:
 
 ## The look is global
 
-A component added from shadcn needs no styling of its own. The theme sets the
-look for every component at once: `--radius` is 0; every shadow size is
-transparent, so `shadow-md` draws nothing; stock shadcn's faint edge
-(`ring-foreground/10`, behind any variant) takes the card's hairline; every
-element and its `::before` and `::after` are square unless round by nature
-(an avatar, `role="radio"` and a radio's dot, a status dot, a spinner); a
-faded muted text class reads at the muted colour; and a field is what HTML
+A component added from shadcn needs no styling of its own. The theme sets
+tokens, and components keep the look shadcn gives them: `--radius` is 0;
+every shadow size is transparent, so `shadow-md` draws nothing; a faded muted
+text class reads at the muted colour; and a field is what HTML
 makes one (`input`, `textarea`, `select`, plus Base UI's select trigger), so a
 new field takes the focus edge and invalid wash, shown on the box when it
-sits in an input group or a combobox's chips. Write a new rule by meaning or
-family, not for one component, so the next one is covered too. Parts raised
+sits in an input group or a combobox's chips. Restyle a stock component only to fix a
+measured problem (contrast, clipping, touch targets, density), never for
+taste, and write the rule by meaning or family, not for one component, so the
+next one is covered too. Parts raised
 with a z-index still name their component (Stacking, below), and a menu's
 group label is listed by slot name.
 

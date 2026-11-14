@@ -98,22 +98,13 @@ and support one keyboard entry with arrow navigation. `WeekdayHeatmap` accepts
 
 ## Surfaces
 
-`SiyahiProvider` sets how data blocks sit on the page:
+Data blocks sit open on the page: a `Card` has no fill, box or rule, and no
+padding, so a block's content sits level with the page's text. Space parts
+the blocks: 24px across and 16px down in a `PanelGrid`. The rest of the look
+is stock shadcn, set by the theme's tokens; `DESIGN.md` has the masthead and
+exception tones.
 
-- `surface="open"` (default, even outside a provider): no fill, box or rule,
-  and no card padding, so a block's content sits level with the page's text.
-  Space parts the blocks: 24px across and 16px down in a `PanelGrid`.
-- `surface="card"`: tight square cards, each filled inside a hairline, 8px
-  apart, no shadow, for a page of separate blocks.
-
-`DESIGN.md` has the rest of the look: square corners, mono capital labels,
-ledger totals, the masthead and exception tones.
-
-Nest a provider to change one section. A dialog, sheet or popover renders
-outside the page's provider element: `PanelGrid` carries
-their surface into it, but a lone `Card` there is open unless the popup's
-content sits in its own provider with an explicit surface, such as
-`<SiyahiProvider surface="card">`; a provider without one draws no element. Stack `PageSection` blocks with
+Stack `PageSection` blocks with
 `flex flex-col gap-6` and the blocks inside one with `gap-4`; use `PanelGrid`
 for blocks side by side. Categories use
 neutral outline badges, leaving colour for meaning and chart series.
