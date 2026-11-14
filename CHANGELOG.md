@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- `MetricStrip` takes `variant="blocks"`: a page's headline of two to four
+  figures, each on a solid block (a new `--headline` orange, the text colour,
+  a `--headline-muted` grey), touching, with a large value in the block's
+  ink, no sparkline and no tone. The contrast check scores both blocks' ink.
 - **Breaking (look):** Siyahi reads as a terminal. The page is set in Geist
   Mono, with Geist for sentences (paragraphs, quotes, descriptions); labels over data (table heads, sidebar group labels, menu
   group labels) are small muted capitals. The accent is terminal amber

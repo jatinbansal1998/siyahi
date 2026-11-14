@@ -2,7 +2,7 @@
 // comes from Recharts' layout, which happy-dom does not compute.
 import type { Locator, Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
-import { openCatalogue, type Catalogue } from "./catalogue";
+import { openCatalogue, themeColor, type Catalogue } from "./catalogue";
 
 let catalogue: Catalogue;
 let page: Page;
@@ -138,5 +138,34 @@ describe("MetricStrip alignment", { timeout: 60_000 }, () => {
     } finally {
       await page.setViewportSize({ width: 1280, height: 900 });
     }
+  });
+});
+
+describe("a headline MetricStrip", { timeout: 60_000 }, () => {
+  it("sets each figure on a solid block, orange, the text colour, then grey, its words in the block's ink", async () => {
+    // An earlier test leaves the page on another route.
+    await page.goto(page.url().replace(/#.*/, "#/blocks/metric-strip"));
+    await page.getByRole("heading", { level: 1, name: "MetricStrip", exact: true }).waitFor();
+    // Examples render as they near the viewport: scroll to this one's caption first.
+    await page.getByText("Three headline figures on solid blocks", { exact: false }).scrollIntoViewIfNeeded();
+    const headline = page.locator('[data-slot="metric-strip"][data-variant="blocks"]');
+    await headline.waitFor();
+    const drawn = await headline.locator('[data-slot="metric-strip-item"]').evaluateAll((els) =>
+      els.map((el) => {
+        const label = el.querySelector('[data-slot="metric-strip-label"]') as Element;
+        return [getComputedStyle(el).backgroundColor, getComputedStyle(label).color];
+      }),
+    );
+    const token = (name: string) => themeColor(page, name);
+    expect(drawn).toEqual([
+      [await token("--headline"), await token("--headline-foreground")],
+      [await token("--foreground"), await token("--background")],
+      [await token("--headline-muted"), await token("--headline-muted-foreground")],
+    ]);
+    // The blocks touch: no gap parts them.
+    const boxes = await headline
+      .locator('[data-slot="metric-strip-item"]')
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+    expect(Math.round((boxes[1]?.left ?? 0) - (boxes[0]?.right ?? 0))).toBe(0);
   });
 });

@@ -52,6 +52,10 @@
     "guidance": "`MetricStrip`"
   },
   {
+    "need": "The two to four figures a page leads with, set large at its top",
+    "guidance": "`MetricStrip` with `variant=\"blocks\"`, once per page, under the `PageHeader`"
+  },
+  {
     "need": "A run of values beside a figure, in a tile, a strip or a table cell",
     "guidance": "`Sparkline`; in a strip, `MetricStrip`'s `trend`"
   },

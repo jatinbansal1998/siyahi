@@ -167,6 +167,14 @@
   /* Terminal amber, deepened to burnt orange so it reads as text on the light page. */
   --link: oklch(0.55 0.13 58);
   /*
+   * A headline MetricStrip's blocks (variant "blocks"): the orange, then the text colour, then a grey, each with the
+   * ink its figures take on it.
+   */
+  --headline: oklch(0.68 0.19 40);
+  --headline-foreground: oklch(0.145 0 0);
+  --headline-muted: oklch(0.88 0 0);
+  --headline-muted-foreground: oklch(0.145 0 0);
+  /*
    * Indigo, amber, plum, sky, teal: no green or red, so no series reads as a
    * gain or a loss. Each slot reaches 3:1 against the canvas, the card and the
    * slots next to it, which only lightness can give, so indigo, plum and teal
@@ -247,6 +255,10 @@
     --field-wash: 12%;
     --bar-tint: 50%;
     --link: oklch(0.8 0.13 65);
+    --headline: oklch(0.7 0.19 40);
+    --headline-foreground: oklch(0.145 0 0);
+    --headline-muted: oklch(0.27 0 0);
+    --headline-muted-foreground: oklch(0.922 0 0);
     --chart-1: oklch(0.58 0.2 275);
     --chart-2: oklch(0.88 0.08 75);
     --chart-3: oklch(0.58 0.16 335);
@@ -641,6 +653,33 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
   &[data-picked] {
     outline: 2px solid var(--primary);
     outline-offset: var(--figure-reach);
+  }
+}
+/*
+ * A headline MetricStrip sets each figure on a solid block, in turn the headline orange, the text colour and a grey,
+ * touching. Everything in a block takes the block's ink: its label, note and a change's trend icon would not read on
+ * the fill in their own colours, and the sign still says gain or loss. A picked block's outline sits inside it.
+ */
+[data-slot="metric-strip"][data-variant="blocks"] [data-slot="metric-strip-item"] {
+  background-color: var(--headline);
+  color: var(--headline-foreground);
+  &:nth-child(3n + 2) {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
+  &:nth-child(3n) {
+    background-color: var(--headline-muted);
+    color: var(--headline-muted-foreground);
+  }
+  & > * {
+    --foreground: currentColor;
+    --muted-foreground: currentColor;
+    --positive: currentColor;
+    --negative: currentColor;
+  }
+  &[data-picked] {
+    outline-offset: -4px;
+    outline-color: currentColor;
   }
 }
 /* A pinned cell paints the card under itself (niko-table's lib/styles), so it lays the row's wash over that. */

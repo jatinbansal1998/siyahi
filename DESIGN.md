@@ -126,6 +126,12 @@ An app page opens on its masthead, `PageHeader`: a small mark and eyebrow in the
 mono face and link colour, the title, one muted line saying what the page is,
 the actions at the right, and a hairline under it. One per page; no hero card.
 
+A page may lead with its two to four main figures as a headline, under the
+masthead: `MetricStrip` with `variant="blocks"`, each figure on a solid block
+(the headline orange, then the text colour, then a grey), touching, its value
+large and every word in the block's own ink. One per page. It draws no
+sparkline and no tone, so an exception goes in a strip below it.
+
 ## Words
 
 A page is read by someone who acts on its figures. Its words are plain English,

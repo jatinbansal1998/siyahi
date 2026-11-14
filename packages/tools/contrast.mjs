@@ -69,6 +69,8 @@ const PAIRS = [
     ["positive-foreground", "positive"],
     ["negative-foreground", "negative"],
     ["warning-foreground", "warning"],
+    ["headline-foreground", "headline"],
+    ["headline-muted-foreground", "headline-muted"],
     ["sidebar-foreground", "sidebar"],
     ["sidebar-primary-foreground", "sidebar-primary"],
     ["sidebar-accent-foreground", "sidebar-accent"],

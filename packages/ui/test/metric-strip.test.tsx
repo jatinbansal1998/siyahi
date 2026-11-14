@@ -99,4 +99,19 @@ describe("MetricStrip as a picker", () => {
     const faded = figures().filter((figure) => figure.classList.contains("opacity-60"));
     expect(faded.map((figure) => figure.querySelector("button")?.getAttribute("aria-label"))).toEqual(["Gold bonds"]);
   });
+
+  it("sets a headline's figures on blocks with no sparkline and no tone", async () => {
+    await render(
+      <MetricStrip
+        variant="blocks"
+        items={[
+          { label: "Net worth", value: "₹41.9L", trend: [1, 2, 3] },
+          { label: "Cash flow", value: "−₹61k", tone: "negative" },
+        ]}
+      />,
+    );
+    expect(document.querySelector('[data-slot="metric-strip"]')?.getAttribute("data-variant")).toBe("blocks");
+    expect(document.querySelectorAll('[data-slot="sparkline"]')).toHaveLength(0);
+    expect(figures().map((figure) => figure.getAttribute("data-tone"))).toEqual([null, null]);
+  });
 });

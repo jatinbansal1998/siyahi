@@ -35,6 +35,13 @@ export const blocks: Page = {
           purpose: "A period toggle, top right, as on the chart cards.",
         },
         {
+          name: "variant",
+          type: '"strip" | "blocks"',
+          default: '"strip"',
+          purpose:
+            "blocks sets two to four figures as the page's headline, each on a solid block; no sparkline, no tone.",
+        },
+        {
           name: "footer",
           type: "ReactNode",
           default: "—",
@@ -77,6 +84,7 @@ export const blocks: Page = {
         "The columns follow the count, so no figure sits alone under a full row, up to eight of them: five run 3 + 2, seven 4 + 3, and eight fit one row on a wide strip.",
         "A sparkline sits under its figure at the figure's width; a run of gains or losses takes var(--positive) or var(--negative) from the change's sign.",
         "Set tone on the one or two figures that need a look. The page decides: a falling figure is not an exception when it is a cost.",
+        "variant=\"blocks\" is the page's headline, one per page, at its top: the figures sit on solid blocks, orange, then the text colour, then a grey, touching, each value large and in the block's own ink. It draws no sparkline and no tone; mark an exception in a strip below it.",
       ],
       examples: [
         {
@@ -87,6 +95,10 @@ export const blocks: Page = {
         {
           name: "metric-strip-trend",
           caption: "Three headline figures with the run behind each; the cash flow is marked negative.",
+        },
+        {
+          name: "metric-strip-headline",
+          caption: "Three headline figures on solid blocks, for the top of a page.",
         },
         {
           name: "metric-strip-select",

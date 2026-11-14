@@ -32,6 +32,9 @@
 // one per sales channel that scopes the page: a button laid over each figure
 // carries aria-pressed, the picked one takes an outline, and a disabled one
 // fades and cannot be picked.
+// Siyahi edit: `variant="blocks"` sets the figures as a page's headline: each on
+// a solid block (the headline orange, the text colour, a grey, in turn), the
+// blocks touching, the value large, no sparkline and no tone wash.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
@@ -83,6 +86,12 @@ export interface MetricStripProps extends Omit<React.ComponentProps<typeof Card>
   selected?: string | undefined
   /** Makes each figure one button, so keep figure content non-interactive; gets the label of the figure picked. */
   onSelect?: ((label: string) => void) | undefined
+  /**
+   * "strip", the default: figures on the page with their sparklines. "blocks": the page's headline, two to four
+   * figures each on a solid block with a large value; it draws no sparkline and no tone, so mark an exception in a
+   * strip below it. One per page.
+   */
+  variant?: "strip" | "blocks" | undefined
 }
 
 // Tailwind finds classes by scanning source, so each step is written out whole. A figure stays at least about 150px
@@ -115,10 +124,12 @@ function MetricStrip({
   footer,
   selected,
   onSelect,
+  variant = "strip",
   className,
   ...props
 }: MetricStripProps) {
   const columns = COLUMNS[Math.min(items.length, 8)] ?? COLUMNS[8]
+  const blocks = variant === "blocks"
   return (
     <Card className={cn("gap-4", className)} {...props}>
       {(title || description || action) && (
@@ -129,19 +140,21 @@ function MetricStrip({
         </CardHeader>
       )}
       <CardContent>
-        <div data-slot="metric-strip" className="@container/strip">
-          <div className={cn("grid grid-cols-1 gap-x-6 gap-y-5", columns)}>
+        <div data-slot="metric-strip" data-variant={variant} className="@container/strip">
+          <div className={cn("grid grid-cols-1", blocks ? "gap-0" : "gap-x-6 gap-y-5", columns)}>
             {items.map((item) => (
               <div
                 key={item.label}
                 data-slot="metric-strip-item"
-                data-tone={item.tone}
+                data-tone={blocks ? undefined : item.tone}
                 data-stale={item.stale ? "" : undefined}
                 data-picked={onSelect && item.label === selected ? "" : undefined}
                 // Each figure takes four rows of the strip's grid (label, value, change, sparkline) as a subgrid, so a label
-                // or note that wraps in one figure lowers that row for its neighbours too and every part stays level.
+                // or note that wraps in one figure lowers that row for its neighbours too and every part stays level. A
+                // block has no sparkline, so three.
                 className={cn(
-                  "relative row-span-4 grid min-w-0 grid-rows-subgrid gap-y-1",
+                  "relative grid min-w-0 grid-rows-subgrid gap-y-1",
+                  blocks ? "row-span-3 p-4" : "row-span-4",
                   onSelect && item.disabled && "opacity-60",
                 )}
               >
@@ -162,7 +175,13 @@ function MetricStrip({
                 >
                   {item.label}
                 </div>
-                <div data-slot="metric-strip-value" className="text-xl font-semibold tracking-tight tabular-nums">
+                <div
+                  data-slot="metric-strip-value"
+                  className={cn(
+                    "font-semibold tabular-nums",
+                    blocks ? "mt-2 text-4xl leading-none tracking-tighter" : "text-xl tracking-tight",
+                  )}
+                >
                   {item.value}
                 </div>
                 {/* The change's line, which may wrap, also holds the stale note, so the label is never cut short. */}
@@ -171,7 +190,7 @@ function MetricStrip({
                   {item.note && <span className="text-muted-foreground">{item.note}</span>}
                   {item.stale && <StaleNote since={item.stale} />}
                 </div>
-                {item.trend && item.trend.length > 1 ? (
+                {blocks ? null : item.trend && item.trend.length > 1 ? (
                   <Sparkline data={item.trend} variant="line" color={trendColor(item.change)} className="mt-1 h-8 w-full" />
                 ) : (
                   <div />
