@@ -60,10 +60,10 @@ Siyahi runs it on its own package.
 ## Font preload
 
 A Vite plugin that adds `<link rel="preload" as="font">` tags to the built
-`index.html` for the Latin files of Geist and Geist Mono, and Geist's
-Latin Extended file, which holds ₹. Without them the browser asks for a font
+`index.html` for the Latin and Latin Extended files of Geist and M PLUS 1
+Code; Latin Extended holds ₹. Without them the browser asks for a font
 only once text in it has rendered, so on a slow network the fallback paints
-first and Geist swaps in seconds later.
+first and the font swaps in seconds later.
 
 ```ts
 // vite.config.ts
@@ -74,11 +74,12 @@ export default defineConfig({ plugins: [react(), tailwindcss(), preloadFonts()] 
 It runs in `vite build` only. The fonts stay self-hosted: the tags point at
 the files Vite emitted from `@siyahi/ui`'s fontsource imports.
 
-The theme's fallback fonts match Geist's metrics until it loads: Arial or its
+The theme's fallback fonts match each font's metrics until it loads: Arial or its
 Linux equivalents for body text, Courier New for mono. If an app renders its
 own HTML, add preload tags for the build's hashed URLs of
-`geist-latin-wght-normal.woff2`, `geist-latin-ext-wght-normal.woff2` and
-`geist-mono-latin-wght-normal.woff2`.
+`geist-latin-wght-normal.woff2`, `geist-latin-ext-wght-normal.woff2`,
+`m-plus-1-code-latin-wght-normal.woff2` and
+`m-plus-1-code-latin-ext-wght-normal.woff2`.
 
 ## siyahi-page
 
@@ -120,7 +121,7 @@ const html = await buildPage({ page, title: "Gold flows", project: process.cwd()
 ## siyahi-cls
 
 ```sh
-npx siyahi-cls http://localhost:4173/ [more URLs] [--out cls] [--font "Geist Variable"] [--wait-for h1] [--network slow-3g|none] [--hold-fonts] [--max-cls 0.01]
+npx siyahi-cls http://localhost:4173/ [more URLs] [--out cls] [--font "M PLUS 1 Code Variable"] [--wait-for h1] [--network slow-3g|none] [--hold-fonts] [--max-cls 0.01]
 ```
 
 Loads each URL in Chromium with a cold cache over Chrome DevTools' Slow 3G
@@ -142,7 +143,7 @@ counted (`moved=` against `in-view=`) and listed, but do not fail it. Run `npx p
 ## siyahi-shots
 
 ```sh
-npx siyahi-shots http://localhost:5173/#/page [more URLs or page.tsx files] [--out shots] [--gutter 16] [--font Geist] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--widths 1920,390] [--script probe.mjs]
+npx siyahi-shots http://localhost:5173/#/page [more URLs or page.tsx files] [--out shots] [--gutter 16] [--font "M PLUS 1 Code"] [--chrome '[data-slot="sidebar"]'] [--wait-for h1] [--widths 1920,390] [--script probe.mjs]
 ```
 
 A `.tsx` or `.jsx` argument is a page file: it is built with `siyahi-page`
@@ -166,10 +167,10 @@ field) is cut off at the side by a box that hides its overflow, such as a card,
 or when the body font is not a loaded `--font` family. The cut-off check names
 each element and the pixels it loses, `button "Monthly return" by 56px`; the
 page never scrolls sideways in that case, so the scroll check cannot see it. A
-page that names Geist and loads no font fails. Content that
+page that names its font and loads none fails. Content that
 scrolls sideways inside its own box is exempt from the gutter, and so is
 anything inside `--chrome` (by default the shadcn sidebar, which sits flush to
-the edge by design). The font default, Geist, is Siyahi's; pass another family
+the edge by design). The font default, M PLUS 1 Code, is Siyahi's page face; pass another family
 for other pages. Run `npx playwright install chromium` once.
 
 Pass `--widths 320,390,768,1366,1920` to include small phones, tablets and laptops;

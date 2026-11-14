@@ -127,6 +127,9 @@ importers:
       '@fontsource-variable/geist':
         specifier: ^5.3.0
         version: 5.3.0
+      '@fontsource-variable/m-plus-1-code':
+        specifier: ^5.3.1
+        version: 5.3.1
       '@siyahi/ui':
         specifier: workspace:*
         version: link:../ui
@@ -167,9 +170,6 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fontsource-variable/geist':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource-variable/geist-mono':
         specifier: ^5.3.0
         version: 5.3.0
       '@shadcn/react':
@@ -218,6 +218,9 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
     devDependencies:
+      '@fontsource-variable/m-plus-1-code':
+        specifier: ^5.3.1
+        version: 5.3.1
       '@tailwindcss/node':
         specifier: 'catalog:'
         version: 4.3.3
@@ -664,11 +667,11 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
-  '@fontsource-variable/geist-mono@5.3.0':
-    resolution: {integrity: sha512-vBbuwDEo9AkrqADMXOrlAR3DFcJi4/JxeuU43FoiQERnNwsfXNnvxvReZG02cQKmyk4DZkZdBZX3oTDvy2zBAw==}
-
   '@fontsource-variable/geist@5.3.0':
     resolution: {integrity: sha512-j0m+vLQuG5XAYoHtGCVu0spvlGreR3EzpECUVzkFmI1mTVnAO38l/NEPDCFgZ177JxzYJCLSmTQibIiYPilGrA==}
+
+  '@fontsource-variable/m-plus-1-code@5.3.1':
+    resolution: {integrity: sha512-WhIN1kKikJ23wuqyiOq8kHoYzeKUtTOdYpP5gT5VJlcr/ueoOZZcAfTiKJyiaql+WPgfyaU3ttrSkROIubra2A==}
 
   '@hono/node-server@2.1.5':
     resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
@@ -4539,9 +4542,9 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@fontsource-variable/geist-mono@5.3.0': {}
-
   '@fontsource-variable/geist@5.3.0': {}
+
+  '@fontsource-variable/m-plus-1-code@5.3.1': {}
 
   '@hono/node-server@2.1.5(hono@4.13.13)':
     dependencies:

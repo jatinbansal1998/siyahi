@@ -2,6 +2,12 @@
 
 ## 0.1.9
 
+- Denser terminal pages: the mono is M PLUS 1 Code (6px a character at
+  12px, Geist Mono's 7; 20KB, every weight) in place of Geist Mono, with a
+  metric-matched fallback and preload. Tables set 13px text, 24px heads and
+  2px by 6px cells; a `PanelGrid` parts blocks 16px across and 12px down;
+  `MetricStrip` figures sit 16px apart at `text-lg`; an open card's parts sit
+  12px apart. Chart label and tick widths are sized for the new mono.
 - `MetricStrip` takes `variant="blocks"`: a page's headline of two to four
   figures, each on a solid block (a new `--headline` orange, the text colour,
   a `--headline-muted` grey), touching, with a large value in the block's

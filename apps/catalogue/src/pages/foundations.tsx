@@ -181,7 +181,7 @@ export const foundations: Page = {
     {
       id: "type",
       title: "Type",
-      lead: "Geist for text, Geist Mono for identifiers and chart ticks.",
+      lead: "M PLUS 1 Code for the page, a narrow mono; Geist for sentences.",
       rules: ["Figures are tabular everywhere, so columns of numbers line up."],
       body: (
         <div className="flex flex-col gap-3">
@@ -226,7 +226,7 @@ export const foundations: Page = {
       lead: "How a data block sits on the page: open, with no box.",
       imports: ["PanelGrid"],
       rules: [
-        "A card drops its fill, ring and padding, so a block's content sits level with the page's text and space parts it from the next: 24px across and 16px down in a PanelGrid. No box cuts off against the page and no rule parts the blocks.",
+        "A card drops its fill, ring and padding, so a block's content sits level with the page's text and space parts it from the next: 16px across and 12px down in a PanelGrid. No box cuts off against the page and no rule parts the blocks.",
         "What a block's marks mix into, a forecast's halo, a bar's tint or an exception's wash, is the page colour: --card is set to it.",
         "Every PanelGrid numbers its blocks' titles 01, 02 in the mono face and the link colour.",
       ],

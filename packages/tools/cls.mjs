@@ -5,7 +5,7 @@
 // Shift, when the web font finished loading, the font-display in effect, and
 // which text boxes moved between the first paint and fonts-ready.
 //
-//   siyahi-cls <url>... [--out cls] [--font "Geist Variable"] [--wait-for h1]
+//   siyahi-cls <url>... [--out cls] [--font "M PLUS 1 Code Variable"] [--wait-for h1]
 //              [--network slow-3g|none] [--hold-fonts] [--max-cls 0.01]
 //
 // The first shot is taken as soon as --wait-for is visible, the second once a
@@ -51,7 +51,7 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
     out: { type: "string", default: "cls" },
-    font: { type: "string", default: "Geist Variable" },
+    font: { type: "string", default: "M PLUS 1 Code Variable" },
     "wait-for": { type: "string", default: "h1" },
     network: { type: "string", default: "slow-3g" },
     "hold-fonts": { type: "boolean", default: false },
@@ -60,7 +60,7 @@ const { values, positionals } = parseArgs({
 });
 if (positionals.length === 0 || !(values.network in NETWORKS)) {
   console.error(
-    'usage: siyahi-cls <url>... [--out cls] [--font "Geist Variable"] [--wait-for h1] [--network slow-3g|none] [--hold-fonts] [--max-cls 0.01]',
+    'usage: siyahi-cls <url>... [--out cls] [--font "M PLUS 1 Code Variable"] [--wait-for h1] [--network slow-3g|none] [--hold-fonts] [--max-cls 0.01]',
   );
   process.exit(2);
 }

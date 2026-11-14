@@ -116,8 +116,8 @@ const NAME_BAND = 6 + 32 + 4;
 const TICK = { className: "fill-muted-foreground font-mono" };
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 const keyOf = (point: ScatterPoint) => point.key ?? point.name;
-// At the ticks' 12px, Geist Mono is about 7.2px a character.
-const MONO_WIDTH = 7.2;
+// At the ticks' 12px, M PLUS 1 Code, the mono, is 6px a character.
+const MONO_WIDTH = 6;
 
 /** Two measures per item as dots, such as size against growth, with the leading names beside their dots. */
 export function ScatterChartCard<T extends ScatterPoint>({

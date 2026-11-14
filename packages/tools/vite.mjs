@@ -1,16 +1,18 @@
 // @ts-check
-// A Vite plugin that preloads the Latin files of Geist and Geist Mono, the
+// A Vite plugin that preloads the Latin files of Geist and M PLUS 1 Code, the
 // fonts nearly every Siyahi page draws first. Without it the browser asks for
 // a font only once the page has rendered text in it, so on a slow network the
 // fallback paints and Geist swaps in seconds later; with it the font
 // downloads alongside the scripts and is usually there before the first paint.
 
-// fontsource's file names, kept by Vite in each emitted asset's names. Geist's
-// latin-ext file holds ₹, which the default locale prints on every amount.
+// fontsource's file names, kept by Vite in each emitted asset's names. Each
+// latin-ext file holds ₹, which the default locale prints on every amount, in
+// the mono on a terminal page.
 const PRELOADED = new Set([
   "geist-latin-wght-normal.woff2",
   "geist-latin-ext-wght-normal.woff2",
-  "geist-mono-latin-wght-normal.woff2",
+  "m-plus-1-code-latin-wght-normal.woff2",
+  "m-plus-1-code-latin-ext-wght-normal.woff2",
 ]);
 
 /** @returns {import("vite").Plugin} */

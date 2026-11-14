@@ -65,7 +65,7 @@ a meaning:
 
 A data block sits open on the page: a `Card` has no fill, no ring and no
 padding, so its content sits level with the page's text. Space, not a box or a
-rule, parts the blocks: 24px across and 16px down in a `PanelGrid`, 24px
+rule, parts the blocks: 16px across and 12px down in a `PanelGrid`, 16px
 between `MetricStrip` figures. A lighter box on the canvas cuts off abruptly
 and spends room on its own padding, so data sits on the page. `--card` is the
 page colour, so what a block's marks mix into is what lies under them. The
@@ -112,8 +112,10 @@ mono face and the link colour, so the text can point to one.
 
 ## Type
 
-Siyahi reads as a terminal. The page is set in Geist Mono: figures, labels,
-controls, titles and tables share one grid. Text that reads as sentences, a
+Siyahi reads as a terminal. The page is set in M PLUS 1 Code, a mono half a
+font size wide, so a table fits its columns and a row its words on one line:
+figures, labels, controls, titles and tables share one grid. Tables set it at
+13px. Text that reads as sentences, a
 paragraph, a quote or a description, is set in Geist, where mono
 tires the eye over a line; the theme switches it by element, so a page writes
 no font classes. Labels over data (a `MetricStrip` figure's label, a table's

@@ -50,7 +50,6 @@
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@fontsource-variable/geist": "^5.3.0",
-    "@fontsource-variable/geist-mono": "^5.3.0",
     "@shadcn/react": "^0.3.1",
     "@tanstack/react-table": "^9.3.1",
     "class-variance-authority": "^0.7.1",
@@ -68,6 +67,7 @@
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
+    "@fontsource-variable/m-plus-1-code": "^5.3.1",
     "@tailwindcss/node": "catalog:",
     "@types/d3-hierarchy": "^3.1.7",
     "@types/node": "catalog:",

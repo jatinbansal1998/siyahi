@@ -29,10 +29,11 @@ const open = async (route: string, title: string): Promise<Locator> => {
 };
 
 describe("dense tables, fields, focus and sidebar", { timeout: 60_000 }, () => {
-  it("draws a table dense: compact heads and rows", async () => {
+  it("draws a table dense: 13px text, 24px heads, cells 2px by 6px", async () => {
     const table = await open("components/table", "Table");
-    expect(await style(table.locator('[data-slot="table-head"]').first(), "height")).toEqual(["28px"]);
-    expect(await style(table.locator('[data-slot="table-cell"]').first(), "padding-top")).toEqual(["3.2px"]);
+    expect(await style(table.locator('[data-slot="table-head"]').first(), "height")).toEqual(["24px"]);
+    const cell = table.locator('[data-slot="table-cell"]').first();
+    expect(await style(cell, "padding-top", "padding-left", "font-size")).toEqual(["2px", "6px", "13px"]);
   });
 
   it("washes an invalid field red", async () => {

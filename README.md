@@ -56,7 +56,7 @@ createRoot(root).render(
 );
 ```
 
-`preloadFonts()` loads Geist and Geist Mono with the scripts. Add `lucide-react`
+`preloadFonts()` loads Geist and M PLUS 1 Code with the scripts. Add `lucide-react`
 only when your own code imports icons. Next.js compiles the stylesheet through
 `@tailwindcss/postcss` instead of the Vite plugin. To host one page as a single
 HTML file, build it with `siyahi-page` from `@siyahi/tools`.
@@ -100,7 +100,7 @@ and support one keyboard entry with arrow navigation. `WeekdayHeatmap` accepts
 
 Data blocks sit open on the page: a `Card` has no fill, box or rule, and no
 padding, so a block's content sits level with the page's text. Space parts
-the blocks: 24px across and 16px down in a `PanelGrid`. The rest of the look
+the blocks: 16px across and 12px down in a `PanelGrid`. The rest of the look
 is stock shadcn, set by the theme's tokens; `DESIGN.md` has the masthead and
 exception tones.
 

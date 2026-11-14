@@ -69,7 +69,7 @@ layouts and product-specific logic belong in the consuming app.
   Follow the package's reduced-motion behaviour; JavaScript-started motion
   checks `matchMedia("(prefers-reduced-motion: reduce)")` too.
 - If an app overrides font stacks, keep `"Geist Fallback"` and
-  `"Geist Mono Fallback"` immediately after their respective Geist fonts.
+  `"M PLUS 1 Code Fallback"` immediately after Geist and M PLUS 1 Code.
   A sticky page header over a table needs only `z-1`; the table isolates its
   internal stacking.
 - Include relevant loading, empty and error states. Use the package parts

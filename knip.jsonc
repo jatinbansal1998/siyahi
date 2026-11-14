@@ -7,8 +7,8 @@
     "packages/ui": {
       "entry": ["src/index.ts", "scripts/generate.ts", "test/**/*.test.{ts,tsx}"],
       "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
-      // The shadcn CLI adds components; generate.ts copies its tailwind.css by path.
-      "ignoreDependencies": ["shadcn"],
+      // The shadcn CLI adds components; generate.ts copies its tailwind.css, and the mono's Latin files, by path.
+      "ignoreDependencies": ["shadcn", "@fontsource-variable/m-plus-1-code"],
       // Copied shadcn and registry modules are kept whole, with every part
       // they export, so they can be compared with their origin.
       "ignoreIssues": {

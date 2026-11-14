@@ -1,6 +1,6 @@
-// Geist Mono, the theme's page face, draws every character 7px wide at text-xs, at any weight (measured in
+// M PLUS 1 Code, the theme's page face, draws every character 6px wide at text-xs, at any weight (measured in
 // Chromium); a label longer than its box ends in an ellipsis instead of being cut mid-letter by the box's clip.
-const CHAR_PX = 7;
+const CHAR_PX = 6;
 
 /** About how wide a text-xs label draws, in pixels. */
 export const textWidth = (text: string): number => text.length * CHAR_PX;

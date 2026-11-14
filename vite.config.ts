@@ -13,6 +13,7 @@ const GENERATED = [
   "packages/ui/agents/**",
   "packages/ui/styles/shadcn.css",
   "packages/ui/styles/fallback-fonts.css",
+  "packages/ui/styles/m-plus-1-code.css",
   "packages/ui/registry.lock.json",
   "packages/ui/src/index.ts",
   "packages/ui/README.md",

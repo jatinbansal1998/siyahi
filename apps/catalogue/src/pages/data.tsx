@@ -177,7 +177,7 @@ export const data: Page = {
         ...VALUE_SCALE_PROPS,
       ],
       rules: [
-        "The card draws the axes, a solid hairline grid, Geist Mono ticks, and a tooltip with each series' formatted value at the hovered point.",
+        "The card draws the axes, a solid hairline grid, mono ticks, and a tooltip with each series' formatted value at the hovered point.",
         "Overlapping areas have no fill: from three series on, fills bury each other. A stack fills each band with a flat tint, keeps solid edges through a forecast and names its series in a legend below.",
         ...LINE_RULES,
         "A range toggle goes in action, top right.",

@@ -84,7 +84,7 @@ const display: Entry[] = [
   {
     id: "code-block",
     title: "Code block",
-    lead: "A command or a file to read or paste, in Geist Mono on the muted fill.",
+    lead: "A command or a file to read or paste, in the mono face on the muted fill.",
     imports: [
       "CodeBlock",
       "CodeBlockHeader",

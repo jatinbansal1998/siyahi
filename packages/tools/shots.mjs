@@ -5,7 +5,7 @@
 // PNG per page and mode. A page taller than 16,000px is written as segments
 // <name>-1.png, <name>-2.png, … of equal height, which together cover it.
 //
-//   siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font Geist]
+//   siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font "M PLUS 1 Code"]
 //                [--chrome '[data-slot="sidebar"]'] [--wait-for h1]
 //                [--widths 1920,390] [--script probe.mjs]
 //
@@ -57,7 +57,7 @@ const { values, positionals } = parseArgs({
   options: {
     out: { type: "string", default: "shots" },
     gutter: { type: "string", default: "16" },
-    font: { type: "string", default: "Geist" },
+    font: { type: "string", default: "M PLUS 1 Code" },
     chrome: { type: "string", default: '[data-slot="sidebar"]' },
     "wait-for": { type: "string", default: "h1" },
     widths: { type: "string", default: "1920,390" },
@@ -66,7 +66,7 @@ const { values, positionals } = parseArgs({
 });
 if (positionals.length === 0) {
   console.error(
-    "usage: siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font Geist] [--chrome <selector>] [--wait-for <selector>] [--widths 1920,390] [--script probe.mjs]",
+    "usage: siyahi-shots <url | page.tsx>... [--out shots] [--gutter 16] [--font 'M PLUS 1 Code'] [--chrome <selector>] [--wait-for <selector>] [--widths 1920,390] [--script probe.mjs]",
   );
   process.exit(2);
 }
