@@ -43,7 +43,6 @@ export default function ScatterChartExample() {
       description="Across is the store's share of sales, up its growth on last year. Log spreads out the small stores; Linear shows how far ahead the largest are."
       action={<Badge variant="outline">This month</Badge>}
       points={stores}
-      height={360}
       xLabel="Share of sales"
       yLabel="Growth"
       // Log is selected first; the buttons in the header let the reader switch.

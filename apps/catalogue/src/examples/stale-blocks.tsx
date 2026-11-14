@@ -1,4 +1,4 @@
-import { AreaChartCard, Delta, SectionCards, Sparkline, useFormat, type SectionCard } from "@siyahi/ui";
+import { AreaChartCard, MetricStrip, useFormat, type MetricStripItem } from "@siyahi/ui";
 
 const value = [
   { month: "May", equity: 2150000, debt: 600000, gold: 320000, intl: 390000, cash: 150000 },
@@ -20,26 +20,26 @@ const kinds = [
 // loses its colour and says since when. The page decides; nothing is inferred from dates.
 export default function StaleBlocksExample() {
   const { money, moneyCompact } = useFormat();
-  const tiles: SectionCard[] = [
+  const figures: MetricStripItem[] = [
     {
       label: "Revenue",
       value: money(4512300),
-      badge: <Delta value={0.031} />,
-      trend: <Sparkline data={[3820000, 3950000, 4110000, 4020000, 4380000, 4512300]} />,
-      detail: "Month-end, last six months",
+      change: 0.031,
+      note: "month-end, last six months",
+      trend: [3820000, 3950000, 4110000, 4020000, 4380000, 4512300],
     },
     {
       label: "Gift cards this year",
       value: moneyCompact(38400),
-      badge: <Delta value={0.18} />,
-      trend: <Sparkline data={[4100, 0, 12800, 3300, 9900, 8300]} variant="line" curve="linear" />,
-      detail: "Sold each month",
+      change: 0.18,
+      note: "sold each month",
+      trend: [4100, 0, 12800, 3300, 9900, 8300],
       stale: "3 Nov",
     },
   ];
   return (
     <div className="flex flex-col gap-6">
-      <SectionCards items={tiles} />
+      <MetricStrip items={figures} />
       <AreaChartCard
         title="Value by kind"
         description="Month-end value of each kind of holding"

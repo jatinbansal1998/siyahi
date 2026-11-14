@@ -5,15 +5,15 @@ import PageHeaderExample from "../examples/page-header";
 import type { Page } from "../page";
 
 const RULES = [
-  "A panel holds data, prose sits on the page. By default a page is ruled on white: data blocks are filled with the card colour and parted by hairlines, with a rule above and below each group; a page of separate blocks asks for square cards, 8px apart, by setting surface to card. Every corner is square. One level of panel.",
+  "A panel holds data, prose sits on the page. By default a page is open: data blocks sit on the page with no box, no fill and no rule, parted by space; a page of separate blocks asks for square cards, 8px apart, by setting surface to card. Every corner is square. One level of panel.",
   "A page opens on its masthead, PageHeader: eyebrow, title, one muted line, actions at the right, a hairline under it.",
-  "A stat tile is SectionCards from shadcn's dashboard block: label in small mono capitals, outline badge, value, footer lines. Many figures of equal weight go in one MetricStrip instead. The page marks the tile or table row that needs a look with a tone; colour marks exceptions only.",
-  "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws a solid hairline grid and the tooltip, names lines at their ends (a legend below on a phone or for bars), draws bars as tints inside full-colour edges; a range or mode toggle goes top right as its action. Fixed pixel height. Ranked categories are BarList.",
+  "Figures are a MetricStrip: label in small mono capitals, value, change and note, a sparkline under each, no box. Three headline figures or eight small ones, it is the same component. The page marks the figure or table row that needs a look with a tone; colour marks exceptions only.",
+  "Charts are AreaChartCard, BarChartCard or LineChartCard: chart tokens only; the card draws a solid hairline grid and the tooltip, names lines at their ends (a legend below on a phone or for bars), draws bars as tints inside full-colour edges; a range or mode toggle goes top right as its action. Height follows the width unless the page fixes it. Ranked categories are BarList.",
   "Tables are the registry data table, inside a Card. Column heads are small mono capitals; a total row sits between a rule and a double rule.",
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
   "Ink indigo is placed, not spread: links, the selected sidebar item and the first chart series. Three meaning colours, positive, negative and warning, carry gains, losses and caution. Buttons, badges and toggles stay black and white.",
   "Notices are StatusAlert in a tone: information, a warning, an error or a success, the whole card washed in its colour; states are StatusBadge. Never a single coloured edge on any box.",
-  "Sizes from the base-nova style, tables denser: 16px panels, table rows sized to their content. Geist, tabular figures. Geist Mono for identifiers, ticks, panel numbers, the small capital labels and a table's figures.",
+  "Sizes from the base-nova style, tables denser: open panels parted by space, table rows sized to their content. Geist, tabular figures. Geist Mono for identifiers, ticks, panel numbers, the small capital labels and a table's figures.",
   "Indian grouping, compact rupees, IST with zone, signs beside colour, scheme follows the device, reduced motion honoured.",
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables hide columns that do not fit, never their meta.compact ones, behind an All columns toggle, sidebar becomes a drawer.",
   "Words explain themselves: a title states the finding (or names the topic when the reader's choice changes the finding), a description says what the figures are and where they came from, a label is a short noun written in full, and an empty or failed block says what happened and what to do.",
@@ -24,7 +24,7 @@ const START: [href: string, title: string, use: string][] = [
   ["#/components", "Components", "Buttons, badges, cards, tabs and the other shadcn parts, as shipped."],
   ["#/inputs", "Inputs and overlays", "Forms, menus, dialogs and sheets."],
   ["#/layout", "Page layout", "Sections, headings, facts and code in a long page."],
-  ["#/data", "Data", "Charts, tables, stat tiles and heat maps for numbers."],
+  ["#/data", "Data", "Charts, tables, figures and heat maps for numbers."],
   ["#/blocks", "Blocks", "Whole compositions to start a dashboard from."],
 ];
 
@@ -79,7 +79,7 @@ export const overview: Page = {
     {
       id: "at-a-glance",
       title: "At a glance",
-      lead: "An app page built from the package, on the default ruled surface: masthead, stat tiles, a chart and a table with its total, all live.",
+      lead: "An app page built from the package, on the default open surface: masthead, headline figures, a chart and a table with its total, all live.",
       examples: [
         {
           name: "overview-dashboard",

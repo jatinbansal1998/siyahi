@@ -95,8 +95,7 @@ describe("the look", { timeout: 60_000 }, () => {
   it("sets labels over figures in small monospaced capitals", async () => {
     const labels = [
       example().locator('[data-slot="table-head"]').first(),
-      example().locator('[data-slot="section-card"] [data-slot="card-description"]').first(),
-      example().locator('[data-slot="section-card"] [data-slot="card-footer"]').first(),
+      example().locator('[data-slot="metric-strip-label"]').first(),
     ];
     // A data table's column title, as DataTableColumnTitle draws it, takes the head's type over its own text-sm.
     await labels[0]?.evaluate((head) => {
@@ -134,16 +133,16 @@ describe("the look", { timeout: 60_000 }, () => {
     await expect.poll(() => body.count()).toBe(5);
   });
 
-  it("washes only the tile and the rows the page marks, and outlines the tile", async () => {
-    const tiles = example().locator('[data-slot="section-card"] [data-slot="card"]');
-    const card = await token("--card");
-    const tileFills = await tiles.evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor));
-    // The middle tile, cash flow, is marked negative; the others keep the card colour.
-    expect(tileFills.map((fill) => fill === card)).toEqual([true, false, true]);
-    const ring = await tiles.nth(1).evaluate((el) => getComputedStyle(el).boxShadow);
-    const outline = ring.split(/,(?![^(]*\))/).find((layer) => layer.trim().endsWith("0px 0px 0px 1px"));
-    expect(outline).toBeDefined();
-    expect(outline).not.toMatch(/rgba\(0, 0, 0, 0\)/);
+  it("washes only the figure and the rows the page marks, and outlines the figure", async () => {
+    const figures = example().locator('[data-slot="metric-strip-item"]');
+    const fills = await figures.evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor));
+    // The middle figure, cash flow, is marked negative; the others show the page through.
+    expect(fills.map((fill) => fill === TRANSPARENT)).toEqual([true, false, true]);
+    const outline = await figures
+      .nth(1)
+      .evaluate((el) => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineColor]);
+    expect(outline[0]).toBe("1px");
+    expect(outline[1]).not.toBe(TRANSPARENT);
     const rows = example().locator('[data-slot="table-body"] [data-slot="table-row"]');
     const rowFills = await rows.evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor));
     // Gold bonds (warning) and the small cap fund (negative) are marked; rows on track stay clear.

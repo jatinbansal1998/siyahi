@@ -100,15 +100,7 @@
       ]
     },
     {
-      "need": "Headline figures with their change",
-      "guidance": "`SectionCards`, with a `Delta` in each badge",
-      "components": [
-        "SectionCards",
-        "Delta"
-      ]
-    },
-    {
-      "need": "Many figures of equal weight, each with its change and recent run",
+      "need": "Headline figures, or many figures of equal weight, each with its change and recent run",
       "guidance": "`MetricStrip`",
       "components": [
         "MetricStrip"
@@ -116,10 +108,10 @@
     },
     {
       "need": "A run of values beside a figure, in a tile, a strip or a table cell",
-      "guidance": "`Sparkline`; in a tile, `SectionCards`' `trend`",
+      "guidance": "`Sparkline`; in a strip, `MetricStrip`'s `trend`",
       "components": [
         "Sparkline",
-        "SectionCards"
+        "MetricStrip"
       ]
     },
     {
@@ -228,10 +220,10 @@
       ]
     },
     {
-      "need": "Stat tiles that pick a scope for the page",
-      "guidance": "`SectionCards` with `selected` and `onSelect`",
+      "need": "Figures that pick a scope for the page",
+      "guidance": "`MetricStrip` with `selected` and `onSelect`",
       "components": [
-        "SectionCards"
+        "MetricStrip"
       ]
     },
     {
@@ -289,8 +281,8 @@
       ]
     },
     {
-      "need": "Separate square cards instead of the default ruled panels, or no lines at all, for a page or a part of one",
-      "guidance": "`SiyahiProvider` with `surface=\"card\"` or `surface=\"open\"`",
+      "need": "Separate square cards instead of the default open blocks, for a page or a part of one",
+      "guidance": "`SiyahiProvider` with `surface=\"card\"`",
       "components": [
         "SiyahiProvider"
       ]
@@ -309,10 +301,10 @@
       "components": []
     },
     {
-      "need": "A chart or stat tile whose data is old",
-      "guidance": "`stale` on the chart card or the `SectionCards` item, with since when (\"3 Nov\"); `StaleNote` for another kind of block",
+      "need": "A chart or figure whose data is old",
+      "guidance": "`stale` on the chart card or the `MetricStrip` item, with since when (\"3 Nov\"); `StaleNote` for another kind of block",
       "components": [
-        "SectionCards",
+        "MetricStrip",
         "StaleNote"
       ]
     },
@@ -1027,6 +1019,21 @@
       ]
     },
     {
+      "file": "agents/examples/metric-strip-select.tsx",
+      "components": [
+        "Delta",
+        "MetricStrip",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/metric-strip-trend.tsx",
+      "components": [
+        "MetricStrip",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/metric-strip.tsx",
       "components": [
         "MetricStrip",
@@ -1187,31 +1194,6 @@
       ]
     },
     {
-      "file": "agents/examples/section-cards-select.tsx",
-      "components": [
-        "Delta",
-        "SectionCards",
-        "useFormat"
-      ]
-    },
-    {
-      "file": "agents/examples/section-cards-trend.tsx",
-      "components": [
-        "Delta",
-        "SectionCards",
-        "Sparkline",
-        "useFormat"
-      ]
-    },
-    {
-      "file": "agents/examples/section-cards.tsx",
-      "components": [
-        "Delta",
-        "SectionCards",
-        "useFormat"
-      ]
-    },
-    {
       "file": "agents/examples/select.tsx",
       "components": [
         "Select",
@@ -1279,9 +1261,7 @@
       "file": "agents/examples/stale-blocks.tsx",
       "components": [
         "AreaChartCard",
-        "Delta",
-        "SectionCards",
-        "Sparkline",
+        "MetricStrip",
         "useFormat"
       ]
     },

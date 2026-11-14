@@ -15,80 +15,16 @@ export const blocks: Page = {
   layout: "index",
   families: [
     {
-      id: "section-cards",
-      title: "SectionCards",
-      lead: "The stat tile from shadcn's dashboard-01: muted label, outline badge top right, value, bold line, muted line.",
-      imports: ["SectionCards", "type SectionCard"],
-      props: [
-        {
-          name: "items",
-          type: "SectionCard[]",
-          purpose:
-            "{ label, value, badge?, trend?, headline?, detail?, disabled?, tone? } per tile; badge is usually a Delta.",
-        },
-        {
-          name: "selected",
-          type: "string",
-          default: "—",
-          purpose: "The label of the picked tile, which takes a primary ring.",
-        },
-        {
-          name: "onSelect",
-          type: "(label: string) => void",
-          default: "—",
-          purpose: "Makes each tile a button that says whether it is pressed; keep tile content non-interactive.",
-        },
-        {
-          name: "items[].trend",
-          type: "ReactNode",
-          default: "—",
-          purpose: "A small chart between the figure and the footer lines, usually a Sparkline of the run behind it.",
-        },
-        {
-          name: "items[].disabled",
-          type: "boolean",
-          default: "false",
-          purpose:
-            "In a picker, a tile that cannot be picked, such as a channel with no orders: faded, its button disabled.",
-        },
-        {
-          name: "items[].tone",
-          type: '"negative" | "warning"',
-          default: "—",
-          purpose: "Marks the tile as the exception on the page: a faint wash of the colour and an outline of it.",
-        },
-      ],
-      rules: [
-        "One tile per row on a phone. Wider, the columns follow the count so no tile sits alone under a full row: four run 2 then 4 across, three and six run 3 across, five runs 3 + 2 and then 5 in a row.",
-        "A trend of gains or losses takes var(--positive) or var(--negative); any other run keeps --chart-1.",
-        "A picked tile keeps its ring on every surface.",
-        "The label and the footer lines are small monospaced capitals; the figure stays in the sans face.",
-        "Set tone on the one or two tiles that need a look. The page decides: a falling figure is not an exception when it is a cost.",
-      ],
-      examples: [
-        { name: "section-cards", caption: "Five headline figures, each with a Delta badge and two footer lines." },
-        {
-          name: "section-cards-select",
-          caption: "Tiles as a picker of sales channels; an empty channel is disabled.",
-        },
-        {
-          name: "section-cards-trend",
-          caption:
-            "Each tile with a sparkline of its run, coloured by gain, loss or neither; the cash flow tile is marked negative.",
-        },
-      ],
-    },
-    {
       id: "metric-strip",
       title: "MetricStrip",
-      lead: "dashboardcn's KPI row: one card holding a row of small figures, each with its change and recent run.",
+      lead: "A row of figures, each with its label, change and recent run, and optionally a picker that scopes the page. From dashboardcn's KPI row.",
       imports: ["MetricStrip", "type MetricStripItem"],
       props: [
         {
           name: "items",
           type: "MetricStripItem[]",
           purpose:
-            '{ label, value, change?, changeFormat?, note?, trend?, tone? } per figure; change draws as a Delta and colours the trend; tone "negative" or "warning" marks the figure that needs a look.',
+            "{ label, value, change?, changeFormat?, note?, trend?, tone?, stale?, disabled? } per figure; change draws as a Delta and colours the trend.",
         },
         { name: "title", type: "ReactNode", default: "—", purpose: "Optional, for a strip heading a page." },
         { name: "description", type: "ReactNode", default: "—", purpose: "A muted line under the title." },
@@ -104,16 +40,57 @@ export const blocks: Page = {
           default: "—",
           purpose: "Lines under the strip, such as what the figures cover.",
         },
+        {
+          name: "selected",
+          type: "string",
+          default: "—",
+          purpose: "The label of the picked figure, which takes an outline.",
+        },
+        {
+          name: "onSelect",
+          type: "(label: string) => void",
+          default: "—",
+          purpose: "Makes each figure a button that says whether it is pressed; keep figure content non-interactive.",
+        },
+        {
+          name: "items[].tone",
+          type: '"negative" | "warning"',
+          default: "—",
+          purpose: "Marks the figure as the exception on the page: a faint wash of the colour and an outline of it.",
+        },
+        {
+          name: "items[].stale",
+          type: "ReactNode",
+          default: "—",
+          purpose: 'Since when the figure\'s data is old, such as "3 Nov": the figure greys and says so.',
+        },
+        {
+          name: "items[].disabled",
+          type: "boolean",
+          default: "false",
+          purpose:
+            "In a picker, a figure that cannot be picked, such as a channel with no orders: faded, its button disabled.",
+        },
       ],
       rules: [
-        "It fits two or three times the figures of SectionCards in the same room: use it where the page has many numbers of equal weight, and SectionCards where three or four headline figures each need a sentence.",
-        "Rules part the tiles across and down; the columns follow the count, two to a row on a phone and up to eight on a wide card.",
+        "No box and no rules: space parts the figures, and each figure's text lines up with its neighbours' and the title's.",
+        "The columns follow the count, so no figure sits alone under a full row, up to eight of them: five run 3 + 2, seven 4 + 3, and eight fit one row on a wide strip.",
+        "A sparkline sits under its figure at the figure's width; a run of gains or losses takes var(--positive) or var(--negative) from the change's sign.",
+        "Set tone on the one or two figures that need a look. The page decides: a falling figure is not an exception when it is a cost.",
       ],
       examples: [
         {
           name: "metric-strip",
           caption:
             "Six figures for October with their changes, sparklines and a period toggle; the cash flow is marked negative.",
+        },
+        {
+          name: "metric-strip-trend",
+          caption: "Three headline figures with the run behind each; the cash flow is marked negative.",
+        },
+        {
+          name: "metric-strip-select",
+          caption: "Figures as a picker of sales channels; an empty channel is disabled.",
         },
       ],
     },

@@ -1,7 +1,7 @@
 // The drawdown example in Chromium: Recharts draws the marker only once the plot is laid out.
 import type { Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
-import { openCatalogue, type Catalogue } from "./catalogue";
+import { openCatalogue, themeColor, type Catalogue } from "./catalogue";
 
 let catalogue: Catalogue;
 let page: Page;
@@ -29,21 +29,14 @@ describe("DrawdownChartCard", { timeout: 60_000 }, () => {
     expect(lineY).toBeCloseTo(lowest, 0);
   });
 
-  it("lays a card-coloured halo under the label, so it reads over the red area too", async () => {
+  it("lays a page-coloured halo under the label, so it reads over the red area too", async () => {
     const chart = page.locator('[data-slot="card"]', { hasText: "Cash below its best" });
     const label = chart.getByText("Deepest −20.9%").locator("xpath=ancestor-or-self::*[local-name()='text'][1]");
     const halo = await label.evaluate((text) => {
       const style = getComputedStyle(text);
       return { paintOrder: style.paintOrder, width: style.strokeWidth, stroke: style.stroke };
     });
-    const card = await page.evaluate(() => {
-      const probe = document.createElement("div");
-      probe.style.color = "var(--card)";
-      document.body.append(probe);
-      const color = getComputedStyle(probe).color;
-      probe.remove();
-      return color;
-    });
-    expect(halo).toEqual({ paintOrder: "stroke", width: "3px", stroke: card });
+    // The halo is var(--card), which inside an open card, the default, is the page colour under the chart.
+    expect(halo).toEqual({ paintOrder: "stroke", width: "3px", stroke: await themeColor(page, "--background") });
   });
 });

@@ -26,7 +26,7 @@ import {
 import { DownloadIcon, LightbulbIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import ChartArea from "./chart-area";
-import SectionCardsTrend from "./section-cards-trend";
+import MetricStripTrend from "./metric-strip-trend";
 
 interface Holding {
   name: string;
@@ -119,8 +119,8 @@ function Holdings({ rows }: { rows: Holding[] }) {
   );
 }
 
-// An app page on the default, ruled surface: masthead, controls, stat tiles, a chart and a table in a PanelGrid, and
-// the takeaway. It sets no surface: ruled on white is what a page gets.
+// An app page on the default, open surface: masthead, controls, stat tiles, a chart and a table in a PanelGrid, and
+// the takeaway. It sets no surface: blocks on the page with space between them is what a page gets.
 export default function OverviewDashboard() {
   const [query, setQuery] = useState("");
   const shown = holdings.filter((row) => row.name.toLowerCase().includes(query.trim().toLowerCase()));
@@ -166,7 +166,7 @@ export default function OverviewDashboard() {
           </a>
         </p>
       </div>
-      <SectionCardsTrend />
+      <MetricStripTrend />
       <PanelGrid>
         <ChartArea />
         <Holdings rows={shown} />

@@ -175,7 +175,7 @@
   --chart-1: oklch(0.4 0.17 275);
   --chart-2: oklch(0.66 0.13 70);
   --chart-3: oklch(0.38 0.13 335);
-  --chart-4: oklch(0.65 0.11 235);
+  --chart-4: oklch(0.64 0.11 235);
   --chart-5: oklch(0.36 0.06 205);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -189,8 +189,8 @@
   @variant dark {
     /*
      * The canvas lifts just off black and text sits a step below white:
-     * near-white on near-black (19:1) blurs for many readers, and with the
-     * cards' grey gone on a ruled page the canvas is what text sits on.
+     * near-white on near-black (19:1) blurs for many readers, and on an open
+     * page, where cards have no fill, the canvas is what text sits on.
      * Claude Code (#181818, about #e8e8e8 text) and T3 Code (#0a0a0a, about
      * #bebebe) both narrow that gap; this sits between them, at 14.9:1.
      * Cards sit one step above the canvas, so data reads as raised, as the
@@ -325,7 +325,7 @@
 
 /*
  * A component that lifts a part of itself with a z-index is a stacking context
- * of its own: SectionCards' picker button, an avatar's badge, a calendar's
+ * of its own: MetricStrip's picker buttons, an avatar's badge, a calendar's
  * days, a focused toggle, a code block's buttons, a price chart's layers. The
  * lifted part then ranks only against the rest of its component, and can never
  * sit over, or take a tap from, a page's sticky header or section strip (also
@@ -757,13 +757,13 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * An exception the page marks, a stat tile (SectionCard's tone), a MetricStrip
- * figure (its item's tone) or a table row (<TableRow data-tone="negative">, a
- * DataTableBody's getRowTone), takes a faint wash of its colour over the card,
- * and a tile or figure an outline of it, so the one figure needing attention
- * stands out of a run of neutral ones. Unlayered, to outrank a row's hover band.
+ * An exception the page marks, a MetricStrip figure (its item's tone) or a
+ * table row (<TableRow data-tone="negative">, a DataTableBody's getRowTone),
+ * takes a faint wash of its colour over the card, and a figure an outline of
+ * it, so the one figure needing attention stands out of a run of neutral
+ * ones. Unlayered, to outrank a row's hover band.
  */
-:is([data-slot="card"], [data-slot="metric-strip-item"], [data-slot="table-row"]) {
+:is([data-slot="metric-strip-item"], [data-slot="table-row"]) {
   &[data-tone="negative"] {
     --exception: var(--negative);
   }
@@ -771,24 +771,22 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
     --exception: var(--warning);
   }
 }
-:is([data-slot="card"], [data-slot="metric-strip-item"]):is([data-tone="negative"], [data-tone="warning"]) {
-  background-color: color-mix(in oklab, var(--exception) var(--wash), var(--card));
-}
-[data-slot="card"]:is([data-tone="negative"], [data-tone="warning"]) {
-  --tw-ring-color: color-mix(in oklab, var(--exception) var(--wash-edge), transparent);
-}
 /*
- * A figure's outline lies on the four hairlines around it, as a tile's ring does: its neighbours' rules before and
- * above it, and its own end and bottom rules, which sit outside the padding box the inset counts from.
+ * A MetricStrip figure has no padding of its own, so its text lines up with its neighbours'; its wash and outline
+ * reach 8px past it, into the gap, as a picked figure's outline does. --figure-wash is the wash the whole box takes.
  */
-[data-slot="metric-strip-item"]:is([data-tone="negative"], [data-tone="warning"]) {
-  position: relative;
-  &::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border: 1px solid color-mix(in oklab, var(--exception) var(--wash-edge), transparent);
-    pointer-events: none;
+[data-slot="metric-strip-item"] {
+  --figure-reach: calc(var(--spacing) * 2);
+  &:is([data-tone="negative"], [data-tone="warning"]) {
+    --figure-wash: color-mix(in oklab, var(--exception) var(--wash), var(--card));
+    background-color: var(--figure-wash);
+    box-shadow: 0 0 0 var(--figure-reach) var(--figure-wash);
+    outline: 1px solid color-mix(in oklab, var(--exception) var(--wash-edge), transparent);
+    outline-offset: var(--figure-reach);
+  }
+  &[data-picked] {
+    outline: 2px solid var(--primary);
+    outline-offset: var(--figure-reach);
   }
 }
 /* A pinned cell paints the card under itself (niko-table's lib/styles), so it lays the row's wash over that. */
@@ -830,11 +828,10 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * A data table inside a card drops its own border: the card's ring or the
- * ruled page's hairlines already frame it. On an open page, with no frame,
- * it keeps its border.
+ * A data table inside a boxed card drops its own border: the card's ring
+ * already frames it. On an open page, with no frame, it keeps its border.
  */
-@scope (:root, [data-surface="ruled"], [data-surface="card"]) to ([data-surface="open"]) {
+@scope ([data-surface="card"]) to ([data-surface="open"]) {
   [data-slot="card"] [data-slot="table-container"] {
     border-color: transparent;
   }
@@ -888,21 +885,22 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * A block the page marks stale (stale on a chart card or a SectionCards tile)
- * loses its colour: its chart, sparkline and badge turn grey, and a tile's
- * figure and badge turn muted. The chart and sparkline also draw at 65%, so a
+ * A block the page marks stale (stale on a chart card or a MetricStrip figure)
+ * loses its colour: its chart, sparkline and badge turn grey, and a figure
+ * turns muted. The chart and sparkline also draw at 65%, so a
  * dark slot's line does not read heavier than a fresh one: a stale block is
  * meant to be harder to read, so its marks are exempt from the 3:1 mark bar.
  * The small "Stale · 3 Nov" note under the title and the figure keep their
  * text contrast.
  */
-[data-slot="card"][data-stale] :is([data-slot="chart"], [data-slot="sparkline"], [data-slot="badge"]) {
+:is([data-slot="card"], [data-slot="metric-strip-item"])[data-stale]
+  :is([data-slot="chart"], [data-slot="sparkline"], [data-slot="badge"], [data-slot="delta"]) {
   filter: grayscale(1);
 }
-[data-slot="card"][data-stale] :is([data-slot="chart"], [data-slot="sparkline"]) {
+:is([data-slot="card"], [data-slot="metric-strip-item"])[data-stale] :is([data-slot="chart"], [data-slot="sparkline"]) {
   opacity: 0.65;
 }
-[data-slot="section-card"] [data-slot="card"][data-stale] :is([data-slot="card-title"], [data-slot="badge"]) {
+[data-slot="metric-strip-item"][data-stale] [data-slot="metric-strip-value"] {
   color: var(--muted-foreground);
 }
 
@@ -1002,40 +1000,39 @@ div[data-slot="sidebar"]:not([data-side], [data-mobile]) {
 }
 
 /*
- * Surfaces, from SiyahiProvider's surface prop. Ruled, the default, keeps
- * every card's fill and drops its ring: PanelGrid and SectionCards fill their
- * grid with the card colour and draw hairlines between the blocks, with a rule
- * above and below the group and none on its left and right edges, and a card
- * that stands alone, such as a MetricStrip or a table's card, takes those
- * rules above and below itself. Card is a filled square card with a hairline
- * ring and no shadow, 8px from the next, for a page of separate blocks. Open
- * takes the box off every core Card: no fill, no ring, no tinted footer band,
- * and no padding, so a block's content sits level with the page's text. Each
- * scope stops at a provider that says otherwise. Unlayered, like the rules
- * above, to outrank the core components' utility classes; a picked
- * SectionCards tile keeps its ring, which is important, and an exception
- * keeps its outline, which is more specific.
+ * Surfaces, from SiyahiProvider's surface prop. Open, the default, takes the
+ * box off every core Card: no fill, no ring, no tinted footer band, and no
+ * padding, so a block's content sits level with the page's text and space,
+ * not a box or a rule, parts it from the next. Card is a filled square card
+ * with a hairline ring and no shadow, 8px from the next, for a page of
+ * separate blocks. Each scope stops at a provider that says otherwise.
+ * Unlayered, like the rules above, to outrank the core components' utility
+ * classes.
  */
-@scope (:root, [data-surface="ruled"]) to ([data-surface="card"], [data-surface="open"]) {
-  [data-slot="card"] {
-    --tw-ring-color: transparent;
-  }
-  /*
-   * A card inside a panel or a tile's cell, or nested in another card, is ruled by what holds it; only a holder
-   * inside this scope counts, so a ruled provider inside a card starts its own lone cards afresh.
-   */
-  [data-slot="card"]:not(
-    :scope :is([data-slot="panel"], [data-slot="section-card"], [data-slot="card"]) [data-slot="card"]
-  ) {
-    border-block: 1px solid var(--border);
-  }
+/*
+ * An open card renames --card to the page colour for everything inside it, and a custom property inherits past a
+ * scope's end, so a card provider nested in an open card would fill its boxes with the page colour. --card-fill keeps
+ * the theme's card colour, set once at the root, and each card provider takes it back.
+ */
+:root {
+  --card-fill: var(--card);
+}
+[data-surface="card"] {
+  --card: var(--card-fill);
 }
 
-@scope ([data-surface="open"]) to ([data-surface="ruled"], [data-surface="card"]) {
+@scope (:root, [data-surface="open"]) to ([data-surface="card"]) {
   [data-slot="table-container"] {
     --table-fill: var(--background);
   }
+  /*
+   * With no fill, what lies under a card's marks is the page, so --card names the page colour inside it: a forecast's
+   * halos, a dot's ring, a bar's tint and an exception's wash mix into the canvas, not into a grey no box shows.
+   */
   [data-slot="card"] {
+    --card: var(--background);
+    /* No box, so no edge to clip at: a figure's wash or picker reaching past its text into the gap stays whole. */
+    overflow: visible;
     background: none;
     --tw-ring-color: transparent;
     --card-spacing: 0px;

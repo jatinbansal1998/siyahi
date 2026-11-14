@@ -43,16 +43,17 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@siyahi/ui/components/ui/chart";
-import type {
-  ChartColor,
-  ChartCurve,
-  ChartReferenceLine,
-  ChartSeries,
-  ChartSeriesItem,
-  LineMarksProps,
-  NumericXProps,
-  SeriesChartProps,
-  ValueScaleProps,
+import {
+  fittedChartHeight,
+  type ChartColor,
+  type ChartCurve,
+  type ChartReferenceLine,
+  type ChartSeries,
+  type ChartSeriesItem,
+  type LineMarksProps,
+  type NumericXProps,
+  type SeriesChartProps,
+  type ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series";
 import { EndLabels, QUIET, TimeMarks, endLabelRoom, endLabelsFit, linesEndAtEdge } from "@siyahi/ui/lib/chart-marks";
 import { fitsLog, linearAxis, logAxis } from "@siyahi/ui/lib/ticks";
@@ -460,7 +461,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   yTickFormatter,
   yDomain,
   yTicks,
-  height,
+  height: fixedHeight,
   xTickDetail,
   xLabel,
   yLabel,
@@ -482,6 +483,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const { numberLocale } = useLocale();
   const clipId = useId();
   const [contentRef, contentWidth] = useElementWidth<HTMLDivElement>();
+  const height = fixedHeight ?? fittedChartHeight(contentWidth);
   const [raisedKey, setRaisedKey] = useState<ChartSeriesItem<T>["key"]>();
   const names = endLabels ? series.map(({ label }) => label) : [];
   const labelRoom = endLabels ? endLabelRoom(names) : 0;

@@ -81,8 +81,11 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   yDomain?: [number, number] | undefined;
   /** Where the value axis puts its ticks, such as [0, 25, 50, 75, 100]. */
   yTicks?: readonly number[] | undefined;
-  /** Height of the plot and legend, in pixels. Sideways bars grow when wrapped tick details need more room. */
-  height: number;
+  /**
+   * Height of the plot and legend, in pixels. Left out, it follows the chart's width (fittedChartHeight). Sideways
+   * bars grow when wrapped tick details need more room.
+   */
+  height?: number | undefined;
   /** A second line under each x tick, so a row's figure reads without a hover: "FY24" then "+₹1.2L". */
   xTickDetail?: ((row: T) => string) | undefined;
   /** A title under the x axis, such as "Hour of day (IST)". Not drawn on sideways bars. */
@@ -136,3 +139,11 @@ export interface ValueScaleProps {
  * be drawn; "monotone", the default, smooths between them without overshooting a point.
  */
 export type ChartCurve = "monotone" | "linear";
+
+/**
+ * A chart's height when the page fixes none: 45% of its width, from 240px on a phone to 420px, so a chart on a wide
+ * screen stays a chart rather than a banner, and one on a phone still has room for its marks.
+ */
+export function fittedChartHeight(width: number): number {
+  return Math.round(Math.min(420, Math.max(240, width * 0.45)));
+}

@@ -23,14 +23,13 @@ import { readTheme } from "./theme.mjs";
  * What a component paints, written as Tailwind writes it:
  * `muted` is the token, `muted/50` the token at 50% over what lies under it,
  * and `positive@60` is `color-mix(in oklab, var(--positive) 60%, var(--card))`,
- * a treemap tile; `positive@heat-5` and `negative/wash` take the share from the
+ * a treemap tile, mixed into the surface the pair sits on; `positive@heat-5` and `negative/wash` take the share from the
  * theme's --heat-5 or --wash.
  * @typedef {string} Paint
  */
 /**
- * `surface` limits a pair to the canvas or the card, for a paint only one of them ever holds, such as a chart card's
- * hover band. A list of paints for `bg` lays each over the one before, such as a footer band over an exception's wash.
- * @typedef {{ fg: Paint, bg: Paint | Paint[], min: number, scheme?: Scheme, surface?: "background" | "card" }} Pair
+ * A list of paints for `bg` lays each over the one before, such as a footer band over an exception's wash.
+ * @typedef {{ fg: Paint, bg: Paint | Paint[], min: number, scheme?: Scheme }} Pair
  */
 
 const TEXT = 4.5;
@@ -124,7 +123,7 @@ const PAIRS = [
   // (`@wash`); a table row lays it over what is under it (`/wash`), and a data
   // table's pinned cell over its own card colour. On either: text, muted lines, a Delta
   // icon and --chart-1 (a tile's Sparkline, a row's DataBar; a run of gains or
-  // losses takes --positive or --negative, as the SectionCards rule says). A
+  // losses takes --positive or --negative, as the MetricStrip rule says). A
   // tile's footer band sits over its wash, and a StatusBadge's dot on its own
   // wash over a row's.
   ...["negative@wash", "negative/wash", "warning@wash", "warning/wash"].flatMap((wash) => [
@@ -147,7 +146,7 @@ const PAIRS = [
   // at 16% (lib/chart-marks). Its dashed lines and its FORECAST and TODAY
   // labels sit on card-coloured halos, so no stripe runs beside them; the
   // today rule in the link colour does meet the stripes.
-  { fg: "link", bg: "foreground/16", min: MARK, surface: "card" },
+  { fg: "link", bg: "foreground/16", min: MARK },
   // The selected tab's fill against its list.
   { fg: "foreground", bg: "muted", min: MARK },
   // Chart marks on the canvas and the card. A bar is read by its full-colour
@@ -159,16 +158,15 @@ const PAIRS = [
   // a thin stacked segment that is mostly edge: every bar colour's tint against
   // the card, and each slot's against the next slot's, its neighbour in a stack.
   // A dimmed bar's fainter tint has no pair: a selection means it to fade.
-  ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg: `${fg}@bar-tint`, bg: "", min: FILL, surface: "card" })),
+  ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg: `${fg}@bar-tint`, bg: "", min: FILL })),
   ...CHARTS.slice(0, -1).map((slot, i) => ({
     fg: `${slot}@bar-tint`,
     bg: `${CHARTS[i + 1]}@bar-tint`,
     min: FILL,
-    surface: "card",
   })),
   // Every bar colour against the 40% muted band a chart card lays behind a
   // hovered category (lib/chart-frame).
-  ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "muted/40", min: MARK, surface: "card" })),
+  ...[...CHARTS, "positive", "negative"].map((fg) => ({ fg, bg: "muted/40", min: MARK })),
   // A chart card's footer text, on the footer's muted wash.
   { fg: "foreground", bg: "muted/50", min: TEXT },
   // Treemap, ChangeGrid and signed-calendar labels on every heat step
@@ -200,17 +198,18 @@ export function checkContrast(theme) {
       return parsed;
     };
     /**
-     * The sRGB a paint shows over what lies under it, and how a message names it.
-     * @param {Paint} paint @param {{ rgb: [number, number, number], name: string }} under
+     * The sRGB a paint shows over what lies under it, and how a message names it. A `@` share mixes into the surface
+     * the pair sits on: an open card has no fill, so there --card is the page colour and a tint mixes into the canvas.
+     * @param {Paint} paint @param {{ rgb: [number, number, number], name: string }} under @param {string} surface
      */
-    const paintOver = (paint, under) => {
+    const paintOver = (paint, under, surface) => {
       const [, name = "", sep, amount = ""] = /^([\w-]+)(?:([/@])([\w.-]+))?$/.exec(paint) ?? [];
       const base = token(name);
       // A share is a number, or the name of a theme token holding a percentage, such as heat-5.
       const share = /^[\d.]+$/.test(amount) ? Number(amount) : sep ? percentage(amount) : 100;
       if (sep === "@") {
-        const rgb = oklchToSrgb(mixOklab(base, token("card"), share / 100));
-        return { rgb, name: `--${name} ${share}% in --card` };
+        const rgb = oklchToSrgb(mixOklab(base, token(surface), share / 100));
+        return { rgb, name: `--${name} ${share}% in --${surface}` };
       }
       const alpha = (base.alpha * share) / 100;
       if (alpha === 1) return { rgb: oklchToSrgb(base), name: `--${paint}` };
@@ -219,10 +218,9 @@ export function checkContrast(theme) {
     for (const pair of PAIRS) {
       if (pair.scheme && pair.scheme !== scheme) continue;
       for (const surface of SURFACES) {
-        if (pair.surface && pair.surface !== surface) continue;
         const page = { rgb: oklchToSrgb(token(surface)), name: `--${surface}` };
-        const bg = [pair.bg].flat().reduce((under, paint) => (paint ? paintOver(paint, under) : under), page);
-        const fg = paintOver(pair.fg, bg);
+        const bg = [pair.bg].flat().reduce((under, paint) => (paint ? paintOver(paint, under, surface) : under), page);
+        const fg = paintOver(pair.fg, bg, surface);
         const [fgHex, bgHex] = [srgbHex(fg.rgb), srgbHex(bg.rgb)];
         const ratio = contrastSrgb(fg.rgb, bg.rgb);
         checks.set(`${scheme} ${fg.name} ${bg.name}`, {

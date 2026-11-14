@@ -89,7 +89,7 @@ function Dashboard() {
 }
 
 export default function SurfacesExample() {
-  const [surface, setSurface] = useState<Surface>("ruled");
+  const [surface, setSurface] = useState<Surface>("open");
   return (
     <div className="flex flex-col gap-4">
       <ToggleGroup
@@ -103,9 +103,8 @@ export default function SurfacesExample() {
         aria-label="Surface"
       >
         {/* The default first. */}
-        <ToggleGroupItem value="ruled">Ruled</ToggleGroupItem>
-        <ToggleGroupItem value="card">Card</ToggleGroupItem>
         <ToggleGroupItem value="open">Open</ToggleGroupItem>
+        <ToggleGroupItem value="card">Card</ToggleGroupItem>
       </ToggleGroup>
       {/* A nested provider sets the surface for its part of the page. */}
       <SiyahiProvider surface={surface}>

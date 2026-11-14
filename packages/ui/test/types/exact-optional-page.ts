@@ -16,17 +16,11 @@ export const strip = {
   changeFormat: loss ? "pct" : undefined,
   note: label,
   trend: loss ? [3, 2, 1] : undefined,
-} satisfies ui.MetricStripItem;
-
-export const tile = {
-  label: "Cash flow",
-  value: "-₹61,200",
-  tone: loss ? "warning" : undefined,
   stale: loss ? "3 Nov" : undefined,
   disabled: loss ? true : undefined,
-} satisfies ui.SectionCard;
+} satisfies ui.MetricStripItem;
 
-export const tiles = { items: [tile], selected: label, onSelect: pick } satisfies ui.SectionCardsProps;
+export const strips = { items: [strip], selected: label, onSelect: pick } satisfies ui.MetricStripProps;
 
 export const body = {
   getRowTone: loss ? () => "negative" : undefined,

@@ -36,7 +36,7 @@ describe("SiyahiProvider", () => {
 
   it("keeps the surface around it when it only changes the locale", () => {
     const html = renderToStaticMarkup(
-      <SiyahiProvider surface="open">
+      <SiyahiProvider surface="card">
         <SiyahiProvider locale={{ numberLocale: "en-US" }}>
           <PanelGrid>
             <p>Block</p>
@@ -44,21 +44,20 @@ describe("SiyahiProvider", () => {
         </SiyahiProvider>
       </SiyahiProvider>,
     );
-    // Open parts blocks with whitespace; a ruled grid would rule each panel's edges.
-    expect(html).toContain("gap-x-8");
-    expect(html).not.toContain("border-e");
+    // Card sets its boxes 8px apart; the open default would part them with wider space.
+    expect(html).toContain('data-surface="card"');
+    expect(html).toContain("gap-2");
   });
 
-  it("rules a page that sets no surface: ruled is the default, with or without a provider", () => {
+  it("lays a page that sets no surface out open, with or without a provider", () => {
     const grid = (
       <PanelGrid>
         <p>Block</p>
       </PanelGrid>
     );
     for (const html of [renderToStaticMarkup(grid), renderToStaticMarkup(<SiyahiProvider>{grid}</SiyahiProvider>)]) {
-      // A rule above and below the grid, and each panel's rules on its bottom and end edges.
-      expect(html).toContain("border-y");
-      expect(html).toContain("border-e border-b");
+      expect(html).toContain('data-surface="open"');
+      expect(html).toContain("gap-x-6 gap-y-4");
     }
   });
 });

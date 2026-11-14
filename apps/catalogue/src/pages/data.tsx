@@ -41,7 +41,12 @@ const SERIES_PROPS: PropRow[] = [
   { name: "title", type: "ReactNode", purpose: "The card's title." },
   { name: "description", type: "ReactNode", default: "—", purpose: "A muted line under the title." },
   { name: "action", type: "ReactNode", default: "—", purpose: "A range or mode toggle, top right of the card." },
-  { name: "height", type: "number", purpose: "Fixed height of the plot and legend, in pixels." },
+  {
+    name: "height",
+    type: "number",
+    default: "fits the width",
+    purpose: "Height of the plot and legend, in pixels. Left out, 45% of the chart's width, from 240px to 420px.",
+  },
   {
     name: "valueFormatter",
     type: "(value: number) => string",
@@ -149,7 +154,7 @@ export const data: Page = {
   id: "data",
   title: "Data",
   icon: <ChartAreaIcon />,
-  lead: "Charts, tables and figures. Each data block is a filled card, ruled off on the page, with a fixed height for charts.",
+  lead: "Charts, tables and figures. Each data block sits on the page with space around it, no box, and a chart's height follows its width.",
   layout: "index",
   families: [
     {
@@ -299,8 +304,8 @@ export const data: Page = {
     {
       id: "stale-data",
       title: "Stale data",
-      lead: "A block whose data is old loses its colour and says since when: stale on a chart card or a SectionCards tile.",
-      imports: ["SectionCards", "AreaChartCard", "StaleNote"],
+      lead: "A block whose data is old loses its colour and says since when: stale on a chart card or a MetricStrip figure.",
+      imports: ["MetricStrip", "AreaChartCard", "StaleNote"],
       props: [
         {
           name: "stale",
@@ -311,7 +316,7 @@ export const data: Page = {
       ],
       rules: [
         "The page decides what is stale, as it decides a tone; nothing is inferred from dates.",
-        "A stale block's colours turn grey, its chart or sparkline draws at about 65%, and a tile's figure turns muted: stale is meant to read faintly, so its marks are exempt from the 3:1 mark bar, while the note and figure keep their text contrast. Another kind of block can show StaleNote on its own.",
+        "A stale block's colours turn grey, its chart or sparkline draws at about 65%, and a MetricStrip figure turns muted: stale is meant to read faintly, so its marks are exempt from the 3:1 mark bar, while the note and figure keep their text contrast. Another kind of block can show StaleNote on its own.",
       ],
       examples: [
         {
@@ -982,7 +987,12 @@ export const data: Page = {
           default: '"Size", locale numbers',
           purpose: "The size's row in the tooltip.",
         },
-        { name: "height", type: "number", purpose: "Fixed height of the plot in pixels." },
+        {
+          name: "height",
+          type: "number",
+          default: "fits the width",
+          purpose: "Height of the plot in pixels. Left out, 45% of the plot's width, from 240px to 420px.",
+        },
         { name: "xLabel, yLabel", type: "string", purpose: "What each axis measures, written along it." },
         {
           name: "xScale, yScale",

@@ -27,25 +27,26 @@ const pinned = (cells: Locator): Promise<[string, string, string]> =>
   });
 
 describe("a toned data table row", { timeout: 60_000 }, () => {
-  it("washes its pinned cell as it washes the row, at rest and under the pointer", async () => {
-    const rest = await wash();
-    const cardFill = await themeColor(catalogue.page, "--card");
-    expect(rest).not.toBe("rgba(0, 0, 0, 0)");
-    expect(await pinned(row)).toEqual(["sticky", cardFill, `linear-gradient(${rest}, ${rest})`]);
-    // The wash outranks the hover band, as on a plain TableRow, on the pinned cell too.
-    await row.hover();
-    expect(await wash()).toBe(rest);
-    expect(await pinned(row)).toEqual(["sticky", cardFill, `linear-gradient(${rest}, ${rest})`]);
-  });
-
-  it("paints the pinned cells and the sticky header in the page's colour on an open surface, whose cards have no fill", async () => {
-    // As a SiyahiProvider surface="open" around the card would write it; the theme reads the attribute.
-    await card.evaluate((el) => el.parentElement?.setAttribute("data-surface", "open"));
+  it("washes its pinned cell as it washes the row, over the page's colour, at rest and under the pointer", async () => {
+    // On the open default the card has no fill, so the pinned cells and the sticky header paint the page.
     expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgba(0, 0, 0, 0)");
     const page = await themeColor(catalogue.page, "--background");
     const rest = await wash();
+    expect(rest).not.toBe("rgba(0, 0, 0, 0)");
     expect(await pinned(row)).toEqual(["sticky", page, `linear-gradient(${rest}, ${rest})`]);
     expect((await pinned(card.locator("tbody tr:not([data-tone])").first()))[1]).toBe(page);
     expect(await card.locator("thead").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(page);
+    // The wash outranks the hover band, as on a plain TableRow, on the pinned cell too.
+    await row.hover();
+    expect(await wash()).toBe(rest);
+    expect(await pinned(row)).toEqual(["sticky", page, `linear-gradient(${rest}, ${rest})`]);
+  });
+
+  it("paints the pinned cells in the card's colour on a card surface, whose cards are filled", async () => {
+    // As a SiyahiProvider surface="card" around the card would write it; the theme reads the attribute.
+    await card.evaluate((el) => el.parentElement?.setAttribute("data-surface", "card"));
+    const fill = await themeColor(catalogue.page, "--card");
+    expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(fill);
+    expect((await pinned(card.locator("tbody tr:not([data-tone])").first()))[1]).toBe(fill);
   });
 });
