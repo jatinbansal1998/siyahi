@@ -1,5 +1,5 @@
-// Opens the catalogue's menus, lists, popovers, dialogs and sheets in Chromium and reads how the theme draws them,
-// with the parts it squares: the look comes from the theme's CSS, which happy-dom does not apply.
+// Opens the catalogue's menus, lists, popovers, dialogs and sheets in Chromium and reads how the theme draws them:
+// the look comes from the theme's CSS, which happy-dom does not apply.
 import type { Locator, Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 import { openCatalogue, themeColor, type Catalogue } from "./catalogue";
@@ -38,14 +38,13 @@ const drawnLayers = (shadow: string): string[] =>
         .map((layer) => layer.trim())
         .filter((layer) => !layer.startsWith("rgba(0, 0, 0, 0)"));
 
-/** A surface lies flat when its only drawn layer is a 1px ring in the card's hairline, or it draws none at all. */
-async function edge(surface: Locator): Promise<{ layers: string[]; ring: string | undefined }> {
+/** The drawn layers of a surface's box-shadow that cast a shadow: anything but a 1px ring, its edge. */
+async function shadows(surface: Locator): Promise<string[]> {
   await surface.waitFor();
-  // Let the opening animation settle, so the ring is read at its resting colour.
+  // Let the opening animation settle, so the layers are read at rest.
   await page.waitForTimeout(250);
   const [shadow = ""] = await style(surface, "box-shadow");
-  const layers = drawnLayers(shadow);
-  return { layers, ring: layers.find((layer) => layer.endsWith("0px 0px 0px 1px")) };
+  return drawnLayers(shadow).filter((layer) => !layer.endsWith("0px 0px 0px 1px"));
 }
 
 /**
@@ -69,133 +68,52 @@ const probe = async (html: string, reads: [string, string, string?][]): Promise<
   );
 };
 
-const LABEL = { mono: true, transform: "uppercase", size: "11px" };
-
-const labelType = async (label: Locator): Promise<typeof LABEL> => {
-  const [font = "", transform, size] = await style(label, "font-family", "text-transform", "font-size");
-  return { mono: font.startsWith('"Geist Mono'), transform: transform ?? "", size: size ?? "" };
-};
-
-describe("floating surfaces, group labels and square parts", { timeout: 60_000 }, () => {
-  it("draws menus, a select's list and a popover flat, edged in the card's hairline, with mono group labels", async () => {
-    const border = await themeColor(page, "--border");
-
+describe("floating surfaces lie flat", { timeout: 60_000 }, () => {
+  it("draws menus, a select's list, a popover, a dialog and a sheet with no drop shadow", async () => {
     let preview = await open("inputs/dropdown-menu", "Dropdown menu");
     await preview.getByRole("button", { name: "Actions" }).click();
-    expect(await edge(page.locator('[data-slot="dropdown-menu-content"]'))).toEqual({
-      layers: [`${border} 0px 0px 0px 1px`],
-      ring: `${border} 0px 0px 0px 1px`,
-    });
-    expect(await labelType(page.locator('[data-slot="dropdown-menu-label"]'))).toEqual(LABEL);
+    expect(await shadows(page.locator('[data-slot="dropdown-menu-content"]'))).toEqual([]);
 
     preview = await open("inputs/context-menu", "Context menu");
     await preview.getByText("Right-click").click({ button: "right" });
-    expect((await edge(page.locator('[data-slot="context-menu-content"]'))).layers).toEqual([
-      `${border} 0px 0px 0px 1px`,
-    ]);
-    expect(await labelType(page.locator('[data-slot="context-menu-label"]'))).toEqual(LABEL);
+    expect(await shadows(page.locator('[data-slot="context-menu-content"]'))).toEqual([]);
 
     preview = await open("inputs/select", "Select");
     await preview.getByRole("combobox").click();
-    expect((await edge(page.locator('[data-slot="select-content"]'))).layers).toEqual([`${border} 0px 0px 0px 1px`]);
-    expect(await labelType(page.locator('[data-slot="select-label"]'))).toEqual(LABEL);
+    expect(await shadows(page.locator('[data-slot="select-content"]'))).toEqual([]);
 
     preview = await open("inputs/popover", "Popover");
     await preview.getByRole("button").first().click();
-    expect((await edge(page.locator('[data-slot="popover-content"]'))).layers).toEqual([`${border} 0px 0px 0px 1px`]);
-  });
+    expect(await shadows(page.locator('[data-slot="popover-content"]'))).toEqual([]);
 
-  it("draws a dialog and a sheet flat, a dialog in the card's hairline ring and a sheet on its hairline edge", async () => {
-    const border = await themeColor(page, "--border");
-
-    let preview = await open("inputs/dialog", "Dialog");
+    preview = await open("inputs/dialog", "Dialog");
     await preview.getByRole("button").first().click();
-    expect((await edge(page.locator('[data-slot="dialog-content"]'))).layers).toEqual([`${border} 0px 0px 0px 1px`]);
+    expect(await shadows(page.locator('[data-slot="dialog-content"]'))).toEqual([]);
 
     preview = await open("inputs/sheet", "Sheet");
     await preview.getByRole("button").first().click();
-    const sheet = page.locator('[data-slot="sheet-content"]');
-    expect((await edge(sheet)).layers).toEqual([]);
-    expect(await style(sheet, "border-left-width", "border-left-color")).toEqual(["1px", border]);
+    expect(await shadows(page.locator('[data-slot="sheet-content"]'))).toEqual([]);
   });
 
-  it("sets the command palette's group headings as labels", async () => {
-    const preview = await open("inputs/command", "Command");
-    expect(await labelType(preview.locator("[cmdk-group-heading]").first())).toEqual(LABEL);
-  });
-
-  it("edges the data table's filter chip in a solid hairline, and opens its list flat", async () => {
-    const border = await themeColor(page, "--border");
-    const preview = await open("data/data-table", "Data table");
-    const chip = preview.locator('[data-slot="popover-trigger"]', { hasText: "Category" });
-    expect(await style(chip, "border-top-style", "border-top-width")).toEqual(["solid", "1px"]);
-    await chip.click();
-    expect((await edge(page.locator('[data-slot="popover-content"]'))).layers).toEqual([`${border} 0px 0px 0px 1px`]);
-  });
-
-  it("draws a chart's tooltip flat in the card's hairline, and its tooltip and legend chips square", async () => {
-    const border = await themeColor(page, "--border");
+  it("draws a chart's tooltip with no drop shadow", async () => {
     const preview = await open("data/bar-chart", "Bar chart");
-    const chips = preview.locator('.recharts-legend-wrapper [class~="rounded-[2px]"]');
-    await chips.first().waitFor();
-    expect(await chips.evaluateAll((els) => [...new Set(els.map((el) => getComputedStyle(el).borderRadius))])).toEqual([
-      "0px",
-    ]);
     const chart = preview.locator('[data-slot="chart"]:has(.recharts-legend-wrapper)').first();
     const plot = await chart.locator(".recharts-surface").first().boundingBox();
     if (!plot) throw new Error("the bar chart drew no plot");
     await page.mouse.move(plot.x + plot.width * 0.3, plot.y + plot.height * 0.5);
-    const tooltip = chart.locator(".recharts-tooltip-wrapper > div");
-    expect((await edge(tooltip)).layers).toEqual([]);
-    expect(await style(tooltip, "border-top-color")).toEqual([border]);
-    // Siyahi's cards write their own tooltip rows, so core's chip shows only in a page's stock ChartTooltipContent:
-    // lay one in, with core's classes, beside a StatusBadge's dot, round by nature, which must stay round.
-    const [chip, dot] = await tooltip.evaluate((box) =>
-      [
-        { className: "h-2.5 w-2.5 shrink-0 rounded-[2px]", slot: "" },
-        { className: "size-1.5 rounded-full", slot: "status-dot" },
-      ].map(({ className, slot }) => {
-        const el = box.appendChild(document.createElement("div"));
-        el.className = className;
-        if (slot) el.dataset.slot = slot;
-        return getComputedStyle(el).borderTopLeftRadius;
-      }),
-    );
-    expect(chip).toBe("0px");
-    expect(dot).not.toBe("0px");
+    expect(await shadows(chart.locator(".recharts-tooltip-wrapper > div"))).toEqual([]);
   });
 
-  it("gives a component Siyahi does not list the look: no shadow, the hairline edge, square corners", async () => {
-    const border = await themeColor(page, "--border");
+  it("casts no shadow from a component Siyahi does not list, written with a stock shadow class", async () => {
     const preview = await open("inputs/dropdown-menu", "Dropdown menu");
     // A surface written with stock shadcn classes, as a component added later (a hover card, a menubar) is.
     const box = await preview.evaluateHandle((host) => {
       const el = host.appendChild(document.createElement("div"));
-      el.className = "size-8 rounded-full bg-popover shadow-md ring-1 ring-foreground/10";
+      el.className = "size-8 bg-popover shadow-md ring-1 ring-foreground/10";
       return el;
     });
-    const surface = preview.locator(":scope > div.ring-1").last();
-    const { layers, ring } = await edge(surface);
-    expect(layers).toEqual([ring]);
-    expect(ring).toContain(border);
-    expect(await style(surface, "border-top-left-radius")).toEqual(["0px"]);
+    expect(await shadows(preview.locator(":scope > div.ring-1").last())).toEqual([]);
     await box.evaluate((el) => (el as Element).remove());
-  });
-
-  it("squares any rounding, behind a variant or on ::after too, but keeps a radio round", async () => {
-    const [pseudo, radio, choice] = await probe(
-      `<div id="pseudo" class="relative size-4 after:absolute after:inset-0 after:rounded-full"></div>
-       <div id="radio" role="radio" class="size-4 rounded-full"></div>
-       <div data-type="radio"><span id="choice" data-slot="questionnaire-choice-indicator" class="size-4 rounded-[4px]"></span></div>`,
-      [
-        ["#pseudo", "border-top-left-radius", "::after"],
-        ["#radio", "border-top-left-radius"],
-        ["#choice", "border-top-left-radius"],
-      ],
-    );
-    expect(pseudo).toBe("0px");
-    expect(radio).not.toBe("0px");
-    expect(choice).not.toBe("0px");
   });
 
   it("washes any invalid field, and a box that holds one, though neither is named", async () => {
@@ -222,20 +140,15 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
     expect(boxEdge).toBe(destructive);
   });
 
-  it("sets a menubar's group label as a label, and faded muted text at the muted colour", async () => {
-    const [font = "", transform, faded, muted] = await probe(
-      `<div id="label" data-slot="menubar-label">Group</div>
-       <p id="faded" class="text-muted-foreground/70">Faded</p>
+  it("draws faded muted text at the muted colour", async () => {
+    const [faded, muted] = await probe(
+      `<p id="faded" class="text-muted-foreground/70">Faded</p>
        <p id="muted" class="text-muted-foreground">Muted</p>`,
       [
-        ["#label", "font-family"],
-        ["#label", "text-transform"],
         ["#faded", "color"],
         ["#muted", "color"],
       ],
     );
-    expect(font.startsWith('"Geist Mono')).toBe(true);
-    expect(transform).toBe("uppercase");
     expect(faded).toBe(muted);
   });
 
@@ -246,19 +159,6 @@ describe("floating surfaces, group labels and square parts", { timeout: 60_000 }
       .first();
     const [shadow = ""] = await style(tab, "box-shadow");
     expect(drawnLayers(shadow)).toEqual([]);
-  });
-
-  it("squares a slider, a scroll area's thumb and a range position's thumb", async () => {
-    let preview = await open("inputs/slider", "Slider");
-    for (const slot of ["slider-track", "slider-thumb"]) {
-      expect(await style(preview.locator(`[data-slot="${slot}"]`).first(), "border-radius")).toEqual(["0px"]);
-    }
-    preview = await open("components/scroll-area", "Scroll area");
-    const thumb = preview.locator('[data-slot="scroll-area-thumb"]').first();
-    await thumb.waitFor({ state: "attached" });
-    expect(await style(thumb, "border-radius")).toEqual(["0px"]);
-    preview = await open("data/range-position", "Range position");
-    expect(await style(preview.locator('[data-slot="range-thumb"]').first(), "border-radius")).toEqual(["0px"]);
   });
 
   it("squares heatmap cells, treemap tiles and their legend swatches, and keeps a signed loss day round", async () => {

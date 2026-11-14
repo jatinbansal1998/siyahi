@@ -244,9 +244,8 @@ const display: Entry[] = [
     imports: ["Table", "TableHeader", "TableBody", "TableFooter", "TableRow", "TableHead", "TableCell"],
     rules: [
       "Anything to sort or filter uses the data table.",
-      "Column heads are small monospaced capitals; the theme sets them.",
-      "Mark a figure's cell and its head data-numeric: the theme right-aligns it and sets it in the mono face. Alignment alone is not a figure.",
-      "A total goes in TableFooter: one rule above it, a double rule under it, no band.",
+      "Mark a figure's cell and its head data-numeric: the theme right-aligns it, so figures line up by their units.",
+      "A total goes in TableFooter.",
       'A row that needs a look takes data-tone="negative" or "warning" on its TableRow, a faint wash of the colour. The page decides; never mark a row from its sign alone.',
     ],
     caption: "A month-by-month cash flow in a card, with its total and August marked for a look.",
@@ -291,7 +290,7 @@ const controls: Entry[] = [
     lead: "A form field: its label, the control, and a hint or an error under it, from shadcn's Field.",
     imports: ["Field", "FieldLabel", "FieldDescription", "FieldError"],
     rules: [
-      "Every field is a Field with a FieldLabel above the control; the theme sets the label in small muted mono capitals, so a page writes no label styles.",
+      "Every field is a Field with a FieldLabel above the control, so a page writes no label styles.",
       "Focus is the control's own edge in the text colour, 2px thick; an invalid field keeps its red edge and takes a faint red wash, with its FieldError under it.",
       "A checkbox or switch label sits beside it in a horizontal Field and keeps the sans face.",
     ],

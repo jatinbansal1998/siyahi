@@ -7,20 +7,15 @@ import {
   CardTitle,
   MetricStrip,
   PanelGrid,
-  SiyahiProvider,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-  ToggleGroup,
-  ToggleGroupItem,
   useFormat,
   type MetricStripItem,
-  type Surface,
 } from "@siyahi/ui";
-import { useState } from "react";
 
 const orders = [
   { hour: 9, orders: 42 },
@@ -38,7 +33,7 @@ const products = [
   { product: "Bookshelf", revenue: 166000 },
 ];
 
-function Dashboard() {
+export default function SurfacesExample() {
   const { money, moneyCompact, pct } = useFormat();
   const kpis: MetricStripItem[] = [
     { label: "Revenue", value: money(4512300), change: 0.031 },
@@ -84,32 +79,6 @@ function Dashboard() {
           </CardContent>
         </Card>
       </PanelGrid>
-    </div>
-  );
-}
-
-export default function SurfacesExample() {
-  const [surface, setSurface] = useState<Surface>("open");
-  return (
-    <div className="flex flex-col gap-4">
-      <ToggleGroup
-        value={[surface]}
-        onValueChange={([next]) => {
-          // Pressing the selected surface again would leave none selected; keep it.
-          if (next) setSurface(next as Surface);
-        }}
-        variant="outline"
-        size="sm"
-        aria-label="Surface"
-      >
-        {/* The default first. */}
-        <ToggleGroupItem value="open">Open</ToggleGroupItem>
-        <ToggleGroupItem value="card">Card</ToggleGroupItem>
-      </ToggleGroup>
-      {/* A nested provider sets the surface for its part of the page. */}
-      <SiyahiProvider surface={surface}>
-        <Dashboard />
-      </SiyahiProvider>
     </div>
   );
 }

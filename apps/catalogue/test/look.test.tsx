@@ -61,66 +61,23 @@ describe("the look", { timeout: 60_000 }, () => {
     expect(before.color).toBe(await token("--link"));
   });
 
-  it("keeps numbering a block wrapped in its own SiyahiProvider", async () => {
-    // A provider draws a display: contents div between the panel and its card.
-    await example()
-      .locator('[data-slot="panel"]')
-      .first()
-      .evaluate((panel) => {
-        const provider = document.createElement("div");
-        provider.dataset.slot = "siyahi-provider";
-        provider.className = "contents";
-        provider.append(...panel.childNodes);
-        panel.append(provider);
-      });
-    const counts = await example()
-      .locator('[data-slot="panel"]')
-      .evaluateAll((panels) => panels.map((panel) => getComputedStyle(panel).counterIncrement));
-    expect(counts).toEqual(["panel 1", "panel 1"]);
-    const content = await example()
-      .locator('[data-slot="panel"] [data-slot="card-title"]')
-      .first()
-      .evaluate((title) => getComputedStyle(title, "::before").content);
-    expect(content).toContain("counter(panel");
-  });
-
-  it("joins a toggle group's items, sharing their borders", async () => {
+  it("fills the selected toggle with the text colour, so the reader sees which one is on", async () => {
     const items = example().getByRole("group", { name: "Period" }).locator('[data-slot="toggle-group-item"]');
-    const edges = await items.evaluateAll((els) =>
-      els.map((el) => ({ left: el.getBoundingClientRect().left, right: el.getBoundingClientRect().right })),
+    const drawn = await items.evaluateAll((els) =>
+      els.map((el) => [el.getAttribute("aria-pressed"), getComputedStyle(el).backgroundColor]),
     );
-    expect(edges.slice(1).map((edge, i) => edge.left - (edges[i]?.right ?? 0))).toEqual([-1, -1]);
-  });
-
-  it("sets labels over figures in small monospaced capitals", async () => {
-    const labels = [
-      example().locator('[data-slot="table-head"]').first(),
-      example().locator('[data-slot="metric-strip-label"]').first(),
-    ];
-    // A data table's column title, as DataTableColumnTitle draws it, takes the head's type over its own text-sm.
-    await labels[0]?.evaluate((head) => {
-      const title = document.createElement("div");
-      title.dataset.slot = "column-title";
-      title.className = "text-sm";
-      title.textContent = "Holding";
-      head.replaceChildren(title);
-    });
-    labels.push(example().locator('[data-slot="table-head"] [data-slot="column-title"]'));
-    for (const label of labels) {
-      const [font, transform, size] = await style(label, "font-family", "text-transform", "font-size");
-      expect([font?.startsWith('"Geist Mono'), transform, size]).toEqual([true, "uppercase", "11px"]);
-    }
-  });
-
-  it("draws a total row between a rule and a double rule, with no band", async () => {
-    const total = example().locator('[data-slot="table-footer"]');
-    expect(
-      await style(total, "border-top-width", "border-top-style", "border-bottom-width", "border-bottom-style"),
-    ).toEqual(["1px", "solid", "3px", "double"]);
-    expect(await style(total, "border-top-color", "background-color")).toEqual([
-      await token("--foreground"),
-      TRANSPARENT,
+    const ink = await token("--foreground");
+    expect(drawn.map(([pressed, fill]) => [pressed, fill === ink])).toEqual([
+      ["false", false],
+      ["true", true],
+      ["false", false],
     ]);
+  });
+
+  it("sets a MetricStrip figure's label in small monospaced capitals", async () => {
+    const label = example().locator('[data-slot="metric-strip-label"]').first();
+    const [font, transform, size] = await style(label, "font-family", "text-transform", "font-size");
+    expect([font?.startsWith('"Geist Mono'), transform, size]).toEqual([true, "uppercase", "11px"]);
   });
 
   it("filters the holdings as the reader searches, and totals the rows shown", async () => {

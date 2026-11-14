@@ -13,9 +13,6 @@ import {
   Button,
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   CodeBlock,
   CodeBlockActions,
   CodeBlockContent,
@@ -25,7 +22,6 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-  SiyahiProvider,
   Skeleton,
   Table,
   TableBody,
@@ -307,57 +303,48 @@ function Preview({ name }: { name: string }) {
           inert
           className="pointer-events-none absolute inset-4 flex flex-col justify-center-safe [&_[data-slot=card-header]]:hidden"
         >
-          {/* The preview shows the example as its own page draws it, on the default surface, not the index's cards. */}
-          <SiyahiProvider surface="open">
-            <Suspense>
-              <Component />
-            </Suspense>
-          </SiyahiProvider>
+          <Suspense>
+            <Component />
+          </Suspense>
         </div>
       )}
     </div>
   );
 }
 
-/** A category's families as cards to pick from, so the page is a map rather than every example at once. */
+/** A category's families as tiles to pick from, so the page is a map rather than every example at once. */
 export function FamilyIndex({ page }: { page: Page }) {
   return (
-    // A map of separate links, each its own box: the card surface, not the open default.
-    <SiyahiProvider surface="card">
-      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {page.families.map((family) => {
-          const count = family.examples?.length ?? 0;
-          const first = family.examples?.[0];
-          return (
-            // The hover and focus ring sit on the item, which shares the card's corner, so the card stays stock.
-            <li
-              key={family.id}
-              className="flex rounded-xl transition-shadow has-[a:hover]:ring-1 has-[a:hover]:ring-foreground/25 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50"
-            >
-              {/* Only the title is a link, stretched over the card: the live preview holds links of its own, and a link
-                inside a link is invalid. */}
-              <Card
-                // oxlint-disable-next-line siyahi/no-restyle -- the live preview runs to the top edge, as Card does for an <img>.
-                className={`relative w-full ${first ? "pt-0" : ""}`}
-              >
-                {first && <Preview name={first.name} />}
-                <CardHeader>
-                  <CardTitle>
-                    <a href={`#/${page.id}/${family.id}`} className="outline-none after:absolute after:inset-0">
-                      {family.title}
-                    </a>
-                  </CardTitle>
-                  <CardDescription>{family.lead}</CardDescription>
-                </CardHeader>
-                <div className="mt-auto flex items-center justify-between gap-2 px-4 text-xs text-muted-foreground">
-                  <span className="truncate font-mono">{family.imports?.[0]}</span>
-                  {count > 1 && <span className="shrink-0">{count} examples</span>}
-                </div>
-              </Card>
-            </li>
-          );
-        })}
-      </ul>
-    </SiyahiProvider>
+    // A map of separate links, each its own tile in a hairline: blocks of data sit open, but a link reads as one
+    // thing to press.
+    <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {page.families.map((family) => {
+        const count = family.examples?.length ?? 0;
+        const first = family.examples?.[0];
+        return (
+          <li
+            key={family.id}
+            data-slot="family-tile"
+            className="relative flex flex-col border transition-colors has-[a:hover]:border-foreground/40 has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring"
+          >
+            {first && <Preview name={first.name} />}
+            <div className="flex flex-1 flex-col gap-1 p-4">
+              {/* Only the title is a link, stretched over the tile: the live preview holds links of its own, and a
+                link inside a link is invalid. */}
+              <h3 className="font-medium">
+                <a href={`#/${page.id}/${family.id}`} className="outline-none after:absolute after:inset-0">
+                  {family.title}
+                </a>
+              </h3>
+              <p className="text-sm text-muted-foreground">{family.lead}</p>
+              <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
+                <span className="truncate font-mono">{family.imports?.[0]}</span>
+                {count > 1 && <span className="shrink-0">{count} examples</span>}
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

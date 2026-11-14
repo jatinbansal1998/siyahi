@@ -1,6 +1,5 @@
 import { Children, type ReactNode } from "react";
 import { cn } from "cn";
-import { useSurface } from "@siyahi/ui/components/siyahi/siyahi-provider";
 
 // Tailwind finds classes by scanning source, so each step is written out whole.
 const COLUMNS = {
@@ -26,12 +25,10 @@ export interface PanelGridProps {
 }
 
 /**
- * Data blocks side by side: chart cards, tables, a MetricStrip. On an open surface, the default, space parts the
- * blocks: 24px across and 16px down, no box and no rule. A card surface sets them 8px apart, each in its own box. The
- * theme numbers each block's card title 01, 02.
+ * Data blocks side by side: chart cards, tables, a MetricStrip. Space parts the blocks, 24px across and 16px down,
+ * with no box and no rule. The theme numbers each block's card title 01, 02.
  */
 export function PanelGrid({ columns = 2, children, className }: PanelGridProps) {
-  const surface = useSurface();
   // toArray drops a block a page left out with `cond && <Card />`, which count would still count.
   const blocks = Children.toArray(children).length;
   const wide = cn(
@@ -39,10 +36,8 @@ export function PanelGrid({ columns = 2, children, className }: PanelGridProps) 
     (columns === 2 || columns === 3) && blocks >= 4 && WIDE_FOUR,
   );
   return (
-    // data-surface carries the surface this grid laid itself out for to the theme's CSS, which cannot read React
-    // context: inside a dialog or popover, portaled out of the provider's element, the two would otherwise disagree.
-    <div data-slot="panel-grid" data-surface={surface} className={cn("@container/panels", className)}>
-      <div className={cn("grid grid-cols-1", COLUMNS[columns], wide, surface === "open" ? "gap-x-6 gap-y-4" : "gap-2")}>
+    <div data-slot="panel-grid" className={cn("@container/panels", className)}>
+      <div className={cn("grid grid-cols-1 gap-x-6 gap-y-4", COLUMNS[columns], wide)}>
         {Children.map(children, (child) => (
           <div data-slot="panel" className="min-w-0">
             {child}

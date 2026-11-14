@@ -109,7 +109,8 @@
   --radius: 0rem;
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  /* The page colour: a card is a block on the page, not a box, so what lies under its marks is the page. */
+  --card: oklch(0.985 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -193,12 +194,12 @@
      * page, where cards have no fill, the canvas is what text sits on.
      * Claude Code (#181818, about #e8e8e8 text) and T3 Code (#0a0a0a, about
      * #bebebe) both narrow that gap; this sits between them, at 14.9:1.
-     * Cards sit one step above the canvas, so data reads as raised, as the
-     * white card does on the light canvas; the sidebar is a shade darker.
+     * A popover sits one step above the canvas, so it reads as lifted over
+     * the page; the sidebar is a shade darker.
      */
     --background: oklch(0.14 0 0);
     --foreground: oklch(0.922 0 0);
-    --card: oklch(0.215 0 0);
+    --card: oklch(0.14 0 0);
     --card-foreground: oklch(0.922 0 0);
     --popover: oklch(0.215 0 0);
     --popover-foreground: oklch(0.922 0 0);
@@ -283,12 +284,9 @@
 }
 
 /*
- * Every selected toggle, a view switch or a filter chip alike, fills with the
- * foreground, black on white and white on black, so the reader sees at once
- * what is on; stock shadcn marks it with a faint grey. A default (pill) tab
- * selects the same way: stock fills it with the canvas colour, 1.05:1 against
- * its grey list, lifted on a drop shadow, which the fill makes needless. Unlayered, to outrank the stock
- * aria-pressed:bg-muted.
+ * A selected toggle, a view switch or a filter chip alike, and a selected pill tab fill with the foreground, black on
+ * white and white on black. Stock shadcn marks them with a faint grey, 1.05:1 against the canvas, so the reader cannot
+ * see which one is on. Unlayered, to outrank the stock aria-pressed:bg-muted.
  */
 :is([data-slot="toggle"], [data-slot="toggle-group-item"]):is([aria-pressed="true"], [data-pressed]),
 [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active] {
@@ -296,31 +294,6 @@
   color: var(--background);
   border-color: var(--foreground);
   --tw-shadow: 0 0 #0000;
-}
-
-/*
- * A toggle group's items sit flush and share their borders, one control with
- * its parts side by side; stock spaces them 8px apart. A group set to
- * spacing={0} already joins its items by dropping their inner borders. The
- * pressed item rises over its neighbours, so its own edge shows on both sides.
- */
-[data-slot="toggle-group"]:not([data-spacing="0"]) {
-  gap: 0;
-  > [data-slot="toggle-group-item"] {
-    &[aria-pressed="true"],
-    &[data-pressed] {
-      z-index: 1;
-    }
-    &[data-variant="outline"] + [data-slot="toggle-group-item"] {
-      margin-inline-start: -1px;
-    }
-  }
-  &[data-orientation="vertical"]
-    > [data-slot="toggle-group-item"][data-variant="outline"]
-    + [data-slot="toggle-group-item"] {
-    margin-inline-start: 0;
-    margin-block-start: -1px;
-  }
 }
 
 /*
@@ -352,43 +325,10 @@
 }
 
 /*
- * A copy button sits in a row above the code, never over it. Core floats a
- * CodeBlockActions written straight in the block over the code's top right
- * (z-10, shown on hover), where it covers the end of a line and painted over
- * the page's sticky section strip; here it takes a row of its own, as in a
- * CodeBlockHeader, always shown, with the header's plain button.
- */
-[data-slot="code-block"] > [data-slot="code-block-actions"] {
-  position: static;
-  align-self: flex-end;
-  margin: 0.5rem 0.5rem 0;
-  opacity: 1;
-}
-/*
- * Core's floating fill and faint resting ring go. Its fill outranks the ghost
- * button's own hover fill, so that is set again here, as a header's button
- * shows it; the focus ring is left alone.
- */
-[data-slot="code-block"] > [data-slot="code-block-actions"] > button {
-  background-color: transparent;
-  &:hover {
-    background-color: var(--muted);
-    @variant dark {
-      background-color: color-mix(in oklab, var(--muted) 50%, transparent);
-    }
-  }
-  &:not(:focus-visible) {
-    --tw-ring-shadow: 0 0 #0000;
-  }
-}
-
-/*
- * --input is the edge of a field, where the reader types or picks. A button,
- * a toggle and a code block are framed by their label or their content, so
- * their outline stays the faint divider colour; scoping the variable keeps
- * the fill each derives from it faint too. A button is matched by its own
- * group/button class: rendered as a popover or menu trigger, it takes that
- * trigger's data-slot instead of "button".
+ * --input is the edge of a field, raised to 3:1 so the reader sees where to type. Stock buttons, toggles and code
+ * blocks also edge and fill themselves from it (dark:bg-input/30), which the raised value would make heavy, so for
+ * them it stays the faint divider colour, as stock draws them. A button is matched by its own group/button class:
+ * rendered as a popover or menu trigger, it takes that trigger's data-slot instead of "button".
  */
 :is([class~="group/button"], [data-slot="toggle"], [data-slot="toggle-group-item"], [data-slot="code-block"]) {
   --input: var(--border);
@@ -591,85 +531,6 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * A field's label sits above it in small monospaced capitals, muted, as the
- * labels over figures do: FieldLabel in a Field (directly or in its
- * FieldContent), the home a page gets it from. A label for a checkbox, a
- * switch or a radio reads as a sentence and keeps the sans face, whatever the
- * Field's orientation.
- */
-[data-slot="field"]:not(:has([role="checkbox"], [role="switch"], [role="radio"])) [data-slot="field-label"] {
-  @apply font-mono text-2xs tracking-wider text-muted-foreground uppercase;
-}
-
-/*
- * A group's label in a menu (dropdown, context, menubar), a select's or a combobox's list or the
- * command palette is a label over its items, set as one.
- */
-:is(
-  [data-slot$="menu-label"],
-  [data-slot="menubar-label"],
-  [data-slot="select-label"],
-  [data-slot="combobox-label"],
-  [data-slot="command-group"] [cmdk-group-heading]
-) {
-  @apply font-mono text-2xs tracking-wider text-muted-foreground uppercase;
-}
-
-/*
- * A floating surface reads as a sheet of the page, not a bubble over it: no shadow (the theme has none) and the
- * card's hairline for an edge. Stock shadcn edges a menu, a list, a popover, a dialog or a card with a fainter ring
- * (ring-foreground/10, also behind a variant such as data-open:); it takes the hairline wherever it appears, on
- * a component added later too. The
- * chart's tooltip, which Recharts draws, is named.
- */
-[class*="ring-foreground/10"] {
-  --tw-ring-color: var(--border);
-}
-[data-slot="chart"] .recharts-tooltip-wrapper > div {
-  border-color: var(--border);
-}
-
-/*
- * Square corners everywhere (DESIGN.md): every element and its ::before and ::after are square, whatever rounding
- * a component asks for (rounded-full, rounded-[4px], hover:rounded-full, after:rounded-full), on a component added
- * later too. Only what is round by nature stays round, by what it is rather than its classes: an avatar, a radio
- * and a radio's dot (a questionnaire's radio choice too), a status dot and a spinner. A chart draws its round marks
- * in SVG, which this does not touch.
- */
-:not(
-  [data-slot^="avatar"],
-  [data-slot="message-avatar"],
-  [role="radio"],
-  [role="radio"] *,
-  [data-type="radio"] [data-slot$="indicator"],
-  [data-type="radio"] [data-slot$="indicator-dot"],
-  [data-slot="status-dot"],
-  .animate-spin
-),
-:not(
-  [data-slot^="avatar"],
-  [data-slot="message-avatar"],
-  [role="radio"],
-  [role="radio"] *,
-  [data-type="radio"] [data-slot$="indicator"],
-  [data-type="radio"] [data-slot$="indicator-dot"],
-  [data-slot="status-dot"],
-  .animate-spin
-)::before,
-:not(
-  [data-slot^="avatar"],
-  [data-slot="message-avatar"],
-  [role="radio"],
-  [role="radio"] *,
-  [data-type="radio"] [data-slot$="indicator"],
-  [data-type="radio"] [data-slot$="indicator-dot"],
-  [data-slot="status-dot"],
-  .animate-spin
-)::after {
-  border-radius: 0;
-}
-
-/*
  * Muted text is already the faintest that reads at 4.5:1 (contrast.mjs). Stock shadcn fades it further on some
  * parts (text-muted-foreground/70 on a trace's description), under that bar, so a faded muted class reads as the
  * muted colour itself.
@@ -705,28 +566,7 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * Column heads are labels, in small monospaced capitals; a sort header's
- * button and a data table's column title take the head's type rather than
- * their own. A total row reads as a
- * ledger's: one rule above it and a double rule under it in the text colour,
- * with no band.
- */
-[data-slot="table-head"] {
-  @apply font-mono text-2xs tracking-wider uppercase;
-  :is([class~="group/button"], [data-slot="column-title"]) {
-    font: inherit;
-    letter-spacing: inherit;
-    text-transform: inherit;
-  }
-}
-/*
- * Tables are dense, as a ledger is: compact rows, a rule in the text colour
- * under the column heads, the first column (what each row is) in medium
- * weight, and figures in the mono face, a size down so a column of them takes
- * no more room than the sans did. A figure is a cell marked data-numeric (the
- * data table's number columns, or a plain TableCell the page marks), which
- * also right-aligns it, and any Delta in a cell. Alignment alone says nothing:
- * a right-aligned word stays in the sans. Row hairlines stay; no stripes, no
+ * Tables are dense, so a screen shows more rows: compact column heads and cells. Row hairlines stay; no stripes, no
  * column rules.
  */
 [data-slot="table-head"] {
@@ -734,26 +574,6 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 [data-slot="table-cell"] {
   padding-block: 0.2rem;
-}
-[data-slot="table-header"] [data-slot="table-row"] {
-  border-bottom-color: var(--foreground);
-}
-/* A data table's sticky header draws its rule as a line of its own, which stays when the rows scroll under it. */
-[data-slot="table-header"]::after {
-  background-color: var(--foreground);
-}
-[data-slot="table-body"] [data-slot="table-cell"]:first-child {
-  font-weight: 500;
-}
-:is([data-slot="table-cell"][data-numeric], [data-slot="table-cell"] [data-slot="delta"]) {
-  @apply font-mono;
-  font-size: 0.8125rem;
-}
-[data-slot="table-footer"] {
-  background: none;
-  border-top: 1px solid var(--foreground);
-  border-bottom: 3px double var(--foreground);
-  font-weight: 600;
 }
 
 /*
@@ -801,24 +621,17 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 /*
  * Panels in a PanelGrid are numbered 01, 02 before their title, in the mono
  * face and the link colour, so the text can point to one. A panel without a
- * card title, such as a MetricStrip with none, takes no number; a block
- * wrapped in its own SiyahiProvider (which draws no box) still counts. The panel
+ * card title, such as a MetricStrip with none, takes no number. The panel
  * counts, not the title: a card header is a size container, whose style
  * containment would keep each title's count to itself.
  */
 [data-slot="panel-grid"] {
   counter-reset: panel;
 }
-[data-slot="panel"]:has(
-  > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"],
-  > [data-slot="siyahi-provider"] > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"]
-) {
+[data-slot="panel"]:has(> [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"]) {
   counter-increment: panel;
 }
-:is([data-slot="panel"], [data-slot="panel"] > [data-slot="siyahi-provider"])
-  > [data-slot="card"]
-  > [data-slot="card-header"]
-  > [data-slot="card-title"]::before {
+[data-slot="panel"] > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"]::before {
   content: counter(panel, decimal-leading-zero);
   @apply font-mono text-2xs font-medium text-link;
   letter-spacing: 0.04em;
@@ -828,21 +641,11 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * A data table inside a boxed card drops its own border: the card's ring
- * already frames it. On an open page, with no frame, it keeps its border.
- */
-@scope ([data-surface="card"]) to ([data-surface="open"]) {
-  [data-slot="card"] [data-slot="table-container"] {
-    border-color: transparent;
-  }
-}
-/*
- * The opaque fill a data table's sticky header and pinned cells paint, so rows
- * scrolling under them stay hidden: the colour under the table, the card it
- * sits in or, on an open surface, whose cards have no fill, the page.
+ * The opaque fill a data table's sticky header and pinned cells paint, so rows scrolling under them stay hidden: the
+ * page, which a card does not cover.
  */
 [data-slot="table-container"] {
-  --table-fill: var(--card);
+  --table-fill: var(--background);
 }
 
 /*
@@ -905,25 +708,19 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 }
 
 /*
- * Chart gridlines take the full border colour, solid: stock shadcn draws them
- * dashed at half of it, which all but vanishes on a dark card (5% white).
+ * Chart gridlines take the full border colour: stock shadcn draws them at half of it, which all but vanishes on the
+ * dark page (10% white).
  */
 [data-slot="chart"] .recharts-cartesian-grid line {
   stroke: var(--border);
 }
 
 /*
- * The sidebar is parted from the page by a hairline on its page-side edge,
- * its group labels are small monospaced capitals, as every label over content
- * is, and its rows are compact. Fill, icons and the current-page mark stay as
- * shadcn draws them.
+ * The sidebar's rows are compact, as a table's are. shadcn edges a collapsible sidebar on its page side already; a
+ * non-collapsible one, set in the page's flow, has none, so it takes the hairline here.
  */
-/* shadcn edges a collapsible sidebar on its page side already; a non-collapsible one, set in the page's flow, has none. */
 div[data-slot="sidebar"]:not([data-side], [data-mobile]) {
   border-inline-end: 1px solid var(--sidebar-border);
-}
-[data-slot="sidebar-group-label"] {
-  @apply font-mono text-2xs tracking-wider uppercase;
 }
 [data-slot="sidebar-menu"] {
   gap: 0;
@@ -938,19 +735,6 @@ div[data-slot="sidebar"]:not([data-side], [data-mobile]) {
 }
 [data-sidebar="menu-sub-button"] {
   height: 1.5rem;
-}
-
-/*
- * The selected sub-page marks its stretch of the sidebar's rail in the accent,
- * so the current place reads at a glance in a long list, as a docs index does.
- */
-[data-slot="sidebar-menu-sub-item"]:has(> [data-active])::before {
-  content: "";
-  position: absolute;
-  inset-block: 2px;
-  left: -11px;
-  width: 2px;
-  background: var(--sidebar-accent-foreground);
 }
 
 /* Touch targets follow input capability, including touch laptops. */
@@ -1000,50 +784,24 @@ div[data-slot="sidebar"]:not([data-side], [data-mobile]) {
 }
 
 /*
- * Surfaces, from SiyahiProvider's surface prop. Open, the default, takes the
- * box off every core Card: no fill, no ring, no tinted footer band, and no
- * padding, so a block's content sits level with the page's text and space,
- * not a box or a rule, parts it from the next. Card is a filled square card
- * with a hairline ring and no shadow, 8px from the next, for a page of
- * separate blocks. Each scope stops at a provider that says otherwise.
- * Unlayered, like the rules above, to outrank the core components' utility
- * classes.
+ * A Card is a block on the page, not a box: no fill, no ring, no tinted footer band and no padding, so its content
+ * sits level with the page's text, and space, not a box or a rule, parts it from the next. --card is the page colour
+ * (above), so what a block mixes into, a forecast's halo, a bar's tint or an exception's wash, is what lies under it.
+ * Unlayered, like the rules above, to outrank the core component's utility classes.
  */
-/*
- * An open card renames --card to the page colour for everything inside it, and a custom property inherits past a
- * scope's end, so a card provider nested in an open card would fill its boxes with the page colour. --card-fill keeps
- * the theme's card colour, set once at the root, and each card provider takes it back.
- */
-:root {
-  --card-fill: var(--card);
+[data-slot="card"] {
+  /* No box, so no edge to clip at: a figure's wash or picker reaching past its text into the gap stays whole. */
+  overflow: visible;
+  background: none;
+  --tw-ring-color: transparent;
+  --card-spacing: 0px;
+  gap: calc(var(--spacing) * 4);
 }
-[data-surface="card"] {
-  --card: var(--card-fill);
-}
-
-@scope (:root, [data-surface="open"]) to ([data-surface="card"]) {
-  [data-slot="table-container"] {
-    --table-fill: var(--background);
-  }
-  /*
-   * With no fill, what lies under a card's marks is the page, so --card names the page colour inside it: a forecast's
-   * halos, a dot's ring, a bar's tint and an exception's wash mix into the canvas, not into a grey no box shows.
-   */
-  [data-slot="card"] {
-    --card: var(--background);
-    /* No box, so no edge to clip at: a figure's wash or picker reaching past its text into the gap stays whole. */
-    overflow: visible;
-    background: none;
-    --tw-ring-color: transparent;
-    --card-spacing: 0px;
-    gap: calc(var(--spacing) * 4);
-  }
-  [data-slot="card-footer"] {
-    background: none;
-    border-top-width: 0;
-    /* The band's own top padding stacked on the card's gap, and with no band it read as a hole under the figure. */
-    padding-top: 0;
-  }
+[data-slot="card-footer"] {
+  background: none;
+  border-top-width: 0;
+  /* The band's own top padding stacked on the card's gap, and with no band it read as a hole under the figure. */
+  padding-top: 0;
 }
 
 /*

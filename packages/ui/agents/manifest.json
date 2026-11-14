@@ -281,13 +281,6 @@
       ]
     },
     {
-      "need": "Separate square cards instead of the default open blocks, for a page or a part of one",
-      "guidance": "`SiyahiProvider` with `surface=\"card\"`",
-      "components": [
-        "SiyahiProvider"
-      ]
-    },
-    {
       "need": "A forecast stretch after the latest actual figure, or a marker for today",
       "guidance": "`LineChartCard` or `AreaChartCard` with `forecastFrom` and `today` set to x values",
       "components": [
@@ -1276,15 +1269,12 @@
         "CardTitle",
         "MetricStrip",
         "PanelGrid",
-        "SiyahiProvider",
         "Table",
         "TableBody",
         "TableCell",
         "TableHead",
         "TableHeader",
         "TableRow",
-        "ToggleGroup",
-        "ToggleGroupItem",
         "useFormat"
       ]
     },

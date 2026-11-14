@@ -42,8 +42,8 @@ a meaning:
   fill alike. A field shows it as its own edge, 2px in the text colour; a chart
   mark as a dashed stroke, apart from a picked mark's solid one. A destructive
   control and an invalid field focus in the destructive red. Menu items show
-  focus as their highlight. A selected
-  toggle or pill tab fills with the foreground. A chart bar that a selection
+  focus as their highlight. A selected toggle or pill tab fills with the
+  foreground, as stock's faint grey cannot be told from the rest. A chart bar that a selection
   dims keeps its full-colour outline and fades only inside.
 - **Destructive is not loss.** `--destructive` (delete, an invalid field) is a
   deeper red than `--negative` (a loss figure), so its label reads on its own
@@ -62,19 +62,13 @@ a meaning:
 
 ## Surfaces
 
-`SiyahiProvider`'s `surface` sets how a data block sits on the page. The page
-and card colours are fixed: never tint the canvas.
-
-- **`open`** (the default, with or without a provider): no fill, no ring and
-  no padding, so a block's content sits level with the page's text. Space, not
-  a box or a rule, parts the blocks: 24px across and 16px down in a
-  `PanelGrid`, 24px between `MetricStrip` figures. A lighter box on the canvas
-  cuts off abruptly and spends room on its own padding, so data sits on the
-  page. Set nothing to get it.
-- **`card`**: tight square cards, for a page of separate blocks, such as an
-  index of links. Each block is filled with the card colour inside a hairline
-  ring, with no shadow, 8px from the next in a `PanelGrid`. Ask for it with
-  `surface="card"`.
+A data block sits open on the page: a `Card` has no fill, no ring and no
+padding, so its content sits level with the page's text. Space, not a box or a
+rule, parts the blocks: 24px across and 16px down in a `PanelGrid`, 24px
+between `MetricStrip` figures. A lighter box on the canvas cuts off abruptly
+and spends room on its own padding, so data sits on the page. `--card` is the
+page colour, so what a block's marks mix into is what lies under them. The
+page colour is fixed: never tint the canvas.
 
 ## Density
 
@@ -102,22 +96,15 @@ mono face and the link colour, so the text can point to one.
 
 ## Shape
 
-- **Square corners everywhere**: panels, cards, buttons, fields, badges,
-  toggles, menus, bars and tracks (data bars, progress, a slider's track and
-  thumb, a scrollbar's thumb), heatmap cells, treemap tiles and the colour
-  chips of charts and legends alike (`--radius` is 0). Only what is round by
-  nature stays round: an avatar, a radio, a status dot, a line's end dot, a
-  spinner, and a signed calendar heatmap's loss day, whose shape carries its
-  sign. The theme squares every other rounding, on any component.
-  Never add a `rounded-*` class to a box.
-- **Floating surfaces lie flat.** Nothing casts a drop shadow: a menu, a
-  list, a popover, a dialog, a sheet, a hover card and a chart's tooltip take
-  the card's hairline for their edge, so they read as a sheet of the page.
-- **Joined toggles.** The items of a `ToggleGroup` sit flush and share their
-  borders, one control; the pressed item fills with the foreground.
-- **A code block's copy button sits in a header row** (`CodeBlockHeader`),
-  beside its title or alone, never floating over the code, where it would
-  cover the end of a line. An untitled snippet takes the extra row.
+- **The look is shadcn's, set by tokens.** Siyahi sets colours, fonts,
+  `--radius` and shadows; stock components keep the shape and states shadcn
+  gives them. The theme restyles a stock component only to fix a measured
+  problem (contrast, clipping, touch targets, density), never for taste.
+- **Square corners**: `--radius` is 0, so every corner a component takes from
+  the theme is square. A part shadcn rounds fully (a dot, a pill, a switch)
+  stays round. Never add a `rounded-*` class to a box.
+- **Floating surfaces lie flat.** Nothing casts a drop shadow: every shadow
+  size is transparent.
 - Badges stay boxed (an outline), the primary button and the pressed toggle
   black (white in dark), titles in the sans face, at normal spacing.
 
@@ -210,13 +197,10 @@ from the catalogue.
 
 ## Labels and totals
 
-- **Labels are small monospaced capitals**: a `MetricStrip` figure's label, a table's column heads, a sidebar group's
-  label, a group's label in a menu, a select's list or the command palette,
-  and a form field's label (muted, above the field). The components and
-  the theme set them; never set a label in this style by hand elsewhere, and
-  never set a figure or a title in it.
-- **A total row reads as a ledger's**: in `TableFooter`, one rule above it and
-  a double rule under it in the text colour, no band.
+- **A figure's label is small monospaced capitals**, as `MetricStrip` sets
+  it. Siyahi's components set it; never set a label in this style by hand,
+  and never a figure or a title.
+- **A total row** goes in `TableFooter`.
 
 ## Charts
 
@@ -259,13 +243,10 @@ from the catalogue.
 
 ## Tables
 
-Tables are dense, as a ledger is: compact rows, a 1px rule in the text colour
-under the column heads, the first column (what the row is) in medium weight,
-and figures in the mono face. A figure is a cell marked `data-numeric`, which
-also right-aligns it (the data table marks its number columns; a plain
-`TableCell` or `TableHead` takes the attribute), and any `Delta` in a cell.
-Alignment alone is not a figure. Row hairlines stay; never stripes, never
-column rules.
+Tables are dense: compact rows and column heads. A number column is marked
+`data-numeric`, which right-aligns it, so figures line up by their units (the
+data table marks its number columns; a plain `TableCell` or `TableHead` takes
+the attribute). Row hairlines stay; never stripes, never column rules.
 
 ## Forms
 
@@ -277,6 +258,5 @@ column rules.
 
 ## Sidebar
 
-The sidebar is parted from the page by a hairline on its page-side edge, its
-group labels are small monospaced capitals and its rows are compact. Its fill,
-icons and the current page's mark stay as shadcn draws them.
+The sidebar is parted from the page by a hairline on its page-side edge and
+its rows are compact. Everything else stays as shadcn draws it.

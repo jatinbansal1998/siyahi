@@ -23,7 +23,7 @@ Installation: https://github.com/jatinbansal1998/siyahi#for-agents.
    `needs` for the task, then match `components` against the `examples` index.
    Read only the selected example files. `recipes` points to existing
    compositions for larger tasks. Read the installed README's Install section
-   when setting up the app, and Surfaces when choosing page treatment.
+   when setting up the app.
 3. Follow the examples' imports and composition. Exact prop types are in
    `dist/index.d.ts`; follow its re-exports to the component's declaration.
    Do not invent props from memory or copy old consumer pages.
@@ -60,12 +60,11 @@ layouts and product-specific logic belong in the consuming app.
   before designing or changing UI: its rules on colour, emphasis, surfaces,
   shape, labels and words are binding. In short, colour carries meaning and emphasis
   tints the whole box (`StatusAlert`, `StatusBadge`, `Callout`, `Quote`), never
-  a stripe down one side. A page is open by default, blocks on the page with
-  no box or rule: set no surface unless the page is a set of separate blocks
-  (`surface="card"`), and add no rounded corners, shadows, boxes or gaps of
-  your own between data blocks. Leave chart heights out so they follow the
+  a stripe down one side. Data blocks sit open on the page, with no box or
+  rule: add no rounded corners, shadows, boxes or gaps of your own between
+  them, and do not restyle a stock component. Leave chart heights out so they follow the
   chart's width.
-- The installed README owns surfaces, chart colours, locale and dark mode.
+- The installed README owns chart colours, locale and dark mode.
   Include `<meta name="color-scheme" content="light dark">` in app HTML.
   Follow the package's reduced-motion behaviour; JavaScript-started motion
   checks `matchMedia("(prefers-reduced-motion: reduce)")` too.
