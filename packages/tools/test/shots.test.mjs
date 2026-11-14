@@ -9,9 +9,9 @@ import { describe, expect, it } from "vite-plus/test";
 
 const shots = fileURLToPath(new URL("../shots.mjs", import.meta.url));
 const execFileAsync = promisify(execFile);
-// The page's font must be a loaded Geist for the font check to pass.
-const geist = readFileSync(
-  fileURLToPath(import.meta.resolve("@fontsource-variable/geist/files/geist-latin-wght-normal.woff2")),
+// The page's font must be a loaded M PLUS 1 Code, Siyahi's page face, for the font check to pass.
+const mono = readFileSync(
+  fileURLToPath(import.meta.resolve("@fontsource-variable/m-plus-1-code/files/m-plus-1-code-latin-wght-normal.woff2")),
 ).toString("base64");
 const MODES = [
   { name: "1920-light", width: 1920 },
@@ -20,8 +20,8 @@ const MODES = [
   { name: "390-dark", width: 390 },
 ];
 
-const GEIST_PAGE = `@font-face { font-family: Geist; src: url(data:font/woff2;base64,${geist}); }
-  body { margin: 0; font-family: Geist; }`;
+const PAGE_FONT = `@font-face { font-family: "M PLUS 1 Code"; src: url(data:font/woff2;base64,${mono}); }
+  body { margin: 0; font-family: "M PLUS 1 Code"; }`;
 
 // A card header in stock shadcn's shape: the title and a two-item toggle in
 // columns, inside a card that hides its overflow. The document never scrolls
@@ -36,14 +36,14 @@ const card = (columns) => `<main style="padding: 16px"><h1>Card</h1>
   </div></main>`;
 
 /**
- * Writes a page with the given body, in Geist unless `style` says otherwise,
+ * Writes a page with the given body, in M PLUS 1 Code unless `style` says otherwise,
  * runs siyahi-shots on it, and returns the run with the width and height of
  * each PNG it wrote per mode.
  * @param {string} body
  * @param {string} [style]
  * @param {string[]} [flags] more siyahi-shots arguments
  */
-async function shoot(body, style = GEIST_PAGE, flags = []) {
+async function shoot(body, style = PAGE_FONT, flags = []) {
   const dir = mkdtempSync(path.join(tmpdir(), "siyahi-shots-"));
   const page = path.join(dir, "page.html");
   writeFileSync(page, `<!doctype html><style>${style}</style>${body}`);
@@ -87,7 +87,7 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
   });
 
   it("captures caller-selected intermediate widths in both schemes", async () => {
-    const run = await shoot('<main style="padding:16px"><h1>Tablet</h1></main>', GEIST_PAGE, ["--widths", "768,1366"]);
+    const run = await shoot('<main style="padding:16px"><h1>Tablet</h1></main>', PAGE_FONT, ["--widths", "768,1366"]);
     expect(run.status, run.output).toBe(0);
     expect(run.sizesOf("768-light")).toEqual([{ width: 768, height: 1080 }]);
     expect(run.sizesOf("1366-dark")).toEqual([{ width: 1366, height: 1080 }]);
@@ -179,7 +179,7 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
       `<main style="padding: 16px"><h1>Details</h1>
         <button onclick="document.querySelector('section').hidden = false">Show details</button>
         <section hidden style="position: absolute; top: 0; height: 3000px"><p>Opened by the script</p></section></main>`,
-      GEIST_PAGE,
+      PAGE_FONT,
       [
         "--script",
         script(`await page.getByRole("button", { name: "Show details" }).click();
@@ -195,7 +195,7 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     const broken = path.join(mkdtempSync(path.join(tmpdir(), "siyahi-shots-script-")), "broken.mjs");
     writeFileSync(broken, "export default async (page => {");
     for (const file of [path.join(tmpdir(), "no-such-script.mjs"), broken]) {
-      const run = await shoot('<main style="padding: 16px"><h1>Page</h1></main>', GEIST_PAGE, ["--script", file]);
+      const run = await shoot('<main style="padding: 16px"><h1>Page</h1></main>', PAGE_FONT, ["--script", file]);
       expect(run.status, run.output).toBe(2);
       expect(run.output).toContain(`--script ${file} did not load`);
     }
@@ -205,7 +205,7 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     // The side padding shrinks with the screen's height: 8px on an 844px phone, 30px on a screen 3000px tall.
     const run = await shoot(
       `<main style="box-sizing: border-box; height: 3000px; padding: 16px calc(30px - (3000px - 100vh) / 100)"><h1>Tall</h1><p>Body text</p></main>`,
-      GEIST_PAGE,
+      PAGE_FONT,
       ["--script", script(""), "--widths", "390"],
     );
     expect(run.status, run.output).toBe(1);
@@ -222,22 +222,22 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
     expect(run.output).toContain("console error: no rows for the chart");
   });
 
-  // A page that names Geist and loads no font file: its font CSS never arrived.
-  const UNLOADED = `body { margin: 0; font-family: Geist, system-ui, sans-serif; }`;
+  // A page that names the font and loads no font file: its font CSS never arrived.
+  const UNLOADED = `body { margin: 0; font-family: "M PLUS 1 Code", system-ui, sans-serif; }`;
 
   it("fails a page that names the font and loads no font file", async () => {
     const run = await shoot(`<main style="padding: 16px"><h1>No font</h1></main>`, UNLOADED);
     expect(run.status, run.output).toBe(1);
-    expect(run.output).toContain("Geist is named but never loaded");
+    expect(run.output).toContain("M PLUS 1 Code is named but never loaded");
   });
 
   it("fails a page whose @font-face for the font never loads", async () => {
     const run = await shoot(
       `<main style="padding: 16px"><h1>Broken</h1></main>`,
-      `@font-face { font-family: Geist; src: url(missing.woff2); } body { margin: 0; font-family: Geist, sans-serif; }`,
+      `@font-face { font-family: "M PLUS 1 Code"; src: url(missing.woff2); } body { margin: 0; font-family: "M PLUS 1 Code", sans-serif; }`,
     );
     expect(run.status, run.output).toBe(1);
-    expect(run.output).toContain("Geist is named but never loaded");
+    expect(run.output).toContain("M PLUS 1 Code is named but never loaded");
   });
 });
 

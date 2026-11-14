@@ -13,7 +13,7 @@ const RULES = [
   "Views switch with Tabs; secondary actions are outline buttons with an icon.",
   "Terminal amber is placed, not spread: links, the eyebrow and panel numbers, and the selected sidebar item. Three meaning colours, positive, negative and a yellow warning, carry gains, losses and caution. Buttons, badges and toggles stay black and white.",
   "Notices are StatusAlert in a tone: information, a warning, an error or a success, the whole card washed in its colour; states are StatusBadge. Never a single coloured edge on any box.",
-  "Sizes from the base-nova style, tables denser: open panels parted by space, table rows sized to their content. A terminal: Geist Mono for the page, tabular figures and small capital labels over data; Geist for sentences.",
+  "Sizes from the base-nova style, tables denser: open panels parted by space, table rows sized to their content. A terminal: M PLUS 1 Code, a narrow mono, for the page, tabular figures and small capital labels over data; Geist for sentences.",
   "Indian grouping, compact rupees, IST with zone, signs beside colour, scheme follows the device, reduced motion honoured.",
   "On a phone: one tile per row, cards edge to edge with a 16px gutter, tables hide columns that do not fit, never their meta.compact ones, behind an All columns toggle, sidebar becomes a drawer.",
   "Words explain themselves: a title states the finding (or names the topic when the reader's choice changes the finding), a description says what the figures are and where they came from, a label is a short noun written in full, and an empty or failed block says what happened and what to do.",

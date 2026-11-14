@@ -17,7 +17,7 @@
 // the per-metric icon are dropped, and the theme's narrow-card rule places the
 // header action, so the header's own @max-sm overrides go.
 // Siyahi edit: no box, no rule. Figures sit on the page in a grid whose
-// columns follow the count, parted by space (24px across, 20px down), each
+// columns follow the count, parted by 16px of space, which two figures' 8px washes just fill, each
 // figure's text in line with the title above it. Each figure is a subgrid of
 // four shared rows (label, value, change, sparkline), so a label or note that
 // wraps lowers its row for the whole row of figures: every value and
@@ -95,7 +95,7 @@ export interface MetricStripProps extends Omit<React.ComponentProps<typeof Card>
 }
 
 // Tailwind finds classes by scanning source, so each step is written out whole. A figure stays at least about 150px
-// wide, room for ₹45,12,300 at text-xl, and up to eight figures, none sits alone under a full row: five run 3 + 2
+// wide, room for ₹45,12,300 at text-lg, and up to eight figures, none sits alone under a full row: five run 3 + 2
 // and seven 4 + 3 rather than leave one under pairs.
 const COLUMNS: Record<number, string> = {
   1: "",
@@ -141,7 +141,7 @@ function MetricStrip({
       )}
       <CardContent>
         <div data-slot="metric-strip" data-variant={variant} className="@container/strip">
-          <div className={cn("grid grid-cols-1", blocks ? "gap-0" : "gap-x-6 gap-y-5", columns)}>
+          <div className={cn("grid grid-cols-1", blocks ? "gap-0" : "gap-4", columns)}>
             {items.map((item) => (
               <div
                 key={item.label}
@@ -179,7 +179,7 @@ function MetricStrip({
                   data-slot="metric-strip-value"
                   className={cn(
                     "font-semibold tabular-nums",
-                    blocks ? "mt-2 text-4xl leading-none tracking-tighter" : "text-xl tracking-tight",
+                    blocks ? "mt-2 text-4xl leading-none tracking-tighter" : "text-lg tracking-tight",
                   )}
                 >
                   {item.value}

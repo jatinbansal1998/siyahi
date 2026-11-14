@@ -318,9 +318,9 @@ function ValueTick({ payload, axis, formatter, ownUnit = false, ...tick }: Value
   return <Text {...tick}>{formatter(value, scale)}</Text>;
 }
 
-// At the ticks' 12px, Geist averages about 6.6px a character and Geist Mono 7.2px.
+// At the ticks' 12px, Geist averages about 6.6px a character and M PLUS 1 Code, the mono, 6px.
 const GEIST_WIDTH = 6.6;
-const MONO_WIDTH = 7.2;
+const MONO_WIDTH = 6;
 
 /**
  * Room to keep right of the plot when every named tick is drawn: half the last label, which centres on the

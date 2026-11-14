@@ -57,7 +57,7 @@ describe("the look", { timeout: 60_000 }, () => {
       const pseudo = getComputedStyle(el, "::before");
       return { font: pseudo.fontFamily, color: pseudo.color };
     });
-    expect(before.font).toMatch(/^"Geist Mono/);
+    expect(before.font).toMatch(/^"M PLUS 1 Code/);
     expect(before.color).toBe(await token("--link"));
   });
 
@@ -77,10 +77,10 @@ describe("the look", { timeout: 60_000 }, () => {
   it("sets the page in mono as a terminal, its sentences in sans and its column heads in small muted capitals", async () => {
     const font = async (locator: Locator) => ((await style(locator, "font-family"))[0] ?? "").replace(/"/g, "");
     const header = example().locator('[data-slot="page-header"]');
-    expect(await font(header.locator("h1"))).toMatch(/^Geist Mono/);
-    expect(await font(example().getByRole("button", { name: "Export" }))).toMatch(/^Geist Mono/);
+    expect(await font(header.locator("h1"))).toMatch(/^M PLUS 1 Code/);
+    expect(await font(example().getByRole("button", { name: "Export" }))).toMatch(/^M PLUS 1 Code/);
     // A sidebar row sits in a list item, which holds labels, not a sentence.
-    expect(await font(page.locator('[data-sidebar="menu-button"]').first())).toMatch(/^Geist Mono/);
+    expect(await font(page.locator('[data-sidebar="menu-button"]').first())).toMatch(/^M PLUS 1 Code/);
     expect(await font(header.locator('[data-slot="page-header-description"]'))).toMatch(/^Geist Variable/);
     expect(await font(example().locator('[data-slot="callout-description"]'))).toMatch(/^Geist Variable/);
     const head = example().locator('[data-slot="table-head"]').first();
@@ -91,7 +91,7 @@ describe("the look", { timeout: 60_000 }, () => {
   it("sets a MetricStrip figure's label in small monospaced capitals", async () => {
     const label = example().locator('[data-slot="metric-strip-label"]').first();
     const [font, transform, size] = await style(label, "font-family", "text-transform", "font-size");
-    expect([font?.startsWith('"Geist Mono'), transform, size]).toEqual([true, "uppercase", "11px"]);
+    expect([font?.startsWith('"M PLUS 1 Code'), transform, size]).toEqual([true, "uppercase", "11px"]);
   });
 
   it("filters the holdings as the reader searches, and totals the rows shown", async () => {

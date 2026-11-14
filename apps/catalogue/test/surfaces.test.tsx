@@ -61,7 +61,7 @@ describe("surfaces", { timeout: 60_000 }, () => {
     const gap = await grid
       .locator(":scope > div")
       .evaluate((el) => [getComputedStyle(el).columnGap, getComputedStyle(el).rowGap]);
-    expect(gap).toEqual(["24px", "16px"]);
+    expect(gap).toEqual(["16px", "12px"]);
   });
 
   it("names the page colour --card inside a card, so its marks' halos and tints match the canvas", async () => {

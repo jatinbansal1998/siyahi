@@ -25,7 +25,7 @@ export interface PanelGridProps {
 }
 
 /**
- * Data blocks side by side: chart cards, tables, a MetricStrip. Space parts the blocks, 24px across and 16px down,
+ * Data blocks side by side: chart cards, tables, a MetricStrip. Space parts the blocks, 16px across and 12px down,
  * with no box and no rule. The theme numbers each block's card title 01, 02.
  */
 export function PanelGrid({ columns = 2, children, className }: PanelGridProps) {
@@ -37,7 +37,7 @@ export function PanelGrid({ columns = 2, children, className }: PanelGridProps) 
   );
   return (
     <div data-slot="panel-grid" className={cn("@container/panels", className)}>
-      <div className={cn("grid grid-cols-1 gap-x-6 gap-y-4", COLUMNS[columns], wide)}>
+      <div className={cn("grid grid-cols-1 gap-x-4 gap-y-3", COLUMNS[columns], wide)}>
         {Children.map(children, (child) => (
           <div data-slot="panel" className="min-w-0">
             {child}
