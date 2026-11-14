@@ -103,7 +103,9 @@ export const foundations: Page = {
       id: "colours",
       title: "Colours",
       lead: "shadcn's neutral greys in both schemes; the scheme follows the device.",
-      rules: ["Ink indigo is placed, not spread: links, the selected sidebar item and the first chart series."],
+      rules: [
+        "Terminal amber is placed, not spread: links, the eyebrow and panel numbers, and the selected sidebar item. Charts keep their own palette.",
+      ],
       body: (
         <div className={grid}>
           {SURFACES.map((s) => (

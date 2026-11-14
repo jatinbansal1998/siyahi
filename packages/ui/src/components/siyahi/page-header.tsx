@@ -36,7 +36,7 @@ export function PageHeader({ eyebrow, title, lead, detail, actions, mark }: Page
         )}
         <h1 className="text-3xl font-semibold tracking-tight text-balance">{title}</h1>
         {(lead || detail) && (
-          <div className="text-sm text-pretty text-muted-foreground">
+          <div data-slot="page-header-description" className="text-sm text-pretty text-muted-foreground">
             {lead}
             {lead && detail && " "}
             {detail}

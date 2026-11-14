@@ -57,9 +57,9 @@ describe("contrast check", () => {
   });
 
   it("fails muted text on a Callout's tint", () => {
-    // shadcn's muted grey: 4.7:1 on a popover, 4.1:1 on the accent Callout's indigo wash over it.
+    // shadcn's muted grey passes on a popover but reads 4.25:1 on the accent Callout's amber wash over it.
     const broken = setVar(themeCss, "light", "muted-foreground", "oklch(0.556 0 0)");
-    expect(named(broken)).toContain("light --muted-foreground on --chart-1/8 over --popover");
+    expect(named(broken)).toContain("light --muted-foreground on --link/8 over --popover");
     expect(named(broken)).not.toContain("light --muted-foreground on --popover");
   });
 
@@ -102,7 +102,7 @@ describe("contrast check", () => {
     );
   });
 
-  it("fails a stat tile's Sparkline on a dark amber wash at the mock-up's 15%", () => {
+  it("fails a stat tile's Sparkline on a dark yellow wash at 15%", () => {
     const broken = setVar(themeCss, "dark", "wash", "15%");
     expect(named(broken)).toEqual(
       expect.arrayContaining([

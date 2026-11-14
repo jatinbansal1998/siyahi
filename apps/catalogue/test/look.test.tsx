@@ -74,6 +74,20 @@ describe("the look", { timeout: 60_000 }, () => {
     ]);
   });
 
+  it("sets the page in mono as a terminal, its sentences in sans and its column heads in small muted capitals", async () => {
+    const font = async (locator: Locator) => ((await style(locator, "font-family"))[0] ?? "").replace(/"/g, "");
+    const header = example().locator('[data-slot="page-header"]');
+    expect(await font(header.locator("h1"))).toMatch(/^Geist Mono/);
+    expect(await font(example().getByRole("button", { name: "Export" }))).toMatch(/^Geist Mono/);
+    // A sidebar row sits in a list item, which holds labels, not a sentence.
+    expect(await font(page.locator('[data-sidebar="menu-button"]').first())).toMatch(/^Geist Mono/);
+    expect(await font(header.locator('[data-slot="page-header-description"]'))).toMatch(/^Geist Variable/);
+    expect(await font(example().locator('[data-slot="callout-description"]'))).toMatch(/^Geist Variable/);
+    const head = example().locator('[data-slot="table-head"]').first();
+    const [transform, size, color] = await style(head, "text-transform", "font-size", "color");
+    expect([transform, size, color]).toEqual(["uppercase", "11px", await token("--muted-foreground")]);
+  });
+
   it("sets a MetricStrip figure's label in small monospaced capitals", async () => {
     const label = example().locator('[data-slot="metric-strip-label"]').first();
     const [font, transform, size] = await style(label, "font-family", "text-transform", "font-size");

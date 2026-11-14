@@ -2,6 +2,13 @@
 
 ## 0.1.9
 
+- **Breaking (look):** Siyahi reads as a terminal. The page is set in Geist
+  Mono, with Geist for sentences (paragraphs, quotes, descriptions); labels over data (table heads, sidebar group labels, menu
+  group labels) are small muted capitals. The accent is terminal amber
+  (`--link`, the eyebrow, panel numbers, the selected sidebar item, the
+  `accent` Callout's tint), and `--warning` moves to yellow so caution stays
+  apart from it. Charts keep their palette. `PageHeader`'s line and
+  `Callout`'s body carry `-description` slots so they read in sans.
 - **Breaking:** the theme sets tokens, not component looks. Stock components
   keep shadcn's shape and states; the theme restyles one only to fix a
   measured problem (contrast, clipping, touch targets, density). Gone: mono
