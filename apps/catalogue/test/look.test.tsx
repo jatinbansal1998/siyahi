@@ -61,6 +61,19 @@ describe("the look", { timeout: 60_000 }, () => {
     expect(before.color).toBe(await token("--link"));
   });
 
+  it("fills the selected toggle with the text colour, so the reader sees which one is on", async () => {
+    const items = example().getByRole("group", { name: "Period" }).locator('[data-slot="toggle-group-item"]');
+    const drawn = await items.evaluateAll((els) =>
+      els.map((el) => [el.getAttribute("aria-pressed"), getComputedStyle(el).backgroundColor]),
+    );
+    const ink = await token("--foreground");
+    expect(drawn.map(([pressed, fill]) => [pressed, fill === ink])).toEqual([
+      ["false", false],
+      ["true", true],
+      ["false", false],
+    ]);
+  });
+
   it("sets a MetricStrip figure's label in small monospaced capitals", async () => {
     const label = example().locator('[data-slot="metric-strip-label"]').first();
     const [font, transform, size] = await style(label, "font-family", "text-transform", "font-size");

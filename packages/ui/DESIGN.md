@@ -42,7 +42,8 @@ a meaning:
   fill alike. A field shows it as its own edge, 2px in the text colour; a chart
   mark as a dashed stroke, apart from a picked mark's solid one. A destructive
   control and an invalid field focus in the destructive red. Menu items show
-  focus as their highlight. A chart bar that a selection
+  focus as their highlight. A selected toggle or pill tab fills with the
+  foreground, as stock's faint grey cannot be told from the rest. A chart bar that a selection
   dims keeps its full-colour outline and fades only inside.
 - **Destructive is not loss.** `--destructive` (delete, an invalid field) is a
   deeper red than `--negative` (a loss figure), so its label reads on its own
@@ -104,8 +105,8 @@ mono face and the link colour, so the text can point to one.
   stays round. Never add a `rounded-*` class to a box.
 - **Floating surfaces lie flat.** Nothing casts a drop shadow: every shadow
   size is transparent.
-- Badges stay boxed (an outline) and the primary button black (white in
-  dark), titles in the sans face, at normal spacing.
+- Badges stay boxed (an outline), the primary button and the pressed toggle
+  black (white in dark), titles in the sans face, at normal spacing.
 
 ## Page header
 

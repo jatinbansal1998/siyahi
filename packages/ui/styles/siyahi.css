@@ -284,6 +284,19 @@
 }
 
 /*
+ * A selected toggle, a view switch or a filter chip alike, and a selected pill tab fill with the foreground, black on
+ * white and white on black. Stock shadcn marks them with a faint grey, 1.05:1 against the canvas, so the reader cannot
+ * see which one is on. Unlayered, to outrank the stock aria-pressed:bg-muted.
+ */
+:is([data-slot="toggle"], [data-slot="toggle-group-item"]):is([aria-pressed="true"], [data-pressed]),
+[data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active] {
+  background-color: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+  --tw-shadow: 0 0 #0000;
+}
+
+/*
  * A component that lifts a part of itself with a z-index is a stacking context
  * of its own: MetricStrip's picker buttons, an avatar's badge, a calendar's
  * days, a focused toggle, a code block's buttons, a price chart's layers. The

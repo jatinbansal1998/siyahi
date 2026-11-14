@@ -7,10 +7,10 @@
   measured problem (contrast, clipping, touch targets, density). Gone: mono
   capital labels on table heads, fields, menus and sidebar groups; ledger
   table type (text-colour head rule, medium first column, mono figures,
-  double-ruled total); black-filled selected toggles and pill tabs; flush
-  toggle groups; the copy button's own row; recoloured popover and tooltip
-  edges; squaring of fully rounded parts (`--radius` stays 0). Kept: compact
-  table and sidebar rows, focus, invalid fields, touch targets, number
+  double-ruled total); flush toggle groups; the copy button's own row; recoloured popover and tooltip
+  edges; squaring of fully rounded parts (`--radius` stays 0). Kept: the
+  selected toggle and pill tab filled in the text colour, compact table and
+  sidebar rows, focus, invalid fields, touch targets, number
   columns right-aligned, no shadows.
 - **Breaking:** one surface. `SiyahiProvider`'s `surface`, the `Surface` type
   and `useSurface` are gone: a card is always open, and `--card` is the page
