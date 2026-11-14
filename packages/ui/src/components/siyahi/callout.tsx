@@ -29,8 +29,10 @@ export function Callout({ tone = "neutral", icon, title, className, children, ..
         </span>
       )}
       <div className="flex min-w-0 flex-col gap-1">
-        {title && <p className="font-medium">{title}</p>}
-        <div className="text-pretty text-muted-foreground [&_strong]:text-foreground">{children}</div>
+        {title && <p className="font-heading font-medium">{title}</p>}
+        <div data-slot="callout-description" className="text-pretty text-muted-foreground [&_strong]:text-foreground">
+          {children}
+        </div>
       </div>
     </aside>
   );

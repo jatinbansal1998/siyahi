@@ -80,7 +80,7 @@ const PAIRS = [
   // (muted/50), a Quote's source (muted/60), the accent, warning, positive and
   // negative Callouts, StatusAlerts and StatusBadges, a removed code line
   // (destructive/10).
-  ...["muted", "muted/50", "muted/60", "chart-1/8", "warning/10", "positive/8", "negative/8", "destructive/10"].map(
+  ...["muted", "muted/50", "muted/60", "link/8", "warning/10", "positive/8", "negative/8", "destructive/10"].map(
     (bg) => ({ fg: "muted-foreground", bg, min: TEXT }),
   ),
   // A destructive button or badge: its tint at rest and on hover, a light
@@ -111,7 +111,7 @@ const PAIRS = [
   { fg: "destructive", bg: "destructive@field-wash", min: MARK },
   // A tone's icon or StatusBadge dot against the tone's own wash (lib/tone.ts).
   ...[
-    ["link", "chart-1/8"],
+    ["link", "link/8"],
     ["warning", "warning/10"],
     ["positive", "positive/8"],
     ["negative", "negative/8"],

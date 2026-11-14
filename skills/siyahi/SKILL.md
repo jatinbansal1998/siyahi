@@ -51,8 +51,8 @@ layouts and product-specific logic belong in the consuming app.
   `cn` for merging classes.
 - Charts use the chart cards and their supported props, not page-local
   Recharts axes, grids or tooltips. Match charts to the manifest's `needs`.
-- Use semantic colour tokens; categories remain neutral. No gradients. Ink
-  indigo lives in `link`, the sidebar's selected item and `chart-1`; place
+- Use semantic colour tokens; categories remain neutral. No gradients.
+  Terminal amber lives in `link`, the eyebrow and the sidebar's selected item; place
   it, do not spread it. Buttons, badges, toggles and focus stay monochrome.
   Numbers use `useFormat()`, changes use `Delta`; do not replace the formatters
   with bare `toLocaleString()`. Prose uses `max-w-prose`.

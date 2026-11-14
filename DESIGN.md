@@ -10,13 +10,14 @@ component; this file says how to use them.
 Colour is placed, not spread. A page is neutral greys plus colour that carries
 a meaning:
 
-- **Ink indigo** is the accent: links, the selected sidebar item, the first
-  chart series, a chart's "today" rule and an `accent` `Callout`. Buttons, badges, toggles and focus
-  stay monochrome.
+- **Terminal amber** is the accent: links, the page's eyebrow and panel
+  numbers, the selected sidebar item and an `accent` `Callout`. Buttons,
+  badges, toggles and focus stay monochrome. Charts keep their own five-hue
+  palette, indigo first.
 - **Green and red** mean a gain and a loss. A signed figure is `Delta`: the figure in the text colour with its
   `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
   colour a run of figures green and red.
-  **Amber** means caution. None of them decorates.
+  **Yellow** means caution, kept apart from the amber accent. None of them decorates.
 - **Emphasis tints the whole surface.** A notice is `StatusAlert` in its tone (an
   error reads like a warning, only red); a state is `StatusBadge`; a point set
   apart is `Callout` (`neutral`, `accent`, `warning`, `positive`,
@@ -98,15 +99,26 @@ mono face and the link colour, so the text can point to one.
 
 - **The look is shadcn's, set by tokens.** Siyahi sets colours, fonts,
   `--radius` and shadows; stock components keep the shape and states shadcn
-  gives them. The theme restyles a stock component only to fix a measured
-  problem (contrast, clipping, touch targets, density), never for taste.
+  gives them. Beyond the terminal's type (Type, below), the theme restyles a
+  stock component only to fix a measured problem (contrast, clipping, touch
+  targets, density), never for taste.
 - **Square corners**: `--radius` is 0, so every corner a component takes from
   the theme is square. A part shadcn rounds fully (a dot, a pill, a switch)
   stays round. Never add a `rounded-*` class to a box.
 - **Floating surfaces lie flat.** Nothing casts a drop shadow: every shadow
   size is transparent.
 - Badges stay boxed (an outline), the primary button and the pressed toggle
-  black (white in dark), titles in the sans face, at normal spacing.
+  black (white in dark).
+
+## Type
+
+Siyahi reads as a terminal. The page is set in Geist Mono: figures, labels,
+controls, titles and tables share one grid. Text that reads as sentences, a
+paragraph, a quote or a description, is set in Geist, where mono
+tires the eye over a line; the theme switches it by element, so a page writes
+no font classes. Labels over data (a `MetricStrip` figure's label, a table's
+column heads, a sidebar group's label, a group's label in a menu) are small
+capitals, muted. Never set a figure or a title in them.
 
 ## Page header
 
@@ -197,9 +209,8 @@ from the catalogue.
 
 ## Labels and totals
 
-- **A figure's label is small monospaced capitals**, as `MetricStrip` sets
-  it. Siyahi's components set it; never set a label in this style by hand,
-  and never a figure or a title.
+- **Labels over data are small capitals** (Type, above). The components and
+  the theme set them; never set a label in this style by hand.
 - **A total row** goes in `TableFooter`.
 
 ## Charts
@@ -243,7 +254,8 @@ from the catalogue.
 
 ## Tables
 
-Tables are dense: compact rows and column heads. A number column is marked
+Tables are dense: compact rows, and column heads in small muted capitals.
+A number column is marked
 `data-numeric`, which right-aligns it, so figures line up by their units (the
 data table marks its number columns; a plain `TableCell` or `TableHead` takes
 the attribute). Row hairlines stay; never stripes, never column rules.
@@ -258,5 +270,6 @@ the attribute). Row hairlines stay; never stripes, never column rules.
 
 ## Sidebar
 
-The sidebar is parted from the page by a hairline on its page-side edge and
-its rows are compact. Everything else stays as shadcn draws it.
+The sidebar is parted from the page by a hairline on its page-side edge, its
+group labels are small capitals and its rows are compact. Everything else
+stays as shadcn draws it.
