@@ -81,7 +81,7 @@ export function SlopeChart({
     high === low
       ? (TOP + height - BOTTOM) / 2
       : TOP + ((high - value) / (high - low)) * (height - TOP - BOTTOM - ROW) + ROW / 2;
-  // The right column fits its widest value or heading, measured roughly (a medium weight runs about 10% wider);
+  // The right column fits its widest value or heading, with 10% to spare;
   // names and the left values take what the lines and that column leave, up to 240px, and the lines keep at least
   // 96px, so a phone gives the names most of its width.
   const rightTexts = [toLabel, ...items.map(({ to }) => format(to))];
