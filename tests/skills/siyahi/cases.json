@@ -7,7 +7,7 @@
   {
     "skill": "siyahi",
     "question": "How do I hand over one Siyahi page as a single self-contained HTML file?",
-    "answer": "Write it as a React page that default-exports a component, check it with 'npx --no-install siyahi-shots page.tsx', and build it with 'npx --no-install siyahi-page page.tsx'. The build frames it with the house gutter, so the page sets no padding and no <main>; there is no hand-written HTML or report.css path."
+    "answer": "Write a React page that default-exports a component in a page project outside the host. Lint, build with 'npx --no-install siyahi-page page.tsx --out page.html', then check that exact HTML with 'npx --no-install siyahi-shots file:///absolute/path/page.html'. The build supplies the house gutter and main element; upload complete HTML without depending on the host's packages."
   },
   {
     "skill": "siyahi",
@@ -16,7 +16,7 @@
   },
   {
     "skill": "siyahi",
-    "question": "How should I format numbers and set prose width in a Siyahi React page?",
+    "question": "How should I format numbers, set prose width and handle gradients in a Siyahi React page?",
     "answer": "Numbers through the package formatters (useFormat()), never bare toLocaleString(); prose width max-w-prose, never 65ch or max-w-[65ch]. No gradients."
   },
   {
@@ -33,5 +33,10 @@
     "skill": "siyahi",
     "question": "How do I install the shareable Siyahi skill on a machine that cannot access any personal private repositories?",
     "answer": "Point external users to the public jatinbansal1998/siyahi repository and its README For agents installation section. The canonical skill is skills/siyahi/SKILL.md there. No private repository, local Siyahi checkout or other skill is required."
+  },
+  {
+    "question": "Does a standalone page use the hosting app's installed Siyahi version? Where do I select versions and run lint, build and screenshot checks?",
+    "answer": "No. Create or use a page project outside the host. For a new project, select dist-tags.next and pin the exact same version of @siyahi/ui and @siyahi/tools. Lint, build complete HTML with siyahi-page, and check that HTML with siyahi-shots using the page project's packages. The host only uploads and serves HTML; rebuilding and republishing is required to update an existing page.",
+    "skill": "siyahi"
   }
 ]

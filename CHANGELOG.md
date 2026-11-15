@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- Standalone-page guidance builds and checks HTML in the page project before
+  uploading it to a host. The host's dependencies no longer select the page's
+  Siyahi version. The lint setup includes React correctness checks.
+
 - Denser terminal pages: the mono is M PLUS 1 Code (6px a character at
   12px, Geist Mono's 7; 20KB, every weight) in place of Geist Mono, with a
   metric-matched fallback and preload. Tables set 13px text, 24px heads and

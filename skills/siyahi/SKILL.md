@@ -12,6 +12,8 @@ Siyahi is shadcn/ui on Base UI and Tailwind CSS, with a shared theme,
 charts, tables and formatters. Source: https://github.com/jatinbansal1998/siyahi.
 Catalogue: https://siyahi.jatinbansal.com.
 Installation: https://github.com/jatinbansal1998/siyahi#for-agents.
+The shareable skill lives at `skills/siyahi/SKILL.md` in that public repository;
+install it with `npx skills add jatinbansal1998/siyahi --skill siyahi --agent claude-code --agent codex`.
 
 ## Select before writing
 
@@ -100,7 +102,23 @@ the interaction's picture, instead of a one-off Playwright script.
 After changing fonts, loading state or content above the fold, run
 `npx --no-install siyahi-cls` against the build or deployed page, not a development server.
 
-To host or hand over one page as a single file, build it with
-`npx --no-install siyahi-page <page.tsx>`; check it first with
-`npx --no-install siyahi-shots <page.tsx>`. The build frames the page with
-the house gutter, so the page sets no padding and no `<main>` of its own.
+To host or hand over one page, use a page project outside the host's repository.
+Reuse an existing page project when available; do not install dependencies
+for every one-off page. For a new project, select and pin the current published
+version as above;
+existing page projects keep their own exact pins and lockfile. The installed
+`@siyahi/tools/README.md` owns the standalone-page setup and lint configuration.
+The page module default-exports its React component. Keep each page's local
+sources in a folder of their own, with the project's package files above it.
+
+Run the page project's lint checks, then build complete HTML with
+`npx --no-install siyahi-page <page.tsx> --out <page.html>`. Use a stable,
+gitignored build directory in the page project. Preserve a date prefix in the
+output name when the host uses it for the page date. Check that exact HTML with
+`npx --no-install siyahi-shots file:///absolute/path/page.html` and inspect
+its screenshots before uploading it. The build frames the page with the
+house gutter, so the page sets no padding and no `<main>` of its own.
+
+A host such as dash uploads and serves the finished HTML; its packages do not
+build the page or control its Siyahi version. To update an existing page,
+update its page project's pins, rebuild, check and republish the HTML.

@@ -24,9 +24,15 @@ npm install --save-dev @siyahi/tools@next oxlint
 
 ```json
 {
+  "plugins": ["react"],
   "jsPlugins": ["@siyahi/tools/lint"],
   "settings": { "shadcn": { "ui": "@siyahi/ui", "themeImports": ["^@siyahi/ui/"] } },
   "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    "react/jsx-key": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-undef": "error",
     "siyahi/no-color-literal": "error",
     "siyahi/no-scheme-variant": "error",
     "siyahi/no-numeric-font-size": "error",
@@ -98,8 +104,9 @@ own. Tailwind reads class names from the page's folder.
 
 A page uses only its own folder and the installed packages, by relative
 paths, so the folder is the whole of its source: a host that keeps the folder
-can rebuild the page from it (dash builds each page from a copy of its stored
-folder, so a page that reaches outside it fails to publish). The build fails
+can return the sources for editing and rebuilding in the page project.
+Build and check the page before uploading its HTML; a host such as dash
+does not compile it or supply its dependencies. The build fails
 on a reference it cannot find, such as a `new URL("../image.svg", …)` or a
 stylesheet `url()` whose file is not there, and on a page that builds to more
 than one file, such as one with a Web Worker. An absolute path is not checked;
@@ -111,12 +118,33 @@ page itself may live anywhere, a scratch folder included: every package it
 imports resolves from that project. The project's own `vite.config` is not
 used. `--title` defaults to the file name without its date, `gold flows`.
 
-A host calls the function instead, which returns the HTML:
+Build integrations can call the function, which returns the HTML:
 
 ```ts
 import { buildPage } from "@siyahi/tools/page";
 const html = await buildPage({ page, title: "Gold flows", project: process.cwd() });
 ```
+
+For standalone pages, reuse a page project outside the hosting repository
+rather than installing dependencies for every page.
+Choose a published version with `npm view @siyahi/ui dist-tags.next` and pin
+that exact version for both `@siyahi/ui` and `@siyahi/tools` in a new project's
+`package.json`; keep its lockfile to reproduce builds. Install the build
+packages listed above and configure the lint plugin from this README.
+Keep each page's local files in a subfolder, with the project's package files
+above it. Gitignore a `build/` output directory and create it before building.
+Then, from that project:
+
+```sh
+npx --no-install oxlint --deny-warnings pages/gold
+npx --no-install siyahi-page pages/gold/2026-11-12-gold-flows.tsx --out build/2026-11-12-gold-flows.html --title "Gold flows"
+npx --no-install siyahi-shots file://"$PWD"/build/2026-11-12-gold-flows.html
+```
+
+Inspect the generated screenshots and upload that same HTML to the host.
+Preserve the date prefix when naming the output if the host uses it for the
+page's date. The host's package versions have no effect on the HTML; a later
+Siyahi release reaches a page only after rebuilding and uploading it again.
 
 ## siyahi-cls
 
