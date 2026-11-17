@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -78,6 +79,63 @@ function script(steps) {
 
 // Each case is its own siyahi-shots process, mostly waiting on the page to settle, so they run side by side.
 describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
+  it("waits for the requested readiness state after the heading appears", async () => {
+    const server = createServer((_request, response) => {
+      response.setHeader("Content-Type", "text/javascript");
+      response.end(`setTimeout(() => {
+        document.querySelector("main").style.height = "3000px";
+        document.querySelector('[role="status"]').remove();
+      }, 1000);`);
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(undefined)));
+    const address = /** @type {import("node:net").AddressInfo} */ (server.address());
+    try {
+      const run = await shoot(
+        `<main style="box-sizing:border-box;padding:16px"><h1>Ready heading</h1><p role="status">Loading examples…</p></main>
+          <script async src="http://127.0.0.1:${address.port}/content.js"></script>`,
+        PAGE_FONT,
+        ["--widths", "390", "--wait-for", 'main:not(:has([role="status"]:text-is("Loading examples…"))) h1'],
+      );
+      expect(run.status, run.output).toBe(0);
+      for (const name of ["390-light", "390-dark"]) expect(run.sizesOf(name)).toEqual([{ width: 390, height: 3000 }]);
+    } finally {
+      server.closeAllConnections();
+      await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve(undefined))));
+    }
+  });
+
+  it("loads different pages concurrently and still captures every mode", async () => {
+    /** @type {import("node:http").ServerResponse[]} */
+    const pending = [];
+    const server = createServer((_request, response) => {
+      pending.push(response);
+      // Neither page can load until the other has been requested.
+      if (pending.length === 2) {
+        for (const reply of pending.splice(0)) {
+          reply.setHeader("Content-Type", "text/html");
+          reply.end(`<!doctype html><style>${PAGE_FONT}</style><main style="padding:16px"><h1>Concurrent</h1></main>`);
+        }
+      }
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(undefined)));
+    const address = /** @type {import("node:net").AddressInfo} */ (server.address());
+    const out = mkdtempSync(path.join(tmpdir(), "siyahi-shots-concurrent-"));
+    try {
+      const { stdout } = await execFileAsync(
+        process.execPath,
+        [shots, `http://127.0.0.1:${address.port}/one`, `http://127.0.0.1:${address.port}/two`, "--out", out],
+        { timeout: 15_000 },
+      );
+      expect(stdout.match(/^ok /gm)).toHaveLength(8);
+      for (const page of ["one", "two"]) {
+        for (const { name } of MODES) expect(readdirSync(out)).toContain(`${page}-${name}.png`);
+      }
+    } finally {
+      server.closeAllConnections();
+      await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve(undefined))));
+    }
+  });
+
   it("fails a table whose frozen column occupies most of its scrolling window", async () => {
     const run = await shoot(
       `<main style="padding:16px"><h1>Frozen table</h1><div style="overflow:auto"><table style="width:1200px;table-layout:fixed"><tr><td style="position:sticky;left:0;box-sizing:border-box;width:300px;background:white">Instrument</td><td>Value</td><td>Change</td></tr></table></div></main>`,

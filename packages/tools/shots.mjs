@@ -231,43 +231,50 @@ async function shoot(browser, url, mode) {
     viewport: { width: mode.width, height: mode.height },
     colorScheme: mode.dark ? "dark" : "light",
   });
-  const page = await context.newPage();
-  /** @type {string[]} */
-  const browserErrors = [];
-  page.on("pageerror", (error) => browserErrors.push(`page error: ${error.message}`));
-  page.on("console", (message) => {
-    if (message.type() === "error") browserErrors.push(`console error: ${message.text()} (${message.location().url})`);
-  });
-  await page.goto(url, { waitUntil: "networkidle" });
-  const ready = await page.waitForSelector(waitFor, { timeout: WAIT_FOR_TIMEOUT }).then(
-    () => true,
-    (error) => {
-      if (error instanceof errors.TimeoutError) return false;
-      throw error;
-    },
-  );
-  await page.evaluate(SETTLE);
-  const data = act && (await act(page, mode));
-  if (act) await page.evaluate(SETTLE);
-  /** @type {Probe} */
-  const probe = await page.evaluate(PROBE);
-  const height = Math.max(probe.docHeight, mode.height);
-  await page.setViewportSize({ width: mode.width, height });
-  await page.waitForTimeout(1500);
-  await page.evaluate(SETTLE);
-  const base = `${slugOf(url)}-${mode.name}`;
-  clearShots(base);
-  const count = Math.ceil(height / SEGMENT_MAX);
-  const segment = Math.ceil(height / count);
-  const files = [];
-  for (let i = 0; i < count; i++) {
-    const file = path.join(outDir, count === 1 ? `${base}.png` : `${base}-${i + 1}.png`);
-    const y = i * segment;
-    await page.screenshot({ path: file, clip: { x: 0, y, width: mode.width, height: Math.min(segment, height - y) } });
-    files.push(file);
+  try {
+    const page = await context.newPage();
+    /** @type {string[]} */
+    const browserErrors = [];
+    page.on("pageerror", (error) => browserErrors.push(`page error: ${error.message}`));
+    page.on("console", (message) => {
+      if (message.type() === "error")
+        browserErrors.push(`console error: ${message.text()} (${message.location().url})`);
+    });
+    await page.goto(url, { waitUntil: "networkidle" });
+    const ready = await page.waitForSelector(waitFor, { timeout: WAIT_FOR_TIMEOUT }).then(
+      () => true,
+      (error) => {
+        if (error instanceof errors.TimeoutError) return false;
+        throw error;
+      },
+    );
+    await page.evaluate(SETTLE);
+    const data = act && (await act(page, mode));
+    if (act) await page.evaluate(SETTLE);
+    /** @type {Probe} */
+    const probe = await page.evaluate(PROBE);
+    const height = Math.max(probe.docHeight, mode.height);
+    await page.setViewportSize({ width: mode.width, height });
+    await page.waitForTimeout(1500);
+    await page.evaluate(SETTLE);
+    const base = `${slugOf(url)}-${mode.name}`;
+    clearShots(base);
+    const count = Math.ceil(height / SEGMENT_MAX);
+    const segment = Math.ceil(height / count);
+    const files = [];
+    for (let i = 0; i < count; i++) {
+      const file = path.join(outDir, count === 1 ? `${base}.png` : `${base}-${i + 1}.png`);
+      const y = i * segment;
+      await page.screenshot({
+        path: file,
+        clip: { x: 0, y, width: mode.width, height: Math.min(segment, height - y) },
+      });
+      files.push(file);
+    }
+    return { probe, ready, height, files, data, browserErrors };
+  } finally {
+    await context.close();
   }
-  await context.close();
-  return { probe, ready, height, files, data, browserErrors };
 }
 
 /**
@@ -313,20 +320,32 @@ for (const arg of positionals) {
 }
 
 const browser = await chromium.launch();
+const queue = urls.values();
 let failed = false;
-for (const url of urls) {
-  for (const mode of MODES) {
-    const { probe, ready, height, files, data, browserErrors } = await shoot(browser, url, mode);
-    const problems = problemsOf(probe, ready, browserErrors);
-    failed ||= problems.length > 0;
-    console.log(
-      `${problems.length ? "FAIL" : "ok  "} ${mode.name.padEnd(10)} gutter=${probe.gutterLeft}/${probe.gutterRight} ` +
-        `overflow=${probe.overflow}/${probe.overflowWithScrollbar} clipped=${probe.clipped.length} font=${probe.font} h1=${JSON.stringify(probe.h1)} ` +
-        `height=${height} ${files.join(" ")}`,
-    );
-    if (data !== undefined) console.log(`     data=${JSON.stringify(data)}`);
-    for (const problem of problems) console.log(`     ${problem}`);
+/** @returns {Promise<void>} */
+async function capturePages() {
+  for (const url of queue) {
+    for (const mode of MODES) {
+      const { probe, ready, height, files, data, browserErrors } = await shoot(browser, url, mode);
+      const problems = problemsOf(probe, ready, browserErrors);
+      failed ||= problems.length > 0;
+      console.log(
+        `${problems.length ? "FAIL" : "ok  "} ${mode.name.padEnd(10)} gutter=${probe.gutterLeft}/${probe.gutterRight} ` +
+          `overflow=${probe.overflow}/${probe.overflowWithScrollbar} clipped=${probe.clipped.length} font=${probe.font} h1=${JSON.stringify(probe.h1)} ` +
+          `height=${height} ${files.join(" ")}`,
+      );
+      if (data !== undefined) console.log(`     data=${JSON.stringify(data)}`);
+      for (const problem of problems) console.log(`     ${problem}`);
+    }
   }
 }
-await browser.close();
+try {
+  // Share one browser and keep all modes of a page together without opening
+  // the whole catalogue at once.
+  const results = await Promise.allSettled(Array.from({ length: Math.min(2, urls.length) }, capturePages));
+  const rejected = results.find((result) => result.status === "rejected");
+  if (rejected) throw rejected.reason;
+} finally {
+  await browser.close();
+}
 process.exit(failed ? 1 : 0);

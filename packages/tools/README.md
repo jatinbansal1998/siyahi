@@ -182,7 +182,8 @@ Renders each URL in Chromium at 1920 and 390 pixels wide, light and dark, and
 writes one full-page PNG per mode to `shots/`. A page taller than 16,000 pixels
 is written as equal segments, `<name>-1.png`, `<name>-2.png` and so on, which
 together cover the whole page; the run lists every file. A rerun replaces the
-page's earlier shots.
+page's earlier shots. Two pages are captured at a time in one browser; each
+page still runs every requested width in both light and dark.
 
 It measures the page once the network is quiet, an element matching
 `--wait-for` (by default `h1`) is visible, two animation frames have passed
