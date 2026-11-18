@@ -18,11 +18,20 @@
 @source "../dist";
 
 /*
- * The scheme follows the device. The dark tokens below sit under this variant
- * too, so an app that wants a toggle swaps this one line, in its own CSS after
- * the import, for `@custom-variant dark (&:where(.dark, .dark *));`.
+ * The scheme follows the device unless `<html data-theme="light|dark">` names
+ * one: an app's own toggle sets it, and so does a host that frames the page,
+ * such as a Claude artifact. The dark tokens below sit under this variant too.
  */
-@custom-variant dark (@media (prefers-color-scheme: dark));
+@custom-variant dark {
+  &:where(:root[data-theme="dark"], :root[data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
 
 /*
  * Nothing casts a drop shadow (DESIGN.md, "Floating surfaces lie flat"): every shadow size is transparent, so
@@ -109,7 +118,7 @@
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   /* Square: panels, buttons, fields, badges and toggles alike. Only a dot, an avatar or a slider thumb stays round. */
   --radius: 0rem;
   --background: oklch(0.985 0 0);
@@ -203,6 +212,7 @@
   --sidebar-ring: oklch(0.145 0 0);
 
   @variant dark {
+    color-scheme: dark;
     /*
      * The canvas lifts just off black and text sits a step below white:
      * near-white on near-black (19:1) blurs for many readers, and on an open

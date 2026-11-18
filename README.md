@@ -111,16 +111,11 @@ neutral outline badges, leaving colour for meaning and chart series.
 
 ## Dark mode
 
-The theme follows the device through `prefers-color-scheme`. For an app-owned
-toggle, override the variant after the stylesheet import and set the `dark`
-class on `<html>`:
-
-```css
-@import "@siyahi/ui/styles.css";
-@custom-variant dark (&:where(.dark, .dark *));
-```
-
-Set `color-scheme` on `<html>` as well so native controls match.
+The theme follows the device through `prefers-color-scheme` unless `<html>`
+carries `data-theme="light"` or `data-theme="dark"`, which wins. An app-owned
+toggle sets that attribute, and removes it to follow the device again; a host
+that frames the page, such as a Claude artifact, may set it too. Tokens,
+`color-scheme` for native controls and `PriceChart` all follow it.
 
 ## Tools
 

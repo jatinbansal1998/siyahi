@@ -64,8 +64,8 @@ const LINT = `npm install --save-dev @siyahi/tools@next oxlint
   }
 }`;
 
-const SCHEME = `/* After the @siyahi/ui import: tokens and dark: utilities then follow a .dark class on <html>. */
-@custom-variant dark (&:where(.dark, .dark *));`;
+const SCHEME = `// An app's own toggle: "light" or "dark" overrides the device; removing it follows the device again.
+document.documentElement.dataset.theme = "dark";`;
 
 export const overview: Page = {
   id: "overview",
@@ -138,7 +138,7 @@ export const overview: Page = {
     {
       id: "dark-mode",
       title: "Dark mode",
-      lead: "The scheme follows the device through prefers-color-scheme. There is no toggle and no class to set. The theme's dark values sit under the same dark variant as the dark: utilities, so an app that wants its own toggle swaps that one line and sets the class on html itself.",
+      lead: 'The scheme follows the device through prefers-color-scheme unless the html element carries data-theme="light" or "dark". An app\'s own toggle sets that attribute, and so may a host that frames the page, such as a Claude artifact. Tokens, native controls and charts all follow it.',
       body: <Code>{SCHEME}</Code>,
     },
     {

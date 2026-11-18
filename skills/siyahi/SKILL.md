@@ -2,8 +2,8 @@
 name: siyahi
 description: >-
   Build coherent React UI and self-contained pages with @siyahi/ui. Use when
-  using Siyahi, asking for house style, or building data-heavy pages
-  in a project that uses the package.
+  using Siyahi, asking for house style, building data-heavy pages in a
+  project that uses the package, or publishing such a page as a Claude artifact.
 ---
 
 # Siyahi
@@ -122,3 +122,9 @@ house gutter, so the page sets no padding and no `<main>` of its own.
 A host such as dash uploads and serves the finished HTML; its packages do not
 build the page or control its Siyahi version. To update an existing page,
 update its page project's pins, rebuild, check and republish the HTML.
+
+A Claude artifact is such a host: publish that same checked HTML with the
+Artifact tool. The file carries its own scripts and fonts, so it meets the
+artifact's rules as long as the page fetches nothing at run time. When the
+user asked for Siyahi or house style, build the page this way even where the
+Artifact tool offers a ready-made type such as Dashboard.
