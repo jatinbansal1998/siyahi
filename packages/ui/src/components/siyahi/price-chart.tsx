@@ -60,8 +60,11 @@ export function PriceChart({ data, height, credit = true }: PriceChartProps) {
     paint();
     const scheme = matchMedia("(prefers-color-scheme: dark)");
     scheme.addEventListener("change", paint);
+    const themeAttribute = new MutationObserver(paint);
+    themeAttribute.observe(document.documentElement, { attributeFilter: ["data-theme"] });
     return () => {
       scheme.removeEventListener("change", paint);
+      themeAttribute.disconnect();
       chart.remove();
     };
   }, [data, credit]);

@@ -2,6 +2,13 @@
 
 ## 0.1.9
 
+- `data-theme="light"` or `data-theme="dark"` on `<html>` overrides the
+  device's scheme: tokens, native controls and `PriceChart` follow it, so a
+  page framed by a host such as a Claude artifact takes the host's choice.
+  An app's own toggle sets the attribute instead of overriding the `dark`
+  variant with a `.dark` class. The siyahi skill names Claude artifacts as a
+  host for a built page.
+
 - Standalone-page guidance builds and checks HTML in the page project before
   uploading it to a host. The host's dependencies no longer select the page's
   Siyahi version. The lint setup includes React correctness checks.

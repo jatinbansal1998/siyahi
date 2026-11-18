@@ -38,5 +38,10 @@
     "question": "Does a standalone page use the hosting app's installed Siyahi version? Where do I select versions and run lint, build and screenshot checks?",
     "answer": "No. Create or use a page project outside the host. For a new project, select dist-tags.next and pin the exact same version of @siyahi/ui and @siyahi/tools. Lint, build complete HTML with siyahi-page, and check that HTML with siyahi-shots using the page project's packages. The host only uploads and serves HTML; rebuilding and republishing is required to update an existing page.",
     "skill": "siyahi"
+  },
+  {
+    "skill": "siyahi",
+    "question": "The user wants a Siyahi dashboard published as a Claude artifact. How do I make it?",
+    "answer": "Build it as a standalone page in a page project with 'npx --no-install siyahi-page page.tsx --out page.html', check that exact HTML with 'npx --no-install siyahi-shots file:///absolute/path/page.html', then publish the same HTML with the Artifact tool. Do not start from the Artifact tool's ready-made Dashboard type, and the page fetches nothing at run time."
   }
 ]
