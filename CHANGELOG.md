@@ -2,6 +2,16 @@
 
 ## 0.1.9
 
+- `TimeSeriesChart` stacks several daily series in panes on one time axis,
+  TradingView style, for a price and the measures read against it: each
+  pane takes its own height, lines, dashed `levels` (zero, 50%) and
+  `format`; `events` mark dates over the first pane. Panning, zoom and the
+  crosshair move every pane together, and each pane's legend gives every
+  line's value at the crosshair's date, or its latest. It follows the scheme
+  and `data-theme` as `PriceChart` does, through one shared helper.
+  `PriceChart`'s gridlines are now solid, as DESIGN.md has them, and its
+  axis drops a tick label that the plot's edge would cut.
+
 - `data-theme="light"` or `data-theme="dark"` on `<html>` overrides the
   device's scheme: tokens, native controls and `PriceChart` follow it, so a
   page framed by a host such as a Claude artifact takes the host's choice.

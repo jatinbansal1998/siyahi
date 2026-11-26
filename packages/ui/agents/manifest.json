@@ -174,6 +174,13 @@
       ]
     },
     {
+      "need": "Several daily series in panes on one time axis, such as an index's close over traders' net positions",
+      "guidance": "`TimeSeriesChart`, one pane per measure, with `levels` for zero or 50%",
+      "components": [
+        "TimeSeriesChart"
+      ]
+    },
+    {
       "need": "Items sized by weight and coloured by change, such as sales by city",
       "guidance": "`Treemap`",
       "components": [
@@ -1328,6 +1335,19 @@
         "CardHeader",
         "CardTitle",
         "TargetRows",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/time-series-chart.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle",
+        "TimeSeriesChart",
         "useFormat"
       ]
     },

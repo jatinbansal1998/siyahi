@@ -337,7 +337,7 @@
 /*
  * A component that lifts a part of itself with a z-index is a stacking context
  * of its own: MetricStrip's picker buttons, an avatar's badge, a calendar's
- * days, a focused toggle, a code block's buttons, a price chart's layers. The
+ * days, a focused toggle, a code block's buttons, a Lightweight Charts chart's layers. The
  * lifted part then ranks only against the rest of its component, and can never
  * sit over, or take a tap from, a page's sticky header or section strip (also
  * z-10, where the later element in the page won the tie). In a group, the
@@ -352,6 +352,7 @@
   [data-slot="toggle-group"],
   [data-slot="code-block"],
   [data-slot="price-chart"],
+  [data-slot="time-series-chart"],
   [data-slot="button-group"],
   [data-slot="input-otp-group"],
   [data-slot="resizable-panel-group"],
