@@ -43,17 +43,18 @@ describe("data-theme on <html>", { timeout: 60_000 }, () => {
     expect(overriddenLook).toEqual(await look(device.page));
   });
 
-  it.each(["price-chart", "time-series-chart"])("redraws the %s in the attribute's scheme", async (slot) => {
+  it("redraws the time-series-chart in the attribute's scheme", async () => {
+    const slot = "time-series-chart";
     const device = await openCatalogue(`data/${slot}`, { colorScheme: "dark" });
     onTestFinished(device.close);
     const overridden = await openOverridden(`data/${slot}`, "dark");
     onTestFinished(overridden.close);
-    // Both charts draw on a later frame; the device's settles first, then the other must match it.
-    await expect.poll(() => chartPixels(device.page, slot)).toMatch(/^data:image/);
-    await device.page.evaluate(
-      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
-    );
-    const drawn = await chartPixels(device.page, slot);
-    await expect.poll(() => chartPixels(overridden.page, slot)).toBe(drawn);
+    // The page's charts draw over several frames, each page at its own pace; once both have drawn, they must match.
+    const charts = (page: Page) => page.locator(`[data-slot="${slot}"] table`).count();
+    await expect.poll(() => charts(device.page), { timeout: 30_000 }).toBe(5);
+    await expect.poll(() => charts(overridden.page), { timeout: 30_000 }).toBe(5);
+    await expect
+      .poll(async () => (await chartPixels(overridden.page, slot)) === (await chartPixels(device.page, slot)))
+      .toBe(true);
   });
 });

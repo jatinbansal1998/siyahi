@@ -71,7 +71,6 @@ describe("page chrome", { timeout: 60_000 }, () => {
     ["components/avatar", "Avatar", "avatar-group"],
     ["inputs/calendar", "Calendar", "calendar"],
     ["inputs/toggle-group", "Toggle group", "toggle-group"],
-    ["data/price-chart", "PriceChart", "price-chart"],
     ["data/time-series-chart", "TimeSeriesChart", "time-series-chart"],
   ])("keeps every lifted part on %s inside its own component", async (route, title, root) => {
     await open(route, title);

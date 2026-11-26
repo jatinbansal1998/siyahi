@@ -254,6 +254,15 @@ from the catalogue.
   first draw, a stack's fills revealed with them; then the names fade in, and
   each end dot as its line finishes; bars fade in rather than grow. Reduced
   motion shows them at once.
+- **Dates and times a reader explores go on `TimeSeriesChartCard`**: a long
+  daily series, a price, anything intraday. It pans, zooms and gives every
+  series' value at the crosshair, so its series are named in a legend at the
+  top of each pane with those values, not at the line ends, and it draws at
+  once, with no draw-in. One measure per pane. Its volume bars and
+  candlesticks are a few pixels wide, all edge, so they draw solid. A
+  baseline and candlesticks take green and red, so they are for a gain and a
+  loss only. Months, categories, bars, stacks and forecasts stay with the
+  other chart cards.
 - **Stale data is marked by the page**: `stale` on a chart card or a
   `MetricStrip` item, with since when ("3 Nov"). The block greys and its
   chart or sparkline draws at about 65% strength, a figure turns muted, and a small "Stale · 3 Nov" note says so. A stale block is meant

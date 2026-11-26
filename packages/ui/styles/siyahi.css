@@ -351,7 +351,6 @@
   [data-slot="calendar"],
   [data-slot="toggle-group"],
   [data-slot="code-block"],
-  [data-slot="price-chart"],
   [data-slot="time-series-chart"],
   [data-slot="button-group"],
   [data-slot="input-otp-group"],
@@ -789,10 +788,17 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
  * text contrast.
  */
 :is([data-slot="card"], [data-slot="metric-strip-item"])[data-stale]
-  :is([data-slot="chart"], [data-slot="sparkline"], [data-slot="badge"], [data-slot="delta"]) {
+  :is(
+    [data-slot="chart"],
+    [data-slot="time-series-chart"],
+    [data-slot="sparkline"],
+    [data-slot="badge"],
+    [data-slot="delta"]
+  ) {
   filter: grayscale(1);
 }
-:is([data-slot="card"], [data-slot="metric-strip-item"])[data-stale] :is([data-slot="chart"], [data-slot="sparkline"]) {
+:is([data-slot="card"], [data-slot="metric-strip-item"])[data-stale]
+  :is([data-slot="chart"], [data-slot="time-series-chart"], [data-slot="sparkline"]) {
   opacity: 0.65;
 }
 [data-slot="metric-strip-item"][data-stale] [data-slot="metric-strip-value"] {
