@@ -546,7 +546,7 @@ export const data: Page = {
         "Give it the levels, not the falls: the card keeps the running peak and works out each fall as a share of it.",
         "The area hangs from zero in the loss colour; a dashed line names the deepest fall.",
         "A level that is null or NaN leaves a gap and does not move the peak.",
-        "For the level itself over time, use AreaChartCard or PriceChart; put this under it when how deep and how long the falls were is the question.",
+        "For the level itself over time, use AreaChartCard or TimeSeriesChartCard; put this under it when how deep and how long the falls were is the question.",
       ],
       examples: [
         {
@@ -883,64 +883,101 @@ export const data: Page = {
       ],
     },
     {
-      id: "price-chart",
-      title: "PriceChart",
-      lead: "TradingView Lightweight Charts in theme colours, for a long daily series such as a price or an order value.",
-      imports: ["PriceChart"],
-      props: [
-        { name: "data", type: "LineData<Time>[]", purpose: "The series, as Lightweight Charts takes it." },
-        { name: "height", type: "number", purpose: "Fixed height in pixels." },
-        {
-          name: "credit",
-          type: "boolean",
-          default: "true",
-          purpose: "The library's own logo; pass false on every chart after the first on a page.",
-        },
-      ],
-      rules: ["Keep the logo on one chart per page and put a credit link under that chart, as the example does."],
-      examples: [
-        { name: "price-chart", caption: "A year of made-up daily order values, with the credit link under it." },
-      ],
-    },
-    {
       id: "time-series-chart",
       title: "TimeSeriesChart",
-      lead: "TradingView Lightweight Charts with several daily series stacked in panes on one time axis, for a price and the measures read against it.",
-      imports: ["TimeSeriesChart", "type TimeSeriesChartPane", "type TimeSeriesChartSeries"],
+      lead: "TradingView Lightweight Charts in theme colours, for anything measured over dates or times that a reader will pan, zoom and read off: a price, its volume, and the measures read against it, in panes on one time axis.",
+      imports: [
+        "TimeSeriesChartCard",
+        "TimeSeriesChart",
+        "type TimeSeriesChartPane",
+        "type TimeSeriesChartSeries",
+        "type TimeSeriesChartPoint",
+        "type TimeSeriesChartCandle",
+        "type TimeSeriesChartTime",
+        "type TimeSeriesChartRange",
+      ],
       props: [
         {
           name: "panes",
           type: "TimeSeriesChartPane[]",
           purpose:
-            "Top to bottom: { height, series, levels?, format? } per pane; each series is { label, color, data }. Keep the array stable with useMemo: a new one redraws the chart.",
+            "Top to bottom: { height?, series, levels?, format? } per pane. New data in the same panes updates the chart in place and keeps the reader's zoom.",
+        },
+        {
+          name: "series[].type",
+          type: '"line" | "area" | "histogram" | "baseline" | "candlestick"',
+          default: '"line"',
+          purpose:
+            "A line, a line over a fading fill, a bar per point from zero (volume), a line in the gain colour above its base and the loss colour below, or open, high, low and close bars.",
+        },
+        {
+          name: "series[].data",
+          type: "TimeSeriesChartPoint[] | TimeSeriesChartCandle[]",
+          purpose:
+            'Each { time, value }, or { time, open, high, low, close } for candlesticks. A time is a day, "2026-11-02", or a moment in seconds since 1970, shown in the provider\'s time zone. A null value is a gap in the line.',
         },
         {
           name: "events",
-          type: "{ time: Time; label: string }[]",
+          type: "{ time; label; pane? }[]",
           default: "—",
-          purpose:
-            "Notes over the first pane's first line, such as where a month starts. Each time is one of its points.",
+          purpose: "Notes over a pane's first series, at their date or the last point before it.",
+        },
+        {
+          name: "range, rangeToggle",
+          type: '"1M" | "6M" | "1Y" | "All", boolean',
+          default: '"All", false',
+          purpose: "How much shows first, counted back from the last point, and the buttons that change it.",
+        },
+        {
+          name: "yScale, yScaleToggle",
+          type: '"linear" | "log", boolean',
+          default: '"linear", false',
+          purpose: "The first pane's value axis, and Linear and Log buttons for it.",
+        },
+        {
+          name: "title, description, action, stale, placeholder, footer",
+          type: "ReactNode",
+          default: "—",
+          purpose: "The card's parts, as on every chart card.",
         },
         {
           name: "credit",
           type: "boolean",
           default: "true",
-          purpose: "The library's own logo; pass false on every chart after the first on a page.",
+          purpose:
+            "The library's logo on the chart and the credit link under it; pass false on every chart after the first on a page.",
         },
       ],
       rules: [
-        "Panning, zoom and the crosshair move every pane together. Each pane's legend names its lines and gives their values at the crosshair's date, or the latest when the pointer is off the chart.",
+        "Use it when the x axis is dates or times and the reader gains from zooming or reading exact values: long daily series, prices, anything intraday. Months or categories, bars, stacks and forecasts stay with the chart cards above.",
+        "Dragging pans and a pinch zooms. The wheel scrolls the page until the reader clicks into the chart; then it zooms, until the pointer leaves. The All button shows everything again.",
+        "Panning, zoom and the crosshair move every pane together. Each pane's legend names its series and gives their values at the crosshair's time, or the latest when the pointer is off the chart.",
+        "One measure per pane: series in a pane share its axis, so put measures in different units in panes of their own.",
         "A pane's format writes its axis ticks and its legend values, so give a signed pane a format that writes + and −.",
         "Levels are dashed lines in the muted colour, such as zero for a net position or 50% for a share; gridlines stay solid.",
-        "One measure per pane: lines in a pane share its axis, so put measures in different units in panes of their own.",
-        "Keep the logo on one chart per page and put a credit link under that chart, as the example does.",
+        "A baseline and candlesticks draw in the gain and loss colours, so use a baseline only where above the base is a gain, such as profit; a net position that is merely positive or negative stays a line with a zero level.",
+        "TimeSeriesChart is the chart alone, for a card you lay out yourself; then put the credit link under one chart on the page.",
       ],
       examples: [
         {
           name: "time-series-chart",
           caption:
-            "A year of made-up index closes over two groups' net futures positions and the share of them that is long.",
+            "A year of made-up index closes over two groups' net futures positions and the share of them that is long, with range buttons.",
         },
+        {
+          name: "time-series-chart-price",
+          caption: "One area series at the width's own height, opened on its last year, with Linear and Log.",
+        },
+        {
+          name: "time-series-chart-candles",
+          caption: "Candlesticks over volume bars and a gain and loss baseline.",
+        },
+        {
+          name: "time-series-chart-live",
+          caption:
+            "Readings a minute apart in IST with a gap. Zoom in, then add readings: the view stays where you left it.",
+        },
+        { name: "time-series-chart-states", caption: "Stale data, and a placeholder while the data loads." },
       ],
     },
     {

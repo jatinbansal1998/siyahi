@@ -14,7 +14,7 @@
   },
   "needs": [
     {
-      "need": "Values over time or another ordered axis (months, hours, size buckets)",
+      "need": "Values over a short ordered axis (months, hours, size buckets), up to a few dozen points",
       "guidance": "`BarChartCard`, `AreaChartCard` or `LineChartCard`",
       "components": [
         "BarChartCard",
@@ -167,17 +167,31 @@
       ]
     },
     {
-      "need": "A long daily series, such as a price or an order value",
-      "guidance": "`PriceChart`",
+      "need": "Anything measured over dates or times that the reader will zoom, pan or read exact values from: a long daily series, a price, intraday samples",
+      "guidance": "`TimeSeriesChartCard`, one pane per measure, with `rangeToggle`; `type: \"area\"` for one series alone",
       "components": [
-        "PriceChart"
+        "TimeSeriesChartCard"
       ]
     },
     {
-      "need": "Several daily series in panes on one time axis, such as an index's close over traders' net positions",
-      "guidance": "`TimeSeriesChart`, one pane per measure, with `levels` for zero or 50%",
+      "need": "A price as open, high, low and close bars, with its volume under it",
+      "guidance": "`TimeSeriesChartCard` with a `candlestick` series in the first pane and a `histogram` series in the next",
       "components": [
-        "TimeSeriesChart"
+        "TimeSeriesChartCard"
+      ]
+    },
+    {
+      "need": "Several series over time in panes on one time axis, such as an index's close over traders' net positions",
+      "guidance": "`TimeSeriesChartCard`, one pane per measure, with `levels` for zero or 50%",
+      "components": [
+        "TimeSeriesChartCard"
+      ]
+    },
+    {
+      "need": "A gain or loss over time, green above zero and red below",
+      "guidance": "`TimeSeriesChartCard` with a `baseline` series",
+      "components": [
+        "TimeSeriesChartCard"
       ]
     },
     {
@@ -1120,18 +1134,6 @@
       ]
     },
     {
-      "file": "agents/examples/price-chart.tsx",
-      "components": [
-        "Card",
-        "CardContent",
-        "CardDescription",
-        "CardFooter",
-        "CardHeader",
-        "CardTitle",
-        "PriceChart"
-      ]
-    },
-    {
       "file": "agents/examples/progress-tone.tsx",
       "components": [
         "ToneProgress",
@@ -1339,15 +1341,38 @@
       ]
     },
     {
+      "file": "agents/examples/time-series-chart-candles.tsx",
+      "components": [
+        "TimeSeriesChartCard",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/time-series-chart-live.tsx",
+      "components": [
+        "Button",
+        "TimeSeriesChartCard"
+      ]
+    },
+    {
+      "file": "agents/examples/time-series-chart-price.tsx",
+      "components": [
+        "TimeSeriesChartCard",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/time-series-chart-states.tsx",
+      "components": [
+        "PanelGrid",
+        "Skeleton",
+        "TimeSeriesChartCard"
+      ]
+    },
+    {
       "file": "agents/examples/time-series-chart.tsx",
       "components": [
-        "Card",
-        "CardContent",
-        "CardDescription",
-        "CardFooter",
-        "CardHeader",
-        "CardTitle",
-        "TimeSeriesChart",
+        "TimeSeriesChartCard",
         "useFormat"
       ]
     },

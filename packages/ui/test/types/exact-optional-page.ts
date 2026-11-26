@@ -65,12 +65,30 @@ export const root = {
 export const timeSeries = {
   panes: [
     {
-      height: 120,
-      series: [{ label: "Net contracts", color: "var(--chart-2)", data: [{ time: "2026-11-02", value: -1 }] }],
+      height: loss ? 120 : undefined,
+      series: [
+        { label: "Net contracts", color: "var(--chart-2)", data: [{ time: "2026-11-02", value: -1 }] },
+        { type: loss ? "area" : undefined, label: "Close", color: "var(--chart-1)", data: [] },
+        { type: "baseline", label: "Gain", base: loss ? 100 : undefined, data: [{ time: "2026-11-02", value: null }] },
+      ],
       levels: [{ value: 0, label }],
       format: loss ? String : undefined,
     },
   ],
-  events: loss ? [{ time: "2026-11-02", label: "Nov 2026" }] : undefined,
+  events: loss ? [{ time: "2026-11-02", label: "Nov 2026", pane: loss ? 1 : undefined }] : undefined,
+  range: loss ? "1M" : undefined,
+  onZoom: loss ? () => {} : undefined,
+  scale: loss ? "log" : undefined,
   credit: loss ? false : undefined,
+  "aria-label": label,
 } satisfies ui.TimeSeriesChartProps;
+
+export const timeSeriesCard = {
+  title: "Close",
+  panes: timeSeries.panes,
+  range: loss ? "1Y" : undefined,
+  rangeToggle: loss ? true : undefined,
+  yScale: loss ? "log" : undefined,
+  yScaleToggle: loss ? true : undefined,
+  stale: loss ? "3 Nov" : undefined,
+} satisfies ui.TimeSeriesChartCardProps;

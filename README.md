@@ -115,7 +115,7 @@ The theme follows the device through `prefers-color-scheme` unless `<html>`
 carries `data-theme="light"` or `data-theme="dark"`, which wins. An app-owned
 toggle sets that attribute, and removes it to follow the device again; a host
 that frames the page, such as a Claude artifact, may set it too. Tokens,
-`color-scheme` for native controls, `PriceChart` and `TimeSeriesChart` all follow it.
+`color-scheme` for native controls, and `TimeSeriesChart` all follow it.
 
 ## Tools
 

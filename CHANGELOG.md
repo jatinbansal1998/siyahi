@@ -2,6 +2,30 @@
 
 ## 0.1.9
 
+- **Breaking:** `PriceChart` is gone; `TimeSeriesChartCard` with one pane and
+  an `area` series replaces it. The two TradingView charts were one job.
+- `TimeSeriesChartCard` is `TimeSeriesChart` as a chart card: `title`,
+  `description`, `action`, `stale`, `placeholder` and `footer` as on the
+  other chart cards, `rangeToggle` for 1M, 6M, 1Y and All buttons (`range`
+  picks the first), `yScaleToggle` for Linear and Log on the first pane, and
+  the TradingView credit link written under the chart.
+- `TimeSeriesChart` draws more than lines: a series' `type` is `line`,
+  `area`, `histogram` (volume bars), `baseline` (the gain colour above a
+  base, the loss colour below) or `candlestick` (open, high, low, close).
+  A time may be a moment in seconds, shown in the provider's time zone, so
+  intraday series work. A `null` value is a gap in the line. An event takes
+  a `pane` and lands on the last point at or before its time. A pane's
+  `height` may be left out, and then follows the chart's width.
+- `TimeSeriesChart` keeps the reader's zoom when its data changes: new data
+  in the same panes updates the chart in place, where any new `panes` array
+  used to redraw it, so `useMemo` is no longer needed. A resized card keeps
+  the dates it showed. The crosshair's labels take theme colours. A vertical
+  swipe on a phone scrolls the page, and the wheel scrolls the page until
+  the reader clicks into the chart. `aria-label` names the chart.
+- Agent guidance and DESIGN.md send dates and times a reader explores to
+  `TimeSeriesChartCard`; months, categories, bars, stacks and forecasts stay
+  with the Recharts cards.
+
 - `TimeSeriesChart` stacks several daily series in panes on one time axis,
   TradingView style, for a price and the measures read against it: each
   pane takes its own height, lines, dashed `levels` (zero, 50%) and
