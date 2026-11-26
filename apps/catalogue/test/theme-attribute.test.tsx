@@ -43,6 +43,29 @@ describe("data-theme on <html>", { timeout: 60_000 }, () => {
     expect(overriddenLook).toEqual(await look(device.page));
   });
 
+  // A canvas keeps what it drew: a chart first drawn in the fallback face must redraw, and measure its labels
+  // again, when the page's own face arrives. Otherwise two pages differ by when their font happened to load.
+  it("draws the time-series-chart the same when the page's font loads after the chart", async () => {
+    const slot = "time-series-chart";
+    const prompt = await openCatalogue(`data/${slot}`);
+    onTestFinished(prompt.close);
+    const late = await openCatalogue(`data/${slot}`);
+    onTestFinished(late.close);
+    await late.page.route("**/*.woff2", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+    await late.page.reload();
+    const charts = (page: Page) => page.locator(`[data-slot="${slot}"] table`).count();
+    await expect.poll(() => charts(prompt.page), { timeout: 30_000 }).toBe(5);
+    await expect.poll(() => charts(late.page), { timeout: 30_000 }).toBe(5);
+    await expect
+      .poll(async () => (await chartPixels(late.page, slot)) === (await chartPixels(prompt.page, slot)), {
+        timeout: 10_000,
+      })
+      .toBe(true);
+  });
+
   it("redraws the time-series-chart in the attribute's scheme", async () => {
     const slot = "time-series-chart";
     const device = await openCatalogue(`data/${slot}`, { colorScheme: "dark" });

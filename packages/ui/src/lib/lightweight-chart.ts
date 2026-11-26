@@ -62,6 +62,14 @@ export function createThemedChart(
   const wheelOff = wheelZooms(false);
   element.addEventListener("pointerdown", wheelOn);
   element.addEventListener("pointerleave", wheelOff);
+  // A canvas keeps the face it was drawn in, and the library keeps each label's width under its font's name; the
+  // page's own face may load after the chart's first draw, changing the widths but not the name. So each load
+  // redraws, under a name that a generic family added or dropped makes new, to no visible effect.
+  let fontLoads = 0;
+  const fontsLoaded = () => {
+    fontLoads += 1;
+    paint();
+  };
   const paint = () => {
     const style = getComputedStyle(element);
     const color: ThemeColor = (token) => style.getPropertyValue(token.replace(/^var\((.+)\)$/, "$1")).trim();
@@ -71,7 +79,7 @@ export function createThemedChart(
     chart.applyOptions({
       layout: {
         textColor: muted,
-        fontFamily: style.fontFamily,
+        fontFamily: fontLoads % 2 ? `${style.fontFamily}, monospace` : style.fontFamily,
         fontSize: parseFloat(style.fontSize),
         panes: { separatorColor: border, separatorHoverColor: border },
       },
@@ -83,16 +91,14 @@ export function createThemedChart(
   };
   const scheme = matchMedia("(prefers-color-scheme: dark)");
   scheme.addEventListener("change", paint);
-  // A canvas keeps the fallback face it was drawn in; the page's own may load after the chart's first draw.
-  let removed = false;
-  void document.fonts.ready.then(() => removed || paint());
+  document.fonts.addEventListener("loadingdone", fontsLoaded);
   const themeAttribute = new MutationObserver(paint);
   themeAttribute.observe(document.documentElement, { attributeFilter: ["data-theme"] });
   return {
     chart,
     paint,
     remove: () => {
-      removed = true;
+      document.fonts.removeEventListener("loadingdone", fontsLoaded);
       element.removeEventListener("pointerdown", wheelOn);
       element.removeEventListener("pointerleave", wheelOff);
       scheme.removeEventListener("change", paint);
