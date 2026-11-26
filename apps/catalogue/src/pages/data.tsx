@@ -903,6 +903,47 @@ export const data: Page = {
       ],
     },
     {
+      id: "time-series-chart",
+      title: "TimeSeriesChart",
+      lead: "TradingView Lightweight Charts with several daily series stacked in panes on one time axis, for a price and the measures read against it.",
+      imports: ["TimeSeriesChart", "type TimeSeriesChartPane", "type TimeSeriesChartSeries"],
+      props: [
+        {
+          name: "panes",
+          type: "TimeSeriesChartPane[]",
+          purpose:
+            "Top to bottom: { height, series, levels?, format? } per pane; each series is { label, color, data }. Keep the array stable with useMemo: a new one redraws the chart.",
+        },
+        {
+          name: "events",
+          type: "{ time: Time; label: string }[]",
+          default: "—",
+          purpose:
+            "Notes over the first pane's first line, such as where a month starts. Each time is one of its points.",
+        },
+        {
+          name: "credit",
+          type: "boolean",
+          default: "true",
+          purpose: "The library's own logo; pass false on every chart after the first on a page.",
+        },
+      ],
+      rules: [
+        "Panning, zoom and the crosshair move every pane together. Each pane's legend names its lines and gives their values at the crosshair's date, or the latest when the pointer is off the chart.",
+        "A pane's format writes its axis ticks and its legend values, so give a signed pane a format that writes + and −.",
+        "Levels are dashed lines in the muted colour, such as zero for a net position or 50% for a share; gridlines stay solid.",
+        "One measure per pane: lines in a pane share its axis, so put measures in different units in panes of their own.",
+        "Keep the logo on one chart per page and put a credit link under that chart, as the example does.",
+      ],
+      examples: [
+        {
+          name: "time-series-chart",
+          caption:
+            "A year of made-up index closes over two groups' net futures positions and the share of them that is long.",
+        },
+      ],
+    },
+    {
       id: "treemap",
       title: "Treemap",
       lead: "Treemap tiles items by weight and colours each by its signed change, with TreemapLegend for the scale.",

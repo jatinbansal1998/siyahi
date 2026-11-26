@@ -61,3 +61,16 @@ export const root = {
   children: null,
   onColumnPinningChange: loss ? pinning : undefined,
 } satisfies Parameters<typeof ui.DataTableRoot<{ id: string }>>[0];
+
+export const timeSeries = {
+  panes: [
+    {
+      height: 120,
+      series: [{ label: "Net contracts", color: "var(--chart-2)", data: [{ time: "2026-11-02", value: -1 }] }],
+      levels: [{ value: 0, label }],
+      format: loss ? String : undefined,
+    },
+  ],
+  events: loss ? [{ time: "2026-11-02", label: "Nov 2026" }] : undefined,
+  credit: loss ? false : undefined,
+} satisfies ui.TimeSeriesChartProps;

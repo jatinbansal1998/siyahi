@@ -23,11 +23,11 @@ function look(page: Page): Promise<{ background: string; colorScheme: string }> 
   }));
 }
 
-/** Every canvas the price chart draws, as pixels, once its fonts have loaded. */
-async function chartPixels(page: Page): Promise<string> {
+/** Every canvas a Lightweight Charts chart draws, as pixels, once its fonts have loaded. */
+async function chartPixels(page: Page, slot: string): Promise<string> {
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
   return page
-    .locator('[data-slot="price-chart"] canvas')
+    .locator(`[data-slot="${slot}"] canvas`)
     .evaluateAll((canvases) => canvases.map((canvas) => (canvas as HTMLCanvasElement).toDataURL()).join());
 }
 
@@ -43,17 +43,17 @@ describe("data-theme on <html>", { timeout: 60_000 }, () => {
     expect(overriddenLook).toEqual(await look(device.page));
   });
 
-  it("redraws PriceChart in the attribute's scheme", async () => {
-    const device = await openCatalogue("data/price-chart", { colorScheme: "dark" });
+  it.each(["price-chart", "time-series-chart"])("redraws the %s in the attribute's scheme", async (slot) => {
+    const device = await openCatalogue(`data/${slot}`, { colorScheme: "dark" });
     onTestFinished(device.close);
-    const overridden = await openOverridden("data/price-chart", "dark");
+    const overridden = await openOverridden(`data/${slot}`, "dark");
     onTestFinished(overridden.close);
     // Both charts draw on a later frame; the device's settles first, then the other must match it.
-    await expect.poll(() => chartPixels(device.page)).toMatch(/^data:image/);
+    await expect.poll(() => chartPixels(device.page, slot)).toMatch(/^data:image/);
     await device.page.evaluate(
       () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
     );
-    const drawn = await chartPixels(device.page);
-    await expect.poll(() => chartPixels(overridden.page)).toBe(drawn);
+    const drawn = await chartPixels(device.page, slot);
+    await expect.poll(() => chartPixels(overridden.page, slot)).toBe(drawn);
   });
 });
