@@ -287,7 +287,7 @@ class Drawing {
     if (this.removed) return;
     this.panes = panes;
     this.events = events;
-    panes.forEach(({ series, levels = [], format }, p) => {
+    panes.forEach(({ series, format }, p) => {
       series.forEach((item, s) => {
         const line = this.lines[p]?.[s];
         line?.applyOptions({
@@ -296,12 +296,6 @@ class Drawing {
         });
         line?.setData(points(item));
       });
-      const first = this.lines[p]?.[0];
-      if (!first) return;
-      this.rules[p]?.forEach((rule) => first.removePriceLine(rule));
-      this.rules[p] = levels.map(({ value, label: title = "" }) =>
-        first.createPriceLine({ price: value, title, lineStyle: LineStyle.Dashed, lineWidth: 1 }),
-      );
     });
     const start = panes[0]?.series[0]?.data[0]?.time;
     const labels = timeLabels(locale, typeof start === "number");
@@ -338,10 +332,17 @@ class Drawing {
 
   private paint(color: ThemeColor) {
     const muted = color("--muted-foreground");
-    this.panes.forEach(({ series }, p) => {
+    this.panes.forEach(({ series, levels = [] }, p) => {
       series.forEach((item, s) => this.lines[p]?.[s]?.applyOptions(seriesColors(item, color)));
-      this.rules[p]?.forEach((rule) => rule.applyOptions({ color: muted }));
       this.markers[p]?.setMarkers(markers(this.panes, this.events, p, muted));
+      const first = this.lines[p]?.[0];
+      if (!first) return;
+      // Drawn afresh each time: the library measures a level's label once, for the life of its line, so a line
+      // made before the page's font loaded would keep the fallback's width.
+      this.rules[p]?.forEach((rule) => first.removePriceLine(rule));
+      this.rules[p] = levels.map(({ value, label: title = "" }) =>
+        first.createPriceLine({ price: value, title, color: muted, lineStyle: LineStyle.Dashed, lineWidth: 1 }),
+      );
     });
   }
 
