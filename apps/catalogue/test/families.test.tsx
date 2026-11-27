@@ -57,7 +57,7 @@ describe("catalogue families", { timeout: 60_000 }, () => {
     const props = page.getByRole("table").filter({ hasText: "Prop and type" });
     expect(await props.getByRole("row").filter({ hasText: "onSelect" }).count()).toBe(1);
     const examples = page.locator('[data-slot="example"]');
-    expect(await examples.count()).toBe(6);
+    expect(await examples.count()).toBe(7);
     expect(await examples.first().innerText()).toContain("Five series grouped by quarter");
     const neighbours = page.getByRole("navigation", { name: "More in Data" });
     expect(await neighbours.getByRole("link").evaluateAll((links) => links.map((l) => l.getAttribute("href")))).toEqual(
