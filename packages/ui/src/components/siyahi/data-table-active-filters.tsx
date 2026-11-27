@@ -35,7 +35,7 @@ function optionLabel<TData extends RowData>(column: DataTableColumn<TData>, valu
 }
 
 /**
- * What the table's search and filters are set to, one chip per value, each removable, and "Reset filters". Renders
+ * What the table's search and filters are set to, one chip per value, each removable, and `DataTableResetFilters`. Renders
  * nothing while no filter is set. For a table toolbar, after the filters; `DataTableRowCount` says how many rows remain.
  */
 export function DataTableActiveFilters<TData extends RowData>() {
@@ -65,16 +65,32 @@ export function DataTableActiveFilters<TData extends RowData>() {
           <XIcon data-icon="inline-end" />
         </Button>
       ))}
-      <Button
-        variant="ghost"
-        size="xs"
-        onClick={() => {
-          table.resetColumnFilters();
-          table.setGlobalFilter("");
-        }}
-      >
-        Reset filters
-      </Button>
+      <DataTableResetFilters />
     </div>
+  );
+}
+
+export interface DataTableResetFiltersProps {
+  /** ghost, the default, after the filter chips; outline where it is the block's only button, as in an empty table. */
+  variant?: "ghost" | "outline" | undefined;
+}
+
+/**
+ * "Reset filters": clears the table's search and every filter at once. It ends `DataTableActiveFilters` and a table's
+ * own message when the filters leave no row.
+ */
+export function DataTableResetFilters<TData extends RowData>({ variant = "ghost" }: DataTableResetFiltersProps) {
+  const { table } = useDataTable<TData>();
+  return (
+    <Button
+      variant={variant}
+      size="xs"
+      onClick={() => {
+        table.resetColumnFilters();
+        table.setGlobalFilter("");
+      }}
+    >
+      Reset filters
+    </Button>
   );
 }

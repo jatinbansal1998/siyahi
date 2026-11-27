@@ -18,6 +18,10 @@
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 // Siyahi edit: the primary sorted column's head carries aria-sort, so a screen
 // reader reads the table's sort order from the table, not from a button's name.
+// Siyahi edit: a table with no rows to show says so by default. DataTableBody
+// adds a DataTableEmptyBody when the page nests none, and an empty body given no
+// children shows a BlockState: "No row matches the search" with Reset filters,
+// or "No rows to show" when the table has no data. A page's own content wins.
 import { flexRender } from "@tanstack/react-table"
 import { Skeleton } from "@siyahi/ui/components/ui/skeleton"
 import {
@@ -28,6 +32,8 @@ import {
   TableRow,
 } from "@siyahi/ui/components/registry/niko-table/ui/table"
 import { cn } from "@siyahi/ui/lib/utils"
+import { BlockState } from "@siyahi/ui/components/siyahi/block-state"
+import { DataTableResetFilters } from "@siyahi/ui/components/siyahi/data-table-active-filters"
 import React from "react"
 import { DataTableColumnHeaderRoot } from "../components/data-table-column-header"
 import { DataTableEmptyState } from "../components/data-table-empty-state"
@@ -534,6 +540,10 @@ export function DataTableBody<TData extends RowData>({
     [children],
   )
 
+  const hasEmptyBody = React.Children.toArray(children).some(
+    child => React.isValidElement(child) && child.type === DataTableEmptyBody,
+  )
+
   // The table's own inline sizing captured before resizing overrides it, so a
   // consumer that sets inline `table-layout` / `width` / `min-width` gets those
   // exact values back when resizing turns off — instead of them being blanked.
@@ -651,6 +661,7 @@ export function DataTableBody<TData extends RowData>({
         : null}
 
       {children}
+      {!hasEmptyBody && <DataTableEmptyBody />}
     </TableBody>
   )
 }
@@ -720,7 +731,7 @@ export function DataTableEmptyBody({
         className={className}
       >
         <DataTableEmptyState isFiltered={isFiltered}>
-          {children}
+          {children ?? <DefaultEmptyMessage />}
         </DataTableEmptyState>
       </TableCell>
     </TableRow>
@@ -728,6 +739,25 @@ export function DataTableEmptyBody({
 }
 
 DataTableEmptyBody.displayName = "DataTableEmptyBody"
+
+function DefaultEmptyMessage() {
+  const { table } = useDataTable()
+  const searched = isGlobalFilterActive(table.state.globalFilter)
+  const filtered = table.state.columnFilters.length > 0
+  if (!searched && !filtered) return <BlockState title="No rows to show" />
+  const by =
+    searched && filtered
+      ? "the search and filters"
+      : searched
+        ? "the search"
+        : "the filters"
+  return (
+    <BlockState
+      title={`No row matches ${by}`}
+      action={<DataTableResetFilters variant="outline" />}
+    />
+  )
+}
 
 // ============================================================================
 // DataTableSkeleton
