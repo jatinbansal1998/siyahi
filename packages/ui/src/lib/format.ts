@@ -3,7 +3,7 @@ import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
 
 const numbers = new Map<string, Intl.NumberFormat>();
-const clocks = new Map<string, Intl.DateTimeFormat>();
+const dates = new Map<string, Intl.DateTimeFormat>();
 const regions = new Map<string, string | undefined>();
 
 function numberFormat(locale: string, options: Intl.NumberFormatOptions): Intl.NumberFormat {
@@ -76,6 +76,29 @@ export function pct(value: number, locale: SiyahiLocale = defaultLocale, fractio
   }).format(value);
 }
 
+/**
+ * A date or time as `options` ask, in the locale's words and its time zone unless `options` names another: 20 Oct
+ * 2026. English shortens September to "Sept" in en-IN and en-GB and every other month to three letters; Siyahi
+ * writes "Sep", so a short month has one form and one width on every axis and in every tooltip.
+ */
+export function dateTime(
+  value: Date | number | string,
+  locale: SiyahiLocale = defaultLocale,
+  options: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" },
+): string {
+  const resolved = { timeZone: locale.timeZone, ...options };
+  const key = JSON.stringify([locale.numberLocale, resolved]);
+  let formatter = dates.get(key);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale.numberLocale, resolved);
+    dates.set(key, formatter);
+  }
+  return formatter
+    .formatToParts(new Date(value))
+    .map(({ type, value: part }) => (type === "month" && part === "Sept" ? "Sep" : part))
+    .join("");
+}
+
 export interface TimeOptions {
   /** Write the date, in the same zone, before the time: 20 Oct 2026, 14:30 IST. */
   withDate?: boolean | undefined;
@@ -88,21 +111,13 @@ export function time(
   { withDate = false }: TimeOptions = {},
 ): string {
   const date: Intl.DateTimeFormatOptions = withDate ? { day: "numeric", month: "short", year: "numeric" } : {};
-  const options: Intl.DateTimeFormatOptions = {
+  return dateTime(value, locale, {
     ...date,
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-    timeZone: locale.timeZone,
     timeZoneName: "short",
-  };
-  const key = JSON.stringify([locale.numberLocale, options]);
-  let formatter = clocks.get(key);
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat(locale.numberLocale, options);
-    clocks.set(key, formatter);
-  }
-  return formatter.format(new Date(value));
+  });
 }
 
 export interface Formatters {
@@ -112,6 +127,8 @@ export interface Formatters {
   moneyCompact: (value: number, scale?: number) => string;
   pct: (value: number, fractionDigits?: number) => string;
   time: (value: Date | number | string, options?: TimeOptions) => string;
+  /** A date by default, 20 Oct 2026; `options` as Intl's, such as `{ month: "short", timeZone: "UTC" }` for a month. */
+  dateTime: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string;
 }
 
 /** The formatters above, bound to the locale of the nearest `SiyahiProvider`. */
@@ -124,6 +141,7 @@ export function useFormat(): Formatters {
       moneyCompact: (value, scale) => moneyCompact(value, locale, scale),
       pct: (value, fractionDigits) => pct(value, locale, fractionDigits),
       time: (value, options) => time(value, locale, options),
+      dateTime: (value, options) => dateTime(value, locale, options),
     }),
     [locale],
   );

@@ -99,7 +99,9 @@ export function TimeSeriesChartCard({
           onZoom={() => setRange(undefined)}
           scale={valueAxis.scale}
           placeholder={placeholder}
-          credit={credit}
+          // The credit link under the chart meets the licence's link to TradingView, so the logo would only cover
+          // the bottom pane's lines.
+          credit={false}
           aria-label={typeof title === "string" ? title : undefined}
         />
       </CardContent>

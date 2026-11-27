@@ -1441,7 +1441,7 @@ export const data: Page = {
     {
       id: "formatters",
       title: "Formatters",
-      lead: "useFormat() returns count, money, moneyCompact, pct and time bound to the nearest SiyahiProvider.",
+      lead: "useFormat() returns count, money, moneyCompact, pct, time and dateTime bound to the nearest SiyahiProvider.",
       imports: ["useFormat", "SiyahiProvider"],
       props: [
         {
@@ -1468,6 +1468,12 @@ export const data: Page = {
           name: "time",
           type: "(value, { withDate? }) => string",
           purpose: "A time with its zone; withDate writes the date first: 20 Oct 2026, 14:30 IST.",
+        },
+        {
+          name: "dateTime",
+          type: "(value, options?: Intl.DateTimeFormatOptions) => string",
+          purpose:
+            "A date, 20 Oct 2026, or the parts options name, in the locale's zone unless they name one; September is Sep.",
         },
       ],
       rules: [
