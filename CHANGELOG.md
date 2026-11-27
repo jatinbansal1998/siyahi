@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- A table is as wide as its columns, up to its block, instead of always
+  filling it, so a figure sits by its label. A data table's frame hugs it
+  too, and its toolbar and frozen columns still follow the room its block
+  gives it. A page sets `--table-width: 100%` on a card to fill the block.
 - `DataTablePagination`, niko-table's pagination, pages a large table: a
   page size picker, the rows shown ("1–10 of 240 rows", in the locale's
   grouping) and the page number with previous and next. It pages the sorted,

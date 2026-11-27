@@ -50,7 +50,8 @@ describe("responsive table", () => {
     expect(await section.getByRole("button", { name: /Revenue.*sorted descending/ }).count()).toBe(1);
 
     await page.setViewportSize({ width: 1366, height: 900 });
-    await scroll.evaluate((el) => (el.style.width = "20rem"));
+    // A narrow panel: the block around the table, whose width is the table's room.
+    await scroll.evaluate((el) => (el.parentElement!.style.width = "20rem"));
     await page.evaluate(
       () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
     );

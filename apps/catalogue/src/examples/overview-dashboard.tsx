@@ -1,5 +1,4 @@
 import {
-  Badge,
   Button,
   Callout,
   Card,
@@ -74,15 +73,16 @@ function Holdings({ rows }: { rows: Holding[] }) {
           <TableHeader>
             <TableRow>
               <TableHead>Holding</TableHead>
+              <TableHead>Kind</TableHead>
               <TableHead>Status</TableHead>
               <TableHead data-numeric>Value</TableHead>
-              <TableHead data-numeric>Change over 12 months</TableHead>
+              <TableHead data-numeric>12-month change</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4}>
+                <TableCell colSpan={5}>
                   <span className="text-muted-foreground">No holding matches the search.</span>
                 </TableCell>
               </TableRow>
@@ -90,12 +90,8 @@ function Holdings({ rows }: { rows: Holding[] }) {
             {rows.map((row) => (
               // Only the holdings that need a look are marked; a row on track stays plain.
               <TableRow key={row.name} data-tone={row.tone === "positive" ? undefined : row.tone}>
-                <TableCell>
-                  <span className="flex flex-wrap items-center gap-2">
-                    {row.name}
-                    <Badge variant="outline">{row.kind}</Badge>
-                  </span>
-                </TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.kind}</TableCell>
                 <TableCell>
                   <StatusBadge tone={row.tone}>{row.status}</StatusBadge>
                 </TableCell>
@@ -108,7 +104,7 @@ function Holdings({ rows }: { rows: Holding[] }) {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={2}>Total</TableCell>
+              <TableCell colSpan={3}>Total</TableCell>
               <TableCell data-numeric>{money(total)}</TableCell>
               <TableCell data-numeric>{yearAgo > 0 && pct(total / yearAgo - 1)}</TableCell>
             </TableRow>

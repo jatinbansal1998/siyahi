@@ -246,6 +246,8 @@ const display: Entry[] = [
       "Anything to sort or filter uses the data table.",
       "Mark a figure's cell and its head data-numeric: the theme right-aligns it, so figures line up by their units.",
       "A total goes in TableFooter.",
+      "A table is as wide as its columns, up to its block, so each figure sits by its label. To fill the block, such as beside a chart, set --table-width: 100% on its card.",
+      "A row is one line tall: a name's kind or category goes in a column of its own, never in the name's cell, where it wraps under the name and doubles the row.",
       'A row that needs a look takes data-tone="negative" or "warning" on its TableRow, a faint wash of the colour. The page decides; never mark a row from its sign alone.',
     ],
     caption: "A month-by-month cash flow in a card, with its total and August marked for a look.",

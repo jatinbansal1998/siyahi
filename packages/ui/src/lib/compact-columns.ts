@@ -7,18 +7,22 @@ import type { DataTableColumnDef } from "@siyahi/ui/components/registry/niko-tab
 // TanStack's size for a column that names none.
 const DEFAULT_SIZE = 150;
 
-/** Reports the element's inner width whenever it changes. */
-export function useTableWidth(element: HTMLElement | null, onChange: (width: number) => void): void {
+/**
+ * Reports the room a table has whenever it changes: the inner width of its scroll box's parent. The box itself is
+ * only as wide as the table (siyahi.css), so a short table measured there would read as a phone's.
+ */
+export function useTableWidth(scrollBox: HTMLElement | null, onChange: (width: number) => void): void {
   React.useLayoutEffect(() => {
-    if (!element) return;
+    const room = scrollBox?.parentElement;
+    if (!room) return;
     const measure = () => {
-      if (element.clientWidth > 0) onChange(element.clientWidth);
+      if (room.clientWidth > 0) onChange(room.clientWidth);
     };
     measure();
     const observer = new ResizeObserver(measure);
-    observer.observe(element);
+    observer.observe(room);
     return () => observer.disconnect();
-  }, [element, onChange]);
+  }, [scrollBox, onChange]);
 }
 
 /** Narrower than 40rem, the width a phone gives a table: freezing is suspended and toolbars fold. */

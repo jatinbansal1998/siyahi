@@ -286,6 +286,17 @@ A number column is marked
 data table marks its number columns; a plain `TableCell` or `TableHead` takes
 the attribute). Row hairlines stay; never stripes, never column rules.
 
+- **A table is as wide as its columns**, up to its block, so each figure sits
+  by its label rather than across a band of blank space; a wider table
+  scrolls sideways inside its block. Where a table must fill its block, such
+  as one lined up with a chart beside it, the page sets `--table-width: 100%`
+  on its card.
+- **A row is one line tall**, so the rows read as an even grid (a compact
+  table folding a hidden figure under a kept one is the exception). A cell holds
+  one thing: a name's kind or category goes in a column of its own, as plain
+  text, never beside the name in its cell, where on a narrow block it wraps
+  under the name and doubles that row.
+
 ## Forms
 
 - Every field is a `Field` with a `FieldLabel` above the control, a
