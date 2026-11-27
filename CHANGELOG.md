@@ -2,6 +2,12 @@
 
 ## 0.1.9
 
+- `DataTableActiveFilters` shows what a table's search and filters are set
+  to, a removable chip per value, and "Reset filters", on its own line in
+  the toolbar after `DataTableRowCount`. It reads the faceted filters'
+  state, so a page keeps one filter model.
+- Option labels the faceted filter works out from the data are in sentence
+  case: "Out for delivery", where it wrote "Out For Delivery".
 - `BlockState` says what a chart, table or list shows in place of its
   data: nothing to show (neutral) or data that failed to load
   (`tone="negative"`, a red wash with an icon, read out as an alert), each

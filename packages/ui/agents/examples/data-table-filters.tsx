@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
   DataTable,
+  DataTableActiveFilters,
   DataTableBody,
   DataTableFacetedFilter,
   DataTableHeader,
@@ -91,6 +92,7 @@ export default function DataTableFiltersExample() {
             />
             <Filters />
             <DataTableRowCount unit="orders" />
+            <DataTableActiveFilters />
           </DataTableToolbarSection>
           <DataTable aria-label="Open orders">
             <DataTableHeader />

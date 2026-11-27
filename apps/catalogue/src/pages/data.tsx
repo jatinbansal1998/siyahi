@@ -653,6 +653,7 @@ export const data: Page = {
         "DataTableFacetedFilter",
         "DataTableSortHeader",
         "DataTableRowCount",
+        "DataTableActiveFilters",
         "DataTableCompactColumnsToggle",
         "useDataTable",
         "type DataTableColumnDef",
@@ -703,7 +704,7 @@ export const data: Page = {
       rules: [
         "Below 40rem of table space, horizontal freezing is suspended so every column scrolls inside the card. It follows the table's width, a narrow laptop panel included; search and sorting survive the change.",
         "DataTableColumnActions with DataTableColumnSortOptions is the menu version of the sort header.",
-        "In the toolbar, DataTableSearchFilter comes first and DataTableRowCount last.",
+        "In the toolbar, DataTableSearchFilter comes first and DataTableRowCount last; DataTableActiveFilters follows it on a line of its own, and shows only while a search or filter is set.",
         "Scrolling sideways hides the figure a reader came for, on a phone and a laptop alike: mark the few answering columns meta.compact, and put DataTableCompactColumnsToggle in the toolbar to show them all and back.",
       ],
       examples: [
@@ -713,8 +714,14 @@ export const data: Page = {
             "Search, a category filter, one-click sort headers, the row count and a pinned product column; the one product selling under 50 units is marked warning.",
         },
         {
+          name: "data-table-filter-bar",
+          caption:
+            "Opened on the shipments still on the road: a chip for each status picked, each removable, the count left and Reset filters.",
+        },
+        {
           name: "data-table-filters",
-          caption: "Search stays in the toolbar; the other filters move into a sheet when space is narrow.",
+          caption:
+            "Search stays in the toolbar; the other filters move into a sheet when space is narrow, and the chips under the toolbar say what the sheet holds.",
         },
         {
           name: "data-table-compact",

@@ -400,6 +400,16 @@
       ]
     },
     {
+      "need": "A table toolbar that shows which search and filters are set, how many rows they leave, and a way to clear them",
+      "guidance": "`DataTableActiveFilters` after `DataTableRowCount` in `DataTableToolbarSection`: a removable chip per value and \"Reset filters\"; it reads the same filter state as `DataTableFacetedFilter`",
+      "components": [
+        "DataTableActiveFilters",
+        "DataTableRowCount",
+        "DataTableToolbarSection",
+        "DataTableFacetedFilter"
+      ]
+    },
+    {
       "need": "Table filters that crowd a phone toolbar",
       "guidance": "Compose `Sheet` with `DataTableFacetedFilter`; useDataTable().isCompact follows the table container. Set DataTableRoot config.enableFilters explicitly when controls are conditional",
       "components": [
@@ -872,6 +882,26 @@
       ]
     },
     {
+      "file": "agents/examples/data-table-filter-bar.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataTable",
+        "DataTableActiveFilters",
+        "DataTableBody",
+        "DataTableFacetedFilter",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableRowCount",
+        "DataTableSearchFilter",
+        "DataTableSortHeader",
+        "DataTableToolbarSection"
+      ]
+    },
+    {
       "file": "agents/examples/data-table-filters.tsx",
       "components": [
         "Button",
@@ -881,6 +911,7 @@
         "CardHeader",
         "CardTitle",
         "DataTable",
+        "DataTableActiveFilters",
         "DataTableBody",
         "DataTableFacetedFilter",
         "DataTableHeader",

@@ -2,6 +2,8 @@
 // Origin: https://niko-table.com/r/data-table-core.json
 // Licence: MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE
 // Copied: 2026-10-20, sha256 e58ec22ed938d674240b483ec44cbb9498311356fe7168d07f9d31b365c83106
+// Siyahi edit: formatLabel writes sentence case, as DESIGN.md asks of every label, so a
+// value such as "Out for delivery" reads as written, not "Out For Delivery".
 export function formatDate(
   date: Date | string | number | undefined,
   opts: Intl.DateTimeFormatOptions = {},
@@ -22,12 +24,12 @@ export function formatDate(
 
 /**
  * Format a value into a human-readable label.
- * Capitalizes first letter of each word and replaces hyphens/underscores with spaces.
+ * Capitalizes the first letter and replaces hyphens/underscores with spaces.
  *
  * @example
  * formatLabel("firstName") // "FirstName"
- * formatLabel("first-name") // "First Name"
- * formatLabel("first_name") // "First Name"
+ * formatLabel("first-name") // "First name"
+ * formatLabel("Out for delivery") // "Out for delivery"
  * formatLabel("true") // "Yes"
  * formatLabel("false") // "No"
  */
@@ -36,11 +38,8 @@ export function formatLabel(value: string): string {
   if (value === "true") return "Yes"
   if (value === "false") return "No"
 
-  return value
-    .replace(/[-_]/g, " ")
-    .split(" ")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
+  const words = value.replace(/[-_]/g, " ")
+  return words.charAt(0).toUpperCase() + words.slice(1)
 }
 
 /**
