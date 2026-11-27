@@ -1,6 +1,7 @@
 import {
   useCallback,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,9 +23,15 @@ import {
   Text,
   XAxis,
   YAxis,
+  type TooltipContentProps,
+  type TooltipValueType,
+  useActiveTooltipCoordinate,
   type LineProps,
   useChartWidth,
+  usePlotArea,
+  useXAxisScale,
   useXAxisTicks,
+  useYAxisScale,
   useYAxisTicks,
 } from "recharts";
 import { LOG_BLOCKED, useAxisScale } from "@siyahi/ui/components/siyahi/scale-toggle";
@@ -511,6 +518,105 @@ function HorizontalAxis<T extends object, K extends keyof T>({
   );
 }
 
+interface PlacedTooltipProps<T> extends Pick<
+  ComponentProps<typeof ChartTooltipContent>,
+  "labelFormatter" | "formatter"
+> {
+  data: readonly T[];
+  xKey: keyof T;
+  horizontal: boolean;
+  /** The values a row's marks span along the value axis: its values, a stack's ends, and zero under bars. */
+  extent: (row: T) => number[];
+}
+
+const TOOLTIP_GAP = 8;
+const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(value, high));
+
+/**
+ * Where a tooltip `size` px long sits along the value axis, in the plot's `start` to `end` px, clear of marks spanning
+ * `from` to `to` px: on the side it tries `first` if it fits there, else the other, else at the roomier edge.
+ */
+function clearOf(from: number, to: number, size: number, start: number, end: number, first: "before" | "after") {
+  const before = from - TOOLTIP_GAP - size;
+  const after = to + TOOLTIP_GAP;
+  const fits = { before: before >= start, after: after + size <= end };
+  for (const side of first === "before" ? (["before", "after"] as const) : (["after", "before"] as const)) {
+    if (fits[side]) return side === "before" ? before : after;
+  }
+  return from - start > end - to ? start : end - size;
+}
+
+/**
+ * The tooltip, centred on the hovered category and clear of the marks it spans: above columns and lines, or below them
+ * where there is no room above; right of sideways bars, or left of them. Beside the cursor, where Recharts puts it,
+ * it covered the next category's marks, the ones a reader compares the hovered one with. With room on neither side
+ * it keeps to the plot's roomier edge, over the marks it then must cover.
+ */
+function PlacedTooltip<T>({ data, xKey, horizontal, extent, labelFormatter, formatter }: PlacedTooltipProps<T>) {
+  const plot = usePlotArea();
+  const at = useActiveTooltipCoordinate();
+  const xScale = useXAxisScale();
+  const yScale = useYAxisScale();
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useLayoutEffect(() => {
+    if (!box) return;
+    const observer = new ResizeObserver(() => setSize({ width: box.offsetWidth, height: box.offsetHeight }));
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, [box]);
+  const [category, value] = horizontal ? [yScale, xScale] : [xScale, yScale];
+  let x: number | undefined;
+  let y: number | undefined;
+  if (plot && at && category && value) {
+    const step = (horizontal ? plot.height : plot.width) / data.length;
+    /** The pixels, along the value axis, of the marks of every category whose band meets `from` to `to` across. */
+    const marks = (from: number, to: number) =>
+      data.flatMap((row) => {
+        const middle = category(row[xKey], { position: "middle" });
+        if (middle === undefined || middle + step / 2 <= from || middle - step / 2 >= to) return [];
+        return extent(row)
+          .flatMap((end) => value(end) ?? [])
+          .filter(Number.isFinite);
+      });
+    if (horizontal) {
+      y = clamp(at.y - size.height / 2, plot.y, plot.y + plot.height - size.height);
+      const ends = marks(y, y + size.height);
+      x = clearOf(Math.min(...ends), Math.max(...ends), size.width, plot.x, plot.x + plot.width, "after");
+    } else {
+      x = clamp(at.x - size.width / 2, plot.x, plot.x + plot.width - size.width);
+      const ends = marks(x, x + size.width);
+      y = clearOf(Math.min(...ends), Math.max(...ends), size.height, plot.y, plot.y + plot.height, "before");
+    }
+  }
+  // Recharts stores the tooltip's settings and redraws its readers when they change, this one included: a new
+  // position or content on each draw would never settle.
+  const position = useMemo(() => (x === undefined || y === undefined ? undefined : { x, y }), [x, y]);
+  const content = useCallback(
+    ({ active, payload, label }: TooltipContentProps<TooltipValueType, string | number>) => (
+      <div ref={setBox}>
+        <ChartTooltipContent
+          active={active}
+          payload={payload}
+          label={label}
+          labelFormatter={labelFormatter}
+          formatter={formatter}
+        />
+      </div>
+    ),
+    [labelFormatter, formatter],
+  );
+  return (
+    <ChartTooltip
+      // The core chart paints the band behind a hovered category in --muted; at full strength the pale
+      // chart slots fell under 3:1 against it, so it shows at 40%.
+      cursor={{ fillOpacity: 0.4 }}
+      position={position}
+      content={content}
+    />
+  );
+}
+
 /**
  * The card, axes, grid, tooltip and legend the three chart cards share. Both
  * axes keep Recharts' default ids: marks find their axes by id, and a page
@@ -786,21 +892,22 @@ export function ChartFrame<T extends object, K extends keyof T>({
                   }
                 />
               ))}
-              <ChartTooltip
-                // The core chart paints the band behind a hovered category in --muted; at full strength the pale
-                // chart slots fell under 3:1 against it, so it shows at 40%.
-                cursor={{ fillOpacity: 0.4 }}
-                content={
-                  <ChartTooltipContent
-                    // The heading comes from the hovered row, not Recharts' label,
-                    // which is the series name whenever the category is not a string.
-                    labelFormatter={(_, payload) => {
-                      const row = payload[0]?.payload as T | undefined;
-                      return row ? xTooltipFormatter(row[xKey]) : null;
-                    }}
-                    formatter={tooltipRow ?? seriesRow(series, formatValue, lines)}
-                  />
-                }
+              <PlacedTooltip
+                data={data}
+                xKey={xKey}
+                horizontal={horizontal}
+                extent={(row) => [
+                  ...axisValues([row], series, stackOffset),
+                  ...axisValues([row], lines ?? []),
+                  ...(Chart === BarChart ? [0] : []),
+                ]}
+                // The heading comes from the hovered row, not Recharts' label,
+                // which is the series name whenever the category is not a string.
+                labelFormatter={(_, payload) => {
+                  const row = payload[0]?.payload as T | undefined;
+                  return row ? xTooltipFormatter(row[xKey]) : null;
+                }}
+                formatter={tooltipRow ?? seriesRow(series, formatValue, lines)}
               />
               {(forecastFrom !== undefined || today !== undefined) && (
                 <TimeMarks

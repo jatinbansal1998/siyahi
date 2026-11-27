@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- A chart card's tooltip sits centred on the hovered category and clear of
+  the marks it spans: above columns and lines, below them where there is no
+  room above, right of sideways bars, inside the plot. Beside the cursor it
+  covered the next category's marks, the ones a reader compares.
 - A phone layout for `DataTable` rows: `dataTableDetailsColumn()` adds a
   first column that, while columns are hidden to fit, opens a row on them as
   label and value pairs. It is gone on a wide table and once the reader picks
