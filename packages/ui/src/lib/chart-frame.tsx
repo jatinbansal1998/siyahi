@@ -3,6 +3,7 @@ import {
   useMemo,
   useState,
   type ComponentProps,
+  type ComponentType,
   type CSSProperties,
   type ReactElement,
   type ReactNode,
@@ -74,6 +75,22 @@ const SERIES_LEGEND = <ChartLegendContent className="flex-wrap gap-y-1" />;
  */
 export function barFill(color: string, dim = false): string {
   return `color-mix(in oklab, ${color} ${dim ? "10%" : "var(--bar-tint)"}, var(--card))`;
+}
+
+/** A line's key in the legend and tooltip: a short stroke of its colour, where a bar's is a square. */
+function LineSwatch({ color }: { color: string | undefined }) {
+  return <span data-slot="line-swatch" className="h-0.5 w-3 shrink-0" style={{ backgroundColor: color }} />;
+}
+
+// The legend renders a config icon as a component, so each colour keeps one: a new one each render would remount.
+const LINE_ICONS = new Map<ChartColor, ComponentType>();
+function lineIcon(color: ChartColor): ComponentType {
+  let icon = LINE_ICONS.get(color);
+  if (!icon) {
+    icon = () => <LineSwatch color={color} />;
+    LINE_ICONS.set(color, icon);
+  }
+  return icon;
 }
 
 interface QuietLegendProps<T> {
@@ -183,8 +200,8 @@ export function logValueAxis(
 }
 
 /**
- * A linear value axis that just covers what is drawn: the values (a stack's totals), the page's levels and ticks, and
- * zero under bars, so no bar hangs from its smallest loss and no level falls off the plot.
+ * A linear value axis that just covers what is drawn: the values (a stack's totals), any lines over bars, the page's
+ * levels and ticks, and zero under bars, so no bar hangs from its smallest loss and no level falls off the plot.
  */
 export function linearValueAxis<T>(
   data: readonly T[],
@@ -194,15 +211,19 @@ export function linearValueAxis<T>(
     referenceLines = NO_LINES,
     yTicks = [],
     bars = false,
+    lines = [],
   }: {
     stackOffset?: StackOffset | undefined;
     referenceLines?: readonly ChartReferenceLine[] | undefined;
     yTicks?: readonly number[] | undefined;
     bars?: boolean | undefined;
+    /** Lines over the bars: each value drawn, never added to a stack. */
+    lines?: ChartSeries<T> | undefined;
   },
 ) {
   return linearAxis([
     ...axisValues(data, series, stackOffset),
+    ...axisValues(data, lines),
     ...levelsOf(referenceLines),
     ...yTicks,
     ...(bars ? [0] : []),
@@ -212,7 +233,7 @@ export function linearValueAxis<T>(
 interface ChartFrameProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K>, NumericXProps, ValueScaleProps, LineMarksProps<T, K> {
   chart: typeof AreaChart | typeof BarChart | typeof LineChart;
-  /** One Bar, Area or Line per series. */
+  /** One Bar, Area or Line per series, then one Line per line. */
   children: ReactNode;
   /**
    * Bars run sideways: the categories go down the left, where long names fit, as in shadcn's
@@ -238,6 +259,8 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   forecastHatch?: boolean | undefined;
   /** The lines' curve, which a grey line raised from the legend is drawn with too. */
   curve?: ChartCurve | undefined;
+  /** Lines drawn over bars: on the value axis unstacked, and in the tooltip and legend with a line's key. */
+  lines?: ChartSeries<T> | undefined;
 }
 
 /**
@@ -272,14 +295,26 @@ export function endDot(color: ChartColor, count: number, hollow = false) {
     );
 }
 
-/** A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. */
-export function seriesRow<T>(series: ChartSeries<T>, formatValue: (value: number) => string) {
+/**
+ * A tooltip row: the series' colour and label, then its value as the page formats it, or — when the row has none. A
+ * line over bars is keyed by a stroke rather than a square.
+ */
+export function seriesRow<T>(
+  series: ChartSeries<T>,
+  formatValue: (value: number) => string,
+  lines: ChartSeries<T> = [],
+) {
   return (value: unknown, _name: unknown, item: { dataKey?: unknown }) => {
-    const entry = series.find(({ key }) => key === item.dataKey);
+    const line = lines.find(({ key }) => key === item.dataKey);
+    const entry = line ?? series.find(({ key }) => key === item.dataKey);
     const color = entry?.negativeColor && Number(value) < 0 ? entry.negativeColor : entry?.color;
     return (
       <>
-        <span className="size-2.5 shrink-0 rounded-xs" style={{ backgroundColor: color }} />
+        {line ? (
+          <LineSwatch color={color} />
+        ) : (
+          <span className="size-2.5 shrink-0 rounded-xs" style={{ backgroundColor: color }} />
+        )}
         <span className="text-muted-foreground">{entry?.label}</span>
         <span className="ml-auto font-mono font-medium text-foreground tabular-nums">
           {value == null ? "—" : formatValue(Number(value))}
@@ -479,6 +514,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   forecastFrom,
   today,
   stale,
+  lines,
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
   const clipId = useId();
@@ -501,10 +537,14 @@ export function ChartFrame<T extends object, K extends keyof T>({
     () => valueFormatter ?? new Intl.NumberFormat(numberLocale).format,
     [valueFormatter, numberLocale],
   );
-  const config: ChartConfig = Object.fromEntries(series.map(({ key, label, color }) => [key, { label, color }]));
-  const crossesZero = data.some((row) => series.some(({ key }) => Number(row[key as keyof T]) < 0));
+  const marks = [...series, ...(lines ?? [])];
+  const config: ChartConfig = Object.fromEntries([
+    ...series.map(({ key, label, color }) => [key, { label, color }]),
+    ...(lines ?? []).map(({ key, label, color }) => [key, { label, color, icon: lineIcon(color) }]),
+  ]);
+  const crossesZero = data.some((row) => marks.some(({ key }) => Number(row[key as keyof T]) < 0));
   // A page's fixed range must fit the log axis too, so its ends count as values.
-  const values = [...data.flatMap((row) => series.map(({ key }) => row[key as keyof T])), ...(yDomain ?? [])].filter(
+  const values = [...data.flatMap((row) => marks.map(({ key }) => row[key as keyof T])), ...(yDomain ?? [])].filter(
     (value): value is number => typeof value === "number" && Number.isFinite(value),
   );
   const valueAxis = useAxisScale({
@@ -520,7 +560,13 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const linear =
     log || yDomain !== undefined
       ? undefined
-      : linearValueAxis(data, series, { stackOffset, referenceLines, yTicks, bars: Chart === BarChart });
+      : linearValueAxis(data, series, {
+          stackOffset,
+          referenceLines,
+          yTicks,
+          bars: Chart === BarChart,
+          lines,
+        });
   // Narrow panels need extra row space for complete quantitative details.
   const detailedRows = horizontal && xTickDetail !== undefined;
   const rowCount = (xTicks ?? data).length;
@@ -705,7 +751,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                       const row = payload[0]?.payload as T | undefined;
                       return row ? xTooltipFormatter(row[xKey]) : null;
                     }}
-                    formatter={tooltipRow ?? seriesRow(series, formatValue)}
+                    formatter={tooltipRow ?? seriesRow(series, formatValue, lines)}
                   />
                 }
               />
@@ -744,7 +790,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 <ChartLegend
                   content={
                     quiet ? (
-                      <QuietLegend series={series} raisable={endLabels} raised={raised?.key} onRaise={setRaisedKey} />
+                      <QuietLegend series={marks} raisable={endLabels} raised={raised?.key} onRaise={setRaisedKey} />
                     ) : (
                       legend
                     )

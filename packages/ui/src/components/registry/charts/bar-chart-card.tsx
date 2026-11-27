@@ -36,12 +36,17 @@
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: `lines` draws series as lines over the bars, such as each bar
+// series' moving average. They stay in a BarChart, not a ComposedChart, whose
+// hover cursor is a hairline instead of the band behind the category. Each line
+// sits on a card-coloured halo so it stays traceable across the bars.
 "use client"
 
-import { Bar, BarChart, Cell } from "recharts"
+import { Fragment } from "react"
+import { Bar, BarChart, Cell, Line } from "recharts"
 
 import { ChartFrame, barFill, seriesFill } from "@siyahi/ui/lib/chart-frame"
-import type { SeriesChartProps } from "@siyahi/ui/lib/chart-series"
+import type { ChartSeries, SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 
 export interface BarChartCardProps<T extends object, K extends keyof T>
   extends SeriesChartProps<T, K> {
@@ -53,6 +58,11 @@ export interface BarChartCardProps<T extends object, K extends keyof T>
   selected?: T[K] | null | undefined
   /** Called with a clicked category's x value, or null when the picked one is clicked again. */
   onSelect?: ((value: T[K] | null) => void) | undefined
+  /**
+   * Series drawn as lines over the bars, unstacked, such as each bar series' 3-month average. A selection fades the
+   * bars, never the lines; a null value breaks a line.
+   */
+  lines?: ChartSeries<NoInfer<T>> | undefined
 }
 
 /** Values over an ordered axis as bars: one series, or several grouped or stacked. */
@@ -60,11 +70,13 @@ export function BarChartCard<T extends object, K extends keyof T>({
   stacked = false,
   selected = null,
   onSelect,
+  lines,
   ...props
 }: BarChartCardProps<T, K>) {
   return (
     <ChartFrame
       chart={BarChart}
+      lines={lines}
       {...props}
       stackOffset={stacked ? "sign" : undefined}
       onClick={
@@ -101,6 +113,30 @@ export function BarChartCard<T extends object, K extends keyof T>({
           </Bar>
         )
       })}
+      {lines?.map(({ key, label, color }) => (
+        <Fragment key={`line-${key}`}>
+          <Line
+            dataKey={key}
+            type="monotone"
+            stroke="var(--card)"
+            strokeWidth={5}
+            dot={false}
+            activeDot={false}
+            tooltipType="none"
+            legendType="none"
+            animationDuration={1300}
+          />
+          <Line
+            dataKey={key}
+            name={label}
+            type="monotone"
+            stroke={color}
+            strokeWidth={2}
+            dot={false}
+            animationDuration={1300}
+          />
+        </Fragment>
+      ))}
     </ChartFrame>
   )
 }

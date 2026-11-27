@@ -228,6 +228,13 @@ export const data: Page = {
           default: "—",
           purpose: "Gets a clicked category, or null when the picked one is clicked again.",
         },
+        {
+          name: "lines",
+          type: "ChartSeries<T>",
+          default: "[]",
+          purpose:
+            "Series drawn as lines over the bars, unstacked, such as each series' moving average; a null value breaks a line.",
+        },
       ],
       rules: [
         "Use it when the axis has an order of its own: quarters, hours of day, size buckets. A ranked list (name, bar, figure, largest first) is a BarList.",
@@ -236,6 +243,7 @@ export const data: Page = {
         "The value axis always includes zero, so a series of losses runs down from it.",
         "Every bar is a half tint of its colour inside a 1px full-colour edge, square, so a thin stacked segment keeps its colour. Bars fade in rather than grow.",
         "The page owns the pick: hold selected in its state and set it from onSelect.",
+        "A trend over noisy bars is a line in lines, in its bars' colour: the data brings the figures, such as a 3-month average, and the chart only draws them. A selection fades the bars, never the lines.",
       ],
       examples: [
         { name: "chart-bar", caption: "Five series grouped by quarter, with a toggle that stacks them." },
@@ -253,6 +261,10 @@ export const data: Page = {
         },
         { name: "chart-bar-teams", caption: "Horizontal bars for long team names, against the plan or last year." },
         { name: "chart-bar-flows", caption: "Stacked money in and out: out runs down from zero, in runs up." },
+        {
+          name: "chart-bar-average",
+          caption: "Two series of monthly orders, each with its 3-month average drawn as a line over its bars.",
+        },
       ],
     },
     {
