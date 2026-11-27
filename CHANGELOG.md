@@ -2,6 +2,11 @@
 
 ## 0.1.9
 
+- `Treemap` writes out under the map each tile too small for its name and
+  change ("Too small to label: Kochi +58.0%, Guwahati —"), so a phone, which
+  has no hover, can read every tile. `ScatterChart`'s gridlines are solid
+  hairlines, as every other chart's are; its quadrant lines stay dashed.
+
 - `TimeSeriesChart` writes no price-axis tick that a series' latest value or
   a level would cover with its tag, writes the dates at the data's first and
   last points whole, where "Dec" read "ec", and writes a day's tick with its

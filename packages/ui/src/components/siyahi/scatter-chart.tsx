@@ -288,7 +288,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
         >
           <ChartContainer config={{}} className="aspect-auto w-full" style={{ height }}>
             <ScatterChart margin={{ top: 12, right: endRoom, left: 0 }} accessibilityLayer={false}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid />
               <XAxis
                 type="number"
                 dataKey="x"

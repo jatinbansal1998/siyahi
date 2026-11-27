@@ -136,6 +136,20 @@ describe("Treemap", () => {
     expect(slim?.querySelector("text")).toBeNull();
   });
 
+  it("writes out under the map each tile too small for its name and change, so a phone reads it without hovering", async () => {
+    await render({
+      height: 300,
+      items: [
+        { name: "BIG", weight: 940, change: 0.01 },
+        { name: "SLIM", weight: 60, change: -0.2 },
+        { name: "NEW", weight: 30, change: null },
+      ],
+    });
+    expect(document.querySelector('[data-slot="treemap-unlabelled"]')?.textContent).toBe(
+      "Too small to label: SLIM\u00a0\u221220.0%, NEW\u00a0—",
+    );
+  });
+
   it("paints the smallest change at the first heat step, whose share each scheme sets", async () => {
     await render({ height: 300, items: [{ name: "INFY", weight: 100, change: 0.001 }] });
     expect(fill("INFY")).toBe("color-mix(in oklab, var(--positive) var(--heat-1), var(--card))");
