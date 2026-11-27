@@ -42,7 +42,8 @@ const kinds = [
 ] as const;
 
 // Four charts in a PanelGrid: lines named at their ends, a forecast after today, overlapping areas as lines, and bars
-// as tints inside full-colour edges, grouped and stacked.
+// as tints inside full-colour edges, grouped and stacked. The two over months share a syncId and the two over quarters
+// another, so hovering October in one marks it in the other; months and quarters never link.
 export default function ChartPanelsExample() {
   const { pct, money, moneyCompact } = useFormat();
   return (
@@ -56,6 +57,7 @@ export default function ChartPanelsExample() {
         today="Oct"
         forecastFrom="Oct"
         valueFormatter={pct}
+        syncId="fund-months"
       />
       <AreaChartCard
         title="Value by kind"
@@ -65,6 +67,7 @@ export default function ChartPanelsExample() {
         series={kinds}
         valueFormatter={money}
         yTickFormatter={moneyCompact}
+        syncId="fund-months"
       />
       <BarChartCard
         title="Money added by kind and quarter"
@@ -74,6 +77,7 @@ export default function ChartPanelsExample() {
         series={kinds}
         valueFormatter={money}
         yTickFormatter={moneyCompact}
+        syncId="fund-quarters"
       />
       <BarChartCard
         title="Money added by kind and quarter"
@@ -84,6 +88,7 @@ export default function ChartPanelsExample() {
         stacked
         valueFormatter={money}
         yTickFormatter={moneyCompact}
+        syncId="fund-quarters"
       />
     </PanelGrid>
   );

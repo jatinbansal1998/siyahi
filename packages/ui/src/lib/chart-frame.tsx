@@ -557,6 +557,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   stale,
   lines,
   drawn = false,
+  syncId,
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
   const clipId = useId();
@@ -671,6 +672,9 @@ export function ChartFrame<T extends object, K extends keyof T>({
               layout={horizontal ? "vertical" : "horizontal"}
               stackOffset={stackOffset}
               onClick={onClick}
+              // By value, not Recharts' default index: linked charts may cover different stretches of the same axis.
+              syncId={syncId}
+              syncMethod="value"
               // Selection reads the hovered category in this event; defer no pointer updates.
               throttledEvents={onClick ? [] : undefined}
               // Bottom-axis ticks need room at the right end; sideways labels already have the left axis.

@@ -43,6 +43,7 @@ export interface DrawdownChartCardProps<T extends object, K extends keyof T> ext
   | "xTicks"
   | "placeholder"
   | "footer"
+  | "syncId"
 > {
   /** The field holding the level, such as the day's cash balance or a fund's value. */
   levelKey: NumericKey<T>;
