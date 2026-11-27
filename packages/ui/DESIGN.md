@@ -252,7 +252,10 @@ from the catalogue.
   FORECAST and hollows the end dots (a stack keeps solid edges and no hatching:
   its fills cover the stretch);
   `today` is a 1px rule in the link colour, labelled TODAY.
-- Gridlines are solid hairlines. Lines draw in left to right over 1.3s on
+- **A name on a mark is never on hover alone**: a phone has no hover. A
+  treemap tile too small for its name and figure has them written out under
+  the map.
+- Gridlines are solid hairlines, the scatter chart's too. Lines draw in left to right over 1.3s on
   first draw, a stack's fills revealed with them; then the names fade in, and
   each end dot as its line finishes; bars fade in rather than grow. Reduced
   motion shows them at once.

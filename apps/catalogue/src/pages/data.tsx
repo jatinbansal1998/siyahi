@@ -1044,6 +1044,7 @@ export const data: Page = {
         "Items with a group sit together under its name, which draws even for a group of one.",
         "Give items a key when names repeat, such as one city selling through two channels.",
         "A phone has no hover, so a tap selects a tile. The selection is the page's state, so a filter that drops the item drops its ring too.",
+        "A tile too small for its name and change is written out under the map, so neither needs a hover.",
         "TreemapLegend draws five steps of loss, no change and five of gain, each swatch naming its span on hover.",
       ],
       examples: [

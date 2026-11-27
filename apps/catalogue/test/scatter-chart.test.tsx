@@ -84,6 +84,12 @@ describe("ScatterChartCard", () => {
     });
   }
 
+  it("draws its gridlines as solid hairlines, as every other chart does", async () => {
+    const lines = stores().locator(".recharts-cartesian-grid line");
+    expect(await lines.count()).toBeGreaterThan(0);
+    expect(await lines.evaluateAll((els) => els.filter((el) => el.hasAttribute("stroke-dasharray")).length)).toBe(0);
+  });
+
   it("draws the names above the dots", async () => {
     const order = await stores().evaluate((chart) =>
       [...chart.querySelectorAll('[data-slot="scatter-point"], [data-slot="scatter-labels"]')].map(

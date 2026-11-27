@@ -61,15 +61,21 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
     : (tiles[0]?.item.key ?? tiles[0]?.item.name);
   const change = (value: number | null) =>
     value === null ? "—" : `${value > 0 ? "+" : value < 0 ? "\u2212" : ""}${pct(Math.abs(value))}`;
+  // A phone has no hover, so a tile that cannot show its whole name and figure is written out under the map.
+  const unlabelled = tiles.filter(
+    ({ item, width: wide, height: tall }) =>
+      wide < MIN_LABEL_WIDTH || tall < TWO_LINE_HEIGHT || fit(item.name, wide - 16) !== item.name,
+  );
   // Each label sits in a nested <svg>, which clips it to its tile or group row.
   return (
-    <div ref={ref} data-slot="treemap" style={{ height }}>
+    <div ref={ref} data-slot="treemap">
       <svg
         width={width}
         height={height}
         role={onSelect ? "group" : "img"}
         aria-label="Treemap by weight and change"
-        className="text-xs"
+        // Inline, the map would sit on the text baseline and leave a gap under it.
+        className="block text-xs"
         onPointerLeave={(event) => event.pointerType === "mouse" && onHover?.(null)}
       >
         {groups.map(({ group, ...box }) => (
@@ -166,6 +172,14 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
           );
         })}
       </svg>
+      {unlabelled.length > 0 && (
+        // Not a <p>: the theme sets paragraphs in the prose face, and these are figures, set as the tiles' are.
+        <div data-slot="treemap-unlabelled" className="mt-2 text-xs">
+          <span className="text-muted-foreground">Too small to label: </span>
+          {/* A tile's name and change stay on one line. */}
+          {unlabelled.map(({ item }) => `${item.name}\u00a0${change(item.change)}`).join(", ")}
+        </div>
+      )}
     </div>
   );
 }
