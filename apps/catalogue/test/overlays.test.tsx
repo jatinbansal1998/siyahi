@@ -101,7 +101,8 @@ describe("floating surfaces lie flat", { timeout: 60_000 }, () => {
     const plot = await chart.locator(".recharts-surface").first().boundingBox();
     if (!plot) throw new Error("the bar chart drew no plot");
     await page.mouse.move(plot.x + plot.width * 0.3, plot.y + plot.height * 0.5);
-    expect(await shadows(chart.locator(".recharts-tooltip-wrapper > div"))).toEqual([]);
+    // The tooltip's box is inside the frame the chart measures it by.
+    expect(await shadows(chart.locator(".recharts-tooltip-wrapper > div > div"))).toEqual([]);
   });
 
   it("casts no shadow from a component Siyahi does not list, written with a stock shadow class", async () => {

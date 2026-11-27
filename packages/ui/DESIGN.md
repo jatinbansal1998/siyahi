@@ -252,6 +252,10 @@ from the catalogue.
   FORECAST and hollows the end dots (a stack keeps solid edges and no hatching:
   its fills cover the stretch);
   `today` is a 1px rule in the link colour, labelled TODAY.
+- **A tooltip leaves the neighbours in view.** It sits centred on the hovered
+  category, above its columns and lines (below them where there is no room
+  above), right of sideways bars, and inside the plot, so the reader can still
+  compare the hovered category with the ones beside it.
 - **A name on a mark is never on hover alone**: a phone has no hover. A
   treemap tile too small for its name and figure has them written out under
   the map.

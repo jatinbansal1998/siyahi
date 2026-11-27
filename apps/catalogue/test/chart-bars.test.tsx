@@ -1,6 +1,24 @@
 // Sideways and stacked bars, ticks at the domain's ends, mark names, waterfalls and legends.
 import { describe, expect, it } from "vite-plus/test";
+import type { Locator } from "playwright";
 import { card, center, onePlot, page, settled, show, tooltipAt, useChartPage } from "./chart-page";
+
+type Box = { x: number; y: number; width: number; height: number };
+const overlaps = (a: Box, b: Box) =>
+  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+
+/** Hovers bar `index`, waits for its category's tooltip to come to rest, and gives the tooltip's and every bar's box. */
+async function hoverBar(chart: Locator, index: number, heading: string) {
+  await chart.scrollIntoViewIfNeeded();
+  const bars = chart.locator(".recharts-bar-rectangle");
+  await settled(bars);
+  const { x, y } = await center(bars.nth(index));
+  await tooltipAt(chart, x, y, heading);
+  const tooltip = chart.locator(".recharts-tooltip-wrapper");
+  await settled(tooltip);
+  const boxes = await bars.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as Box));
+  return { tooltip: (await tooltip.boundingBox())!, card: (await chart.boundingBox())!, bars: boxes };
+}
 
 useChartPage();
 
@@ -201,6 +219,36 @@ describe("chart cards", { timeout: 60_000 }, () => {
     // It spans the gap between the two bars.
     expect(geometry.line.from).toBeLessThan(geometry.april.right);
     expect(geometry.line.to).toBeGreaterThan(geometry.may.left);
+  });
+
+  it("puts a tooltip clear of the marks beside the hovered category, inside the card", async () => {
+    await show("bar-chart");
+    // Columns: hovering Q2's revenue, the tooltip had covered Q3's tallest bar. Bar i is quarter i % 4.
+    const quarters = await hoverBar(card("Revenue by channel and quarter"), 1, "Q2");
+    const others = quarters.bars.filter((_, i) => i % 4 !== 1);
+    expect(others.filter((bar) => overlaps(bar, quarters.tooltip))).toEqual([]);
+    expect(quarters.tooltip.x).toBeGreaterThanOrEqual(quarters.card.x);
+    expect(quarters.tooltip.x + quarters.tooltip.width).toBeLessThanOrEqual(quarters.card.x + quarters.card.width);
+    // Sideways bars: the tooltip goes right of the bars beside it. Bar i is team i % 6.
+    const teams = await hoverBar(card("Spend by team against plan or last year"), 2, "Finance, Legal & Compliance");
+    expect(teams.bars.filter((bar) => overlaps(bar, teams.tooltip))).toEqual([]);
+    // A line chart's tooltip leaves the hovered points in view: at 1440 wide there is no room above July's.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const growth = card("Sales growth against the category");
+    await show("line-chart");
+    await growth.scrollIntoViewIfNeeded();
+    const tick = growth.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value").nth(2);
+    await settled(tick);
+    const grid = (await growth.locator(".recharts-cartesian-grid").boundingBox())!;
+    await tooltipAt(growth, (await center(tick)).x, grid.y + grid.height / 2, "Jul");
+    await settled(growth.locator(".recharts-tooltip-wrapper"));
+    const tooltip = (await growth.locator(".recharts-tooltip-wrapper").boundingBox())!;
+    const dots = await growth
+      .locator(".recharts-active-dot")
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as Box));
+    expect(dots.length).toBe(2);
+    expect(dots.filter((dot) => overlaps(dot, tooltip))).toEqual([]);
+    await page.setViewportSize({ width: 1280, height: 900 });
   });
 
   it("shows the band behind a hovered category at 40%, so a pale bar keeps 3:1 against it", async () => {
