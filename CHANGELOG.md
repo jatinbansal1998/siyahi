@@ -2,6 +2,11 @@
 
 ## 0.1.9
 
+- Chart cards take `syncId`: charts on a page given the same id mark the
+  hovered month or category together, matched by its value, so a dashboard
+  of charts over one axis reads as one. `BarChartCard`, `AreaChartCard`,
+  `LineChartCard` and `DrawdownChartCard` take it; charts over different
+  axes never share one.
 - `LineChartCard`, `AreaChartCard` and `BarChartCard`'s `lines` draw in on
   the first draw only. A resize or new data redraws them at once: a line no
   longer stops short of its end dot for a second, and the end dots no longer
