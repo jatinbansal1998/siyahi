@@ -632,6 +632,16 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 [data-slot="table"] {
   font-size: 0.8125rem;
 }
+/*
+ * A table is as wide as its columns, up to its block's width, so a figure sits near its label instead of across a
+ * band of blank space; a wider one scrolls sideways inside its box. The box hugs the table, and the table's own
+ * w-full then fills only the box. Unlayered, to outrank the box's w-full. A table that must fill its block, such as
+ * one lined up with a chart beside it, takes --table-width: 100% from its card or any ancestor.
+ */
+[data-slot="table-container"] {
+  width: var(--table-width, fit-content);
+  max-width: 100%;
+}
 [data-slot="table-head"] {
   height: 1.5rem;
   padding-inline: 0.375rem;

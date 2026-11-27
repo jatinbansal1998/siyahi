@@ -160,6 +160,14 @@
     "guidance": "`CopyButton`"
   },
   {
+    "need": "A table that must fill its block, such as one lined up with a chart beside it",
+    "guidance": "`--table-width: 100%` on its card; otherwise a table is as wide as its columns"
+  },
+  {
+    "need": "A name with its kind or category in a table",
+    "guidance": "the kind in a column of its own, as plain text, so each row stays one line tall"
+  },
+  {
     "need": "Data blocks side by side: charts, tables, a strip of figures",
     "guidance": "`PanelGrid`"
   },

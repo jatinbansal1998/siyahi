@@ -709,7 +709,7 @@ export const data: Page = {
         },
       ],
       rules: [
-        "Below 40rem of table space, horizontal freezing is suspended so every column scrolls inside the card. It follows the table's width, a narrow laptop panel included; search and sorting survive the change.",
+        "Below 40rem of table space, horizontal freezing is suspended so every column scrolls inside the card. It follows the room the table's block gives it, a narrow laptop panel included; search and sorting survive the change.",
         "DataTableColumnActions with DataTableColumnSortOptions is the menu version of the sort header.",
         "Past about a hundred rows, put DataTablePagination after DataTable: it pages the sorted, filtered rows, and a new search or filter goes back to page one. Sorting and search still cover every row.",
         "In the toolbar, DataTableSearchFilter comes first and DataTableRowCount last; DataTableActiveFilters follows it on a line of its own, and shows only while a search or filter is set.",
