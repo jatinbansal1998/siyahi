@@ -374,6 +374,25 @@
       ]
     },
     {
+      "need": "A chart, table or list with no data, no match for its filters, or data that failed to load",
+      "guidance": "`BlockState` where the data would be: a chart card's `placeholder`, inside `DataTableEmptyBody` (`DataTableEmptyMessage`, `DataTableEmptyFilteredMessage`), or in place of a list; `tone=\"negative\"` for an error",
+      "components": [
+        "BlockState",
+        "DataTableEmptyBody",
+        "DataTableEmptyMessage",
+        "DataTableEmptyFilteredMessage"
+      ]
+    },
+    {
+      "need": "A chart, table or list whose data is still loading",
+      "guidance": "A `Skeleton` in the block's shape: `placeholder={<Skeleton className=\"size-full\" />}` on a chart card, `DataTableSkeleton` under `DataTableRoot`'s `isLoading`",
+      "components": [
+        "Skeleton",
+        "DataTableSkeleton",
+        "DataTableRoot"
+      ]
+    },
+    {
       "need": "Tables inside narrow panels or on phones",
       "guidance": "`DataTable` suspends horizontal freezing below 40rem of table space; retain every field through scrolling, or compose essential columns and accessible record details in the page",
       "components": [
@@ -483,6 +502,50 @@
         "CardTitle",
         "Delta",
         "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/block-state-chart.tsx",
+      "components": [
+        "BarChartCard",
+        "BlockState",
+        "Button",
+        "PanelGrid",
+        "Skeleton"
+      ]
+    },
+    {
+      "file": "agents/examples/block-state-list.tsx",
+      "components": [
+        "BarList",
+        "BlockState",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/block-state-table.tsx",
+      "components": [
+        "BlockState",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataTable",
+        "DataTableBody",
+        "DataTableEmptyBody",
+        "DataTableEmptyFilteredMessage",
+        "DataTableEmptyMessage",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableSearchFilter",
+        "DataTableSkeleton",
+        "DataTableToolbarSection"
       ]
     },
     {

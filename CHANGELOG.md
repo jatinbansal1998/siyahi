@@ -2,6 +2,12 @@
 
 ## 0.1.9
 
+- `BlockState` says what a chart, table or list shows in place of its
+  data: nothing to show (neutral) or data that failed to load
+  (`tone="negative"`, a red wash with an icon, read out as an alert), each
+  with a title, a line on what to do and an optional action. It goes in a
+  chart card's `placeholder`, inside `DataTableEmptyBody`, or in place of a
+  list. `WaterfallChartCard`'s note on a step with no figure is one.
 - `Treemap` writes out under the map each tile too small for its name and
   change ("Too small to label: Kochi +58.0%, Guwahati —"), so a phone, which
   has no hover, can read every tile. `ScatterChart`'s gridlines are solid

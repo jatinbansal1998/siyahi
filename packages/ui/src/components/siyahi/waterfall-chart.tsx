@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Bar, BarChart, Cell, ReferenceLine } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
+import { BlockState } from "@siyahi/ui/components/siyahi/block-state";
 import { ChartFrame, barFill } from "@siyahi/ui/lib/chart-frame";
 import type { ChartColor, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 
@@ -121,9 +122,10 @@ export function WaterfallChartCard({ steps, horizontal = false, labels = LABELS,
       placeholder={
         props.placeholder ??
         (unknown && (
-          <p className="text-sm text-muted-foreground">
-            {unknown.label} has no figure, so the running total after it is unknown.
-          </p>
+          <BlockState
+            title={`${unknown.label} has no figure`}
+            description="The running total after it is unknown, so the chart is not drawn."
+          />
         ))
       }
       horizontal={horizontal}

@@ -724,6 +724,65 @@ export const data: Page = {
       ],
     },
     {
+      id: "block-state",
+      title: "Empty, error and loading",
+      lead: "BlockState stands where a chart's, table's or list's data would, when it has none or the data failed to load; a Skeleton in the block's shape stands there while it loads.",
+      imports: [
+        "BlockState",
+        "Skeleton",
+        "DataTableEmptyBody",
+        "DataTableEmptyMessage",
+        "DataTableEmptyFilteredMessage",
+        "DataTableSkeleton",
+      ],
+      props: [
+        {
+          name: "title",
+          type: "ReactNode",
+          purpose: 'What happened: "No refund today", "Returns failed to load".',
+        },
+        {
+          name: "description",
+          type: "ReactNode",
+          default: "—",
+          purpose: "Why, and what the reader can do about it.",
+        },
+        {
+          name: "action",
+          type: "ReactNode",
+          default: "—",
+          purpose: 'The button that does it: "Retry", "Reset filters".',
+        },
+        {
+          name: "tone",
+          type: '"neutral" | "negative"',
+          default: '"neutral"',
+          purpose: "negative for an error: a faint red wash inside a red border, with an icon, read out as an alert.",
+        },
+      ],
+      rules: [
+        "In a chart card it is the placeholder, at the plot's height. In a data table it goes inside DataTableEmptyBody, with DataTableEmptyMessage for no data and DataTableEmptyFilteredMessage for no match. In place of a list it stands alone.",
+        "Loading draws the block's shape, not a message: placeholder={<Skeleton className=\"size-full\" />} on a chart, DataTableSkeleton under DataTableRoot's isLoading in a table.",
+        "An empty block is not an error: keep tone neutral when there is simply nothing to show.",
+      ],
+      examples: [
+        {
+          name: "block-state-chart",
+          caption:
+            "One chart loading, one with nothing to show, and one whose data failed to load, with a Retry button.",
+        },
+        {
+          name: "block-state-table",
+          caption:
+            "A table with no rows says why, another message takes over when a search matches nothing, and a loading table draws skeleton rows.",
+        },
+        {
+          name: "block-state-list",
+          caption: "A ranked list with nothing to rank says so in its place.",
+        },
+      ],
+    },
+    {
       id: "data-bar",
       title: "Table bars, sparklines",
       lead: "DataBar puts a short bar before a cell's figure, so a column reads as a bar chart without leaving the table.",

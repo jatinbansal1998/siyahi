@@ -104,7 +104,7 @@ export interface TimeSeriesChartProps {
   onZoom?: (() => void) | undefined;
   /** The first pane's value axis. Log needs every value in it above zero. */
   scale?: AxisScale | undefined;
-  /** Shown in the chart's place, at its height, while the data loads or after it failed to. */
+  /** Shown in the chart's place, at its height, such as a `Skeleton` while the data loads and a `BlockState` when there is none or it failed to load. */
   placeholder?: ReactNode;
   /**
    * TradingView's logo at the plot's bottom left, a link to TradingView, which its licence asks the page for. Turn
