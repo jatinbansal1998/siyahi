@@ -8,6 +8,7 @@ import {
   LineSeries,
   LineStyle,
   PriceScaleMode,
+  type BarPrice,
   type IPriceLine,
   type ISeriesApi,
   type ISeriesMarkersPluginApi,
@@ -76,7 +77,7 @@ export interface TimeSeriesChartPane {
   series: TimeSeriesChartSeries[];
   /** Dashed lines across the pane, such as zero or 50%. */
   levels?: { value: number; label?: string | undefined }[] | undefined;
-  /** Writes the pane's axis ticks and legend values. Defaults to the library's two decimals. */
+  /** Writes the pane's axis ticks and legend values. Defaults to two decimals. */
   format?: ((value: number) => string) | undefined;
 }
 
@@ -105,7 +106,10 @@ export interface TimeSeriesChartProps {
   scale?: AxisScale | undefined;
   /** Shown in the chart's place, at its height, while the data loads or after it failed to. */
   placeholder?: ReactNode;
-  /** TradingView's licence asks for a credit on the page; turn it off on the second chart. */
+  /**
+   * TradingView's logo at the plot's bottom left, a link to TradingView, which its licence asks the page for. Turn
+   * it off on a second chart, or where the page links to TradingView itself, as the chart card's footer does.
+   */
   credit?: boolean | undefined;
   /** Names the chart for a screen reader, which reads the legends: each line's name and latest value. */
   "aria-label"?: string | undefined;
@@ -164,6 +168,8 @@ function points(series: TimeSeriesChartSeries) {
     return data[i + 1]?.value === null && series.type !== "histogram" ? { time, value, ...GAP } : { time, value };
   });
 }
+
+const twoDecimals = (value: number) => `${value < 0 ? "−" : ""}${Math.abs(value).toFixed(2)}`;
 
 const fade = (color: string) => `color-mix(in oklch, ${color} 30%, transparent)`;
 
@@ -287,11 +293,19 @@ class Drawing {
     if (this.removed) return;
     this.panes = panes;
     this.events = events;
-    panes.forEach(({ series, format }, p) => {
+    const timeScale = this.themed.chart.timeScale();
+    // A held view is put back after new data: at the first point, where panning stops, the library would move it on
+    // by the new points.
+    const view = timeScale.getVisibleLogicalRange();
+    panes.forEach(({ series, format: write = twoDecimals }, p) => {
       series.forEach((item, s) => {
         const line = this.lines[p]?.[s];
         line?.applyOptions({
-          priceFormat: format ? { type: "custom", formatter: format } : { type: "price" },
+          priceFormat: {
+            type: "custom",
+            formatter: write,
+            tickmarksFormatter: (prices: BarPrice[]) => this.ticks(p, prices, write),
+          },
           ...(item.type === "baseline" && { baseValue: { type: "price", price: item.base ?? 0 } }),
         });
         line?.setData(points(item));
@@ -308,6 +322,7 @@ class Drawing {
     if (startsAt !== this.start) this.held = false;
     this.start = startsAt;
     if (!this.held) this.frame();
+    else if (view) timeScale.setVisibleLogicalRange(view);
     this.onValues(this.read());
   }
 
@@ -343,6 +358,29 @@ class Drawing {
       this.rules[p] = levels.map(({ value, label: title = "" }) =>
         first.createPriceLine({ price: value, title, color: muted, lineStyle: LineStyle.Dashed, lineWidth: 1 }),
       );
+    });
+  }
+
+  /**
+   * A pane's axis ticks, less any that a value tag covers: the library draws each series' latest value and each
+   * level as an opaque tag over the ticks, which would leave half a number showing.
+   */
+  private ticks(p: number, prices: BarPrice[], write: (value: number) => string): string[] {
+    const lines = this.lines[p] ?? [];
+    const [first] = lines;
+    const fontSize = this.themed.chart.options().layout.fontSize;
+    // A tag is the font's height and the library's 2.5px above and below per 12px of font; a tick, the font's height.
+    const reach = (fontSize + (fontSize * 17) / 12) / 2;
+    const tags = [
+      ...lines.flatMap((line) => {
+        const last = line.lastValueData(false);
+        return last.noData ? [] : [last.price];
+      }),
+      ...(this.panes[p]?.levels ?? []).map(({ value }) => value),
+    ].flatMap((price) => first?.priceToCoordinate(price) ?? []);
+    return prices.map((price) => {
+      const y = first?.priceToCoordinate(price) ?? null;
+      return y !== null && tags.some((tag) => Math.abs(tag - y) < reach) ? "" : write(price);
     });
   }
 

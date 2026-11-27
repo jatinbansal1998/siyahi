@@ -1,7 +1,7 @@
 import { SiyahiProvider, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, useFormat } from "@siyahi/ui";
 
 function Row({ label }: { label: string }) {
-  const { count, money, moneyCompact, pct, time } = useFormat();
+  const { count, money, moneyCompact, pct, time, dateTime } = useFormat();
   return (
     <TableRow>
       <TableCell>{label}</TableCell>
@@ -12,6 +12,7 @@ function Row({ label }: { label: string }) {
       <TableCell data-numeric>{moneyCompact(400000000)}</TableCell>
       <TableCell data-numeric>{pct(0.1234)}</TableCell>
       <TableCell data-numeric>{time("2026-10-20T09:00:00Z")}</TableCell>
+      <TableCell data-numeric>{dateTime("2026-09-20T09:00:00Z")}</TableCell>
     </TableRow>
   );
 }
@@ -29,6 +30,7 @@ export default function FormattersExample() {
           <TableHead data-numeric>moneyCompact</TableHead>
           <TableHead data-numeric>pct</TableHead>
           <TableHead data-numeric>time</TableHead>
+          <TableHead data-numeric>dateTime</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

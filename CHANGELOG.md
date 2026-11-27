@@ -2,6 +2,17 @@
 
 ## 0.1.9
 
+- `TimeSeriesChart` writes no price-axis tick that a series' latest value or
+  a level would cover with its tag, writes the dates at the data's first and
+  last points whole, where "Dec" read "ec", and writes a day's tick with its
+  month, "3 Mar", so a day the axis labels where its month's first was
+  crowded out still names the month. Panning stops at the first and last
+  points. `TimeSeriesChartCard` credits TradingView with its link under the
+  chart alone; the logo no longer covers the bottom pane's lines.
+- `dateTime` (and `useFormat().dateTime`) writes a date, "20 Oct 2026", or
+  any Intl date format, and every date the formatters and the TradingView
+  charts write shortens September to "Sep", as `en-IN` would write "Sept".
+
 - Chart cards take `syncId`: charts on a page given the same id mark the
   hovered month or category together, matched by its value, so a dashboard
   of charts over one axis reads as one. `BarChartCard`, `AreaChartCard`,

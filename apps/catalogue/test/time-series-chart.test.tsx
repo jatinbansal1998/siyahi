@@ -45,6 +45,63 @@ const pixels = (index: number) =>
     .evaluateAll((canvases) => canvases.map((canvas) => (canvas as HTMLCanvasElement).toDataURL()).join());
 const pressed = (index: number) => card(index).locator('[aria-pressed="true"]').allInnerTexts();
 
+/** A label the chart wrote on an axis, in the axis canvas's pixels, centred on `x` and `y`. */
+interface AxisLabel {
+  axis: "price" | "time";
+  pane: number;
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  canvasWidth: number;
+}
+
+/** Every label the first chart writes on its axes when it next draws in full, as it does after a resize. */
+async function axisLabels(): Promise<AxisLabel[]> {
+  await page.mouse.move(0, 0);
+  await chart().evaluate(() => {
+    // Each label in its canvas's bitmap pixels, as the canvas's transform places it when written.
+    const drawn: { canvas: HTMLCanvasElement; text: string; x: number; y: number; width: number }[] = [];
+    const fillText = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (this: CanvasRenderingContext2D, text, x, y, ...rest) {
+      const { a, d, e, f } = this.getTransform();
+      drawn.push({ canvas: this.canvas, text, x: a * x + e, y: d * y + f, width: a * this.measureText(text).width });
+      fillText.call(this, text, x, y, ...rest);
+    };
+    Object.assign(window, { drawn, fillText });
+  });
+  const viewport = page.viewportSize() ?? { width: 1280, height: 900 };
+  await page.setViewportSize({ ...viewport, width: viewport.width + 1 });
+  await page.waitForTimeout(300);
+  await page.setViewportSize(viewport);
+  await page.waitForTimeout(300);
+  return chart().evaluate((root) => {
+    const { drawn, fillText } = window as unknown as {
+      drawn: { canvas: HTMLCanvasElement; text: string; x: number; y: number; width: number }[];
+      fillText: CanvasRenderingContext2D["fillText"];
+    };
+    CanvasRenderingContext2D.prototype.fillText = fillText;
+    const rows = [...root.querySelectorAll("table tr")];
+    const timeRow = rows.at(-1);
+    const panes = rows.filter((row) => row !== timeRow && row.clientHeight > 1);
+    // A draw at each width writes every label; a label written twice in one place is one label.
+    const labels = new Map(drawn.map((label) => [`${label.text}@${label.x},${label.y}`, label]));
+    return [...labels.values()].flatMap(({ canvas, text, x, y, width }): AxisLabel[] => {
+      const row = canvas.closest("tr");
+      const cell = canvas.closest("td");
+      if (!text || !row || !cell) return [];
+      const ratio = canvas.width / canvas.clientWidth;
+      const label = { text, x: x / ratio, y: y / ratio, width: width / ratio, canvasWidth: canvas.clientWidth };
+      // The time axis is the bottom row's widest cell; a price axis, the last cell of a pane's row.
+      const cells = [...row.children];
+      const widest = cells.reduce((wide, next) => (next.clientWidth > wide.clientWidth ? next : wide));
+      if (row === timeRow && cell === widest) return [{ axis: "time", pane: -1, ...label }];
+      if (panes.includes(row) && cell === cells.at(-1)) return [{ axis: "price", pane: panes.indexOf(row), ...label }];
+      return [];
+    });
+  });
+}
+
 /** The plot's box on screen, after scrolling it into view. */
 async function box(index: number) {
   await plot(index).scrollIntoViewIfNeeded();
@@ -191,5 +248,50 @@ describe("TimeSeriesChart", { timeout: 60_000 }, () => {
     expect(await plot(5).evaluate((element) => element.clientHeight)).toBe(
       await plot(4).evaluate((element) => element.clientHeight),
     );
+  });
+
+  it("writes no axis tick where a value tag covers it, in every pane", async () => {
+    await box(0);
+    const labels = (await axisLabels()).filter(({ axis }) => axis === "price");
+    const latest = await legendValues();
+    // The example's levels: zero in the second pane, half long in the third.
+    const levels = [[], ["0"], ["50%"]];
+    // A 12px tick's text against a tag 17px tall, the library's padding round a 12px font.
+    const reach = (12 + 17) / 2;
+    for (const [pane, values] of latest.entries()) {
+      const tags = [...values.map(([, value]) => value), ...(levels[pane] ?? [])];
+      const onPane = labels.filter((label) => label.pane === pane);
+      const tagged = onPane.filter(({ text }) => tags.includes(text));
+      expect(tagged.length, `pane ${pane}`).toBe(tags.length);
+      for (const tick of onPane.filter(({ text }) => !tags.includes(text))) {
+        for (const tag of tagged)
+          expect(Math.abs(tick.y - tag.y), `${tick.text} under ${tag.text}`).toBeGreaterThanOrEqual(reach);
+      }
+    }
+  });
+
+  it("writes the dates at the data's first and last points whole", async () => {
+    // Where the example's end dates were cut: "ec" for Dec on a laptop, "12 No" for 12 Nov on a phone. A range's
+    // left edge falls mid-data, where a cut date says there is more to pan to.
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const range of ["All", "1M"]) {
+        await box(0);
+        await card(0).getByRole("button", { name: range }).click();
+        const labels = (await axisLabels()).filter(({ axis }) => axis === "time").toSorted((a, b) => a.x - b.x);
+        const first = labels.at(0);
+        const last = labels.at(-1);
+        if (!first || !last) throw new Error(`${width} ${range}: no dates`);
+        if (range === "All") expect(first.x - first.width / 2, `${width}: ${first.text}`).toBeGreaterThanOrEqual(0);
+        expect(last.x + last.width / 2, `${width} ${range}: ${last.text}`).toBeLessThanOrEqual(last.canvasWidth);
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await card(0).getByRole("button", { name: "All" }).click();
+  });
+
+  it("credits TradingView under a card's chart, not with a logo over its lines", async () => {
+    expect(await card(0).getByRole("link", { name: "TradingView Lightweight Charts" }).isVisible()).toBe(true);
+    expect(await card(0).locator("#tv-attr-logo").count()).toBe(0);
   });
 });

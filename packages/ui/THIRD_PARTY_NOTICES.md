@@ -21,11 +21,11 @@ file as copied; `packages/ui/registry.lock.json` lists them all and
 
 ## Runtime dependencies with attribution terms
 
-| Package                              | Licence                                            | Note                                                                                                                                           |
-| ------------------------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lightweight-charts` (TradingView)   | Apache-2.0                                         | `TimeSeriesChart` keeps the library's attribution logo on by default; see https://github.com/tradingview/lightweight-charts/blob/master/NOTICE |
-| `@fontsource-variable/geist`         | SIL Open Font License 1.1 (fonts), MIT (packaging) | Geist by Vercel                                                                                                                                |
-| `@fontsource-variable/m-plus-1-code` | SIL Open Font License 1.1 (fonts), MIT (packaging) | M PLUS 1 Code by The M+ FONTS Project Authors                                                                                                  |
+| Package                              | Licence                                            | Note                                                                                                                                                                                                                                |
+| ------------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lightweight-charts` (TradingView)   | Apache-2.0                                         | `TimeSeriesChart` keeps the library's attribution logo on by default, and `TimeSeriesChartCard` writes a link to TradingView under the chart in its place; see https://github.com/tradingview/lightweight-charts/blob/master/NOTICE |
+| `@fontsource-variable/geist`         | SIL Open Font License 1.1 (fonts), MIT (packaging) | Geist by Vercel                                                                                                                                                                                                                     |
+| `@fontsource-variable/m-plus-1-code` | SIL Open Font License 1.1 (fonts), MIT (packaging) | M PLUS 1 Code by The M+ FONTS Project Authors                                                                                                                                                                                       |
 
 Every other dependency is installed from npm under its own licence and is not
 copied into this repository.

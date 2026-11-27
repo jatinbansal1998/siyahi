@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { count, money, moneyCompact, pct, time } from "../src/lib/format";
+import { count, dateTime, money, moneyCompact, pct, time } from "../src/lib/format";
 import type { SiyahiLocale } from "../src/lib/locale";
 
 const us: SiyahiLocale = { numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" };
@@ -31,6 +31,13 @@ it("reuses a clock formatter while keeping date and time-only formats separate",
 });
 
 describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
+  it("writes September's short form as Sep, three letters like every other month", () => {
+    expect(dateTime(nineUtc)).toBe("20 Oct 2026");
+    expect(dateTime("2026-09-20T09:00:00Z")).toBe("20 Sep 2026");
+    expect(dateTime("2026-09-20T09:00:00Z", undefined, { month: "short" })).toBe("Sep");
+    expect(time("2026-09-20T09:00:00Z", undefined, { withDate: true })).toBe("20 Sep 2026, 14:30 IST");
+  });
+
   it("groups money in lakhs", () => {
     expect(money(153110)).toBe("₹1,53,110");
   });

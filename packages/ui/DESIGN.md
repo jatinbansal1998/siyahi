@@ -186,7 +186,9 @@ from the catalogue.
   takes an en dash, "0–12 GiB"; a multiple takes ×, "about 1.5× a month". A
   missing figure is —, and a page that leaves items out says how many.
 - **Dates and times** read as the formatters write them, in the default locale
-  day before month: "20 Oct 2026, 14:30 IST". Every block says its time zone
+  day before month: "20 Oct 2026, 14:30 IST", and a short month in three
+  letters, "Sep" as the formatters and hand-written month labels write it,
+  never "Sept". Every block says its time zone
   once, on its axis title, its description or each time: "Hour of day (IST)". A
   period is in words, "Last 30 days", "April to March"; a financial year is
   "FY26", with the block saying when it ends: "FY26 ends in March 2026". A

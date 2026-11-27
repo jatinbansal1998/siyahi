@@ -11,12 +11,11 @@ const weeks = Array.from({ length: 52 }, (_, i) => {
   return { week: date.toISOString().slice(0, 10), balance: trend + oven + quiet + wobble };
 });
 
-const month = (iso: string) => new Date(iso).toLocaleString("en-IN", { month: "short", timeZone: "UTC" });
-const day = (iso: string) =>
-  new Date(iso).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-
 export default function DrawdownChartExample() {
-  const { money } = useFormat();
+  const { money, dateTime } = useFormat();
+  // Each week is a day, not a moment: written in UTC, it stays that day in every zone.
+  const month = (iso: string) => dateTime(iso, { month: "short", timeZone: "UTC" });
+  const day = (iso: string) => dateTime(iso, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
   return (
     <DrawdownChartCard
       title="Cash below its best"

@@ -8,6 +8,7 @@ import {
   type Rgba,
   type Time,
 } from "lightweight-charts";
+import { dateTime } from "@siyahi/ui/lib/format";
 import type { SiyahiLocale } from "@siyahi/ui/lib/locale";
 
 /** A theme colour as the chart's element resolves it now, by token name or as a series names it: "var(--chart-1)". */
@@ -51,7 +52,9 @@ export function createThemedChart(
     // A tick at a pane's edge would be cut in half by the pane above or below.
     rightPriceScale: { borderVisible: false, entireTextOnly: true },
     // A card that resizes keeps the dates it showed, rather than the same bar width over other dates.
-    timeScale: { borderVisible: false, lockVisibleTimeRangeOnResize: true },
+    // Panning stops at the first and last points, and the library then slides the date labels there in from the
+    // plot's edges, which would cut them: "ec" for Dec.
+    timeScale: { borderVisible: false, lockVisibleTimeRangeOnResize: true, fixLeftEdge: true, fixRightEdge: true },
     // A vertical swipe scrolls the page; a sideways one pans the chart.
     handleScroll: { vertTouchDrag: false },
     handleScale: { mouseWheel: false },
@@ -125,16 +128,16 @@ export function timeSeconds(time: Time): number {
  */
 export function timeLabels(locale: SiyahiLocale, intraday: boolean) {
   const timeZone = intraday ? locale.timeZone : "UTC";
-  const format = (options: Intl.DateTimeFormatOptions) => {
-    const formatter = new Intl.DateTimeFormat(locale.numberLocale, { ...options, timeZone, hourCycle: "h23" });
-    return (time: Time) => formatter.format(timeSeconds(time) * 1000);
-  };
+  const format = (options: Intl.DateTimeFormatOptions) => (time: Time) =>
+    dateTime(timeSeconds(time) * 1000, locale, { ...options, timeZone, hourCycle: "h23" });
   const day: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" };
   const clock: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit" };
   const ticks = {
     [TickMarkType.Year]: format({ year: "numeric" }),
     [TickMarkType.Month]: format({ month: "short" }),
-    [TickMarkType.DayOfMonth]: format({ day: "numeric" }),
+    // The library drops a month's first day when it crowds the month before, then may label the next day in its
+    // place, so a day carries its month: "3 Mar" where a bare "3" would stand for March.
+    [TickMarkType.DayOfMonth]: format({ day: "numeric", month: "short" }),
     [TickMarkType.Time]: format(clock),
     [TickMarkType.TimeWithSeconds]: format({ ...clock, second: "2-digit" }),
   };
