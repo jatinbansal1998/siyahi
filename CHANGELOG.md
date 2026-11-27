@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- `LineChartCard`, `AreaChartCard` and `BarChartCard`'s `lines` draw in on
+  the first draw only. A resize or new data redraws them at once: a line no
+  longer stops short of its end dot for a second, and the end dots no longer
+  fade in again.
 - `BarChartCard` takes `lines`: series drawn as lines over the bars, such
   as each series' moving average, on card-coloured halos. They count on the
   value axis without joining a stack, and the tooltip and legend key them

@@ -15,7 +15,8 @@
 // of its colour, no gradient. Lines are 2px; each ends in a dot on its latest
 // point.
 // Siyahi edit: overlapping areas are named at their line ends, take quiet
-// series, forecastFrom and today, and draw in, as LineChartCard does.
+// series, forecastFrom and today, and draw in on the first draw only, as
+// LineChartCard does.
 // Siyahi edit: xDomain and xTicks make the x axis numeric, so a mark can sit
 // between two samples, as the Dell page's events do between 15 s samples.
 // Siyahi edit: curve picks monotone or straight edges (chart-area-linear).
@@ -32,7 +33,7 @@
 import { Fragment } from "react"
 import { Area, AreaChart } from "recharts"
 
-import { ChartFrame, endDot } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame, endDot, useDrawIn } from "@siyahi/ui/lib/chart-frame"
 import { QUIET, drawOrder } from "@siyahi/ui/lib/chart-marks"
 import type {
   ChartCurve,
@@ -62,6 +63,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
   curve = "monotone",
   ...props
 }: AreaChartCardProps<T, K>) {
+  const { drawn, motion } = useDrawIn()
   // Past forecastFrom the end is a forecast: its dot is hollow. Only overlapping series also dash, over a card
   // halo, over a hatched band; a stack keeps solid edges and no hatching, since a dashed copy of a band would stack
   // twice and its fills already cover the stretch.
@@ -79,6 +81,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
       endLabels={!stacked}
       forecastHatch={!stacked}
       curve={curve}
+      drawn={drawn}
       {...props}
     >
       {/* Every forecast's card-coloured halo first, under every line, so the hatching never runs beside a dashed
@@ -97,7 +100,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
             tooltipType="none"
             legendType="none"
             className="chart-forecast"
-            animationDuration={1300}
+            {...motion}
           />
         ))}
       {series.map(({ key, color }) => {
@@ -115,7 +118,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
               dot={quiet || forecast ? false : endDot(color, count, forecastEnd)}
               stackId={stacked ? "stack" : undefined}
               className={forecast ? "chart-actual" : undefined}
-              animationDuration={1300}
+              {...motion}
             />
             {forecast && (
               <Area
@@ -130,7 +133,7 @@ export function AreaChartCard<T extends object, K extends keyof T>({
                 tooltipType="none"
                 legendType="none"
                 className="chart-forecast"
-                animationDuration={1300}
+                {...motion}
               />
             )}
           </Fragment>
