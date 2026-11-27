@@ -1,4 +1,4 @@
-import { chromium, type Browser, type BrowserContextOptions, type Page } from "playwright";
+import { chromium, type Browser, type BrowserContextOptions, type Locator, type Page } from "playwright";
 
 /** The catalogue in Chromium, for what happy-dom cannot do: layout, hover and the theme's CSS. */
 export interface Catalogue {
@@ -45,4 +45,25 @@ export function themeColor(page: Page, token: string): Promise<string> {
     probe.remove();
     return value;
   }, token);
+}
+
+/**
+ * Waits until a chart has drawn at its box's width in the page's loaded fonts, with `drawn` inside it. Under load a
+ * resize or a new pick takes a second or more to land, so a poll with a clock of its own ran out first (#110). The
+ * chart draws again once a font load finishes; two frames let that land.
+ */
+export async function chartDrawn(chart: Locator, drawn: string): Promise<void> {
+  await chart.page().waitForFunction(
+    ([box, selector]) => {
+      const plot = box?.querySelector('[data-slot="chart"]');
+      return (
+        document.fonts.status === "loaded" &&
+        plot != null &&
+        plot.querySelector("svg.recharts-surface")?.getAttribute("width") === String(plot.clientWidth) &&
+        box?.querySelector(selector) !== null
+      );
+    },
+    [await chart.elementHandle(), drawn] as const,
+  );
+  await chart.page().evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
 }
