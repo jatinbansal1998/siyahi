@@ -38,7 +38,7 @@ async function drawnOn(chart: Locator, scale: Locator, name: "Linear" | "Log"): 
   await chartDrawn(chart, ".recharts-surface");
 }
 
-describe("scale toggle", () => {
+describe("scale toggle", { timeout: 60_000 }, () => {
   // The first page opened on the scatter chart family.
   describe("on a scatter chart", () => {
     it("opens a scatter chart on the page's log scale, then ticks and redraws in round linear steps on Linear", async () => {

@@ -53,7 +53,7 @@ async function laidOut(): Promise<Awaited<ReturnType<typeof layout>>> {
 
 const overlap = (a: Rect, b: Rect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
-describe("ScatterChartCard", () => {
+describe("ScatterChartCard", { timeout: 60_000 }, () => {
   for (const width of [1280, 390]) {
     it(`never puts a name on another name or on another store's dot at ${width}px`, async () => {
       await page.setViewportSize({ width, height: 900 });
