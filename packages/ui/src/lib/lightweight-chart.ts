@@ -57,10 +57,14 @@ export function createThemedChart(
     handleScale: { mouseWheel: false },
   });
   // The wheel scrolls the page past a chart until the reader clicks into it; then it zooms, until the pointer leaves.
-  const wheelZooms = (mouseWheel: boolean) => () => chart.applyOptions({ handleScale: { mouseWheel } });
-  const wheelOn = wheelZooms(true);
-  const wheelOff = wheelZooms(false);
-  element.addEventListener("pointerdown", wheelOn);
+  // A finger dragged up or down the plot scrolls the page as well, but on the price axis it stretches the scale, as
+  // a mouse does there. The library has one option for both, read as the finger first moves, so each press sets it.
+  const pressed = ({ clientX }: PointerEvent) => {
+    const onPriceAxis = clientX >= element.getBoundingClientRect().right - chart.priceScale("right").width();
+    chart.applyOptions({ handleScale: { mouseWheel: true }, handleScroll: { vertTouchDrag: onPriceAxis } });
+  };
+  const wheelOff = () => chart.applyOptions({ handleScale: { mouseWheel: false } });
+  element.addEventListener("pointerdown", pressed);
   element.addEventListener("pointerleave", wheelOff);
   // A canvas keeps the face it was drawn in, and the library keeps each label's width under its font's name; the
   // page's own face may load after the chart's first draw, changing the widths but not the name. So each load
@@ -99,7 +103,7 @@ export function createThemedChart(
     paint,
     remove: () => {
       document.fonts.removeEventListener("loadingdone", fontsLoaded);
-      element.removeEventListener("pointerdown", wheelOn);
+      element.removeEventListener("pointerdown", pressed);
       element.removeEventListener("pointerleave", wheelOff);
       scheme.removeEventListener("change", paint);
       themeAttribute.disconnect();

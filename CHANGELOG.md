@@ -20,8 +20,9 @@
   in the same panes updates the chart in place, where any new `panes` array
   used to redraw it, so `useMemo` is no longer needed. A resized card keeps
   the dates it showed. The crosshair's labels take theme colours. A vertical
-  swipe on a phone scrolls the page, and the wheel scrolls the page until
-  the reader clicks into the chart. `aria-label` names the chart. A chart
+  swipe on a phone scrolls the page, except on the price axis, where it
+  stretches the scale (a double tap there fits it again); the wheel scrolls
+  the page until the reader clicks into the chart. `aria-label` names the chart. A chart
   drawn before the page's font loads redraws and measures its labels again
   when the font arrives.
 - Agent guidance and DESIGN.md send dates and times a reader explores to
