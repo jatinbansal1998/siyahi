@@ -393,6 +393,15 @@
       ]
     },
     {
+      "need": "A table with more rows than a reader scans at once, about a hundred or more",
+      "guidance": "`DataTablePagination` after `DataTable` inside `DataTableRoot`, with `pageSizeOptions`; sorting, search and filters still cover every row, and a new filter goes back to page one. Pass `totalCount` with `config.manualPagination` when the server pages",
+      "components": [
+        "DataTablePagination",
+        "DataTable",
+        "DataTableRoot"
+      ]
+    },
+    {
       "need": "Tables inside narrow panels or on phones",
       "guidance": "`DataTable` suspends horizontal freezing below 40rem of table space; retain every field through scrolling, or compose essential columns and accessible record details in the page",
       "components": [
@@ -929,6 +938,26 @@
         "SheetTitle",
         "SheetTrigger",
         "useDataTable"
+      ]
+    },
+    {
+      "file": "agents/examples/data-table-pagination.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "DataTable",
+        "DataTableBody",
+        "DataTableHeader",
+        "DataTablePagination",
+        "DataTableRoot",
+        "DataTableRowCount",
+        "DataTableSearchFilter",
+        "DataTableSortHeader",
+        "DataTableToolbarSection",
+        "useFormat"
       ]
     },
     {

@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- `DataTablePagination`, niko-table's pagination, pages a large table: a
+  page size picker, the rows shown ("1–10 of 240 rows", in the locale's
+  grouping) and the page number with previous and next. It pages the sorted,
+  filtered rows, and a new search or filter goes back to the first page.
 - `DataTableActiveFilters` shows what a table's search and filters are set
   to, a removable chip per value, and "Reset filters", on its own line in
   the toolbar after `DataTableRowCount`. It reads the faceted filters'

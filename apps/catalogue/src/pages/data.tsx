@@ -655,6 +655,7 @@ export const data: Page = {
         "DataTableRowCount",
         "DataTableActiveFilters",
         "DataTableCompactColumnsToggle",
+        "DataTablePagination",
         "useDataTable",
         "type DataTableColumnDef",
       ],
@@ -689,6 +690,12 @@ export const data: Page = {
             "Marks the row that needs a look with a faint wash of the colour, as data-tone on a TableRow does, the pinned cell included.",
         },
         {
+          name: "DataTablePagination pageSizeOptions",
+          type: "number[]",
+          default: "[10, 25, 50, 100]",
+          purpose: "The page sizes a reader can pick; the first is where the table starts.",
+        },
+        {
           name: "meta.compact",
           type: "boolean",
           default: "false",
@@ -704,6 +711,7 @@ export const data: Page = {
       rules: [
         "Below 40rem of table space, horizontal freezing is suspended so every column scrolls inside the card. It follows the table's width, a narrow laptop panel included; search and sorting survive the change.",
         "DataTableColumnActions with DataTableColumnSortOptions is the menu version of the sort header.",
+        "Past about a hundred rows, put DataTablePagination after DataTable: it pages the sorted, filtered rows, and a new search or filter goes back to page one. Sorting and search still cover every row.",
         "In the toolbar, DataTableSearchFilter comes first and DataTableRowCount last; DataTableActiveFilters follows it on a line of its own, and shows only while a search or filter is set.",
         "Scrolling sideways hides the figure a reader came for, on a phone and a laptop alike: mark the few answering columns meta.compact, and put DataTableCompactColumnsToggle in the toolbar to show them all and back.",
       ],
@@ -722,6 +730,11 @@ export const data: Page = {
           name: "data-table-filters",
           caption:
             "Search stays in the toolbar; the other filters move into a sheet when space is narrow, and the chips under the toolbar say what the sheet holds.",
+        },
+        {
+          name: "data-table-pagination",
+          caption:
+            "240 invoices, 10 to a page, with the page size, the rows shown and the page number under the table.",
         },
         {
           name: "data-table-compact",
