@@ -8,6 +8,10 @@
     "guidance": "`BarChartCard`; `stacked` when the series add up to a total"
   },
   {
+    "need": "The trend under noisy bars, such as each series' 3-month average",
+    "guidance": "`BarChartCard` with `lines`, each in its bars' colour; the data brings the averages"
+  },
+  {
     "need": "A running level, such as revenue against its target",
     "guidance": "`AreaChartCard`"
   },

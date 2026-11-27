@@ -16,6 +16,16 @@ describe("seriesRow", () => {
   it("shows — for a row with no value, not the formatter's 0", () => {
     expect(renderToStaticMarkup(row(null, "value", { dataKey: "value" }))).toContain(">—</span>");
   });
+
+  it("keys a line over bars with a stroke, a bar with a square", () => {
+    const withLine = seriesRow<{ value: number; avg: number }>(
+      [{ key: "value", label: "Value", color: "var(--chart-1)" }],
+      String,
+      [{ key: "avg", label: "Average", color: "var(--chart-1)" }],
+    );
+    expect(renderToStaticMarkup(withLine(5, "avg", { dataKey: "avg" }))).toContain('data-slot="line-swatch"');
+    expect(renderToStaticMarkup(withLine(5, "value", { dataKey: "value" }))).not.toContain("line-swatch");
+  });
 });
 
 describe("seriesFill", () => {
@@ -96,6 +106,16 @@ describe("linearValueAxis", () => {
   it("reaches a level the page draws past the data, so its line stays on the plot", () => {
     const levels = linearValueAxis([{ a: 41 }, { a: 46 }], series, { referenceLines: [{ y: 10 }, { y: 60 }] });
     expect(levels?.domain).toEqual([10, 60]);
+  });
+
+  it("reaches a line over a signed stack at its own value, not added to the stack", () => {
+    const stacked = [{ a: 10, b: 20, avg: 95 }];
+    const bars = [
+      { key: "a" as const, label: "A", color: "var(--chart-1)" as const },
+      { key: "b" as const, label: "B", color: "var(--chart-2)" as const },
+    ];
+    const lines = [{ key: "avg" as const, label: "Average", color: "var(--chart-1)" as const }];
+    expect(linearValueAxis(stacked, bars, { stackOffset: "sign", bars: true, lines })?.domain).toEqual([0, 100]);
   });
 
   it("reaches the page's own ticks, so each one it gives is drawn", () => {

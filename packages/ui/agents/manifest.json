@@ -30,6 +30,13 @@
       ]
     },
     {
+      "need": "The trend under noisy bars, such as each series' 3-month average",
+      "guidance": "`BarChartCard` with `lines`, each in its bars' colour; the data brings the averages",
+      "components": [
+        "BarChartCard"
+      ]
+    },
+    {
       "need": "A running level, such as revenue against its target",
       "guidance": "`AreaChartCard`",
       "components": [
@@ -585,6 +592,12 @@
         "ToggleGroup",
         "ToggleGroupItem",
         "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/chart-bar-average.tsx",
+      "components": [
+        "BarChartCard"
       ]
     },
     {

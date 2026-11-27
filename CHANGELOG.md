@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- `BarChartCard` takes `lines`: series drawn as lines over the bars, such
+  as each series' moving average, on card-coloured halos. They count on the
+  value axis without joining a stack, and the tooltip and legend key them
+  with a short stroke instead of a square. A selection fades only the bars.
 - **Breaking:** `PriceChart` is gone; `TimeSeriesChartCard` with one pane and
   an `area` series replaces it. The two TradingView charts were one job.
 - `TimeSeriesChartCard` is `TimeSeriesChart` as a chart card: `title`,

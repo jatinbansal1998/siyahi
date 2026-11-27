@@ -227,4 +227,35 @@ describe("chart cards", { timeout: 60_000 }, () => {
     expect(boxes.filter((box) => box.left < frame.x || box.right > frame.x + frame.width)).toEqual([]);
     await page.setViewportSize({ width: 1280, height: 900 });
   });
+  it("draws each average as a line over its bars, keyed by a stroke, with the band behind the hovered month", async () => {
+    await show("bar-chart");
+    const chart = card("Orders by month, with the trend");
+    await chart.scrollIntoViewIfNeeded();
+    const bars = chart.locator(".recharts-bar-rectangle");
+    await settled(bars);
+    await onePlot(chart);
+    const { x, y } = await center(bars.nth(6));
+    expect(await tooltipAt(chart, x, y, "Jul")).toEqual([
+      "Jul",
+      "Online",
+      "690",
+      "In store",
+      "330",
+      "Online, 3-month average",
+      "590",
+      "In store, 3-month average",
+      "310",
+    ]);
+    // A bar chart's band, not the hairline Recharts draws for a ComposedChart.
+    expect(await chart.locator(".recharts-tooltip-cursor").getAttribute("class")).toContain("recharts-rectangle");
+    expect(await chart.locator('.recharts-legend-wrapper [data-slot="line-swatch"]').count()).toBe(2);
+    // Drawn after the bars, so the lines sit over them.
+    expect(
+      await chart.evaluate((el) => {
+        const lastBars = [...el.querySelectorAll(".recharts-bar")].at(-1)!;
+        const firstLine = el.querySelector(".recharts-line")!;
+        return Boolean(lastBars.compareDocumentPosition(firstLine) & Node.DOCUMENT_POSITION_FOLLOWING);
+      }),
+    ).toBe(true);
+  });
 });
