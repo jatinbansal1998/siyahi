@@ -40,12 +40,13 @@
 // series' moving average. They stay in a BarChart, not a ComposedChart, whose
 // hover cursor is a hairline instead of the band behind the category. Each line
 // sits on a card-coloured halo so it stays traceable across the bars.
+// They draw in on the first draw only (lib/chart-frame's useDrawIn).
 "use client"
 
 import { Fragment } from "react"
 import { Bar, BarChart, Cell, Line } from "recharts"
 
-import { ChartFrame, barFill, seriesFill } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame, barFill, seriesFill, useDrawIn } from "@siyahi/ui/lib/chart-frame"
 import type { ChartSeries, SeriesChartProps } from "@siyahi/ui/lib/chart-series"
 
 export interface BarChartCardProps<T extends object, K extends keyof T>
@@ -73,6 +74,7 @@ export function BarChartCard<T extends object, K extends keyof T>({
   lines,
   ...props
 }: BarChartCardProps<T, K>) {
+  const { motion } = useDrawIn()
   return (
     <ChartFrame
       chart={BarChart}
@@ -124,7 +126,7 @@ export function BarChartCard<T extends object, K extends keyof T>({
             activeDot={false}
             tooltipType="none"
             legendType="none"
-            animationDuration={1300}
+            {...motion}
           />
           <Line
             dataKey={key}
@@ -133,7 +135,7 @@ export function BarChartCard<T extends object, K extends keyof T>({
             stroke={color}
             strokeWidth={2}
             dot={false}
-            animationDuration={1300}
+            {...motion}
           />
         </Fragment>
       ))}

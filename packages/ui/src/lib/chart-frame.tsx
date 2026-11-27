@@ -1,6 +1,8 @@
 import {
+  useCallback,
   useId,
   useMemo,
+  useRef,
   useState,
   type ComponentProps,
   type ComponentType,
@@ -20,6 +22,7 @@ import {
   Text,
   XAxis,
   YAxis,
+  type LineProps,
   useChartWidth,
   useXAxisTicks,
   useYAxisTicks,
@@ -261,6 +264,44 @@ interface ChartFrameProps<T extends object, K extends keyof T>
   curve?: ChartCurve | undefined;
   /** Lines drawn over bars: on the value axis unstacked, and in the tooltip and legend with a line's key. */
   lines?: ChartSeries<T> | undefined;
+  /** The lines have drawn in (useDrawIn): their end dots no longer fade in each time Recharts redraws them. */
+  drawn?: boolean | undefined;
+}
+
+interface DrawIn {
+  drawn: boolean;
+  /** For every Line and Area the card draws. */
+  motion: Pick<LineProps, "animationDuration" | "isAnimationActive" | "onAnimationStart" | "onAnimationEnd">;
+}
+
+const DRAW_IN_MS = 1300;
+
+/**
+ * The pen-stroke draw-in, on a card's first draw only. Recharts plays it again on every redraw, such as a resize or
+ * new data, growing the line from its old length while its end dot jumps to the new end, so the line stopped short
+ * of its dot for a second (#109).
+ */
+export function useDrawIn(): DrawIn {
+  const [drawn, setDrawn] = useState(false);
+  const start = useRef<number | undefined>(undefined);
+  // Recharts restarts a running draw when these callbacks change, so each keeps one identity.
+  const onAnimationStart = useCallback(() => {
+    start.current ??= performance.now();
+  }, []);
+  // Recharts also ends a draw that a redraw interrupts, as when the chart first lays itself out and restarts it from
+  // where it got to; the draw-in is over only once it has run its full time.
+  const onAnimationEnd = useCallback(() => {
+    if (start.current !== undefined && performance.now() - start.current >= DRAW_IN_MS) setDrawn(true);
+  }, []);
+  return {
+    drawn,
+    motion: {
+      animationDuration: DRAW_IN_MS,
+      isAnimationActive: drawn ? false : "auto",
+      onAnimationStart,
+      onAnimationEnd,
+    },
+  };
 }
 
 /**
@@ -515,6 +556,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   today,
   stale,
   lines,
+  drawn = false,
 }: ChartFrameProps<T, K>) {
   const { numberLocale } = useLocale();
   const clipId = useId();
@@ -622,6 +664,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
             config={config}
             className={cn("aspect-auto w-full", plotClass, onClick && "cursor-pointer")}
             style={plotStyle}
+            data-drawn={drawn ? "" : undefined}
           >
             <Chart
               data={data}

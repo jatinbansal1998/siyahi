@@ -754,18 +754,20 @@ svg :is(rect, circle, path)[tabindex]:focus-visible,
 /*
  * Pen-stroke motion: a chart's lines draw in left to right over 1.3s, and a
  * stack's fills are revealed with them (Recharts' own animation, which reduced
- * motion turns off). Then the names at the line ends fade in; a line's end
- * dots appear once it has drawn and fade in then; bars, with no line to wait
+ * motion turns off), on the chart's first draw only. Then the names at the line
+ * ends fade in; a line's end dots fade in with it; bars, with no line to wait
  * for, fade in at once rather than grow. The names are Siyahi's own element,
- * kept across data updates, so they fade in once. Reduced motion shows them
- * all at once.
+ * kept across data updates, so they fade in once. Recharts replaces the dots on
+ * every redraw, so they fade only until the lines have drawn (data-drawn).
+ * Reduced motion shows them all at once.
  */
 @keyframes chart-fade-in {
   from {
     opacity: 0;
   }
 }
-[data-slot="chart"] :is(.recharts-bar-rectangles, .recharts-line-dots, .recharts-area-dots) {
+[data-slot="chart"] .recharts-bar-rectangles,
+[data-slot="chart"]:not([data-drawn]) :is(.recharts-line-dots, .recharts-area-dots) {
   animation: chart-fade-in 0.6s ease-out backwards;
 }
 [data-slot="chart"] [data-slot="end-labels"] {

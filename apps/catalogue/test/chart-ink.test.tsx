@@ -38,6 +38,20 @@ const strength = (el: Element): number => {
   return value;
 };
 
+interface LineEnd {
+  reach: number;
+  dot: number;
+  opacity: number;
+  whole: boolean;
+  laidOut: boolean;
+}
+
+/** What the motion test leaves on the page's window. */
+interface LineEndProbe {
+  lineEnd(): LineEnd | undefined;
+  frames: LineEnd[];
+}
+
 /** An element's fade-in: its animation's name and delay. */
 const timing = (el: Element): string[] => [getComputedStyle(el).animationName, getComputedStyle(el).animationDelay];
 
@@ -211,6 +225,62 @@ describe("chart ink", { timeout: 60_000 }, () => {
       expect((await bars.evaluate(timing))[0]).toBe("none");
     } finally {
       await page.emulateMedia({ reducedMotion: null });
+    }
+  });
+
+  it("draws a line in on its first draw only: widened, it reaches its end dot at once, and the dot does not fade again", async () => {
+    await page.setViewportSize({ width: 1000, height: 900 });
+    try {
+      // The first line's end as the reader sees it: how far along its path Recharts' dash has drawn it, where its end
+      // dot is, and how strongly the dot shows. Recorded on every change to the page from the first draw on.
+      await page.evaluate(() => {
+        const probe = window as unknown as LineEndProbe;
+        probe.lineEnd = () => {
+          const chart = [...document.querySelectorAll('[data-slot="card-title"]')]
+            .find((title) => title.textContent === "Sales growth against the category")
+            ?.closest('[data-slot="card"]')
+            ?.querySelector('[data-slot="chart"]');
+          const line = chart?.querySelector<SVGPathElement>(".recharts-line-curve");
+          const dot = chart?.querySelector(".recharts-line-dots circle");
+          if (!chart || !line || !dot) return undefined;
+          const length = line.getTotalLength();
+          const dash = line.getAttribute("stroke-dasharray");
+          const drawn = dash ? Math.min(parseFloat(dash), length) : length;
+          return {
+            reach: line.getPointAtLength(drawn).x,
+            dot: Number(dot.getAttribute("cx")),
+            opacity: Number(getComputedStyle(dot.closest(".recharts-line-dots")!).opacity),
+            whole: drawn >= length - 0.01,
+            laidOut: chart.querySelector("svg.recharts-surface")?.getAttribute("width") === String(chart.clientWidth),
+          };
+        };
+        probe.frames = [];
+        new MutationObserver(() => {
+          const now = probe.lineEnd();
+          if (now) probe.frames.push(now);
+        }).observe(document.body, { subtree: true, childList: true, attributes: true });
+      });
+      /** Waits until the chart is laid out at the page's width with its line drawn whole and its dot shown. */
+      const settled = () =>
+        page.waitForFunction(() => {
+          const now = (window as unknown as LineEndProbe).lineEnd();
+          return now?.laidOut && now.whole && Math.abs(now.reach - now.dot) < 1 && now.opacity === 1;
+        });
+      const frames = () => page.evaluate(() => (window as unknown as LineEndProbe).frames.splice(0));
+
+      await open("data/line-chart", "Line chart");
+      await settled();
+      // Two frames for the chart to render again once its draw-in has ended.
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+      expect((await frames()).some(({ reach, dot }) => dot - reach > 50)).toBe(true);
+
+      await page.setViewportSize({ width: 1400, height: 900 });
+      await settled();
+      expect((await frames()).filter(({ reach, dot, opacity }) => Math.abs(reach - dot) >= 1 || opacity < 1)).toEqual(
+        [],
+      );
+    } finally {
+      await page.setViewportSize({ width: 1280, height: 900 });
     }
   });
 

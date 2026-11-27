@@ -19,7 +19,8 @@
 // (lib/chart-marks), where the card is wide enough; quiet series (muted) draw
 // first, named in muted text; in the legend a grey name raises its line. A forecast stretch (forecastFrom) dashes each line
 // after it over a card-coloured halo, with a hollow end dot; today gets a
-// rule. Lines draw in over 1.3s.
+// rule. Lines draw in over 1.3s on the first draw only (lib/chart-frame's
+// useDrawIn), so a resize or new data never leaves a line short of its end dot.
 // Charts ship only in shadcn's new-york-v4 style; nothing here is styled by it.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
@@ -28,7 +29,7 @@
 import { Fragment } from "react"
 import { Line, LineChart } from "recharts"
 
-import { ChartFrame, endDot } from "@siyahi/ui/lib/chart-frame"
+import { ChartFrame, endDot, useDrawIn } from "@siyahi/ui/lib/chart-frame"
 import { QUIET, drawOrder } from "@siyahi/ui/lib/chart-marks"
 import type {
   ChartCurve,
@@ -51,11 +52,12 @@ export function LineChartCard<T extends object, K extends keyof T>({
   curve = "monotone",
   ...props
 }: LineChartCardProps<T, K>) {
+  const { drawn, motion } = useDrawIn()
   const forecast = props.forecastFrom !== undefined
   const count = props.data.length
   const series = drawOrder(props.series)
   return (
-    <ChartFrame chart={LineChart} endLabels curve={curve} {...props}>
+    <ChartFrame chart={LineChart} endLabels curve={curve} drawn={drawn} {...props}>
       {/* Every forecast's card-coloured halo first, under every line, so the hatching never runs beside a dashed
           line and no series' halo can erase a neighbour's. */}
       {forecast &&
@@ -71,7 +73,7 @@ export function LineChartCard<T extends object, K extends keyof T>({
             tooltipType="none"
             legendType="none"
             className="chart-forecast"
-            animationDuration={1300}
+            {...motion}
           />
         ))}
       {series.map(({ key, color }) => {
@@ -87,7 +89,7 @@ export function LineChartCard<T extends object, K extends keyof T>({
               strokeWidth={2}
               dot={dot}
               className={forecast ? "chart-actual" : undefined}
-              animationDuration={1300}
+              {...motion}
             />
             {forecast && (
               <Line
@@ -101,7 +103,7 @@ export function LineChartCard<T extends object, K extends keyof T>({
                 tooltipType="none"
                 legendType="none"
                 className="chart-forecast"
-                animationDuration={1300}
+                {...motion}
               />
             )}
           </Fragment>
