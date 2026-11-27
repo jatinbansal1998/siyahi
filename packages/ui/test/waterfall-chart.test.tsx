@@ -72,7 +72,8 @@ describe("waterfallBars", () => {
         ]}
       />,
     );
-    expect(html).toContain("May has no figure, so the running total after it is unknown.");
+    expect(html).toContain("May has no figure");
+    expect(html).toContain("The running total after it is unknown");
     expect(html).not.toContain('data-slot="chart"');
   });
 });
