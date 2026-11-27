@@ -14,6 +14,7 @@ import {
   DataTableToolbarSection,
   Delta,
   useDataTable,
+  dataTableDetailsColumn,
   useFormat,
   type DataTableColumnDef,
 } from "@siyahi/ui";
@@ -50,6 +51,7 @@ function RevenueCell({ product }: { product: Product }) {
 }
 
 const columns: DataTableColumnDef<Product>[] = [
+  dataTableDetailsColumn<Product>(),
   { accessorKey: "product", header, size: 140, meta: { label: "Product", compact: true } },
   { accessorKey: "category", header, size: 120, meta: { label: "Category" } },
   { accessorKey: "units", header, size: 100, meta: { label: "Units", variant: "number" } },

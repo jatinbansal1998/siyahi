@@ -217,7 +217,7 @@
   },
   {
     "need": "Tables inside narrow panels or on phones",
-    "guidance": "`DataTable` suspends horizontal freezing below 40rem of table space; retain every field through scrolling, or compose essential columns and accessible record details in the page"
+    "guidance": "Mark the instrument, value and change columns `meta.compact`, put `dataTableDetailsColumn()` first so a row opens on the columns hidden to fit, and `DataTableCompactColumnsToggle` in the toolbar for all columns. Without `meta.compact`, `DataTable` suspends horizontal freezing below 40rem and every column scrolls"
   },
   {
     "need": "A table toolbar that shows which search and filters are set, how many rows they leave, and a way to clear them",

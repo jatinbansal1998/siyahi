@@ -83,14 +83,29 @@ describe("responsive table", () => {
     // The source text: innerText follows the heads' text-transform and reads them in capitals.
     const headers = () => table.locator("thead th").allTextContents();
     await page.setViewportSize({ width: 390, height: 844 });
-    await expect.poll(async () => (await headers()).join("|")).toBe("Product|Revenue");
+    await expect.poll(async () => (await headers()).join("|")).toBe("Details|Product|Revenue");
     expect(await table.locator("tbody tr").first().innerText()).toContain("1.8%");
     await card.getByRole("button", { name: "All columns" }).click();
-    await expect.poll(async () => (await headers()).length).toBe(5);
+    await expect.poll(async () => (await headers()).join("|")).toBe("Product|Category|Units|Revenue|Change");
     await card.getByRole("button", { name: "Key columns" }).click();
-    await expect.poll(async () => (await headers()).length).toBe(2);
+    await expect.poll(async () => (await headers()).length).toBe(3);
     await page.setViewportSize({ width: 1920, height: 1080 });
     await expect.poll(async () => (await headers()).length).toBe(5);
     expect(await card.getByRole("button", { name: "All columns" }).count()).toBe(0);
+  }, 30_000);
+
+  it("opens a phone row on the columns hidden to fit, and closes it once the table is wide", async () => {
+    const { page } = catalogue;
+    const card = page.locator('#data-table [data-slot="card"]', { hasText: "Revenue by product" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    const open = card.getByRole("button", { name: "Show details" }).first();
+    await open.click();
+    const details = card.locator("tbody dl");
+    await expect.poll(() => details.innerText()).toMatch(/Category\s+Furniture\s+Units\s+120/);
+    expect(await card.getByRole("button", { name: "Hide details" }).getAttribute("aria-expanded")).toBe("true");
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    // The opened row closes rather than leaving an empty row under its product.
+    await expect.poll(() => card.locator("tbody tr").count()).toBe(4);
+    expect(await card.getByRole("button", { name: /details/ }).count()).toBe(0);
   }, 30_000);
 });

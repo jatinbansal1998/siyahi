@@ -656,6 +656,7 @@ export const data: Page = {
         "DataTableActiveFilters",
         "DataTableCompactColumnsToggle",
         "DataTablePagination",
+        "dataTableDetailsColumn",
         "useDataTable",
         "type DataTableColumnDef",
       ],
@@ -703,6 +704,13 @@ export const data: Page = {
             "Marks a column that answers the table's question; the others hide, rightmost first, when columns do not fit.",
         },
         {
+          name: "dataTableDetailsColumn()",
+          type: "DataTableColumnDef",
+          default: "—",
+          purpose:
+            "A first column that, while columns are hidden to fit, opens a row on them as label and value pairs; gone when nothing is hidden.",
+        },
+        {
           name: "useDataTable().compactColumns.hidden",
           type: "ReadonlySet<string>",
           purpose: "The columns hidden to fit, so a cell can fold a hidden figure under a kept one.",
@@ -714,6 +722,7 @@ export const data: Page = {
         "Past about a hundred rows, put DataTablePagination after DataTable: it pages the sorted, filtered rows, and a new search or filter goes back to page one. Sorting and search still cover every row.",
         "In the toolbar, DataTableSearchFilter comes first and DataTableRowCount last; DataTableActiveFilters follows it on a line of its own, and shows only while a search or filter is set.",
         "Scrolling sideways hides the figure a reader came for, on a phone and a laptop alike: mark the few answering columns meta.compact, and put DataTableCompactColumnsToggle in the toolbar to show them all and back.",
+        "On a phone a row carries the instrument, its value and its signed change; fold the change under the value when the three do not fit. Put dataTableDetailsColumn() first, so each row opens on the rest, and keep the All columns toggle for a reader who wants the whole grid.",
       ],
       examples: [
         {
@@ -739,7 +748,7 @@ export const data: Page = {
         {
           name: "data-table-compact",
           caption:
-            "meta.compact columns with the All columns toggle; the week's change folds under the revenue while hidden.",
+            "The phone layout: product and revenue on the row with the week's change folded under it, a row opening on its category and units, and the All columns toggle.",
         },
       ],
     },

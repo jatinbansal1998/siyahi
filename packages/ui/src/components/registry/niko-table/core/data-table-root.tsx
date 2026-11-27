@@ -4,6 +4,9 @@
 // Copied: 2026-10-20, sha256 844e0dc6da405c5478dc429d17fb57582ac84ecf6cacf624078b98f3e21368f8
 // Siyahi edit: the root holds the table's width; columns that do not fit hide,
 // rightmost first and never a `meta.compact` one, until the reader asks for all.
+// A details column shows only while columns are hidden, so fitColumns sets the
+// visibility whether the reader shows all columns or not.
+// Siyahi edit: a column with meta.expandedContent lets every row expand.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`;
 // the TanStack options it inherits take Optional<…> for the same reason.
@@ -578,11 +581,19 @@ function DataTableRootInternal<TData extends RowData>({
         requestedColumnOrder,
         requestedColumnVisibility,
         tableWidth,
+        !showAllColumns,
       ),
-    [columns, requestedColumnOrder, requestedColumnVisibility, tableWidth],
+    [
+      columns,
+      requestedColumnOrder,
+      requestedColumnVisibility,
+      tableWidth,
+      showAllColumns,
+    ],
   )
-  const controlledColumnVisibility =
-    fitted && !showAllColumns ? fitted.visibility : requestedColumnVisibility
+  const controlledColumnVisibility = fitted
+    ? fitted.visibility
+    : requestedColumnVisibility
   const compactColumns = React.useMemo(
     () =>
       fitted && fitted.hidden.size > 0
@@ -740,6 +751,9 @@ function DataTableRootInternal<TData extends RowData>({
       // Can be overridden via config
       autoResetPageIndex: finalConfig.autoResetPageIndex,
       autoResetExpanded: finalConfig.autoResetExpanded,
+      // Siyahi edit: TanStack v9 expands only a row with sub-rows unless told
+      // otherwise, so a column's expandedContent never opened; any row can.
+      getRowCanExpand: hasExpandColumn ? () => true : undefined,
       onGlobalFilterChange: handleGlobalFilterChange,
       onRowSelectionChange: onRowSelectionChange ?? handleRowSelectionChange,
       // Default state setters are mount-ref guarded so TanStack's async
@@ -814,6 +828,7 @@ function DataTableRootInternal<TData extends RowData>({
       onPaginationChange,
       handlePaginationChange,
       getRowId,
+      hasExpandColumn,
       manualGroupingProp,
       manualExpandingProp,
       // Use controlled state values - these update when either external or local state changes

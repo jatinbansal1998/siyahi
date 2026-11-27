@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { DataTableColumnDef } from "../src/components/registry/niko-table/types";
-import { fitColumns } from "../src/lib/compact-columns";
+import { DETAILS_COLUMN_ID, fitColumns } from "../src/lib/compact-columns";
 
 interface Row {
   symbol: string;
@@ -46,5 +46,22 @@ describe("fitColumns", () => {
   it("leaves a table without key columns alone", () => {
     const plain = columns.map(({ meta: _meta, ...column }) => column);
     expect(fitColumns(plain, order, {}, 100)).toBeNull();
+  });
+
+  it("shows the details column only once a column is hidden, and makes room for it", () => {
+    const withDetails = [{ id: DETAILS_COLUMN_ID, size: 36 }, ...columns];
+    const all = [DETAILS_COLUMN_ID, ...order];
+    expect(fitColumns(withDetails, all, {}, 610)?.visibility).toEqual({ [DETAILS_COLUMN_ID]: false });
+    // Without it, hiding change and quantity leaves 400; its 36 more push sector out too.
+    const fitted = fitColumns(withDetails, all, {}, 400);
+    expect([...(fitted?.hidden ?? [])]).toEqual(["change", "quantity", "sector"]);
+    expect(fitted?.visibility[DETAILS_COLUMN_ID]).toBeUndefined();
+  });
+
+  it("gives back every column but the details one once the reader asks for all", () => {
+    const withDetails = [{ id: DETAILS_COLUMN_ID, size: 36 }, ...columns];
+    const fitted = fitColumns(withDetails, [DETAILS_COLUMN_ID, ...order], {}, 400, false);
+    expect(fitted?.visibility).toEqual({ [DETAILS_COLUMN_ID]: false });
+    expect(fitted?.hidden.size).toBe(3);
   });
 });

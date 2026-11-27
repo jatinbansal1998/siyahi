@@ -2,6 +2,10 @@
 
 ## 0.1.9
 
+- A phone layout for `DataTable` rows: `dataTableDetailsColumn()` adds a
+  first column that, while columns are hidden to fit, opens a row on them as
+  label and value pairs. It is gone on a wide table and once the reader picks
+  All columns, which stays the way to the whole grid.
 - A table is as wide as its columns, up to its block, instead of always
   filling it, so a figure sits by its label. A data table's frame hugs it
   too, and its toolbar and frozen columns still follow the room its block
