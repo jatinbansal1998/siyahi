@@ -92,6 +92,13 @@ const SERIES_PROPS: PropRow[] = [
     purpose: "A title beside the value axis, read bottom to top. Not drawn on sideways bars.",
   },
   {
+    name: "syncId",
+    type: "string",
+    default: "—",
+    purpose:
+      "Charts on the page given the same id mark the hovered month or category together, matched by its value. Only for charts over the same axis.",
+  },
+  {
     name: "yDomain",
     type: "[number, number]",
     default: "round ticks just over the data",
@@ -299,17 +306,18 @@ export const data: Page = {
       imports: ["PanelGrid", "LineChartCard", "AreaChartCard", "BarChartCard"],
       rules: [
         "Gridlines are solid hairlines. Lines are named at their ends; bars are tints inside full-colour edges, grouped or stacked.",
+        "Charts over the same months or categories link their hover with one syncId; charts over different axes never share one.",
       ],
       examples: [
         {
           name: "chart-panels",
           caption:
-            "Five funds with a forecast, five kinds as lines, and money added by quarter, side by side and stacked.",
+            "Five funds with a forecast, five kinds as lines, and money added by quarter, side by side and stacked. Hover a month or a quarter: its twin chart marks it too.",
         },
         {
           name: "chart-panels-three",
           caption:
-            "Three short panels across a 56rem reading column (max-w-4xl): columns={3} goes three across from 42rem.",
+            "Three short panels across a 56rem reading column (max-w-4xl): columns={3} goes three across from 42rem, hover linked by one syncId.",
         },
       ],
     },

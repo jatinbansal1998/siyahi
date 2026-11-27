@@ -164,6 +164,10 @@
     "guidance": "`PanelGrid`"
   },
   {
+    "need": "Charts side by side over the same months or categories, read together as one",
+    "guidance": "the same `syncId` on each chart card, so hovering a month in one marks it in all; a different id, or none, for charts over another axis"
+  },
+  {
     "need": "A forecast stretch after the latest actual figure, or a marker for today",
     "guidance": "`LineChartCard` or `AreaChartCard` with `forecastFrom` and `today` set to x values"
   },

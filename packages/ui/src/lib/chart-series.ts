@@ -103,6 +103,12 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
    * sits under the title. The page decides; nothing is inferred from dates.
    */
   stale?: ReactNode;
+  /**
+   * Links this chart's hover to every chart on the page given the same id: hovering October in one marks October in
+   * the others, each with its band or line and its tooltip. Charts match by x value, not position, so one starting in
+   * April links with one starting in June. Give it only to charts over the same months or categories.
+   */
+  syncId?: string | undefined;
 }
 
 /** What a chart of lines takes, LineChartCard and AreaChartCard: a forecast stretch and today. */

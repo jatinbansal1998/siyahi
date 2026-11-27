@@ -263,6 +263,10 @@ from the catalogue.
   baseline and candlesticks take green and red, so they are for a gain and a
   loss only. Months, categories, bars, stacks and forecasts stay with the
   other chart cards.
+- **Charts over one axis hover together.** Where blocks side by side cover the same months or categories, the page
+  gives their chart cards one `syncId`: hovering October in one marks October in each of them, with the same band or
+  line and tooltip as a hover of its own, so the page reads as one instrument. Charts over different axes (months
+  beside quarters, a time beside a category) never share an id, as a linked mark would point at nothing.
 - **Stale data is marked by the page**: `stale` on a chart card or a
   `MetricStrip` item, with since when ("3 Nov"). The block greys and its
   chart or sparkline draws at about 65% strength, a figure turns muted, and a small "Stale · 3 Nov" note says so. A stale block is meant

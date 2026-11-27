@@ -11,6 +11,7 @@ const months = [
 ];
 
 // Three short panels in a reading column about as wide as an article (max-w-4xl, 56rem): three across from 42rem.
+// They share the months, so they share a syncId: hovering a month in one marks it in all three.
 export default function ChartPanelsThreeExample() {
   const { pct, money, moneyCompact } = useFormat();
   return (
@@ -24,6 +25,7 @@ export default function ChartPanelsThreeExample() {
           series={[{ key: "growth", label: "Growth", color: "var(--chart-1)" }]}
           valueFormatter={pct}
           height={160}
+          syncId="one-fund-months"
         />
         <AreaChartCard
           title="Value"
@@ -34,6 +36,7 @@ export default function ChartPanelsThreeExample() {
           valueFormatter={money}
           yTickFormatter={moneyCompact}
           height={160}
+          syncId="one-fund-months"
         />
         <BarChartCard
           title="Added"
@@ -44,6 +47,7 @@ export default function ChartPanelsThreeExample() {
           valueFormatter={money}
           yTickFormatter={moneyCompact}
           height={160}
+          syncId="one-fund-months"
         />
       </PanelGrid>
     </div>

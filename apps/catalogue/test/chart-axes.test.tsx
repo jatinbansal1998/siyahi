@@ -252,4 +252,22 @@ describe("chart cards", { timeout: 60_000 }, () => {
       .poll(() => bars.evaluateAll((els) => els.some((el) => (el.getAttribute("fill") ?? "").includes(" 10%"))))
       .toBe(false);
   });
+
+  it("marks a hovered month in the charts that share its syncId, and nowhere over quarters", async () => {
+    await show("chart-panels");
+    const growth = card("Growth by fund");
+    const value = card("Value by kind");
+    const quarters = card("Money added by kind and quarter");
+    await growth.scrollIntoViewIfNeeded();
+    const ticks = growth.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    await settled(ticks);
+    const grid = await growth.locator(".recharts-cartesian-grid").boundingBox();
+    if (!grid) throw new Error("not laid out");
+    const { x } = await center(ticks.filter({ hasText: "Oct" }));
+    await tooltipAt(growth, x, grid.y + grid.height / 2, "Oct");
+    const heading = async () => (await value.locator(".recharts-tooltip-wrapper").innerText()).split("\n")[0];
+    await expect.poll(heading).toBe("Oct");
+    expect(await value.locator(".recharts-tooltip-cursor").count()).toBe(1);
+    expect(await quarters.locator(".recharts-tooltip-cursor").count()).toBe(0);
+  });
 });
