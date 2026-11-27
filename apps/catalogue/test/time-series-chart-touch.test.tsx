@@ -13,6 +13,11 @@ beforeAll(async () => {
   page = catalogue.page;
   touch = await page.context().newCDPSession(page);
   await chart().locator("table tr").first().waitFor({ state: "attached", timeout: 30_000 });
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    document.addEventListener("scroll", () => root.toggleAttribute("data-scrolling", true), true);
+    document.addEventListener("scrollend", () => root.toggleAttribute("data-scrolling", false), true);
+  });
 }, 60_000);
 
 afterAll(async () => {
@@ -38,12 +43,20 @@ async function dragUp(fromRight: number) {
   const x = box.x + box.width - fromRight;
   const y = box.y + 150;
   const before = await seen();
-  await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] });
-  for (let step = 1; step <= 20; step++) {
-    await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: y - step * 6 }] });
-  }
+  // One unbroken stroke. Awaiting each event's round trip let a busy browser hold the finger still past the library's
+  // 240ms long press, which turned the drag into a crosshair that the page does not follow.
+  const stroke = Array.from({ length: 21 }, (_, step) =>
+    touch.send("Input.dispatchTouchEvent", {
+      type: step ? "touchMove" : "touchStart",
+      touchPoints: [{ x, y: y - step * 6 }],
+    }),
+  );
+  await Promise.all(stroke);
   await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
   await expect.poll(async () => JSON.stringify(await seen()) !== JSON.stringify(before)).toBe(true);
+  // A page the finger scrolled coasts on after it lifts. Chrome cannot cancel a touch that lands on a coasting page,
+  // so the next drag would scroll it whatever the chart does; the drag ends when the page has stopped.
+  await page.waitForFunction(() => !document.documentElement.hasAttribute("data-scrolling"));
   const after = await seen();
   return { redrawn: after.drawing !== before.drawing, scrolled: after.scrolled - before.scrolled };
 }
