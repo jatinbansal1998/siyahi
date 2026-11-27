@@ -208,6 +208,10 @@
     "guidance": "`DataTable` suspends horizontal freezing below 40rem of table space; retain every field through scrolling, or compose essential columns and accessible record details in the page"
   },
   {
+    "need": "A table toolbar that shows which search and filters are set, how many rows they leave, and a way to clear them",
+    "guidance": "`DataTableActiveFilters` after `DataTableRowCount` in `DataTableToolbarSection`: a removable chip per value and \"Reset filters\"; it reads the same filter state as `DataTableFacetedFilter`"
+  },
+  {
     "need": "Table filters that crowd a phone toolbar",
     "guidance": "Compose `Sheet` with `DataTableFacetedFilter`; useDataTable().isCompact follows the table container. Set DataTableRoot config.enableFilters explicitly when controls are conditional"
   },
