@@ -154,6 +154,14 @@
       "sha256": "04ab2e51555e4768a6f65ca8e251f1e6355c854ecbdaed74315f50efcfbbaf1d"
     },
     {
+      "file": "src/components/registry/niko-table/components/data-table-pagination.tsx",
+      "registry": "@niko-table/data-table-pagination",
+      "origin": "https://niko-table.com/r/data-table-pagination.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-11-27",
+      "sha256": "d86feec2277132ce218c2e4609018de326973ef85a3cdda1a2af0fb0671c3ced"
+    },
+    {
       "file": "src/components/registry/niko-table/components/data-table-row-context-menu-slot.tsx",
       "registry": "@niko-table/data-table-core",
       "origin": "https://niko-table.com/r/data-table-core.json",
@@ -288,6 +296,14 @@
       "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
       "copied": "2026-10-20",
       "sha256": "dba551593726fa342b8c61daf5e5b9c79125df391af8ed31504e7dfedf7a71ba"
+    },
+    {
+      "file": "src/components/registry/niko-table/filters/table-pagination.tsx",
+      "registry": "@niko-table/data-table-pagination",
+      "origin": "https://niko-table.com/r/data-table-pagination.json",
+      "licence": "MIT, Copyright (c) 2025 Semir N., original work (c) 2025 WebDevSimplified, https://github.com/Semkoo/niko-table-registry/blob/main/LICENSE",
+      "copied": "2026-11-27",
+      "sha256": "db0445366a218b6bb5bccd62eeb951faa08fc5fca7b42cb877674a1718cfbfb6"
     },
     {
       "file": "src/components/registry/niko-table/filters/table-search-filter.tsx",
