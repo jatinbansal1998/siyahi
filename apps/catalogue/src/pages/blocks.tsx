@@ -89,6 +89,7 @@ export const blocks: Page = {
       rules: [
         "No box and no rules: space parts the figures, and each figure's text lines up with its neighbours' and the title's.",
         "The columns follow the count, so no figure sits alone under a full row, up to eight of them: five run 3 + 2, seven 4 + 3, and eight fit one row on a wide strip.",
+        "A figure is at most 40rem wide, a note's reading measure: on a very wide block the figures keep together at its start, and a lead's supporting figures keep beside it, rather than spread across the screen.",
         "A sparkline sits under its figure at the figure's width; a run of gains or losses takes var(--positive) or var(--negative) from the change's sign.",
         "Set tone on the one or two figures that need a look. The page decides: a falling figure is not an exception when it is a cost.",
         'Set rise: "bad" on a figure whose rise is bad news (a cost, a debt, a fear gauge), so its change and run are coloured by what they mean, not by their sign.',
@@ -116,6 +117,11 @@ export const blocks: Page = {
         {
           name: "metric-strip-lead-supporting",
           caption: "A portfolio's worth as the lead figure, with its gain and the cash to invest beside it.",
+        },
+        {
+          name: "metric-strip-pair",
+          caption:
+            "Two figures, the index's move and how many of its members rose: on a wide screen they keep together rather than sit a block apart.",
         },
         {
           name: "metric-strip-rise-bad",

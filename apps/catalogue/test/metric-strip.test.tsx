@@ -284,3 +284,36 @@ async function leadOnPhone(figure: string) {
     await page.setViewportSize({ width: 1280, height: 900 });
   }
 }
+
+/** How far each figure starts from the first, in rem, once the strip is 140rem wide (a 2560px screen's block). */
+const starts = (strip: Locator) =>
+  strip.locator('[data-slot="metric-strip"]').evaluate((el) => {
+    (el as HTMLElement).style.width = "140rem";
+    const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const lefts = [...el.querySelectorAll('[data-slot="metric-strip-item"]')].map(
+      (figure) => figure.getBoundingClientRect().left,
+    );
+    (el as HTMLElement).style.width = "";
+    return lefts.map((left) => Math.round((left - (lefts[0] ?? 0)) / rem));
+  });
+
+describe("a MetricStrip on a very wide block", { timeout: 60_000 }, () => {
+  it("keeps two figures together rather than a half block apart", async () => {
+    // 40rem a figure and the strip's 1rem gap; spread, the second sat 70.5rem along.
+    expect(await starts(await example("metric-strip-pair"))).toEqual([0, 41]);
+  });
+
+  it("keeps a lead's supporting figures beside it when its note runs long", async () => {
+    const strip = await example("metric-strip-lead-supporting");
+    await strip
+      .locator('[data-lead] [data-slot="delta"] + span')
+      .evaluate(
+        (note) =>
+          (note.textContent =
+            "255 contracts, booked on closing fills, before fees; equity may miss splits or bonuses, so check the ledger"),
+      );
+    // The lead stops at 40rem, then the 3rem gap; on one line its note pushed them about 60rem along.
+    const [, supporting] = await starts(strip);
+    expect(supporting).toBe(43);
+  });
+});
