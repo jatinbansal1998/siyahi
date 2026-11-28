@@ -2,6 +2,7 @@
 import { DistributionBar, type DistributionSegment } from "../src/components/registry/dashboardcn/distribution-bar";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 declare global {
@@ -27,6 +28,32 @@ const span = (text: string) => [...document.querySelectorAll<HTMLElement>("span"
 const legend = () => [...document.querySelectorAll("li")].map((li) => li.textContent);
 
 describe("DistributionBar", () => {
+  it("draws each segment and its legend swatch as a tint inside a full-colour edge, as every bar is", async () => {
+    // happy-dom drops a color-mix() background, so read the markup React writes.
+    const html = renderToStaticMarkup(
+      <DistributionBar
+        highlighted="Gold"
+        segments={[
+          { name: "Equity", value: 3, color: "var(--chart-3)" },
+          { name: "Gold", value: 1, color: "var(--chart-4)" },
+        ]}
+      />,
+    );
+    const styles = [...html.matchAll(/data-slot="distribution-segment"[^>]*style="([^"]*)"/g)].map(([, css]) => css);
+    // Equity is faded by the highlight, so its tint is fainter; both keep the full-colour edge.
+    expect(styles).toEqual([
+      expect.stringContaining(
+        "background-color:color-mix(in oklab, var(--chart-3) 10%, var(--card));box-shadow:inset 0 0 0 1px var(--chart-3)",
+      ),
+      expect.stringContaining(
+        "background-color:color-mix(in oklab, var(--chart-4) var(--bar-tint), var(--card));box-shadow:inset 0 0 0 1px var(--chart-4)",
+      ),
+    ]);
+    expect(html).toContain(
+      'aria-hidden="true" class="size-2.5 shrink-0 rounded-xs border" style="background-color:color-mix(in oklab, var(--chart-3) var(--bar-tint), var(--card));border-color:var(--chart-3)"',
+    );
+  });
+
   it("splits the bar by share of the total when it has no max, as upstream does", async () => {
     await render(
       <DistributionBar
@@ -106,10 +133,10 @@ describe("DistributionBar", () => {
         ]}
       />,
     );
-    // A faded segment keeps its full colour as an edge, so its extent still reads at 3:1.
+    // A faded segment keeps its full colour as an edge, so its extent still reads at 3:1, and fades only inside.
     expect(segments().map((s) => [s.style.opacity, s.style.boxShadow])).toEqual([
       ["", "inset 0 0 0 1px var(--chart-1)"],
-      ["", ""],
+      ["", "inset 0 0 0 1px var(--chart-2)"],
     ]);
     await act(async () => {
       segments()[1]?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, relatedTarget: document.body }));

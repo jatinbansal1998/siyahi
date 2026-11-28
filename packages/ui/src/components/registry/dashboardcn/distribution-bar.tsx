@@ -19,8 +19,10 @@
 // at either end aligns to that end, so it does not spill past the bar.
 // Siyahi edit: highlighted fades every segment but one, and onHover reports
 // the segment under the pointer, so a page can drive a readout from it.
-// A faded segment mixes its interior toward the card inside a full-colour
-// edge, so its extent still reads at 3:1; 35% opacity fell under it.
+// Siyahi edit: a segment is a tint inside a 1px full-colour edge, as every
+// bar is (lib/chart-frame barFill), not a solid slab, and its legend swatch
+// matches; a faded segment keeps the edge, so its extent still reads at 3:1,
+// and fades only inside.
 // Segments take a key for when names repeat, and chart tokens as colours.
 // Siyahi edit: the track is square, not a pill, as every Siyahi box is.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
@@ -30,6 +32,7 @@ import * as React from "react"
 import { cn } from "@siyahi/ui/lib/utils"
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider"
 import type { ChartColor } from "@siyahi/ui/lib/chart-series"
+import { barFill } from "@siyahi/ui/lib/chart-frame"
 import { pct } from "@siyahi/ui/lib/format"
 
 export interface DistributionSegment {
@@ -174,12 +177,8 @@ function DistributionBar({
                 style={{
                   left: `${segment.left}%`,
                   width: `${segment.width}%`,
-                  ...(highlighted === null || highlighted === segment.key
-                    ? { backgroundColor: segment.color }
-                    : {
-                        backgroundColor: `color-mix(in oklab, ${segment.color} 35%, var(--card))`,
-                        boxShadow: `inset 0 0 0 1px ${segment.color}`,
-                      }),
+                  backgroundColor: barFill(segment.color, highlighted !== null && highlighted !== segment.key),
+                  boxShadow: `inset 0 0 0 1px ${segment.color}`,
                 }}
                 onMouseEnter={onHover ? () => onHover(segment) : undefined}
               />
@@ -202,8 +201,8 @@ function DistributionBar({
             <li key={segment.key} className="flex items-center gap-2">
               <span
                 aria-hidden="true"
-                className="size-2.5 shrink-0 rounded-xs"
-                style={{ backgroundColor: segment.color }}
+                className="size-2.5 shrink-0 rounded-xs border"
+                style={{ backgroundColor: barFill(segment.color), borderColor: segment.color }}
               />
               <span className="text-muted-foreground">{segment.name}</span>
               <span className="font-medium tabular-nums">

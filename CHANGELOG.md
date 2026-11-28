@@ -24,6 +24,11 @@
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
 
+- `DistributionBar` draws each segment as a tint (`--bar-tint`) inside a 1px
+  full-colour edge, as DESIGN.md asks of every bar, where it drew a solid
+  slab; its legend swatches match. A segment faded by `highlighted` keeps
+  its edge and fades inside to the 10% a chart's dimmed bar takes (was 35%).
+
 - A `DataList` value (`dd`) is set in the mono face, as a figure or a label
   is, so a figure or a `RangePosition` placed there matches the figures
   around it; the theme set it in Geist. A value that reads as a sentence is
