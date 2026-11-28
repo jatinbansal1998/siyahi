@@ -123,7 +123,7 @@ export const layout: Page = {
       rules: [
         "A PageSection draws a rule above, then its eyebrow, title, lead and action, then its content.",
         "PageSubheading is the h3 inside a PageSection.",
-        "DataList holds label and value pairs, such as a record's fields in a card.",
+        "DataList holds label and value pairs, such as a record's fields in a card. A value is a figure or a label, set in mono as a table cell is; write one that reads as a sentence as a <p>, which takes Geist.",
         "InlineCode marks a command, file or identifier in prose.",
       ],
       examples: [

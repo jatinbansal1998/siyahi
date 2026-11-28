@@ -37,9 +37,13 @@ export default function PageSectionExample() {
         </CardHeader>
         <CardContent>
           <DataList>
-            <DataListItem label="In Java terms">Maven, the compiler plugin and Surefire in one binary.</DataListItem>
+            <DataListItem label="In Java terms">
+              <p>Maven, the compiler plugin and Surefire in one binary.</p>
+            </DataListItem>
             <DataListItem label="How it is set up">
-              One <InlineCode>vite.config.ts</InlineCode> at the root of the repo.
+              <p>
+                One <InlineCode>vite.config.ts</InlineCode> at the root of the repo.
+              </p>
             </DataListItem>
             <DataListItem label="Remember">
               <InlineCode>vp check</InlineCode>

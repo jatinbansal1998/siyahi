@@ -125,7 +125,9 @@ figures, labels, controls, titles and tables share one grid. Tables set it at
 13px. Text that reads as sentences, a
 paragraph, a quote or a description, is set in Geist, where mono
 tires the eye over a line; the theme switches it by element, so a page writes
-no font classes. Labels over data (a `MetricStrip` figure's label, a table's
+no font classes. A value in a details list (`DataList`) is a figure or a
+label, as a table cell is, and stays mono; one that reads as a sentence is
+written as a paragraph (`<p>`) inside it. Labels over data (a `MetricStrip` figure's label, a table's
 column heads, a sidebar group's label, a group's label in a menu) are small
 capitals, muted. Never set a figure or a title in them.
 

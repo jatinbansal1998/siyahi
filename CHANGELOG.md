@@ -24,6 +24,11 @@
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
 
+- A `DataList` value (`dd`) is set in the mono face, as a figure or a label
+  is, so a figure or a `RangePosition` placed there matches the figures
+  around it; the theme set it in Geist. A value that reads as a sentence is
+  written as a `<p>` inside the item, which stays in Geist.
+
 - `CalendarHeatmap` takes `weekdays`, the days of the week to draw, as
   `WeekdayHeatmap` does: `weekdays={[1, 2, 3, 4, 5]}` draws a market's
   trading days with no empty weekend rows, and a day left out sets no scale
