@@ -4,7 +4,7 @@ import { defaultLocale, type SiyahiLocale } from "@siyahi/ui/lib/locale";
 
 const numbers = new Map<string, Intl.NumberFormat>();
 const dates = new Map<string, Intl.DateTimeFormat>();
-const regions = new Map<string, string | undefined>();
+const locales = new Map<string, Intl.Locale>();
 
 function numberFormat(locale: string, options: Intl.NumberFormatOptions): Intl.NumberFormat {
   const key = JSON.stringify([locale, options]);
@@ -16,39 +16,101 @@ function numberFormat(locale: string, options: Intl.NumberFormatOptions): Intl.N
   return formatter;
 }
 
-/** An amount in the locale's currency, whole units by default: ₹1,53,110. Signed figures belong in `Delta`. */
-export function money(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 0): string {
-  return numberFormat(locale.numberLocale, {
-    style: "currency",
-    currency: locale.currency,
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(value);
+function intlLocale(tag: string): Intl.Locale {
+  let locale = locales.get(tag);
+  if (!locale) {
+    locale = new Intl.Locale(tag);
+    locales.set(tag, locale);
+  }
+  return locale;
 }
 
+const MINUS = "\u2212";
+
+/** A part's text, with the minus sign `−` where most locales write a hyphen, as DESIGN.md asks. */
+function partText({ type, value }: Intl.NumberFormatPart): string {
+  // Replace only the hyphen: in Arabic and Hebrew the sign part also carries a direction mark that must stay.
+  return type === "minusSign" ? value.replace("-", MINUS) : value;
+}
+
+function written(parts: Intl.NumberFormatPart[]): string {
+  return parts.map(partText).join("");
+}
+
+function formatNumber(locale: string, options: Intl.NumberFormatOptions, value: number): string {
+  return written(numberFormat(locale, options).formatToParts(value));
+}
+
+/** An amount in the locale's currency, whole units by default: ₹1,53,110. Signed figures belong in `Delta`. */
+export function money(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 0): string {
+  return formatNumber(
+    locale.numberLocale,
+    {
+      style: "currency",
+      currency: locale.currency,
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    },
+    value,
+  );
+}
+
+const LAKH = 100_000;
+const CRORE = 10_000_000;
 const DIGITS = new Set<Intl.NumberFormatPartTypes>(["integer", "fraction"]);
 const NUMBER = new Set<Intl.NumberFormatPartTypes>(["integer", "group", "decimal", "fraction"]);
 
 /**
- * A short amount: ₹2.4L and ₹40Cr in en-IN, $2.4M in en-US. Indian readers
- * count in thousands up to a lakh, so in an Indian-region locale amounts under
- * one lakh print in full (₹99,999), never as ₹99.9K. Signed figures belong in
- * `Delta`, which adds the sign and a trend icon.
- *
- * Give `scale`, the largest amount on the same axis, and every tick takes that
- * amount's unit, to two decimals so close ticks stay apart: ₹1.5L, ₹0.75L,
- * ₹0, rather than switching to ₹75,000 halfway up.
+ * An amount of a thousand crore or more, as Indian press and exchanges write it: ₹3,412 Cr with Indian grouping,
+ * and from one lakh crore ₹1.2L Cr. Intl's en-IN data writes these as ₹3.4KCr and ₹1.2LCr.
  */
-export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale, scale?: number): string {
-  if (!regions.has(locale.numberLocale)) regions.set(locale.numberLocale, new Intl.Locale(locale.numberLocale).region);
-  if (regions.get(locale.numberLocale) === "IN" && (scale ?? Math.abs(value)) < 100_000) return money(value, locale);
+function crores(value: number, locale: SiyahiLocale, size: number, fractionDigits: number | undefined): string {
+  const lakhCrore = size >= LAKH * CRORE;
+  const figure = formatNumber(
+    locale.numberLocale,
+    {
+      style: "currency",
+      currency: locale.currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: fractionDigits ?? (lakhCrore ? 1 : 0),
+    },
+    value / (lakhCrore ? LAKH * CRORE : CRORE),
+  );
+  return `${figure}${lakhCrore ? "L Cr" : " Cr"}`;
+}
+
+/**
+ * A short amount: ₹2.4L, ₹40Cr and ₹3,412 Cr in en-IN, $2.4M in en-US. Indian readers count in thousands up to a
+ * lakh, so in an Indian-region locale amounts under one lakh print in full (₹99,999), never as ₹99.9K. In English
+ * for India, a thousand crore or more stays in crore with Indian grouping (₹48,210 Cr), and from one lakh crore
+ * reads in lakh crore (₹1.2L Cr), never ₹3.4KCr. Signed figures belong in `Delta`, which adds the sign and a trend
+ * icon.
+ *
+ * Give `scale`, the largest amount on the same axis, and every tick takes that amount's unit, to two decimals so
+ * close ticks stay apart: ₹1.5L, ₹0.75L, ₹0, rather than switching to ₹75,000 halfway up.
+ *
+ * `fractionDigits` is the most decimals the short figure keeps, for a headline that needs more than the default
+ * one (two on an axis, none from a thousand crore): ₹1.245Cr with 3. Amounts printed in full stay in whole units.
+ */
+export function moneyCompact(
+  value: number,
+  locale: SiyahiLocale = defaultLocale,
+  scale?: number,
+  fractionDigits?: number,
+): string {
+  const { language, region } = intlLocale(locale.numberLocale);
+  const size = scale ?? Math.abs(value);
+  if (value === 0 || (region === "IN" && size < LAKH)) return money(value, locale);
+  if (language === "en" && region === "IN" && size >= 1_000 * CRORE) {
+    return crores(value, locale, size, fractionDigits ?? (scale === undefined ? undefined : 2));
+  }
   const compact = numberFormat(locale.numberLocale, {
     style: "currency",
     currency: locale.currency,
     notation: "compact",
-    maximumFractionDigits: 1,
+    maximumFractionDigits: fractionDigits ?? 1,
   });
-  if (scale === undefined || value === 0) return compact.format(value);
+  if (scale === undefined) return written(compact.formatToParts(value));
   // Intl names the unit but not its size: read the size off the scale's own short form, then write this value
   // in that unit inside the same parts, so the currency, unit and sign sit where the locale puts them.
   const parts = compact.formatToParts(Math.sign(value) * scale);
@@ -56,24 +118,42 @@ export function moneyCompact(value: number, locale: SiyahiLocale = defaultLocale
     parts.flatMap((part) => (part.type === "decimal" ? "." : DIGITS.has(part.type) ? part.value : [])).join(""),
   );
   const unit = 10 ** Math.round(Math.log10(scale / shown));
-  if (unit === 1) return compact.format(value);
-  const digits = numberFormat(locale.numberLocale, { maximumFractionDigits: 2 }).format(Math.abs(value) / unit);
+  if (unit === 1) return written(compact.formatToParts(value));
+  const digits = numberFormat(locale.numberLocale, { maximumFractionDigits: fractionDigits ?? 2 }).format(
+    Math.abs(value) / unit,
+  );
   const first = parts.findIndex((part) => part.type === "integer");
-  return parts.flatMap((part, index) => (index === first ? digits : NUMBER.has(part.type) ? [] : part.value)).join("");
+  return parts
+    .flatMap((part, index) => (index === first ? digits : NUMBER.has(part.type) ? [] : partText(part)))
+    .join("");
 }
 
 /** A whole count with the locale's grouping: 1,53,110 in en-IN. */
 export function count(value: number, locale: SiyahiLocale = defaultLocale): string {
-  return numberFormat(locale.numberLocale, { maximumFractionDigits: 0 }).format(value);
+  return formatNumber(locale.numberLocale, { maximumFractionDigits: 0 }, value);
+}
+
+/** A number with the locale's grouping and exactly `fractionDigits` decimals: an index at 24,312.45, 46.2 points. */
+export function fixed(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 2): string {
+  return formatNumber(
+    locale.numberLocale,
+    { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits },
+    value,
+  );
+}
+
+/** A ratio as a multiple, one decimal by default: 2.4×, 0.9×. */
+export function multiple(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 1): string {
+  return `${fixed(value, locale, fractionDigits)}×`;
 }
 
 /** A fraction as a percentage: 0.1234 is 12.3%. */
 export function pct(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 1): string {
-  return numberFormat(locale.numberLocale, {
-    style: "percent",
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(value);
+  return formatNumber(
+    locale.numberLocale,
+    { style: "percent", minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits },
+    value,
+  );
 }
 
 /**
@@ -123,8 +203,15 @@ export function time(
 export interface Formatters {
   count: (value: number) => string;
   money: (value: number, fractionDigits?: number) => string;
-  /** Pass `scale` on an axis so every tick shares one unit; a chart's yTickFormatter gets it as its second argument. */
-  moneyCompact: (value: number, scale?: number) => string;
+  /**
+   * Pass `scale` on an axis so every tick shares one unit; a chart's yTickFormatter gets it as its second argument.
+   * Pass `fractionDigits` for a headline that needs more decimals: `moneyCompact(12_450_000, undefined, 3)` is ₹1.245Cr.
+   */
+  moneyCompact: (value: number, scale?: number, fractionDigits?: number) => string;
+  /** Exactly `fractionDigits` decimals, two by default, with the locale's grouping: `fixed(24312.45)` is 24,312.45. */
+  fixed: (value: number, fractionDigits?: number) => string;
+  /** One decimal by default: `multiple(2.4)` is 2.4×. */
+  multiple: (value: number, fractionDigits?: number) => string;
   pct: (value: number, fractionDigits?: number) => string;
   time: (value: Date | number | string, options?: TimeOptions) => string;
   /** A date by default, 20 Oct 2026; `options` as Intl's, such as `{ month: "short", timeZone: "UTC" }` for a month. */
@@ -138,7 +225,9 @@ export function useFormat(): Formatters {
     () => ({
       count: (value) => count(value, locale),
       money: (value, fractionDigits) => money(value, locale, fractionDigits),
-      moneyCompact: (value, scale) => moneyCompact(value, locale, scale),
+      moneyCompact: (value, scale, fractionDigits) => moneyCompact(value, locale, scale, fractionDigits),
+      fixed: (value, fractionDigits) => fixed(value, locale, fractionDigits),
+      multiple: (value, fractionDigits) => multiple(value, locale, fractionDigits),
       pct: (value, fractionDigits) => pct(value, locale, fractionDigits),
       time: (value, options) => time(value, locale, options),
       dateTime: (value, options) => dateTime(value, locale, options),

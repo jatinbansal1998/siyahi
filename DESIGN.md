@@ -176,14 +176,18 @@ from the catalogue.
   14:30 IST). Any other unit is named once: after a label in brackets, "Hour of
   day (IST)", or after a title with a comma, "Memory in use, GiB". Keep the
   symbols readers know (%, ₹, ms, s, GiB); anything else is a word. A
-  difference between two percentages is in points, to one decimal, as no
-  formatter writes them: "Sales is 5.6 points under its budget".
-- **Numbers** go through `useFormat()` and `Delta`. In the default locale that
-  is Indian grouping (1,53,110), compact rupees (₹3.1Cr) and amounts under a
-  lakh in full; a page under another locale keeps its forms. A figure on its
-  own (a cell, a tick, a tooltip) carries its sign, as Colour says; a sign you
-  write is `+` or the minus `−`, never a hyphen: "+₹21,300", "−₹18,400". In a
-  phrase a word may carry the direction instead: "5.6 points under". A range
+  difference between two percentages is in points, to one decimal, the
+  figure from `fixed` and the word written: "Sales is 5.6 points under its
+  budget".
+- **Numbers** go through `useFormat()` and `Delta`, never `toFixed` or a
+  page's own `Intl.NumberFormat`. In the default locale that is Indian
+  grouping (1,53,110), compact rupees (₹3.1Cr, ₹3,412 Cr, ₹1.2L Cr) and
+  amounts under a lakh in full; a page under another locale keeps its forms.
+  An index level or other plain decimal is `fixed` (24,312.45), a multiple is
+  `multiple` (2.4×). A figure on its own (a cell, a tick, a tooltip) carries
+  its sign, as Colour says; a sign is `+` or the minus `−`, never a hyphen,
+  as the formatters write it: "+₹21,300", "−₹18,400". In a phrase a word may
+  carry the direction instead: "5.6 points under". A range
   takes an en dash, "0–12 GiB"; a multiple takes ×, "about 1.5× a month". A
   missing figure is —, and a page that leaves items out says how many.
 - **Dates and times** read as the formatters write them, in the default locale

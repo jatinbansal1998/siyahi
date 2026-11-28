@@ -2,6 +2,26 @@
 
 ## 0.1.9
 
+- **Breaking:** the formatters write a negative figure with the minus sign
+  `−` (U+2212), as DESIGN.md asks, where they wrote a hyphen: `money`,
+  `moneyCompact`, `count` and `pct` print "−₹18,400", "−₹2.4L", "−5" and
+  "−2.1%" (were "-₹18,400" and so on), in every locale. An app that tests,
+  parses or splits formatter text on "-" must look for "−".
+- **Breaking:** in en-IN, `moneyCompact` writes a thousand crore and more in
+  crore with Indian grouping, ₹3,412 Cr and ₹48,210 Cr (were ₹3.4KCr and
+  ₹48.2KCr), and one lakh crore and more in lakh crore, ₹1.2L Cr (was
+  ₹1.2LCr), as Indian press writes "₹1.2 lakh crore". An axis whose largest
+  tick is in that range takes the same unit on every tick: ₹5,000 Cr,
+  ₹2,500 Cr, ₹0. Amounts under a thousand crore and other locales,
+  including hi-IN's own words, are unchanged.
+- `moneyCompact` takes `fractionDigits`, the most decimals the short figure
+  keeps, for a headline: `moneyCompact(12_450_000, undefined, 3)` is
+  ₹1.245Cr. Axis ticks, which pass no third argument, are unchanged.
+- `fixed` writes a number in the locale's grouping with a fixed count of
+  decimals, 24,312.45 or `fixed(46.2, 1)` 46.2, and `multiple` writes a
+  ratio, 2.4×; both come from `useFormat()`, so a page needs neither
+  `toFixed` nor its own `Intl.NumberFormat`.
+
 - **Breaking:** the mono is JetBrains Mono, drawn at 92.3% of the font
   size by `size-adjust` on its faces, in place of M PLUS 1 Code. No font
   size changes; a character is 0.554em wide (6.64px at 12px, was 6px), so
