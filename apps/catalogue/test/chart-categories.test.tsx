@@ -157,7 +157,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
       growthLines("May", "1.2%", "0.8%"),
       growthLines("Jun", "2.1%", "1.5%"),
       growthLines("Jul", "3.4%", "2.9%"),
-      growthLines("Aug", "-0.6%", "0.4%"),
+      growthLines("Aug", "−0.6%", "0.4%"),
       growthLines("Sep", "4.1%", "3.1%"),
       growthLines("Oct", "5.2%", "3.6%"),
     ]);

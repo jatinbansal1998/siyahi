@@ -139,7 +139,7 @@ describe("chart cards", { timeout: 60_000 }, () => {
     const ticks = chart.locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value");
     await settled(ticks);
     // pct(value, fractionDigits = 1): handed Recharts' tick index as its second argument it would print 0, 1, 2… decimals.
-    for (const tick of await ticks.allTextContents()) expect(tick).toMatch(/^-?\d+\.\d%$/);
+    for (const tick of await ticks.allTextContents()) expect(tick).toMatch(/^−?\d+\.\d%$/);
   });
 
   it("draws every explicit x tick inside the chart, the ones at both ends of the domain included", async () => {

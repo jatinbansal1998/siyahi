@@ -1532,7 +1532,7 @@ export const data: Page = {
     {
       id: "formatters",
       title: "Formatters",
-      lead: "useFormat() returns count, money, moneyCompact, pct, time and dateTime bound to the nearest SiyahiProvider.",
+      lead: "useFormat() returns count, money, moneyCompact, fixed, multiple, pct, time and dateTime bound to the nearest SiyahiProvider, so a page never formats a number itself.",
       imports: ["useFormat", "SiyahiProvider"],
       props: [
         {
@@ -1547,8 +1547,19 @@ export const data: Page = {
         },
         {
           name: "moneyCompact",
-          type: "(value: number, scale?: number) => string",
-          purpose: "A short amount, ₹2.4L; in an Indian-region locale, amounts under one lakh print in full.",
+          type: "(value: number, scale?: number, fractionDigits?: number) => string",
+          purpose:
+            "A short amount, ₹2.4L. In an Indian-region locale amounts under one lakh print in full; in en-IN a thousand crore reads ₹3,412 Cr and a lakh crore ₹1.2L Cr. scale puts an axis's ticks in one unit; fractionDigits keeps more decimals for a headline, ₹1.245Cr.",
+        },
+        {
+          name: "fixed",
+          type: "(value: number, fractionDigits?: number) => string",
+          purpose: "A number in the locale's grouping with exactly fractionDigits decimals, two by default: 24,312.45.",
+        },
+        {
+          name: "multiple",
+          type: "(value: number, fractionDigits?: number) => string",
+          purpose: "A ratio as a multiple, one decimal by default: 2.4×.",
         },
         {
           name: "pct",
@@ -1569,12 +1580,12 @@ export const data: Page = {
       ],
       rules: [
         "A nested SiyahiProvider changes the locale for its subtree.",
-        "The formatters print only a minus sign; a signed figure goes through Delta, which adds the arrow.",
+        "The formatters write a negative figure with the minus sign, −2.1%, never a hyphen, and add no plus; a signed figure goes through Delta, which adds the arrow.",
       ],
       examples: [
         {
           name: "formatters",
-          caption: "Every formatter in the default en-IN locale and under a nested en-US provider.",
+          caption: "Each formatter call in the default en-IN locale and under a nested en-US provider.",
         },
       ],
     },
