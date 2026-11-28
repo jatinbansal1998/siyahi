@@ -27,6 +27,16 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 // The catalogue's <main> (apps/catalogue/src/shell.tsx), centred.
 const FRAME = "mx-auto flex w-full max-w-screen-2xl flex-col gap-6 px-4 py-8 md:px-8";
 
+// A host may wrap the page in a skeleton of its own whose body rules sit outside any cascade layer, as a Claude
+// artifact's does, and those outrank the theme's layered ones. Unlayered and one step more specific, these win back
+// the page's colours and font; `font: inherit` takes the font from <html>, as a body with no rule of its own does.
+const HOST_RESET = `html body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font: inherit;
+}
+`;
+
 /**
  * Whether Vite's warning is about a local file: it names the reference first, or the whole `new URL(...)`.
  * A URL with a scheme (https:, data:), a protocol-relative one or a #fragment is not a file to find.
@@ -80,7 +90,7 @@ export async function buildPage({ page, title, project }) {
     );
     writeFileSync(
       path.join(root, "page.css"),
-      `@import "@siyahi/ui/styles.css";\n@source ${JSON.stringify(path.dirname(pagePath))};\n@source inline(${JSON.stringify(FRAME)});\n`,
+      `@import "@siyahi/ui/styles.css";\n@source ${JSON.stringify(path.dirname(pagePath))};\n@source inline(${JSON.stringify(FRAME)});\n${HOST_RESET}`,
     );
     writeFileSync(
       entry,
