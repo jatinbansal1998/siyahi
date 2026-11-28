@@ -6,6 +6,8 @@ export interface DeltaProps {
   /** The signed change. For `pct`, a fraction: 0.025 is 2.5%. */
   value: number;
   format?: "pct" | "money" | undefined;
+  /** Whether a rise is good news, the default, or bad, as for costs, debt or a fear gauge: "bad" swaps the colours. */
+  rise?: "good" | "bad" | undefined;
   className?: string | undefined;
 }
 
@@ -13,14 +15,15 @@ const MINUS = "−";
 
 /**
  * A signed change: the figure in the surrounding text colour with its sign, and a trend icon in --positive or
- * --negative. The sign and the icon's shape carry the direction, so colour is never the only cue, and a column of
+ * --negative for good or bad news. The sign and the icon's shape carry the direction, so colour is never the only cue, and a column of
  * changes reads as figures rather than a wall of red and green.
  */
-export function Delta({ value, format = "pct", className }: DeltaProps) {
+export function Delta({ value, format = "pct", rise = "good", className }: DeltaProps) {
   const f = useFormat();
   const size = format === "money" ? f.money(Math.abs(value)) : f.pct(Math.abs(value));
   const direction = value > 0 ? "up" : value < 0 ? "down" : "none";
   const Icon = direction === "up" ? TrendingUpIcon : direction === "down" ? TrendingDownIcon : MinusIcon;
+  const good = rise === "good" ? "up" : "down";
   return (
     <span
       data-slot="delta"
@@ -33,9 +36,7 @@ export function Delta({ value, format = "pct", className }: DeltaProps) {
         aria-hidden="true"
         className={cn(
           "size-3.5 shrink-0 self-center",
-          direction === "up" && "text-positive",
-          direction === "down" && "text-negative",
-          direction === "none" && "text-muted-foreground",
+          direction === "none" ? "text-muted-foreground" : direction === good ? "text-positive" : "text-negative",
         )}
       />
       {direction === "up" ? "+" : direction === "down" ? MINUS : ""}

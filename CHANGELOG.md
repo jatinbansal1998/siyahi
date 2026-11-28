@@ -22,6 +22,18 @@
   ratio, 2.4×; both come from `useFormat()`, so a page needs neither
   `toFixed` nor its own `Intl.NumberFormat`.
 
+- `MetricStrip` takes `variant="lead"` for a page about one number, such as
+  a portfolio's worth or a share's price: the first figure set large in the
+  text colour with no box, its change and a muted line under it, and up to
+  two supporting figures beside it. Its size follows the strip's width, so
+  ₹12,45,23,800.50 fits a 390px phone. One headline per page, lead or
+  blocks.
+
+- `Delta` takes `rise="bad"`, and a `MetricStrip` item `rise: "bad"`, for a
+  change whose rise is bad news (a cost, a debt, India VIX): a rise shows in
+  red and a fall in green, on the icon and on the item's sparkline. The sign
+  and the arrow still follow the number.
+
 - **Breaking:** the mono is JetBrains Mono, drawn at 92.3% of the font
   size by `size-adjust` on its faces, in place of M PLUS 1 Code. No font
   size changes; a character is 0.554em wide (6.64px at 12px, was 6px), so

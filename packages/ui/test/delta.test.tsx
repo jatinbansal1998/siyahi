@@ -3,8 +3,8 @@ import { describe, expect, it } from "vite-plus/test";
 import { Delta } from "../src/components/siyahi/delta";
 
 /** The rendered text and the classes on the trend icon. */
-function read(value: number, format?: "pct" | "money") {
-  const html = renderToStaticMarkup(<Delta value={value} format={format} />);
+function read(value: number, format?: "pct" | "money", rise?: "good" | "bad") {
+  const html = renderToStaticMarkup(<Delta value={value} format={format} rise={rise} />);
   const text = html.replace(/<[^>]+>/g, "");
   const icon = /<svg[^>]*class="([^"]+)"/.exec(html)?.[1] ?? "";
   return { text, icon };
@@ -25,5 +25,17 @@ describe("Delta", () => {
     const none = read(0);
     expect(none.text).toBe("0.0%");
     expect(none.icon).toContain("text-muted-foreground");
+  });
+
+  it("swaps the colours, not the sign or the arrow, when a rise is bad news", () => {
+    const up = read(0.124, "pct", "bad");
+    expect(up.text).toBe("+12.4%");
+    expect(up.icon).toContain("lucide-trending-up");
+    expect(up.icon).toContain("text-negative");
+
+    const down = read(-8400, "money", "bad");
+    expect(down.text).toBe("−₹8,400");
+    expect(down.icon).toContain("lucide-trending-down");
+    expect(down.icon).toContain("text-positive");
   });
 });

@@ -1527,8 +1527,22 @@ export const data: Page = {
       props: [
         { name: "value", type: "number", purpose: "The signed change; for pct a fraction, 0.025 is 2.5%." },
         { name: "format", type: '"pct" | "money"', default: '"pct"', purpose: "How the figure is written." },
+        {
+          name: "rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose:
+            "Whether a rise is good news. bad, for a cost, a debt or a fear gauge, shows a rise in red and a fall in green; the sign and arrow still follow the number.",
+        },
       ],
-      examples: [{ name: "delta", caption: "Gains, a loss and no change, as a percentage and as money." }],
+      examples: [
+        { name: "delta", caption: "Gains, a loss and no change, as a percentage and as money." },
+        {
+          name: "delta-rise-bad",
+          caption:
+            "Changes where a rise is bad news, India VIX and costs: the colours swap, the signs and arrows do not.",
+        },
+      ],
     },
     {
       id: "local-time",

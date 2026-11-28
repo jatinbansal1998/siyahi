@@ -60,6 +60,10 @@
     "guidance": "`MetricStrip` with `variant=\"blocks\"`, once per page, under the `PageHeader`"
   },
   {
+    "need": "The one number a page is about, such as a portfolio's worth or a share's price, set large with its change",
+    "guidance": "`MetricStrip` with `variant=\"lead\"`, once per page in place of the blocks, under the `PageHeader`; up to two supporting figures beside it"
+  },
+  {
     "need": "A run of values beside a figure, in a tile, a strip or a table cell",
     "guidance": "`Sparkline`; in a strip, `MetricStrip`'s `trend`"
   },
@@ -198,6 +202,10 @@
   {
     "need": "A signed figure (a gain, a loss, a change)",
     "guidance": "`Delta`"
+  },
+  {
+    "need": "A change whose rise is bad news, such as a cost, a debt or India VIX",
+    "guidance": "`Delta` with `rise=\"bad\"`; on a `MetricStrip` item, `rise: \"bad\"`, which also colours its sparkline"
   },
   {
     "need": "A time, with the viewer's own clock on hover",
