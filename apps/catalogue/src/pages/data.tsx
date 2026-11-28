@@ -1602,7 +1602,7 @@ export const data: Page = {
       id: "formatters",
       title: "Formatters",
       lead: "useFormat() returns count, money, moneyCompact, fixed, multiple, pct, time and dateTime bound to the nearest SiyahiProvider, so a page never formats a number itself.",
-      imports: ["useFormat", "SiyahiProvider"],
+      imports: ["useFormat", "SiyahiProvider", "signed"],
       props: [
         {
           name: "count",
@@ -1646,10 +1646,17 @@ export const data: Page = {
           purpose:
             "A date, 20 Oct 2026, or the parts options name, in the locale's zone unless they name one; September is Sep.",
         },
+        {
+          name: "signed",
+          type: "(value: number, write: (size: number) => string) => string",
+          purpose:
+            "A change in plain text with its + or −, its size written by a formatter: signed(-18400, money) is −₹18,400. Imported on its own, not from useFormat().",
+        },
       ],
       rules: [
         "A nested SiyahiProvider changes the locale for its subtree.",
-        "The formatters write a negative figure with the minus sign, −2.1%, never a hyphen, and add no plus; a signed figure goes through Delta, which adds the arrow.",
+        "The formatters write a negative figure with the minus sign, −2.1%, never a hyphen, and add no plus; a signed figure goes through Delta, which adds the arrow, or signed in plain text.",
+        "A negative that rounds to zero is written as zero, with no sign: pct(-0.0001) is 0.0%, and signed gives it neither + nor −.",
       ],
       examples: [
         {

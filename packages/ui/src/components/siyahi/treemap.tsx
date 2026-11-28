@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
-import { useFormat } from "@siyahi/ui/lib/format";
+import { signed, useFormat } from "@siyahi/ui/lib/format";
 import { cn } from "cn";
 import { HEAT_STEPS, heat, heatFill, heatRange } from "@siyahi/ui/lib/heat";
 import { fit, textWidth } from "@siyahi/ui/lib/fit-text";
@@ -59,8 +59,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
   const focusKey = tiles.some(({ item }) => (item.key ?? item.name) === focusedKey)
     ? focusedKey
     : (tiles[0]?.item.key ?? tiles[0]?.item.name);
-  const change = (value: number | null) =>
-    value === null ? "—" : `${value > 0 ? "+" : value < 0 ? "\u2212" : ""}${pct(Math.abs(value))}`;
+  const change = (value: number | null) => (value === null ? "—" : signed(value, pct));
   // A phone has no hover, so a tile that cannot show its whole name and figure is written out under the map.
   const unlabelled = tiles.filter(
     ({ item, width: wide, height: tall }) =>

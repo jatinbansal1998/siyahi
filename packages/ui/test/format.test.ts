@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { count, dateTime, fixed, money, moneyCompact, multiple, pct, time } from "../src/lib/format";
+import { count, dateTime, fixed, money, moneyCompact, multiple, pct, signed, time } from "../src/lib/format";
 import type { SiyahiLocale } from "../src/lib/locale";
 
 const us: SiyahiLocale = { numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" };
@@ -136,6 +136,13 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
     expect(moneyCompact(-0.004, us)).toBe("$0");
     // The smallest negative that does not round away keeps its sign.
     expect(pct(-0.0005)).toBe("−0.1%");
+  });
+
+  it("writes a change with + or the minus sign, and none where its size rounds to zero", () => {
+    expect(signed(21300, money)).toBe("+₹21,300");
+    expect(signed(-0.021, pct)).toBe("−2.1%");
+    expect(signed(-0.0001, pct)).toBe("0.0%");
+    expect(signed(0, money)).toBe("₹0");
   });
 
   it("formats a fraction as a percentage with one decimal", () => {

@@ -27,6 +27,13 @@ describe("Delta", () => {
     expect(none.icon).toContain("text-muted-foreground");
   });
 
+  it("shows a change that rounds to zero as no change: no sign and a flat, muted icon", () => {
+    const tiny = read(-0.0001);
+    expect(tiny.text).toBe("0.0%");
+    expect(tiny.icon).toContain("lucide-minus");
+    expect(tiny.icon).toContain("text-muted-foreground");
+  });
+
   it("swaps the colours, not the sign or the arrow, when a rise is bad news", () => {
     const up = read(0.124, "pct", "bad");
     expect(up.text).toBe("+12.4%");

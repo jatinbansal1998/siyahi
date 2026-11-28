@@ -15,7 +15,8 @@ a meaning:
   badges, toggles and focus stay monochrome. Charts keep their own five-hue
   palette, indigo first.
 - **Green and red** mean good news and bad. A signed figure is `Delta`: the figure in the text colour with its
-  `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
+  `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign with
+  `signed(value, money)`; never
   colour a run of figures green and red. A rise is green unless the page says otherwise: for a cost, a debt or a
   fear gauge such as India VIX, `rise="bad"` on `Delta` (`rise: "bad"` on a `MetricStrip` item, which also
   colours its sparkline) shows a rise in red and a fall in green. The sign and the arrow still follow the number.

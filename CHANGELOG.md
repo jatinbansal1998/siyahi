@@ -24,6 +24,14 @@
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
 
+- `signed(value, write)` writes a change with `+` or the minus sign `−` and
+  its size by a formatter, `signed(-18400, money)` "−₹18,400", and no sign
+  where the size rounds to zero. `Delta`, `ChangeGrid`, `Treemap` and
+  `WaterfallChartCard` write their signs through it instead of each keeping
+  a minus of its own; their text is unchanged, except that a change that
+  rounds to zero now reads "0.0%" with no sign, and `Delta` gives it the
+  flat, muted icon (was "−0.0%" with a red arrow).
+
 - The formatters write a negative that rounds to zero as zero, with no
   sign: `pct(-0.0001)` is "0.0%" (was "−0.0%"), `money(-0.4)` "₹0". Intl's
   `signDisplay: "negative"` does the same, but Firefox 114 and 115, inside

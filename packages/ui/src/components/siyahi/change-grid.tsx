@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@siyahi/ui/components/ui/table";
-import { useFormat } from "@siyahi/ui/lib/format";
+import { signed, useFormat } from "@siyahi/ui/lib/format";
 import { heat } from "@siyahi/ui/lib/heat";
 
 export interface ChangeGridRow {
@@ -41,8 +41,6 @@ export interface ChangeGridProps {
   className?: string | undefined;
 }
 
-const MINUS = "−";
-
 /** A figure the grid can draw: anything that is not a finite number, NaN included, is no figure at all. */
 const known = (value: number | null | undefined): number | null =>
   value != null && Number.isFinite(value) ? value : null;
@@ -65,11 +63,8 @@ export function ChangeGrid({
   const f = useFormat();
   const sizes = rows.flatMap(({ values }) => values.flatMap((value) => known(value) ?? []).map(Math.abs));
   const deepest = known(range) ?? Math.max(0, ...sizes);
-  const write = (value: number | null) => {
-    if (value === null) return "—";
-    const size = format === "money" ? f.moneyCompact(Math.abs(value), deepest) : f.pct(Math.abs(value));
-    return `${value > 0 ? "+" : value < 0 ? MINUS : ""}${size}`;
-  };
+  const size = (value: number) => (format === "money" ? f.moneyCompact(value, deepest) : f.pct(value));
+  const write = (value: number | null) => (value === null ? "—" : signed(value, size));
   const totals = [...rows, footer].some((row) => row?.total !== undefined);
   // A total is on a different scale from the cells it sums, so it takes no tint.
   const untinted = (key: string, value: number | null | undefined) => (

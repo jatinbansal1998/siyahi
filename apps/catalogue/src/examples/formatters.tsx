@@ -1,6 +1,7 @@
 import {
   type Formatters,
   SiyahiProvider,
+  signed,
   Table,
   TableBody,
   TableCell,
@@ -25,6 +26,9 @@ const calls: [string, (f: Formatters) => string][] = [
   ["multiple(2.4)", (f) => f.multiple(2.4)],
   ["pct(0.1234)", (f) => f.pct(0.1234)],
   ["pct(-0.021)", (f) => f.pct(-0.021)],
+  ["pct(-0.0001)", (f) => f.pct(-0.0001)],
+  ["signed(21300, money)", (f) => signed(21300, f.money)],
+  ["signed(-0.021, pct)", (f) => signed(-0.021, f.pct)],
   ['time("2026-10-20T09:00:00Z")', (f) => f.time("2026-10-20T09:00:00Z")],
   ['dateTime("2026-09-20T09:00:00Z")', (f) => f.dateTime("2026-09-20T09:00:00Z")],
 ];

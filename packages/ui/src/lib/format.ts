@@ -50,6 +50,18 @@ function formatNumber(locale: string, options: Intl.NumberFormatOptions, value: 
   return written(partsOf(numberFormat(locale, options), value));
 }
 
+/** −1, 0 or 1: the sign of a change as `write` shows its size, so one that rounds to nothing has none. */
+export function signOf(value: number, write: (size: number) => string): -1 | 0 | 1 {
+  if (!value || Number.isNaN(value) || write(Math.abs(value)) === write(0)) return 0;
+  return value > 0 ? 1 : -1;
+}
+
+/** A change with its sign, + or −, and its size written by `write`: `signed(-18400, money)` is "−₹18,400". */
+export function signed(value: number, write: (size: number) => string): string {
+  const sign = signOf(value, write);
+  return `${sign > 0 ? "+" : sign < 0 ? MINUS : ""}${write(Math.abs(value))}`;
+}
+
 /** An amount in the locale's currency, whole units by default: ₹1,53,110. Signed figures belong in `Delta`. */
 export function money(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 0): string {
   return formatNumber(

@@ -1113,6 +1113,7 @@
       "file": "agents/examples/formatters.tsx",
       "components": [
         "SiyahiProvider",
+        "signed",
         "Table",
         "TableBody",
         "TableCell",
