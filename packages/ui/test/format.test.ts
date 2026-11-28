@@ -54,7 +54,7 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
   it("compacts to lakh and crore", () => {
     expect(moneyCompact(100000)).toBe("₹1L");
     expect(moneyCompact(240000)).toBe("₹2.4L");
-    expect(moneyCompact(400000000)).toBe("₹40Cr");
+    expect(moneyCompact(400000000)).toBe("₹40 Cr");
   });
 
   it("prints amounts under one lakh in full, never as K", () => {
@@ -83,7 +83,26 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
   it("writes a thousand crore and more in crore with Indian grouping, never K Cr", () => {
     expect(moneyCompact(34_120_000_000)).toBe("₹3,412 Cr");
     expect(moneyCompact(482_100_000_000)).toBe("₹48,210 Cr");
-    expect(moneyCompact(4_120_000_000)).toBe("₹412Cr");
+    expect(moneyCompact(4_120_000_000)).toBe("₹412 Cr");
+  });
+
+  it("writes crore after a space at every size, so two crore figures read as one unit", () => {
+    expect([9_000_000_000, 21_000_000_000].map((amount) => moneyCompact(amount))).toEqual(["₹900 Cr", "₹2,100 Cr"]);
+    expect(moneyCompact(4_126_000_000)).toBe("₹412.6 Cr");
+    expect(moneyCompact(-9_000_000_000)).toBe("−₹900 Cr");
+    expect([500_000_000, 250_000_000, 0].map((tick) => moneyCompact(tick, undefined, 500_000_000))).toEqual([
+      "₹50 Cr",
+      "₹25 Cr",
+      "₹0",
+    ]);
+  });
+
+  it("writes an amount that rounds up into the next unit in that unit", () => {
+    expect([9_999_999, 9_999_999_999, 999_999_600_000].map((amount) => moneyCompact(amount))).toEqual([
+      "₹1 Cr",
+      "₹1,000 Cr",
+      "₹1L Cr",
+    ]);
   });
 
   it("writes a lakh crore and more in lakh crore", () => {
@@ -101,8 +120,8 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
   });
 
   it("keeps more decimals in a short amount when asked", () => {
-    expect(moneyCompact(12_450_000)).toBe("₹1.2Cr");
-    expect(moneyCompact(12_450_000, undefined, undefined, 3)).toBe("₹1.245Cr");
+    expect(moneyCompact(12_450_000)).toBe("₹1.2 Cr");
+    expect(moneyCompact(12_450_000, undefined, undefined, 3)).toBe("₹1.245 Cr");
   });
 
   it("writes a number with grouping and a fixed count of decimals", () => {

@@ -29,12 +29,12 @@ describe("WaterfallChartCard", { timeout: 60_000 }, () => {
     expect(await chart.locator('[data-slot="waterfall-level"]').count()).toBe(2);
     expect(await chart.locator(".recharts-bar-rectangle path").count()).toBe(6);
     expect(await chart.getByRole("img", { name: "The value axis starts at ₹90,00,000, not zero" }).count()).toBe(1);
-    // The opening line sits level with the ₹1Cr tick.
+    // The opening line sits level with the ₹1 Cr tick.
     const opening = await middle(chart.locator('[data-slot="waterfall-level"]').first().boundingBox());
     const tick = await middle(
       chart
         .locator(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value")
-        .filter({ hasText: /^₹1Cr$/ })
+        .filter({ hasText: /^₹1 Cr$/ })
         .boundingBox(),
     );
     expect(Math.abs(opening - tick)).toBeLessThan(2);

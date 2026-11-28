@@ -114,7 +114,7 @@ export interface WaterfallChartCardProps extends Pick<
   | "footer"
 > {
   /**
-   * Where the value axis starts in place of zero, for levels far from it: a portfolio that went from ₹1.00Cr to ₹1.24Cr
+   * Where the value axis starts in place of zero, for levels far from it: a portfolio that went from ₹1.00 Cr to ₹1.24 Cr
    * starts at ₹90L, and its changes fill the plot. The axis ends on the round tick at or under it. Totals then draw
    * as a line at their level rather than a bar, whose length would misstate them, and the axis is marked as cut.
    */

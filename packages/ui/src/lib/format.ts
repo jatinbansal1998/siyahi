@@ -81,19 +81,29 @@ const CRORE = 10_000_000;
 const DIGITS = new Set<Intl.NumberFormatPartTypes>(["integer", "fraction"]);
 const NUMBER = new Set<Intl.NumberFormatPartTypes>(["integer", "group", "decimal", "fraction"]);
 
+/** The power of ten Intl's short form writes `parts` in: 100000 for ₹2.4L, 10000000 for ₹40Cr. */
+function shortUnit(parts: Intl.NumberFormatPart[], size: number): number {
+  const shown = Number(
+    parts.flatMap((part) => (part.type === "decimal" ? "." : DIGITS.has(part.type) ? part.value : [])).join(""),
+  );
+  return 10 ** Math.round(Math.log10(size / shown));
+}
+
 /**
- * An amount of a thousand crore or more, as Indian press and exchanges write it: ₹3,412 Cr with Indian grouping,
- * and from one lakh crore ₹1.2L Cr. Intl's en-IN data writes these as ₹3.4KCr and ₹1.2LCr.
+ * An amount in crore, as Indian press and exchanges write it, with a space before Cr at every size: ₹40 Cr, and
+ * ₹3,412 Cr with Indian grouping from a thousand crore, where Intl's en-IN data writes ₹40Cr and ₹3.4KCr. From one
+ * lakh crore ₹1.2L Cr, where Intl writes ₹1.2LCr. `unit` is the power of ten Intl picked, so an amount that rounds
+ * up into the next unit (₹99,999.96 Cr) is written in it (₹1L Cr).
  */
-function crores(value: number, locale: SiyahiLocale, size: number, fractionDigits: number | undefined): string {
-  const lakhCrore = size >= LAKH * CRORE;
+function crores(value: number, locale: SiyahiLocale, unit: number, fractionDigits: number | undefined): string {
+  const lakhCrore = unit >= LAKH * CRORE;
   const figure = formatNumber(
     locale.numberLocale,
     {
       style: "currency",
       currency: locale.currency,
       minimumFractionDigits: 0,
-      maximumFractionDigits: fractionDigits ?? (lakhCrore ? 1 : 0),
+      maximumFractionDigits: fractionDigits ?? (lakhCrore || unit < 1_000 * CRORE ? 1 : 0),
     },
     value / (lakhCrore ? LAKH * CRORE : CRORE),
   );
@@ -101,17 +111,17 @@ function crores(value: number, locale: SiyahiLocale, size: number, fractionDigit
 }
 
 /**
- * A short amount: ₹2.4L, ₹40Cr and ₹3,412 Cr in en-IN, $2.4M in en-US. Indian readers count in thousands up to a
+ * A short amount: ₹2.4L, ₹40 Cr and ₹3,412 Cr in en-IN, $2.4M in en-US. Indian readers count in thousands up to a
  * lakh, so in an Indian-region locale amounts under one lakh print in full (₹99,999), never as ₹99.9K. In English
- * for India, a thousand crore or more stays in crore with Indian grouping (₹48,210 Cr), and from one lakh crore
- * reads in lakh crore (₹1.2L Cr), never ₹3.4KCr. Signed figures belong in `Delta`, which adds the sign and a trend
- * icon.
+ * for India crore is written after a space at every size, ₹900 Cr beside ₹2,100 Cr, and lakh against the figure,
+ * ₹2.4L. A thousand crore or more stays in crore with Indian grouping (₹48,210 Cr), and from one lakh crore reads in
+ * lakh crore (₹1.2L Cr), never ₹3.4KCr. Signed figures belong in `Delta`, which adds the sign and a trend icon.
  *
  * Give `scale`, the largest amount on the same axis, and every tick takes that amount's unit, to two decimals so
  * close ticks stay apart: ₹1.5L, ₹0.75L, ₹0, rather than switching to ₹75,000 halfway up.
  *
  * `fractionDigits` is the most decimals the short figure keeps, for a headline that needs more than the default
- * one (two on an axis, none from a thousand crore): ₹1.245Cr with 3. Amounts printed in full stay in whole units.
+ * one (two on an axis, none from a thousand crore): ₹1.245 Cr with 3. Amounts printed in full stay in whole units.
  */
 export function moneyCompact(
   value: number,
@@ -122,24 +132,21 @@ export function moneyCompact(
   const { language, region } = intlLocale(locale.numberLocale);
   const size = scale ?? Math.abs(value);
   if (value === 0 || (region === "IN" && size < LAKH)) return money(value, locale);
-  if (language === "en" && region === "IN" && size >= 1_000 * CRORE) {
-    return crores(value, locale, size, fractionDigits ?? (scale === undefined ? undefined : 2));
-  }
   const compact = numberFormat(locale.numberLocale, {
     style: "currency",
     currency: locale.currency,
     notation: "compact",
     maximumFractionDigits: fractionDigits ?? 1,
   });
-  if (scale === undefined) return written(partsOf(compact, value));
-  // Intl names the unit but not its size: read the size off the scale's own short form, then write this value
-  // in that unit inside the same parts, so the currency, unit and sign sit where the locale puts them.
-  const parts = compact.formatToParts(Math.sign(value) * scale);
-  const shown = Number(
-    parts.flatMap((part) => (part.type === "decimal" ? "." : DIGITS.has(part.type) ? part.value : [])).join(""),
-  );
-  const unit = 10 ** Math.round(Math.log10(scale / shown));
-  if (unit === 1) return written(partsOf(compact, value));
+  // The unit Intl picks after rounding, so ₹99.99L, which it writes ₹1Cr, takes the crore spelling too.
+  const parts = compact.formatToParts(Math.sign(value) * size);
+  const unit = shortUnit(parts, size);
+  if (language === "en" && region === "IN" && unit >= CRORE) {
+    return crores(value, locale, unit, fractionDigits ?? (scale === undefined ? undefined : 2));
+  }
+  if (scale === undefined || unit === 1) return written(partsOf(compact, value));
+  // Write this value in the scale's unit inside the scale's own parts, so the currency, unit and sign sit where
+  // the locale puts them.
   const digits = numberFormat(locale.numberLocale, { maximumFractionDigits: fractionDigits ?? 2 }).format(
     Math.abs(value) / unit,
   );
@@ -236,7 +243,7 @@ export interface Formatters {
   money: (value: number, fractionDigits?: number) => string;
   /**
    * Pass `scale` on an axis so every tick shares one unit; a chart's yTickFormatter gets it as its second argument.
-   * Pass `fractionDigits` for a headline that needs more decimals: `moneyCompact(12_450_000, undefined, 3)` is ₹1.245Cr.
+   * Pass `fractionDigits` for a headline that needs more decimals: `moneyCompact(12_450_000, undefined, 3)` is ₹1.245 Cr.
    */
   moneyCompact: (value: number, scale?: number, fractionDigits?: number) => string;
   /** Exactly `fractionDigits` decimals, two by default, with the locale's grouping: `fixed(24312.45)` is 24,312.45. */

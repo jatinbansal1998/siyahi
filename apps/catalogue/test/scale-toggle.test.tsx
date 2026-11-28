@@ -123,7 +123,7 @@ describe("scale toggle", { timeout: 60_000 }, () => {
     beforeAll(() => show("area-chart"), 60_000);
 
     it("opens an area chart on linear when the page sets no scale, with the range toggle beside the buttons", async () => {
-      const managed = card("₹3.1Cr managed a year after launch");
+      const managed = card("₹3.1 Cr managed a year after launch");
       const scale = managed.getByRole("group", { name: "Value axis scale" });
       await drawnOn(managed, scale, "Linear");
       const range = await managed.getByRole("group", { name: "Range" }).boundingBox();
@@ -132,12 +132,12 @@ describe("scale toggle", { timeout: 60_000 }, () => {
     });
 
     it("switches an area chart to log, each tick in its own unit, the fill reaching the plot's foot", async () => {
-      const managed = card("₹3.1Cr managed a year after launch");
+      const managed = card("₹3.1 Cr managed a year after launch");
       const scale = managed.getByRole("group", { name: "Value axis scale" });
       await scale.getByRole("button", { name: "Log" }).click();
 
       await drawnOn(managed, scale, "Log");
-      expect(await ticks(managed, "y")).toEqual(["₹2L", "₹5L", "₹10L", "₹20L", "₹50L", "₹1Cr", "₹2Cr", "₹5Cr"]);
+      expect(await ticks(managed, "y")).toEqual(["₹2L", "₹5L", "₹10L", "₹20L", "₹50L", "₹1 Cr", "₹2 Cr", "₹5 Cr"]);
       const fill = await managed.locator(".recharts-area-area").first().getAttribute("d");
       expect(fill).toMatch(/^M[\d.,\sLCZ-]+$/);
     });
