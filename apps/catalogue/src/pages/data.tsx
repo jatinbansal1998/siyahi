@@ -941,13 +941,20 @@ export const data: Page = {
           default: "the grid's largest",
           purpose: "The size that takes the deepest tint; give grids that sit together the same range.",
         },
+        {
+          name: "footer",
+          type: "ChangeGridRow",
+          default: "—",
+          purpose:
+            "A row under the grid with each column's figure as the page works it out, such as each year's total or average when the columns are years; its total sits under the total column.",
+        },
         { name: "totalLabel", type: "string", default: '"Total"', purpose: "Heads the total column." },
         { name: "label", type: "string", purpose: "Names the table for a screen reader." },
       ],
       rules: [
         "Every cell writes its figure with its + or −; the tint is the Treemap's five steps of --positive and --negative, so the eye finds the big months without reading colour as the only cue.",
         "A month with no figure is a muted cell marked —; a month with no change is muted and writes 0.",
-        "Totals are untinted: a year is on a different scale from its months.",
+        "Totals are untinted, a footer's too: a year is on a different scale from its months.",
         "Put it in a Card: the cells mix into the card colour. On a phone the grid scrolls sideways and the row labels stay put.",
         "One value per category with no second axis is a BarList or a BarChartCard.",
       ],
@@ -959,7 +966,8 @@ export const data: Page = {
         },
         {
           name: "change-grid-money",
-          caption: "Profit and loss by store and quarter, in one money unit, with the year's sum.",
+          caption:
+            "Profit and loss by store and quarter, in one money unit, with the year's sum and a footer of all stores.",
         },
       ],
     },

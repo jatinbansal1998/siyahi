@@ -1,5 +1,13 @@
 import { cn } from "cn";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@siyahi/ui/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@siyahi/ui/components/ui/table";
 import { useFormat } from "@siyahi/ui/lib/format";
 import { heat } from "@siyahi/ui/lib/heat";
 
@@ -21,8 +29,13 @@ export interface ChangeGridProps {
   format?: "pct" | "money" | undefined;
   /** The change that takes the deepest tint, as a size. Defaults to the grid's largest, totals aside. */
   range?: number | undefined;
-  /** Heads the total column, which draws when any row has a total. */
+  /** Heads the total column, which draws when any row or the footer has a total. */
   totalLabel?: string | undefined;
+  /**
+   * A row under the grid with each column's figure as the page works it out, such as each year's total or average
+   * when the columns are years; its `total` sits under the total column. Untinted, as totals are.
+   */
+  footer?: ChangeGridRow | undefined;
   /** Names the table for a screen reader, such as "Monthly sales growth by year". */
   label: string;
   className?: string | undefined;
@@ -45,6 +58,7 @@ export function ChangeGrid({
   format = "pct",
   range,
   totalLabel = "Total",
+  footer,
   label,
   className,
 }: ChangeGridProps) {
@@ -56,7 +70,13 @@ export function ChangeGrid({
     const size = format === "money" ? f.moneyCompact(Math.abs(value), deepest) : f.pct(Math.abs(value));
     return `${value > 0 ? "+" : value < 0 ? MINUS : ""}${size}`;
   };
-  const totals = rows.some((row) => row.total !== undefined);
+  const totals = [...rows, footer].some((row) => row?.total !== undefined);
+  // A total is on a different scale from the cells it sums, so it takes no tint.
+  const untinted = (key: string, value: number | null | undefined) => (
+    <TableCell key={key} className="text-right font-mono font-medium tabular-nums">
+      {write(known(value))}
+    </TableCell>
+  );
   return (
     // Separate cells with a 2px gap, so each tint reads as its own swatch rather than one band per row.
     <Table aria-label={label} data-slot="change-grid" className={cn("border-separate border-spacing-0.5", className)}>
@@ -96,12 +116,21 @@ export function ChangeGrid({
                 </TableCell>
               );
             })}
-            {totals && (
-              <TableCell className="text-right font-mono font-medium tabular-nums">{write(known(row.total))}</TableCell>
-            )}
+            {totals && untinted("total", row.total)}
           </TableRow>
         ))}
       </TableBody>
+      {footer && (
+        <TableFooter className="bg-transparent">
+          <TableRow className="border-0 hover:bg-transparent">
+            <TableHead scope="row" className="sticky left-0 bg-card font-medium">
+              {footer.label}
+            </TableHead>
+            {columns.map((column, index) => untinted(column, footer.values[index]))}
+            {totals && untinted("total", footer.total)}
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 }

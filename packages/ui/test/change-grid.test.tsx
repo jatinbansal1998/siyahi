@@ -58,4 +58,25 @@ describe("ChangeGrid", () => {
     expect(html).toContain(">Year</th>");
     expect(html).toMatch(/<td[^>]*class="[^"]*font-medium[^"]*">\+12\.4%<\/td>/);
   });
+
+  it("draws a footer row of each column's figure under the grid, untinted, with its total under the total column", () => {
+    const html = renderToStaticMarkup(
+      <ChangeGrid
+        label="Growth"
+        columns={["FY25", "FY26"]}
+        rows={[{ label: "Apr", values: [0.03, -0.01] }]}
+        footer={{ label: "Year", values: [0.124, -0.051], total: 0.067 }}
+        totalLabel="Both years"
+      />,
+    );
+    const footer = /<tfoot[^>]*>(.*)<\/tfoot>/.exec(html)?.[1] ?? "";
+    expect([...footer.matchAll(/<t[hd][^>]*>([^<]*)</g)].map(([, text]) => text)).toEqual([
+      "Year",
+      "+12.4%",
+      "−5.1%",
+      "+6.7%",
+    ]);
+    expect(footer).not.toContain("background-color");
+    expect(html).toContain(">Both years</th>");
+  });
 });

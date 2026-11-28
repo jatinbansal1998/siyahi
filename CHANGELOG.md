@@ -24,6 +24,11 @@
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
 
+- `ChangeGrid` takes `footer`, a row under the grid with each column's
+  figure as the page works it out, such as each year's total or average
+  when the columns are years, its `total` under the total column. Untinted,
+  as totals are.
+
 - `DistributionBar` draws each segment as a tint (`--bar-tint`) inside a 1px
   full-colour edge, as DESIGN.md asks of every bar, where it drew a solid
   slab; its legend swatches match. A segment faded by `highlighted` keeps
