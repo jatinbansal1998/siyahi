@@ -86,3 +86,6 @@ export function logAxis(
   const ticks = logTicks(low, high);
   return { domain: [ticks[0] ?? low, ticks.at(-1) ?? high], ticks };
 }
+
+/** How many decimals a number is written with: 2 for 24312.45, 3 for a bucket edge at 0.005. */
+export const decimalsOf = (value: number): number => String(value).split(".")[1]?.length ?? 0;

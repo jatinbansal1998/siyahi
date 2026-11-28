@@ -153,7 +153,7 @@ export function QuietLegend<T>({ series, raisable, raised, onRaise }: QuietLegen
  * A reference line over a card-coloured band, so it stays traceable where it crosses a bar or an area: the text
  * colour on --chart-1 is only 2:1, but each against the card is well over 3:1.
  */
-function haloLine({ x1, y1, x2, y2, stroke, strokeDasharray }: SVGProps<SVGLineElement>) {
+export function haloLine({ x1, y1, x2, y2, stroke, strokeDasharray }: SVGProps<SVGLineElement>) {
   return (
     <g>
       <line data-slot="reference-line-halo" x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--card)" strokeWidth={4} />

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { WaterfallChartCard, waterfallBars } from "../src/components/siyahi/waterfall-chart";
+import {
+  WaterfallChartCard,
+  cutAxis,
+  stepFigures,
+  waterfallBars,
+  type WaterfallStep,
+} from "../src/components/siyahi/waterfall-chart";
+import { defaultLocale } from "../src/lib/locale";
 
 describe("waterfallBars", () => {
   it("floats each change from the level the one before left", () => {
@@ -75,5 +82,43 @@ describe("waterfallBars", () => {
     expect(html).toContain("May has no figure");
     expect(html).toContain("The running total after it is unknown");
     expect(html).not.toContain('data-slot="chart"');
+  });
+});
+
+describe("cutAxis", () => {
+  const portfolio: WaterfallStep[] = [
+    { kind: "total", label: "1 Apr", value: 1_00_00_000 },
+    { kind: "change", label: "Shares", value: 30_00_000 },
+    { kind: "change", label: "Withdrawn", value: -6_00_000 },
+    { kind: "total", label: "31 Mar" },
+  ];
+
+  it("starts the axis on the round tick at or under yFrom and stands the totals on it, not on zero", () => {
+    const cut = cutAxis(portfolio, 95_00_000);
+    expect(cut?.domain[0]).toBe(90_00_000);
+    expect(cut?.foot).toBe(90_00_000);
+    const totals = waterfallBars(portfolio, cut?.foot).filter(({ kind }) => kind === "total");
+    expect(totals.map(({ span }) => span)).toEqual([
+      [90_00_000, 1_00_00_000],
+      [90_00_000, 1_24_00_000],
+    ]);
+  });
+
+  it("leaves the axis whole when the bridge starts from zero with a change", () => {
+    expect(cutAxis([{ kind: "change", label: "Apr", value: 30 }, ...portfolio], 95_00_000)).toBeUndefined();
+  });
+});
+
+describe("stepFigures", () => {
+  it("writes a figure in the steps' own decimals, a fall with the minus sign", () => {
+    const figure = stepFigures(
+      [
+        { kind: "total", label: "Open", value: 24_415 },
+        { kind: "change", label: "Banks", value: -61.35 },
+      ],
+      defaultLocale,
+    );
+    expect(figure(-61.35)).toBe("\u221261.35");
+    expect(figure(24_415)).toBe("24,415.00");
   });
 });
