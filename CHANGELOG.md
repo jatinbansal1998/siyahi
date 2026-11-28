@@ -26,6 +26,14 @@
   `moneyCompact(9_999_999_999)` is ₹1,000 Cr (was ₹1KCr) and
   `moneyCompact(999_999_600_000)` ₹1L Cr (was ₹1,00,000 Cr). Other
   locales, including hi-IN, are unchanged.
+- A sideways bar chart's value axis (`horizontal` with `yTickFormatter`)
+  keeps only the ticks whose written labels fit apart, as an upright chart's
+  axis does: Recharts measured the raw number, so on a phone "−₹10,000 Cr",
+  "₹0" and "₹10,000 Cr" ran into each other where the figures were in
+  crore, and figures in rupees kept fewer ticks than fit. Its last label now
+  centres on the plot's end with room for half of it past the plot, where it
+  ran 7px past the chart at every width. A sideways `WaterfallChartCard`
+  gains the same.
 - `WaterfallChartCard` takes `yFrom`, where its value axis starts in place
   of zero, for a bridge whose changes are small beside its totals: a
   portfolio from ₹1.00Cr to ₹1.24Cr, or an index from 24,415 to 24,312. Its

@@ -165,6 +165,36 @@ describe("chart cards", { timeout: 60_000 }, () => {
     }
   });
 
+  it("sideways, the value axis keeps only ticks whose labels fit apart, the last centred on the plot's end", async () => {
+    await show("bar-chart");
+    const chart = card("Foreign buying by sector");
+    const ticks = chart.locator(".recharts-xAxis-tick-labels .recharts-cartesian-axis-tick-value");
+    // At 390 the crore labels ran into each other; at every width the last ran 7px past the chart.
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      try {
+        await chart.scrollIntoViewIfNeeded();
+        await settled(ticks);
+        const boxes = await ticks.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as Box));
+        expect(boxes.length, `at ${width}px`).toBeGreaterThanOrEqual(2);
+        for (const [i, box] of boxes.slice(1).entries()) {
+          expect(box.x, `tick ${i + 1} at ${width}px`).toBeGreaterThanOrEqual(boxes[i]!.x + boxes[i]!.width);
+        }
+        const last = boxes.at(-1)!;
+        const surface = await chart.locator("svg.recharts-surface").boundingBox();
+        if (!surface) throw new Error("not laid out");
+        expect(last.x + last.width, `at ${width}px`).toBeLessThanOrEqual(surface.x + surface.width);
+        // Still on its gridline, the domain's end: kept inside by room past the plot, not by sliding off its value.
+        const end = await chart
+          .locator(".recharts-cartesian-grid-vertical line")
+          .evaluateAll((lines) => Math.max(...lines.map((line) => line.getBoundingClientRect().x)));
+        expect(Math.abs(last.x + last.width / 2 - end), `at ${width}px`).toBeLessThanOrEqual(1);
+      } finally {
+        await page.setViewportSize({ width: 1280, height: 900 });
+      }
+    }
+  });
+
   it("names each mark after its series, and no mark on the page carries a name of undefined", async () => {
     await show("bar-chart");
     const chart = card("Profit by financial year");

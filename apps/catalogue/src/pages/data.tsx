@@ -270,6 +270,10 @@ export const data: Page = {
         { name: "chart-bar-teams", caption: "Horizontal bars for long team names, against the plan or last year." },
         { name: "chart-bar-flows", caption: "Stacked money in and out: out runs down from zero, in runs up." },
         {
+          name: "chart-bar-sectors",
+          caption: "Sideways bars with wide crore ticks: the value axis keeps only the ticks whose labels fit apart.",
+        },
+        {
           name: "chart-bar-average",
           caption: "Two series of monthly orders, each with its 3-month average drawn as a line over its bars.",
         },
