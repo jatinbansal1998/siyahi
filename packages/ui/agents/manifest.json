@@ -1218,6 +1218,36 @@
       ]
     },
     {
+      "file": "agents/examples/market-day.tsx",
+      "components": [
+        "BarChartCard",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "ChangeGrid",
+        "DataBar",
+        "DataTable",
+        "DataTableBody",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableSortHeader",
+        "Delta",
+        "DistributionBar",
+        "HistogramChartCard",
+        "MetricStrip",
+        "PageHeader",
+        "PanelGrid",
+        "PageSection",
+        "TimeSeriesChartCard",
+        "WaterfallChartCard",
+        "dataTableDetailsColumn",
+        "useFormat",
+        "useLocale"
+      ]
+    },
+    {
       "file": "agents/examples/metric-strip-headline.tsx",
       "components": [
         "MetricStrip",
