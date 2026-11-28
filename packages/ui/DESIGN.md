@@ -86,7 +86,11 @@ the page, not bigger type.
 - **A chart's height follows its width** unless the page fixes one: 45% of
   its width, from 240px on a phone to 420px, so a chart on a wide screen
   stays a chart and one on a phone keeps room for its marks. Fix a height
-  only where the block must line up with a neighbour.
+  only where the block must line up with a neighbour. A page that leads
+  with one chart, such as an instrument's price, raises that chart's floor
+  to 360px (`minHeight: 360` on its first pane), so on a phone it is the
+  page's main block rather than a strip; from 800px wide it follows its
+  width as any chart. One chart per page, never the blocks under it.
 - **Gaps are set, not invented.** Stack a page's blocks 16px apart
   (`gap-4`) and its `PageSection`s 24px apart (`gap-6`), the room each
   section keeps under its rule; add no padding or gap of your own around a
@@ -275,8 +279,12 @@ from the catalogue.
   once, with no draw-in. One measure per pane. Its volume bars and
   candlesticks are a few pixels wide, all edge, so they draw solid. A
   baseline and candlesticks take green and red, so they are for a gain and a
-  loss only. Months, categories, bars, stacks and forecasts stay with the
-  other chart cards.
+  loss only. Its axis ticks drop what a round value does not need: a price's
+  ticks in whole rupees (`tickFormat`), its legend to the paisa. Its notes
+  (`events`, such as results days) sit above the line with a short leader
+  where they lift off it; those with no room are written out under the chart
+  with their dates, so keep a note to a few words. Months, categories, bars,
+  stacks and forecasts stay with the other chart cards.
 - **Charts over one axis hover together.** Where blocks side by side cover the same months or categories, the page
   gives their chart cards one `syncId`: hovering October in one marks October in each of them, with the same band or
   line and tooltip as a hover of its own, so the page reads as one instrument. Charts over different axes (months

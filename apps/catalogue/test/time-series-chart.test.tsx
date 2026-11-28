@@ -56,10 +56,10 @@ interface AxisLabel {
   canvasWidth: number;
 }
 
-/** Every label the first chart writes on its axes when it next draws in full, as it does after a resize. */
-async function axisLabels(): Promise<AxisLabel[]> {
+/** Every label a chart writes on its axes when it next draws in full, as it does after a resize. */
+async function axisLabels(index = 0): Promise<AxisLabel[]> {
   await page.mouse.move(0, 0);
-  await chart().evaluate(() => {
+  await plot(index).evaluate(() => {
     // Each label in its canvas's bitmap pixels, as the canvas's transform places it when written.
     const drawn: { canvas: HTMLCanvasElement; text: string; x: number; y: number; width: number }[] = [];
     const fillText = CanvasRenderingContext2D.prototype.fillText;
@@ -75,7 +75,7 @@ async function axisLabels(): Promise<AxisLabel[]> {
   await page.waitForTimeout(300);
   await page.setViewportSize(viewport);
   await page.waitForTimeout(300);
-  return chart().evaluate((root) => {
+  return plot(index).evaluate((root) => {
     const { drawn, fillText } = window as unknown as {
       drawn: { canvas: HTMLCanvasElement; text: string; x: number; y: number; width: number }[];
       fillText: CanvasRenderingContext2D["fillText"];
@@ -99,6 +99,117 @@ async function axisLabels(): Promise<AxisLabel[]> {
       if (panes.includes(row) && cell === cells.at(-1)) return [{ axis: "price", pane: panes.indexOf(row), ...label }];
       return [];
     });
+  });
+}
+
+/** A note's text as a chart wrote it on its first pane, in CSS pixels from the pane's top left. */
+interface NoteText {
+  text: string;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+/**
+ * What a chart draws on its first pane at its final width, after a resize: the notes' texts, the lines it strokes 2px
+ * or wider (its series; gridlines and levels are 1px) as lists of points, the pane's width and its legend's bottom.
+ */
+async function paneDrawing(index: number, texts: string[]) {
+  await page.mouse.move(0, 0);
+  const viewport = page.viewportSize() ?? { width: 1280, height: 900 };
+  await page.setViewportSize({ ...viewport, width: viewport.width + 1 });
+  await page.waitForTimeout(300);
+  await plot(index).evaluate(() => {
+    type Point = [number, number];
+    const drawn: { canvas: HTMLCanvasElement; text: string; box: number[] }[] = [];
+    const strokes: { canvas: HTMLCanvasElement; points: Point[] }[] = [];
+    let path: Point[][] = [];
+    const proto = CanvasRenderingContext2D.prototype;
+    const original = {
+      fillText: proto.fillText,
+      beginPath: proto.beginPath,
+      moveTo: proto.moveTo,
+      lineTo: proto.lineTo,
+      stroke: proto.stroke,
+    };
+    proto.fillText = function (this: CanvasRenderingContext2D, text, x, y, ...rest) {
+      const { a, d, e, f } = this.getTransform();
+      const size = this.measureText(text);
+      const top = y - size.actualBoundingBoxAscent;
+      const bottom = y + size.actualBoundingBoxDescent;
+      drawn.push({
+        canvas: this.canvas,
+        text,
+        box: [a * x + e, a * (x + size.width) + e, d * top + f, d * bottom + f],
+      });
+      original.fillText.call(this, text, x, y, ...rest);
+    };
+    proto.beginPath = function (this: CanvasRenderingContext2D) {
+      path = [];
+      original.beginPath.call(this);
+    };
+    proto.moveTo = function (this: CanvasRenderingContext2D, x, y) {
+      const { a, d, e, f } = this.getTransform();
+      path.push([[a * x + e, d * y + f]]);
+      original.moveTo.call(this, x, y);
+    };
+    proto.lineTo = function (this: CanvasRenderingContext2D, x, y) {
+      const { a, d, e, f } = this.getTransform();
+      path.at(-1)?.push([a * x + e, d * y + f]);
+      original.lineTo.call(this, x, y);
+    };
+    proto.stroke = function (this: CanvasRenderingContext2D, shape?: Path2D) {
+      const ratio = this.canvas.width / this.canvas.clientWidth;
+      if (this.lineWidth * this.getTransform().a >= 2 * ratio) {
+        strokes.push(...path.map((points) => ({ canvas: this.canvas, points })));
+      }
+      Reflect.apply(original.stroke, this, shape ? [shape] : []);
+    };
+    Object.assign(window, { drawn, strokes, original });
+  });
+  await page.setViewportSize(viewport);
+  await page.waitForTimeout(300);
+  return plot(index).evaluate((root, names) => {
+    type Point = [number, number];
+    const { drawn, strokes, original } = window as unknown as {
+      drawn: { canvas: HTMLCanvasElement; text: string; box: number[] }[];
+      strokes: { canvas: HTMLCanvasElement; points: Point[] }[];
+      original: Record<string, unknown>;
+    };
+    Object.assign(CanvasRenderingContext2D.prototype, original);
+    // The first pane's plot is the widest cell of the layout's first row.
+    const cells = [...(root.querySelector("table tr")?.children ?? [])];
+    const cell = cells.reduce((wide, next) => (next.clientWidth > wide.clientWidth ? next : wide));
+    const inPane = ({ canvas }: { canvas: HTMLCanvasElement }) => canvas.closest("td") === cell;
+    // Bitmap pixels to CSS pixels.
+    const css = (value: number) => (value / (cell.querySelector("canvas")?.width ?? 1)) * cell.clientWidth;
+    const written = new Map(
+      drawn
+        .filter((item) => inPane(item) && names.includes(item.text))
+        .map(({ text, box: [left = 0, right = 0, top = 0, bottom = 0] }) => {
+          const at = { text, left: css(left), right: css(right), top: css(top), bottom: css(bottom) };
+          return [`${text}@${left},${top}`, at];
+        }),
+    );
+    const legend = root.querySelector<HTMLElement>('[data-slot="time-series-chart-legend"]');
+    return {
+      texts: [...written.values()],
+      lines: strokes.filter(inPane).map(({ points }) => points.map(([x, y]): Point => [css(x), css(y)])),
+      width: cell.clientWidth,
+      legendBottom: (legend?.offsetTop ?? 0) + (legend?.offsetHeight ?? 0),
+    };
+  }, texts);
+}
+
+/** Whether a line from `a` to `b` passes through a note's text, walked a pixel at a time. */
+function crosses(text: NoteText, [ax, ay]: [number, number], [bx, by]: [number, number]): boolean {
+  const steps = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay)));
+  return Array.from({ length: steps + 1 }, (_, step) => step / steps).some((t) => {
+    const x = ax + (bx - ax) * t;
+    const y = ay + (by - ay) * t;
+    // The line is 2px wide: a pixel either side of its path.
+    return x > text.left && x < text.right && y > text.top - 1 && y < text.bottom + 1;
   });
 }
 
@@ -291,6 +402,86 @@ describe("TimeSeriesChart", { timeout: 60_000 }, () => {
     }
     await page.setViewportSize({ width: 1280, height: 900 });
     await card(0).getByRole("button", { name: "All" }).click();
+  });
+
+  it("writes each note clear of the line, inside the plot and apart from the others, and lists under the chart those with no room", async () => {
+    // The price example's notes, and those in its last year, which ends in August 2026.
+    const events = [
+      "rate rise",
+      "bank failure abroad",
+      "election results",
+      "budget raises tax on gains",
+      "market high",
+      "fees cut",
+      "budget",
+    ];
+    const inView = { All: events, "1Y": ["budget"] };
+    for (const width of [1280, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const range of ["All", "1Y"] as const) {
+        await box(1);
+        await card(1).getByRole("button", { name: range }).click();
+        const { texts, lines, width: plotWidth, legendBottom } = await paneDrawing(1, events);
+        const listed = await card(1).locator('[data-slot="time-series-chart-notes"] li').allInnerTexts();
+        const where = `${width} ${range}`;
+        expect(lines.length, `${where}: the line`).toBeGreaterThan(0);
+        for (const text of texts) {
+          const name = `${where}: ${text.text}`;
+          expect(text.left, name).toBeGreaterThanOrEqual(0);
+          expect(text.right, name).toBeLessThanOrEqual(plotWidth);
+          expect(text.top, `${name} under the legend`).toBeGreaterThanOrEqual(legendBottom);
+          const struck = lines.some((points) =>
+            points.some((point, i) => i > 0 && crosses(text, points[i - 1]!, point)),
+          );
+          expect(struck, `${name} struck by the line`).toBe(false);
+          for (const other of texts.filter((candidate) => candidate !== text)) {
+            const apart =
+              other.right <= text.left ||
+              text.right <= other.left ||
+              other.bottom <= text.top ||
+              text.bottom <= other.top;
+            expect(apart, `${name} on ${other.text}`).toBe(true);
+          }
+        }
+        // A note with no room is written out with its date, so every note in view can be read.
+        const written = new Set(texts.map(({ text }) => text));
+        const unwritten = inView[range].filter((event) => !written.has(event));
+        expect(
+          listed.map((item) => item.replace(/^.*\d{4}\s+/s, "")),
+          where,
+        ).toEqual(unwritten);
+        if (width === 390 && range === "All")
+          expect(unwritten.length, "seven notes in a phone's five years").toBeGreaterThan(0);
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await card(1).getByRole("button", { name: "1Y" }).click();
+  });
+
+  it("writes a pane's axis ticks with its tick format and its legend with its format", async () => {
+    await box(1);
+    const ticks = (await axisLabels(1)).filter(({ axis }) => axis === "price").map(({ text }) => text);
+    const [[[, latest = ""] = []] = []] = await legendValues(1);
+    expect(latest).toMatch(/^₹[\d,]+\.\d\d$/);
+    // The latest value's tag keeps its paise; every tick is a whole number of rupees.
+    const rest = ticks.filter((text) => text !== latest);
+    expect(rest.length).toBeGreaterThan(2);
+    for (const tick of rest) expect(tick).toMatch(/^₹[\d,]+$/);
+  });
+
+  it("gives a leading chart's first pane its least height on a phone, and its width's height on a wider screen", async () => {
+    const paneHeight = () =>
+      plot(1)
+        .locator("table tr")
+        .first()
+        .evaluate((row) => row.clientHeight);
+    await box(1);
+    const wide = await plot(1).evaluate((root) => root.clientWidth);
+    expect(await paneHeight()).toBe(Math.round(Math.min(420, wide * 0.45)));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await box(1);
+    await expect.poll(paneHeight).toBe(360);
+    await page.setViewportSize({ width: 1280, height: 900 });
   });
 
   it("credits TradingView under a card's chart, not with a logo over its lines", async () => {
