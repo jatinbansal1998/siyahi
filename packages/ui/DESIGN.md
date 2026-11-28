@@ -347,8 +347,7 @@ the attribute). Row hairlines stay; never stripes, never column rules.
   by its label rather than across a band of blank space; a wider table
   scrolls sideways inside its block. Where a table must fill its block, such
   as one lined up with a chart beside it, the page sets `--table-width: 100%`
-  on its card. A data table's toolbar and pager take the table's width and
-  wrap within it, so the row count ends at the table's right edge.
+  on its card.
 - **A row is one line tall**, so the rows read as an even grid (a compact
   table folding a hidden figure under a kept one is the exception). A cell holds
   one thing: a name's kind or category goes in a column of its own, as plain
