@@ -35,6 +35,20 @@ describe("table width", () => {
     expect(box - table).toBeLessThanOrEqual(2);
   });
 
+  it("keeps a row count by the controls it counts, not at the toolbar's far end", async () => {
+    const card = exampleCard("data-table-filters");
+    await card.getByRole("textbox", { name: "Search orders" }).waitFor();
+    const { gap, room } = await card.evaluate((el) => {
+      const count = el.querySelector('[data-slot="data-table-row-count"]')!;
+      const before = count.previousElementSibling!.getBoundingClientRect();
+      const toolbar = count.parentElement!.getBoundingClientRect();
+      return { gap: count.getBoundingClientRect().left - before.right, room: toolbar.right - before.right };
+    });
+    // The toolbar has room to push it far away; it sits one toolbar gap after the last control instead.
+    expect(room).toBeGreaterThan(200);
+    expect(gap).toBeLessThanOrEqual(16);
+  });
+
   it("fills its block where the page sets --table-width: 100%", async () => {
     const card = exampleCard("data-table");
     await card.evaluate((el) => el.style.setProperty("--table-width", "100%"));
@@ -42,22 +56,6 @@ describe("table width", () => {
     await card.evaluate((el) => el.style.removeProperty("--table-width"));
     expect(box).toBe(block);
     expect(box - table).toBeLessThanOrEqual(2);
-  });
-
-  it("ends a narrow table's toolbar and pager at the table's right edge, not the block's", async () => {
-    const card = exampleCard("data-table-pagination");
-    await card.getByRole("navigation", { name: "Table pagination" }).waitFor();
-    const edges = await card.evaluate((el) => {
-      const right = (selector: string) => Math.round(el.querySelector(selector)!.getBoundingClientRect().right);
-      return {
-        block: right('[data-slot="card-content"]'),
-        table: right('[data-slot="table-container"]'),
-        toolbar: right('[role="toolbar"]'),
-        pager: right('nav[aria-label="Table pagination"]'),
-      };
-    });
-    expect(edges.table).toBeLessThan(edges.block - 200);
-    expect(edges).toEqual({ ...edges, toolbar: edges.table, pager: edges.table });
   });
 
   it("keeps a short table's wide-screen toolbar: it measures its block, not its own width", async () => {

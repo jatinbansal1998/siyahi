@@ -2,14 +2,13 @@
 
 ## 0.1.9
 
-- A data table's toolbar and pager take the table's width when the table is
-  narrower than its block, and wrap within it, so a row count such as "14
-  positions" ends at the table's right edge instead of the far side of a
-  wide screen. The table sets the width; a toolbar adds no more than its
-  widest control. A table that fills its block, or a phone, looks as before.
-  Compact columns and folding toolbars still measure the block: they now
-  read the `DataTableRoot` itself, so a page that wraps `DataTable` in its
-  own `<div>` no longer has that wrapper measured.
+- A data table's row count (`DataTableRowCount`) follows the toolbar's
+  controls instead of pushing itself to the far end of the toolbar, so on a
+  wide screen "14 positions" sits by the filters it counts rather than
+  across the page from them. 0.1.9-next.46 made a narrow table's toolbar
+  and pager take the table's width instead; that is undone, since it also
+  narrowed everything a page put inside `DataTableRoot` (a headline strip
+  or a chart above the table) to the table's width.
 - A `MetricStrip` figure is at most 40rem wide, so on a very wide block
   (a 2560px screen) the figures keep together at the block's start instead
   of spreading across it: a strip of two no longer puts its second figure

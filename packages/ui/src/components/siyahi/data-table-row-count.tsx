@@ -9,14 +9,17 @@ export interface DataTableRowCountProps {
   total?: number | undefined;
 }
 
-/** How many rows the filters leave: "12 of 48", or "48 positions" when they leave all. For a table toolbar, at its end. */
+/**
+ * How many rows the filters leave: "12 of 48", or "48 positions" when they leave all. For a table toolbar, after its
+ * controls: pushed to the toolbar's far end, it sat across a wide screen from the filters it counts.
+ */
 export function DataTableRowCount<TData extends RowData>({ unit, total }: DataTableRowCountProps) {
   const { table } = useDataTable<TData>();
   const { count } = useFormat();
   const all = total ?? table.getCoreRowModel().rows.length;
   const shown = table.getFilteredRowModel().rows.length;
   return (
-    <span data-slot="data-table-row-count" className="ml-auto text-sm text-muted-foreground tabular-nums">
+    <span data-slot="data-table-row-count" className="text-sm text-muted-foreground tabular-nums">
       {shown === all ? `${count(all)} ${unit}` : `${count(shown)} of ${count(all)}`}
     </span>
   );
