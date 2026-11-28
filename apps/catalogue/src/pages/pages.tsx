@@ -31,7 +31,7 @@ export const pages: Page = {
       title: "Portfolio",
       lead: "A whole page built from the package for one person's investments: one figure leads, and each section explains it a level deeper.",
       rules: [
-        "The headline's first block is the figure the page is about; every block below answers the question the one before it raises: what it is made of, how it got here, how it did against the market and what the falls cost, then every holding.",
+        "The headline leads with the figure the page is about, set large and plain; every block below answers the question the one before it raises: what it is made of, how it got here, how it did against the market and what the falls cost, then every holding.",
         "Titles are worked out from the data, so the page states its findings and never goes stale.",
         "Charts over the same days share a syncId and sit one under the other, so a hover reads the return and the fall from its best on one day.",
         "On a phone the blocks stack in reading order and the table keeps the holding and its worth, with the day's change folded under it and the rest a tap away.",

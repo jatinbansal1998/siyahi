@@ -388,7 +388,7 @@ function Headline() {
   const w = useWords();
   return (
     <MetricStrip
-      variant="blocks"
+      variant="lead"
       items={[
         { label: "Worth", value: w.money(total), note: "at the 27 Nov close" },
         { label: "Day's change", value: w.signedMoney(dayGain), change: lastReturn, note: "on Friday" },
