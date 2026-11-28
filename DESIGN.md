@@ -142,8 +142,10 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 A page may lead with its two to four main figures as a headline, under the
 masthead: `MetricStrip` with `variant="blocks"`, each figure on a solid block
 (the headline orange, then the text colour, then a grey), touching, its value
-large and every word in the block's own ink. It draws no sparkline and no
-tone, so an exception goes in a strip below it.
+large and every word in the block's own ink. The value's size follows its
+block's width, so a change of ten characters with its icon (−₹1,42,600) fits
+two blocks side by side on a phone. It draws no sparkline and no tone, so an
+exception goes in a strip below it.
 
 A page about one number, a portfolio's worth or a share's price, leads with
 that number instead: `MetricStrip` with `variant="lead"`. The first figure is

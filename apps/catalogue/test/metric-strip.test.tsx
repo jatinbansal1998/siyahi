@@ -168,6 +168,26 @@ describe("a headline MetricStrip", { timeout: 60_000 }, () => {
       .evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
     expect(Math.round((boxes[1]?.left ?? 0) - (boxes[0]?.right ?? 0))).toBe(0);
   });
+
+  it("fits a ten-character change and its icon inside each block where three first sit side by side", async () => {
+    const strip = (await example("metric-strip-headline")).locator('[data-slot="metric-strip"]');
+    // How far each block's figure runs past its block's padding, once every figure is the example's Delta writing
+    // −₹1,42,600 and the strip is 32rem wide, the narrowest that sets three blocks across. At a fixed 36px it ran 61px
+    // into the next block.
+    const overruns = await strip.evaluate((el) => {
+      (el as HTMLElement).style.width = "32rem";
+      const delta = el.querySelector('[data-slot="delta"]') as Element;
+      return [...el.querySelectorAll('[data-slot="metric-strip-item"]')].map((block) => {
+        const figure = delta.cloneNode(true) as Element;
+        (figure.lastChild as Text).data = "−₹1,42,600";
+        const value = block.querySelector('[data-slot="metric-strip-value"]') as Element;
+        (document.createTreeWalker(value, NodeFilter.SHOW_TEXT).nextNode() as Text).replaceWith(figure);
+        const edge = block.getBoundingClientRect().right - Number.parseFloat(getComputedStyle(block).paddingRight);
+        return Math.round(figure.getBoundingClientRect().right - edge);
+      });
+    });
+    expect(Math.max(...overruns)).toBeLessThanOrEqual(0);
+  });
 });
 
 /** The example on the MetricStrip page shot from this file, scrolled into view, once its strip is up. */

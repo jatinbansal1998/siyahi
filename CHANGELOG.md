@@ -27,6 +27,15 @@
   `HistogramBin` has `middle` in place of `key`; `HistogramMark` is now
   `HistogramPercentile` or `{ value, label }`, and `markLines` is replaced
   by `placeMarks`.
+- A `MetricStrip` with `variant="blocks"` sizes each figure by its block's
+  width, as a lead figure follows the strip's: 36px as before on a block
+  about 270px wide or wider, smaller on a narrower one, so ten characters
+  and a `Delta`'s icon (−₹1,42,600) fit any block a headline takes. Two
+  blocks side by side on a phone, each holding a signed money `Delta`, ran
+  past their padding into the next block or the page's gutter since the
+  mono became JetBrains Mono; a longer figure such as −₹1,42,600 did even
+  before. A figure written as plain text that is too long for its block
+  now breaks onto a second line rather than run out of it.
 - With no `valueFormatter`, `WaterfallChartCard` writes its figures with
   `fixed` in the decimals its steps are given in (up to two), and
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads

@@ -34,7 +34,8 @@
 // fades and cannot be picked.
 // Siyahi edit: `variant="blocks"` sets the figures as a page's headline: each on
 // a solid block (the headline orange, the text colour, a grey, in turn), the
-// blocks touching, the value large, no sparkline and no tone wash.
+// blocks touching, the value large, no sparkline and no tone wash. The value's size
+// follows its block's width, so two blocks on a phone each fit a signed figure.
 // Siyahi edit: `variant="lead"` sets one figure as the number a page is about,
 // large in the text colour on the open page, with one or two supporting
 // figures beside it at strip size; no block, sparkline or tone.
@@ -120,12 +121,19 @@ type Role = "strip" | "blocks" | "lead" | "supporting"
 
 const VALUE_SIZE: Record<Role, string> = {
   strip: "text-lg tracking-tight",
-  blocks: "mt-2 text-4xl leading-none tracking-tighter",
+  // A container, so the figure inside it (BLOCK_FIGURE) is sized by its block's width. The block itself cannot be the
+  // container: containment ends its subgrid, and a label that wraps would no longer lower its neighbours' values.
+  blocks: "mt-2 @container",
   // Sized by the strip's width, so sixteen characters (₹12,45,23,800.50) fit a phone; a longer figure breaks rather
   // than push the page sideways.
   lead: "text-[length:clamp(1.5rem,10cqi,3rem)] leading-tight wrap-anywhere",
   supporting: "text-lg tracking-tight",
 }
+
+// Ten characters and a Delta's icon (−₹1,42,600) fit the narrowest block a headline takes, 112px inside its padding
+// (two blocks on a 320px phone); from a block about 270px wide the figure is 36px, as large as it gets. A longer
+// figure breaks rather than run into the next block.
+const BLOCK_FIGURE = "text-[length:clamp(1rem,15cqi,2.25rem)] leading-none tracking-tighter wrap-anywhere"
 
 function trendColor({ change, rise = "good" }: MetricStripItem): ChartColor {
   if (change === undefined) return "var(--chart-1)"
@@ -183,7 +191,7 @@ function MetricStrip({
         {item.label}
       </div>
       <div data-slot="metric-strip-value" className={cn("font-semibold tabular-nums", VALUE_SIZE[role])}>
-        {item.value}
+        {role === "blocks" ? <div className={BLOCK_FIGURE}>{item.value}</div> : item.value}
       </div>
       {/* The change's line, which may wrap, also holds the stale note, so the label is never cut short. A lead's runs
           on as a sentence, so a long note wraps after the change rather than leave it alone on its line. */}
