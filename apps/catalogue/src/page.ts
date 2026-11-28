@@ -39,9 +39,10 @@ export interface Page {
   /** Drawn in place of the title and lead: a front page's PageHeader. */
   header?: ReactNode;
   /**
-   * "index" lists the families as cards, each opening on its own route; "stack" draws them all in one page, for
-   * reference pages whose parts are short.
+   * "index" lists the families as cards, each opening on its own route, with its first example live at the top;
+   * "links" lists the same cards without it, for families too heavy to draw as a tile, such as a whole page; "stack"
+   * draws them all in one page, for reference pages whose parts are short.
    */
-  layout: "index" | "stack";
+  layout: "index" | "links" | "stack";
   families: Family[];
 }

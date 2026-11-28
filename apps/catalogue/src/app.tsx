@@ -8,14 +8,15 @@ import { data } from "./pages/data";
 import { foundations } from "./pages/foundations";
 import { layout } from "./pages/layout";
 import { overview } from "./pages/overview";
+import { pages } from "./pages/pages";
 import { useRoute } from "./route";
 import { CatalogueSearch } from "./search";
 import { Shell } from "./shell";
 
-const PAGES: Page[] = [overview, foundations, components, inputs, layout, data, blocks];
+const PAGES: Page[] = [overview, foundations, components, inputs, layout, data, blocks, pages];
 
 function PageBody({ page }: { page: Page }) {
-  if (page.layout === "index") return <FamilyIndex page={page} />;
+  if (page.layout !== "stack") return <FamilyIndex page={page} />;
   return (
     <>
       {page.families.length > 2 && (

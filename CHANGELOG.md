@@ -71,6 +71,13 @@
   `height` may be. A page's leading price chart sets 360, so on a phone it
   is 360px tall where its width gave it 240, and on a wider screen it
   still follows its width (DESIGN.md, Density).
+- The catalogue has a Pages section of whole app pages built only from the
+  package, to read as a design: the market after the close
+  (`#/pages/market-close`, `agents/examples/market-day.tsx`), one person's
+  portfolio (`#/pages/portfolio`, `agents/examples/portfolio-page.tsx`) and
+  one share over five years (`#/pages/instrument`,
+  `agents/examples/instrument-page.tsx`). Every company and figure in them is
+  made up; the indices are real names.
 - A `DataTable` whose search or filters leave no row says "No row matches
   the search" (or the filters) with a Reset filters button, and one with no
   data says "No rows to show", where it drew its headers over a blank body.

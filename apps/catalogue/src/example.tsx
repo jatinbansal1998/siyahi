@@ -327,7 +327,7 @@ export function FamilyIndex({ page }: { page: Page }) {
             data-slot="family-tile"
             className="relative flex flex-col border transition-colors has-[a:hover]:border-foreground/40 has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring"
           >
-            {first && <Preview name={first.name} />}
+            {first && page.layout === "index" && <Preview name={first.name} />}
             <div className="flex flex-1 flex-col gap-1 p-4">
               {/* Only the title is a link, stretched over the tile: the live preview holds links of its own, and a
                 link inside a link is invalid. */}

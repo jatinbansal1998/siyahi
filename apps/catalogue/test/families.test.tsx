@@ -22,6 +22,7 @@ const PAGES: [id: string, title: string][] = [
   ["layout", "Page layout"],
   ["data", "Data"],
   ["blocks", "Blocks"],
+  ["pages", "Pages"],
 ];
 
 /** Opens a route and waits for its page: the header's last breadcrumb names it once it has rendered. */
@@ -46,6 +47,15 @@ describe("catalogue families", { timeout: 60_000 }, () => {
     expect(cardLinks).toEqual(sidebarLinks);
     expect(cardLinks.length).toBeGreaterThan(10);
     expect(await page.locator('[data-slot="example"]').count()).toBe(0);
+  });
+
+  it("lists the whole pages as links and mounts none of them", async () => {
+    await go("#/pages", "Pages");
+    const cardLinks = await page
+      .locator('main main a[href^="#/pages/"]')
+      .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    expect(cardLinks).toEqual(["#/pages/market-close", "#/pages/portfolio", "#/pages/instrument"]);
+    expect(await page.locator('[data-slot="family-preview"], [data-slot="example"]').count()).toBe(0);
   });
 
   it("opens a family with its import line, props, captioned examples and its neighbours", async () => {
