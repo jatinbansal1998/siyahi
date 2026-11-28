@@ -58,14 +58,24 @@ const geistAt = (xWidthAvg: number): FontMetrics => ({
 const ARIAL = { unitsPerEm: 2048, ascent: 1854, descent: -434, lineGap: 67, xWidthAvg: 913 };
 const ARIAL_BOLD = { ...ARIAL, xWidthAvg: 983 };
 const COURIER_NEW = { unitsPerEm: 2048, ascent: 1705, descent: -615, lineGap: 0, xWidthAvg: 1229 };
-// M PLUS 1 Code's ascent and descent per 1000 units, read in Chromium from a canvas's font bounding box at 1000px,
-// and its advance, 500 at every weight; no line gap.
-const M_PLUS_1_CODE = { unitsPerEm: 1000, ascent: 1000, descent: -235, lineGap: 0, xWidthAvg: 500 };
+// JetBrains Mono's ascent and descent from its files' hhea table (its typo metrics, which it tells browsers to use,
+// are the same), and its advance, 600 at every weight; no line gap.
+const JETBRAINS_MONO = { unitsPerEm: 1000, ascent: 1020, descent: -300, lineGap: 0, xWidthAvg: 600 };
+// The theme draws the mono at 92.3% of the font size, by size-adjust on its faces, so no component sets a size of
+// its own for it: a character is 0.554em wide (6.65px at the ticks' 12px) and the lowercase 0.51em tall.
+const MONO_SIZE_ADJUST = 0.923;
+const drawnAt = (font: FontMetrics, scale: number): FontMetrics => ({
+  ...font,
+  ascent: font.ascent * scale,
+  descent: font.descent * scale,
+  lineGap: font.lineGap * scale,
+  xWidthAvg: font.xWidthAvg * scale,
+});
 
 // capsize's average sums advances, but Geist kerns: English text set in Geist
 // is 1.8% narrower than the sum, net of Arial's own kerning (1.7 to 2.0% across
 // five documents at 400 and 600, measured in Chromium against Liberation Sans).
-// M PLUS 1 Code, the mono, does not kern.
+// JetBrains Mono, the mono, does not kern.
 const GEIST_KERNING = 0.982;
 
 // Liberation and Arimo (Linux, ChromeOS) are drawn to Arial's metrics, and
@@ -115,7 +125,7 @@ interface FallbackFace {
 
 // One face per band of weights, scaled to Geist's width at that weight. Bold
 // bands draw the fallback's bold file: a synthetic bold keeps the regular
-// advances, so bold text would come up short. M PLUS 1 Code is 500 units wide
+// advances, so bold text would come up short. JetBrains Mono is 600 units wide
 // at every weight, and Courier New 1229 of 2048, so its bands differ only in file.
 const sans = (weights: string, xWidthAvg: number, fallback: FontMetrics, locals: string[]): FallbackFace => ({
   family: "Geist Fallback",
@@ -126,9 +136,9 @@ const sans = (weights: string, xWidthAvg: number, fallback: FontMetrics, locals:
   locals,
 });
 const mono = (weights: string, locals: string[]): FallbackFace => ({
-  family: "M PLUS 1 Code Fallback",
+  family: "JetBrains Mono Fallback",
   weights,
-  font: M_PLUS_1_CODE,
+  font: drawnAt(JETBRAINS_MONO, MONO_SIZE_ADJUST),
   kerning: 1,
   fallback: COURIER_NEW,
   locals,
@@ -160,30 +170,61 @@ function fallbackFace({ family, weights, font, kerning, fallback, locals }: Fall
 }`;
 }
 
-// M PLUS 1 Code's Latin and Latin Extended files, copied out of fontsource, which also ships 117 Japanese subsets
-// (2.6MB): a browser fetches only the subsets a page draws, but siyahi-page inlines every file a stylesheet names,
-// so the theme names only these two. Their unicode ranges are read from fontsource's own stylesheet.
-const MONO_FILES = ["m-plus-1-code-latin-wght-normal.woff2", "m-plus-1-code-latin-ext-wght-normal.woff2"];
-const monoFile = (file: string): string =>
-  fileURLToPath(import.meta.resolve(`@fontsource-variable/m-plus-1-code/files/${file}`));
+interface MonoFile {
+  fontsource: string;
+  file: string;
+  range?: string | undefined;
+}
+
+// JetBrains Mono's Latin and Latin Extended files, copied out of fontsource, which also ships Cyrillic, Greek and
+// Vietnamese: a browser fetches only the subsets a page draws, but siyahi-page inlines every file a stylesheet names,
+// so the theme names only these. JetBrains Mono has no rupee sign, which the default locale prints on every amount,
+// so the sign alone comes from Geist Mono, whose advance is also 600 units: at the same 92.3% it is a digit wide.
+// Ranges not given are read from fontsource's own stylesheet.
+const MONO_FILES: MonoFile[] = [
+  { fontsource: "jetbrains-mono", file: "jetbrains-mono-latin-wght-normal.woff2" },
+  { fontsource: "jetbrains-mono", file: "jetbrains-mono-latin-ext-wght-normal.woff2" },
+  { fontsource: "geist-mono", file: "geist-mono-latin-ext-wght-normal.woff2", range: "U+20B9" },
+];
+const monoFile = ({ fontsource, file }: MonoFile): string =>
+  fileURLToPath(import.meta.resolve(`@fontsource-variable/${fontsource}/files/${file}`));
+
+// fontsource's @font-face for one file: its weight range and unicode range.
+function fontsourceFace(face: MonoFile): { weight: string; range: string } {
+  const css = readFileSync(path.join(path.dirname(monoFile(face)), "../index.css"), "utf8");
+  const match = new RegExp(
+    `font-weight: ([^;]+);[^}]*files/${face.file.replaceAll(".", "\\.")}[^}]*unicode-range: ([^;]+);`,
+  ).exec(css);
+  if (!match?.[1] || !match[2])
+    throw new Error(`no font-weight or unicode-range for ${face.file} in fontsource's index.css`);
+  return { weight: match[1], range: match[2] };
+}
+
+// JetBrains Mono's Latin Extended range claims the rupee sign, which the file has no glyph for. Cut the sign out, or
+// a page that prints an amount fetches that file for nothing before the rupee face draws it.
+const withoutRupee = (range: string): string => range.replace("U+20AD-20C0", "U+20AD-20B8,U+20BA-20C0");
 
 function monoFontCss(): string {
-  const fontsource = readFileSync(path.join(path.dirname(monoFile(MONO_FILES[0]!)), "../index.css"), "utf8");
-  const faces = MONO_FILES.map((file) => {
-    const range = new RegExp(`files/${file.replaceAll(".", "\\.")}[^}]*unicode-range: ([^;]+);`).exec(fontsource)?.[1];
-    if (!range) throw new Error(`no unicode-range for ${file} in fontsource's index.css`);
+  // Every face takes JetBrains Mono's weights: a browser matches a weight among faces with the same descriptors, so a
+  // rupee face with Geist Mono's own 100 to 900 would win at 400 alone and leave every other letter to the fallback.
+  const { weight } = fontsourceFace(MONO_FILES[0]!);
+  // A browser tries the faces of one family that cover a character last-declared first; the rupee face comes last.
+  const faces = MONO_FILES.map((face) => {
+    const { range } = fontsourceFace(face);
     return `@font-face {
-  font-family: "M PLUS 1 Code Variable";
+  font-family: "JetBrains Mono Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 100 700;
-  src: url(./fonts/${file}) format("woff2-variations");
-  unicode-range: ${range};
+  font-weight: ${weight};
+  size-adjust: ${percent(MONO_SIZE_ADJUST)};
+  src: url(./fonts/${face.file}) format("woff2-variations");
+  unicode-range: ${face.range ?? withoutRupee(range)};
 }`;
   });
   return `/*
- * Generated by scripts/generate.ts from @fontsource-variable/m-plus-1-code. Do not edit.
- * The mono's Latin and Latin Extended faces only, so a page built into one file carries 40KB of font, not 2.6MB.
+ * Generated by scripts/generate.ts from @fontsource-variable/jetbrains-mono and @fontsource-variable/geist-mono.
+ * Do not edit. JetBrains Mono's Latin and Latin Extended faces, drawn at ${percent(MONO_SIZE_ADJUST)} of the font size, and
+ * Geist Mono's rupee sign, which JetBrains Mono lacks, under the same family.
  */
 ${faces.join("\n\n")}
 `;
@@ -192,7 +233,7 @@ ${faces.join("\n\n")}
 function fallbackFontsCss(): string {
   return `/*
  * Generated by scripts/generate.ts. Do not edit.
- * System fonts scaled to Geist's and M PLUS 1 Code's metrics. The theme names
+ * System fonts scaled to Geist's and JetBrains Mono's metrics. The theme names
  * each right after its font, so the text a browser draws while the font loads
  * takes the space the font will, and nothing moves when it swaps in.
  */
@@ -388,8 +429,8 @@ function agentManifest(): string {
 const outputs: Record<string, () => string | Buffer> = {
   "styles/shadcn.css": shadcnCss,
   "styles/fallback-fonts.css": fallbackFontsCss,
-  "styles/m-plus-1-code.css": monoFontCss,
-  ...Object.fromEntries(MONO_FILES.map((file) => [`styles/fonts/${file}`, () => readFileSync(monoFile(file))])),
+  "styles/jetbrains-mono.css": monoFontCss,
+  ...Object.fromEntries(MONO_FILES.map((face) => [`styles/fonts/${face.file}`, () => readFileSync(monoFile(face))])),
   "registry.lock.json": registryLock,
   "src/index.ts": barrel,
   "agents/manifest.json": agentManifest,

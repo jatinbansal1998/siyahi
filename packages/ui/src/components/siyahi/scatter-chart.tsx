@@ -14,6 +14,7 @@ import {
   useYAxisScale,
 } from "recharts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
+import { textWidth } from "@siyahi/ui/lib/fit-text";
 import {
   Card,
   CardAction,
@@ -116,8 +117,6 @@ const NAME_BAND = 6 + 32 + 4;
 const TICK = { className: "fill-muted-foreground font-mono" };
 const AXIS_TITLE = "fill-muted-foreground text-xs";
 const keyOf = (point: ScatterPoint) => point.key ?? point.name;
-// At the ticks' 12px, M PLUS 1 Code, the mono, is 6px a character.
-const MONO_WIDTH = 6;
 
 /** Two measures per item as dots, such as size against growth, with the leading names beside their dots. */
 export function ScatterChartCard<T extends ScatterPoint>({
@@ -219,10 +218,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
   const lastX = xTicks.at(-1);
   // The last x label centres on the last tick; the half past it must fit beside the plot, inside the padding a sized
   // dot already keeps, as 50,000 did not in 16px.
-  const endRoom = Math.max(
-    16,
-    lastX === undefined ? 0 : Math.ceil((formatX(lastX).length * MONO_WIDTH) / 2) + 4 - reach,
-  );
+  const endRoom = Math.max(16, lastX === undefined ? 0 : Math.ceil(textWidth(formatX(lastX)) / 2) + 4 - reach);
   const crossesZero = ys.some((y) => y < 0) && ys.some((y) => y > 0);
   const selectedKey = selected ? keyOf(selected) : null;
   const rows =

@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@fontsource-variable/geist": "^5.3.0",
-    "@fontsource-variable/m-plus-1-code": "^5.3.1",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@siyahi/ui": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",

@@ -181,7 +181,7 @@ export const foundations: Page = {
     {
       id: "type",
       title: "Type",
-      lead: "M PLUS 1 Code for the page, a narrow mono; Geist for sentences.",
+      lead: "JetBrains Mono for the page, drawn at 92.3% so a table fits its columns; Geist for sentences.",
       rules: ["Figures are tabular everywhere, so columns of numbers line up."],
       body: (
         <div className="flex flex-col gap-3">

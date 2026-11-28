@@ -272,7 +272,10 @@ describe("TimeSeriesChart", { timeout: 60_000 }, () => {
 
   it("writes the dates at the data's first and last points whole", async () => {
     // Where the example's end dates were cut: "ec" for Dec on a laptop, "12 No" for 12 Nov on a phone. A range's
-    // left edge falls mid-data, where a cut date says there is more to pan to.
+    // left edge falls mid-data, where a cut date says there is more to pan to. The library pulls an edge date in to
+    // a whole pixel plus a half (Math.floor(x - width / 2) + 0.5), so with a font whose letters are a fraction of a
+    // pixel wide the date may sit up to half a pixel past the edge, which no reader sees.
+    const SNAP = 0.5;
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 900 });
       for (const range of ["All", "1M"]) {
@@ -282,8 +285,8 @@ describe("TimeSeriesChart", { timeout: 60_000 }, () => {
         const first = labels.at(0);
         const last = labels.at(-1);
         if (!first || !last) throw new Error(`${width} ${range}: no dates`);
-        if (range === "All") expect(first.x - first.width / 2, `${width}: ${first.text}`).toBeGreaterThanOrEqual(0);
-        expect(last.x + last.width / 2, `${width} ${range}: ${last.text}`).toBeLessThanOrEqual(last.canvasWidth);
+        if (range === "All") expect(first.x - first.width / 2, `${width}: ${first.text}`).toBeGreaterThanOrEqual(-SNAP);
+        expect(last.x + last.width / 2, `${width} ${range}: ${last.text}`).toBeLessThanOrEqual(last.canvasWidth + SNAP);
       }
     }
     await page.setViewportSize({ width: 1280, height: 900 });

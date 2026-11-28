@@ -112,8 +112,9 @@ mono face and the link colour, so the text can point to one.
 
 ## Type
 
-Siyahi reads as a terminal. The page is set in M PLUS 1 Code, a mono half a
-font size wide, so a table fits its columns and a row its words on one line:
+Siyahi reads as a terminal. The page is set in JetBrains Mono, drawn at 92.3%
+of the font size so a character is 0.55 of a font size wide (6.65px at 12px),
+and a table fits its columns and a row its words on one line:
 figures, labels, controls, titles and tables share one grid. Tables set it at
 13px. Text that reads as sentences, a
 paragraph, a quote or a description, is set in Geist, where mono

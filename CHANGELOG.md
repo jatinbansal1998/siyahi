@@ -2,6 +2,27 @@
 
 ## 0.1.9
 
+- **Breaking:** the mono is JetBrains Mono, drawn at 92.3% of the font
+  size by `size-adjust` on its faces, in place of M PLUS 1 Code. No font
+  size changes; a character is 0.554em wide (6.64px at 12px, was 6px), so
+  mono text runs about 11% wider: the catalogue's Products table is 696px
+  wide at a 1280px window (was 678) and 563px at 390 (was 525). Where the
+  browser rounds each letter to a whole pixel (Chromium on Linux), 13px
+  table text stays 7px a letter and the table keeps its width, while 12px
+  text goes from 6px to 7px; chart labels are fitted for 7px. JetBrains
+  Mono has no rupee sign, so ₹ comes from Geist Mono under the same family,
+  a digit wide. To update an app: the families are now
+  `"JetBrains Mono Variable"` and `"JetBrains Mono Fallback"` (were
+  `"M PLUS 1 Code Variable"` and `"M PLUS 1 Code Fallback"`), so a page that
+  names them in its own font stack renames them; the stylesheet
+  `styles/m-plus-1-code.css` is `styles/jetbrains-mono.css` (the theme
+  imports it); an app that writes its own preload tags preloads
+  `jetbrains-mono-latin-wght-normal.woff2` and
+  `geist-mono-latin-ext-wght-normal.woff2` in place of the two
+  `m-plus-1-code-*` files; and `siyahi-shots --font` defaults to
+  `JetBrains Mono`, `siyahi-cls --font` to `JetBrains Mono Variable`.
+  `preloadFonts()` picks the new files by itself.
+
 - A `DataTable` whose search or filters leave no row says "No row matches
   the search" (or the filters) with a Reset filters button, and one with no
   data says "No rows to show", where it drew its headers over a blank body.

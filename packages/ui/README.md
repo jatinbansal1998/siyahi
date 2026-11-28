@@ -56,7 +56,7 @@ createRoot(root).render(
 );
 ```
 
-`preloadFonts()` loads Geist and M PLUS 1 Code with the scripts. Add `lucide-react`
+`preloadFonts()` loads Geist and JetBrains Mono with the scripts. Add `lucide-react`
 only when your own code imports icons. Next.js compiles the stylesheet through
 `@tailwindcss/postcss` instead of the Vite plugin. To host one page as a single
 HTML file, build it with `siyahi-page` from `@siyahi/tools`.
