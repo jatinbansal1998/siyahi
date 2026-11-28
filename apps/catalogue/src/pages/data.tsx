@@ -1316,13 +1316,23 @@ export const data: Page = {
           default: "the largest day",
           purpose: "With signed: the size that takes the deepest step; give calendars shown together the same range.",
         },
+        {
+          name: "CalendarHeatmap weekdays",
+          type: "readonly (0 | 1 | 2 | 3 | 4 | 5 | 6)[]",
+          default: "every day",
+          purpose:
+            "The days of the week to draw, 0 Sunday to 6 Saturday: [1, 2, 3, 4, 5] for trading or working days, so the weekend takes no empty rows. Days left out are not drawn, scaled or counted.",
+        },
       ],
       rules: [
         "Counts fade in --chart-1.",
-        "A signed calendar uses the Treemap's and ChangeGrid's heat steps inside a full-colour edge, a loss round and a gain square, so the sign never rests on colour alone. A day with no change, or no figure (NaN, Infinity), is muted inside the field edge. Pass CalendarHeatmapLegend a valueFormatter, so its scale line says where the deepest step sits. Write the picked day's figure with its sign.",
+        "A signed calendar uses the Treemap's and ChangeGrid's heat steps inside a full-colour edge, a loss round and a gain square, so the sign never rests on colour alone. A day with no change, or no figure (NaN, Infinity, or no entry, such as a market holiday), is muted inside the field edge, and the legend says so. Pass CalendarHeatmapLegend a valueFormatter, so its scale line says where the deepest step sits. Write the picked day's figure with its sign.",
       ],
       examples: [
-        { name: "heatmap-calendar", caption: "A year of working days, each coloured by its count of deploys." },
+        {
+          name: "heatmap-calendar",
+          caption: "A year of working days, each coloured by its count of deploys, with the weekend left out.",
+        },
         {
           name: "heatmap-calendar-signed",
           caption:

@@ -121,7 +121,7 @@
   },
   {
     "need": "A gain or loss for every day, such as daily profit or a portfolio's daily change",
-    "guidance": "`CalendarHeatmap` with `signed`"
+    "guidance": "`CalendarHeatmap` with `signed`; `weekdays={[1, 2, 3, 4, 5]}` for trading days, so the weekend takes no rows"
   },
   {
     "need": "Activity by day, by weekday and hour, or a status over time",

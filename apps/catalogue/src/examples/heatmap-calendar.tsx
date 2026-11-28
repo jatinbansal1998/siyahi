@@ -30,10 +30,17 @@ export default function HeatmapCalendarExample() {
     <Card>
       <CardHeader>
         <CardTitle>Deploys per day</CardTitle>
-        <CardDescription>The last 12 months; the stronger the colour, the more deploys</CardDescription>
+        <CardDescription>
+          Working days over the last 12 months; the stronger the colour, the more deploys
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <CalendarHeatmap data={data} labels={{ heatmapLabel: "Deploys per day over the last 12 months" }}>
+        <CalendarHeatmap
+          data={data}
+          weekStart={1}
+          weekdays={[1, 2, 3, 4, 5]}
+          labels={{ heatmapLabel: "Deploys per working day over the last 12 months" }}
+        >
           <CalendarHeatmapBody>
             {({ activity, dayIndex, weekIndex }) => (
               <CalendarHeatmapBlock

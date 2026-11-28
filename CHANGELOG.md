@@ -24,6 +24,12 @@
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
 
+- `CalendarHeatmap` takes `weekdays`, the days of the week to draw, as
+  `WeekdayHeatmap` does: `weekdays={[1, 2, 3, 4, 5]}` draws a market's
+  trading days with no empty weekend rows, and a day left out sets no scale
+  and counts in no total. A signed legend says grey days "had no change or
+  no figure" (was "had no change"), true of a day the market was shut.
+
 - `CalendarHeatmap`: a strip wider than its card opens on its latest weeks,
   and the month tick that left cut at the card's edge is left out; it read
   as its last letters, "6" for "Apr 2026". The first tick in view names the

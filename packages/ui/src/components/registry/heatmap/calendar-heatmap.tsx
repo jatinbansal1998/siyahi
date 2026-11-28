@@ -27,6 +27,10 @@
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 // Siyahi edit: a month tick the scrolled strip cuts at its left edge is left
 // out, and the year moves to the first tick in view.
+// Siyahi edit: `weekdays` draws only those days of the week, as WeekdayHeatmap's
+// does: [1, 2, 3, 4, 5] for a market's trading days, with no empty weekend rows.
+// A signed legend says a grey day had no change or no figure, as a day the
+// market was shut has none.
 // Siyahi edit: cells and legend swatches are square (blockRadius 0, was 2), as every
 // box is; a signed loss day stays round, since its shape carries the sign.
 import type { Locale, Day as WeekDay } from "date-fns";
@@ -162,6 +166,8 @@ type CalendarHeatmapContextType = {
   isNormalized: boolean;
   totalCount: number;
   weekStart: WeekDay;
+  /** The day of the week each drawn row holds, top to bottom. */
+  rows: WeekDay[];
   year: number;
   width: number;
   height: number;
@@ -494,6 +500,8 @@ const MonthTicks = ({ ticks, weeks, scroller, x, yearTicks, fontSize, className 
 export type CalendarHeatmapProps = HTMLAttributes<HTMLDivElement> & {
   data: Activity[];
   weekStart?: WeekDay | undefined;
+  /** The days of the week to draw, 0 Sunday to 6 Saturday: [1, 2, 3, 4, 5] for trading days. Default every day. */
+  weekdays?: readonly WeekDay[] | undefined;
   continuousMonths?: boolean | undefined;
   hasEmptyColumn?: boolean | undefined;
   blockSize?: number | undefined;
@@ -553,6 +561,7 @@ export type CalendarHeatmapProps = HTMLAttributes<HTMLDivElement> & {
 export const CalendarHeatmap = ({
   data,
   weekStart = 0,
+  weekdays,
   continuousMonths = true,
   hasEmptyColumn = false,
   blockSize: blockSizeProp,
@@ -576,16 +585,28 @@ export const CalendarHeatmap = ({
 }: CalendarHeatmapProps) => {
   const levels = Math.max(1, levelsProp);
   const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
+  const rows = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, i) => ((weekStart + i) % 7) as WeekDay).filter(
+        (day) => !weekdays || weekdays.includes(day),
+      ),
+    [weekStart, weekdays],
+  );
+  // A day that is not drawn sets no scale and counts in no total.
+  const shown = useMemo(
+    () => (weekdays ? data.filter(({ date }) => weekdays.includes(getDay(parseISO(date)) as WeekDay)) : data),
+    [data, weekdays],
+  );
 
   const dataWithLevels = useMemo((): ActivityWithLevel[] => {
-    if (data.length === 0) return [];
+    if (shown.length === 0) return [];
 
-    const maxCount = data.reduce((max, d) => Math.max(max, d.value), 1);
+    const maxCount = shown.reduce((max, d) => Math.max(max, d.value), 1);
     const minCount = isNormalized
-      ? data.reduce((min, d) => Math.min(min, d.value), Infinity)
+      ? shown.reduce((min, d) => Math.min(min, d.value), Infinity)
       : 0;
 
-    return data.map((activity) => ({
+    return shown.map((activity) => ({
       ...activity,
       level: calculateLevel(
         activity.value,
@@ -595,7 +616,7 @@ export const CalendarHeatmap = ({
         isNormalized,
       ),
     }));
-  }, [data, levels, isNormalized]);
+  }, [shown, levels, isNormalized]);
 
   const yearRows = useMemo(
     () =>
@@ -608,8 +629,8 @@ export const CalendarHeatmap = ({
   const signedRange = useMemo(() => {
     if (!signed) return null;
     if (range !== undefined && Number.isFinite(range) && range > 0) return range;
-    return Math.max(0, ...data.map((d) => (Number.isFinite(d.value) ? Math.abs(d.value) : 0)));
-  }, [signed, range, data]);
+    return Math.max(0, ...shown.map((d) => (Number.isFinite(d.value) ? Math.abs(d.value) : 0)));
+  }, [signed, range, shown]);
 
   const labels = useMemo(
     () => ({
@@ -647,7 +668,7 @@ export const CalendarHeatmap = ({
       : DEFAULT_BLOCK);
   const blockWidth = blockSize * blockAspectRatio;
   const width = weeks.length * (blockWidth + blockMargin) - blockMargin;
-  const height = labelHeight + (blockSize + blockMargin) * 7 - blockMargin;
+  const height = labelHeight + (blockSize + blockMargin) * rows.length - blockMargin;
 
   const contextValue = useMemo<CalendarHeatmapContextType>(
     () => ({
@@ -666,6 +687,7 @@ export const CalendarHeatmap = ({
       isNormalized,
       totalCount,
       weekStart,
+      rows,
       year,
       width,
       height,
@@ -691,6 +713,7 @@ export const CalendarHeatmap = ({
       isNormalized,
       totalCount,
       weekStart,
+      rows,
       year,
       width,
       height,
@@ -881,6 +904,7 @@ export const CalendarHeatmapBody = ({
     labels,
     labelHeight,
     fontSize,
+    rows,
     weekStart,
     continuousMonths,
   } = useCalendarHeatmap();
@@ -892,7 +916,7 @@ export const CalendarHeatmapBody = ({
     return yearRows.map((yearRow) => {
       const width =
         yearRow.weeks.length * (blockWidth + blockMargin) - blockMargin;
-      const height = labelHeight + (blockSize + blockMargin) * 7 - blockMargin;
+      const height = labelHeight + (blockSize + blockMargin) * rows.length - blockMargin;
       const monthLabels = getMonthLabels(yearRow.weeks, labels.months, continuousMonths);
       const yearTotalCount = yearRow.weeks
         .flat()
@@ -914,6 +938,7 @@ export const CalendarHeatmapBody = ({
     labelHeight,
     labels.months,
     continuousMonths,
+    rows,
   ]);
 
   const maxWidth = Math.max(...rowData.map((r) => r.width));
@@ -972,36 +997,28 @@ export const CalendarHeatmapBody = ({
                     labelClassName,
                   )}
                 >
-                  {labels.weekdays?.map((label, dayIndex) => {
-                    const adjustedIndex = (dayIndex + weekStart) % 7;
-                    const adjustedLabel =
-                      labels.weekdays?.[adjustedIndex] || label;
-
-                    return (
-                      <text
-                        key={`weekday-${yearRow.year}-${label}`}
-                        x={0}
-                        y={
-                          labelHeight +
-                          (blockSize + blockMargin) * dayIndex +
-                          blockSize / 2
-                        }
-                        dominantBaseline="middle"
-                        textAnchor="start"
-                        style={{ fontSize: `${fontSize * 0.75}px` }}
-                      >
-                        {adjustedLabel}
-                      </text>
-                    );
-                  })}
+                  {rows.map((day, row) => (
+                    <text
+                      key={day}
+                      x={0}
+                      y={labelHeight + (blockSize + blockMargin) * row + blockSize / 2}
+                      dominantBaseline="middle"
+                      textAnchor="start"
+                      style={{ fontSize: `${fontSize * 0.75}px` }}
+                    >
+                      {labels.weekdays?.[day]}
+                    </text>
+                  ))}
                 </g>
               )}
               <g
                 transform={`translate(${weekdayLabelWidth + strokePadding}, 0)`}
               >
                 {yearRow.weeks.map((week, weekIndex) =>
-                  week.map((activity, dayIndex) => {
-                    if (!activity) {
+                  week.map((activity, slot) => {
+                    // A week's slots run from weekStart; a day of the week not drawn has no row.
+                    const dayIndex = rows.indexOf(((slot + weekStart) % 7) as WeekDay);
+                    if (!activity || dayIndex < 0) {
                       return null;
                     }
 
@@ -1208,7 +1225,8 @@ const SignedLegend = ({
         <span className="ml-1 font-medium text-xs">{labelsProp?.more ?? "Gain"}</span>
       </div>
       <p data-slot="calendar-heatmap-legend-scale" className="text-xs">
-        Deepest at ±{valueFormatter(signedRange ?? 0)}. Round days lost, square days gained; grey days had no change.
+        Deepest at ±{valueFormatter(signedRange ?? 0)}. Round days lost, square days gained; grey days had no change
+        or no figure.
       </p>
     </fieldset>
   );

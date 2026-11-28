@@ -65,7 +65,11 @@ describe("CalendarHeatmap signed", () => {
   });
 
   it("says in the legend where the deepest step sits, in the page's format", () => {
-    expect(render(days)).toContain("Deepest at ±₹9000. Round days lost, square days gained; grey days had no change.");
+    expect(render(days)).toContain("Deepest at ±₹9000. Round days lost, square days gained; grey days had no change");
+  });
+
+  it("says a grey day may have no figure, as a day the market was shut has none", () => {
+    expect(render(days)).toContain("grey days had no change or no figure.");
   });
 
   it("shows the loss steps deepest first, no change, then the gain steps in the legend", () => {
@@ -125,5 +129,39 @@ describe("CalendarHeatmap month ticks", () => {
         expect(ticks().slice(0, 2)).toEqual(["May 2026", "Jun"]);
       },
     );
+  });
+});
+
+describe("CalendarHeatmap weekdays", () => {
+  it("draws only the days of the week asked for, one row each, and scales by those days alone", () => {
+    // A week from Monday 4 May: the weekend's 50,000 is not drawn, so it does not set the deepest step.
+    const week = [9000, -2500, 0, 3000, 4500, 50_000, 50_000].map((value, i) => ({
+      date: `2026-05-0${4 + i}`,
+      value,
+    }));
+    const html = renderToStaticMarkup(
+      <CalendarHeatmap data={week} signed weekStart={1} weekdays={[1, 2, 3, 4, 5]}>
+        <CalendarHeatmapBody>
+          {({ activity, dayIndex, weekIndex }) => (
+            <CalendarHeatmapBlock activity={activity} dayIndex={dayIndex} weekIndex={weekIndex} />
+          )}
+        </CalendarHeatmapBody>
+      </CalendarHeatmap>,
+    );
+    expect([...html.matchAll(/data-date="([^"]+)"/g)].map(([, date]) => date)).toEqual([
+      "2026-05-04",
+      "2026-05-05",
+      "2026-05-06",
+      "2026-05-07",
+      "2026-05-08",
+    ]);
+    expect([...html.matchAll(/<text[^>]*dominant-baseline="middle"[^>]*>([^<]*)</g)].map(([, name]) => name)).toEqual([
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+    ]);
+    expect(fill(html, "2026-05-04")).toBe(heatFill("positive", 5));
   });
 });
