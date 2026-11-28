@@ -126,6 +126,18 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
     expect(moneyCompact(-2400000, us)).toBe("−$2.4M");
   });
 
+  it("writes a negative that rounds to zero as zero, with no sign", () => {
+    expect(pct(-0.0001)).toBe("0.0%");
+    expect(money(-0.4)).toBe("₹0");
+    expect(count(-0)).toBe("0");
+    expect(fixed(-0.001)).toBe("0.00");
+    expect(moneyCompact(-0.4)).toBe("₹0");
+    expect(moneyCompact(-40, us)).toBe("−$40");
+    expect(moneyCompact(-0.004, us)).toBe("$0");
+    // The smallest negative that does not round away keeps its sign.
+    expect(pct(-0.0005)).toBe("−0.1%");
+  });
+
   it("formats a fraction as a percentage with one decimal", () => {
     expect(pct(0.1234)).toBe("12.3%");
     expect(pct(-0.005)).toBe("−0.5%");

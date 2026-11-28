@@ -24,6 +24,12 @@
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
 
+- The formatters write a negative that rounds to zero as zero, with no
+  sign: `pct(-0.0001)` is "0.0%" (was "−0.0%"), `money(-0.4)` "₹0". Intl's
+  `signDisplay: "negative"` does the same, but Firefox 114 and 115, inside
+  the build's baseline target, throw on it, so the formatters compare with
+  how −0 is written instead.
+
 - `ChangeGrid` takes `footer`, a row under the grid with each column's
   figure as the page works it out, such as each year's total or average
   when the columns are years, its `total` under the total column. Untinted,
