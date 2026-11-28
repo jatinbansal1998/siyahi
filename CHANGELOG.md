@@ -2,6 +2,12 @@
 
 ## 0.1.9
 
+- A `DataTable` whose search or filters leave no row says "No row matches
+  the search" (or the filters) with a Reset filters button, and one with no
+  data says "No rows to show", where it drew its headers over a blank body.
+  A page's own `DataTableEmptyBody` still takes its place, and should, to
+  say why a table is empty. `DataTableResetFilters` is the button, also at
+  the end of `DataTableActiveFilters`.
 - A chart card's tooltip sits centred on the hovered category and clear of
   the marks it spans: above columns and lines, below them where there is no
   room above, right of sideways bars, inside the plot. Beside the cursor it

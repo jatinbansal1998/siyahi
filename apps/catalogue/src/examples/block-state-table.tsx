@@ -11,6 +11,7 @@ import {
   DataTableEmptyFilteredMessage,
   DataTableEmptyMessage,
   DataTableHeader,
+  DataTableResetFilters,
   DataTableRoot,
   DataTableSearchFilter,
   DataTableSkeleton,
@@ -50,7 +51,10 @@ function OrdersTable({ title, loading }: { title: string; loading: boolean }) {
                   <BlockState title="No order is waiting to ship" description="An order shows here once it is paid." />
                 </DataTableEmptyMessage>
                 <DataTableEmptyFilteredMessage>
-                  <BlockState title="No order matches the search" description="Clear the search to see every order." />
+                  <BlockState
+                    title="No order matches the search"
+                    action={<DataTableResetFilters variant="outline" />}
+                  />
                 </DataTableEmptyFilteredMessage>
               </DataTableEmptyBody>
             </DataTableBody>

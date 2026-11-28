@@ -385,8 +385,9 @@
     },
     {
       "need": "A chart, table or list with no data, no match for its filters, or data that failed to load",
-      "guidance": "`BlockState` where the data would be: a chart card's `placeholder`, inside `DataTableEmptyBody` (`DataTableEmptyMessage`, `DataTableEmptyFilteredMessage`), or in place of a list; `tone=\"negative\"` for an error",
+      "guidance": "`BlockState` where the data would be: a chart card's `placeholder`, or in place of a list; `tone=\"negative\"` for an error. A data table already says when a search or filter leaves no row, with Reset filters, and when it has no data; to say why it is empty, put `BlockState` inside `DataTableEmptyBody` (`DataTableEmptyMessage`, `DataTableEmptyFilteredMessage`, with `DataTableResetFilters variant=\"outline\"` as its action)",
       "components": [
+        "BlockState",
         "BlockState",
         "DataTableEmptyBody",
         "DataTableEmptyMessage",
@@ -572,6 +573,7 @@
         "DataTableEmptyFilteredMessage",
         "DataTableEmptyMessage",
         "DataTableHeader",
+        "DataTableResetFilters",
         "DataTableRoot",
         "DataTableSearchFilter",
         "DataTableSkeleton",

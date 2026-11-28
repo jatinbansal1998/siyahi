@@ -721,6 +721,7 @@ export const data: Page = {
         "DataTableColumnActions with DataTableColumnSortOptions is the menu version of the sort header.",
         "Past about a hundred rows, put DataTablePagination after DataTable: it pages the sorted, filtered rows, and a new search or filter goes back to page one. Sorting and search still cover every row.",
         "In the toolbar, DataTableSearchFilter comes first and DataTableRowCount last; DataTableActiveFilters follows it on a line of its own, and shows only while a search or filter is set.",
+        "A table that a search or filter leaves empty says so, with Reset filters, and one with no data says it has no rows. Add DataTableEmptyBody only to say why there are none, as Empty, error and loading shows.",
         "Scrolling sideways hides the figure a reader came for, on a phone and a laptop alike: mark the few answering columns meta.compact, and put DataTableCompactColumnsToggle in the toolbar to show them all and back.",
         "On a phone a row carries the instrument, its value and its signed change; fold the change under the value when the three do not fit. Put dataTableDetailsColumn() first, so each row opens on the rest, and keep the All columns toggle for a reader who wants the whole grid.",
       ],
@@ -762,6 +763,7 @@ export const data: Page = {
         "DataTableEmptyBody",
         "DataTableEmptyMessage",
         "DataTableEmptyFilteredMessage",
+        "DataTableResetFilters",
         "DataTableSkeleton",
       ],
       props: [
@@ -790,7 +792,7 @@ export const data: Page = {
         },
       ],
       rules: [
-        "In a chart card it is the placeholder, at the plot's height. In a data table it goes inside DataTableEmptyBody, with DataTableEmptyMessage for no data and DataTableEmptyFilteredMessage for no match. In place of a list it stands alone.",
+        'In a chart card it is the placeholder, at the plot\'s height. In place of a list it stands alone. A data table has its own: "No row matches the search" with Reset filters, and "No rows to show". To say why a table is empty, put BlockState inside DataTableEmptyBody, with DataTableEmptyMessage for no data and DataTableEmptyFilteredMessage for no match; DataTableResetFilters is the default\'s button.',
         "Loading draws the block's shape, not a message: placeholder={<Skeleton className=\"size-full\" />} on a chart, DataTableSkeleton under DataTableRoot's isLoading in a table.",
         "An empty block is not an error: keep tone neutral when there is simply nothing to show.",
       ],
@@ -803,7 +805,7 @@ export const data: Page = {
         {
           name: "block-state-table",
           caption:
-            "A table with no rows says why, another message takes over when a search matches nothing, and a loading table draws skeleton rows.",
+            "A page overriding a table's own empty message to say why it has no rows, and what a search that matches nothing leaves; a loading table draws skeleton rows.",
         },
         {
           name: "block-state-list",
