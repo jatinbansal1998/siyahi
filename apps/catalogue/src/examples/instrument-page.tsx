@@ -24,6 +24,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   dataTableDetailsColumn,
+  signed,
   useFormat,
   type ChangeGridRow,
   type ChartSeries,
@@ -180,6 +181,8 @@ const sessions: Session[] = (() => {
 
 const last = sessions.at(-1)!;
 const previous = sessions.at(-2)!;
+// Made up, so that the company is worth about ₹48,000 crore at the last close.
+const SHARES_ISSUED = 19_93_26_000;
 
 /** The last session on or before the same day `months` months before the last one. */
 function sessionBefore(months: number): number {
@@ -248,23 +251,33 @@ const MONTH_NAMES = [
   "December",
 ];
 
+const monthEnd = new Map<string, number>();
+for (const session of sessions) monthEnd.set(session.time.slice(0, 7), session.close);
+
+function monthly(yearLabel: string, month: number): number | null {
+  const key = `${yearLabel}-${String(month + 1).padStart(2, "0")}`;
+  const before = new Date(Date.UTC(Number(yearLabel), month - 1, 1)).toISOString().slice(0, 7);
+  const end = monthEnd.get(key);
+  const start = monthEnd.get(before);
+  return end === undefined || start === undefined ? null : end / start - 1;
+}
+
 // Months down the side and years across, so a row reads one month through the years.
-const monthRows: ChangeGridRow[] = (() => {
-  const monthEnd = new Map<string, number>();
-  for (const session of sessions) monthEnd.set(session.time.slice(0, 7), session.close);
-  const monthly = (yearLabel: string, month: number): number | null => {
-    const key = `${yearLabel}-${String(month + 1).padStart(2, "0")}`;
-    const before = new Date(Date.UTC(Number(yearLabel), month - 1, 1)).toISOString().slice(0, 7);
-    const end = monthEnd.get(key);
-    const start = monthEnd.get(before);
-    return end === undefined || start === undefined ? null : end / start - 1;
-  };
-  return MONTHS.map((label, month) => {
-    const values = YEARS.map((yearLabel) => monthly(yearLabel, month));
-    const known = values.filter((value) => value !== null);
-    return { label, values, total: known.reduce((sum, value) => sum + value, 0) / known.length };
-  });
-})();
+const monthRows: ChangeGridRow[] = MONTHS.map((label, month) => {
+  const values = YEARS.map((yearLabel) => monthly(yearLabel, month));
+  const known = values.filter((value) => value !== null);
+  return { label, values, total: known.reduce((sum, value) => sum + value, 0) / known.length };
+});
+
+// Each year's change, from the last close of the year before to the year's last close.
+const yearRow: ChangeGridRow = {
+  label: "Whole year",
+  values: YEARS.map((yearLabel) => {
+    const end = monthEnd.get(`${yearLabel}-12`) ?? last.close;
+    const start = monthEnd.get(`${Number(yearLabel) - 1}-12`);
+    return start === undefined ? null : end / start - 1;
+  }),
+};
 
 interface Fall {
   depth: number;
@@ -318,13 +331,13 @@ function useDay(): (iso: string) => string {
   return (iso) => dateTime(`${iso}T00:00:00Z`, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-function useSigned(): (value: number, digits?: number) => string {
+function useSignedPct(): (value: number, digits?: number) => string {
   const { pct } = useFormat();
-  return (value, digits) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${pct(Math.abs(value), digits)}`;
+  return (value, digits) => signed(value, (size) => pct(size, digits));
 }
 
 function PriceChart() {
-  const { money, count, pct } = useFormat();
+  const { money, count, pct, multiple } = useFormat();
   const [view, setView] = useState<"line" | "candles">("line");
   const fiveYear = last.close / shareCloses[sessionBefore(60)]!;
   const panes = useMemo<TimeSeriesChartPane[]>(
@@ -341,6 +354,8 @@ function PriceChart() {
             : { type: "candlestick", label: "Price", data: sessions },
         ],
         format: (value) => money(value, 2),
+        tickFormat: (value) => money(value),
+        minHeight: 360,
       },
       {
         height: 96,
@@ -359,7 +374,7 @@ function PriceChart() {
   );
   return (
     <TimeSeriesChartCard
-      title={`Up ${pct(ret(shareCloses, yearAgo), 1)} in a year and ${fiveYear.toFixed(1)}× in five years`}
+      title={`Up ${pct(ret(shareCloses, yearAgo), 1)} in a year and ${multiple(fiveYear)} in five years`}
       description="Each session's close in ₹ and the shares traded, from November 2021. Arrows mark results days and the news behind the larger moves."
       panes={panes}
       events={EVENTS.map(({ time, label }) => ({ time, label }))}
@@ -382,7 +397,7 @@ function PriceChart() {
 }
 
 function YearRange() {
-  const { money, count, pct } = useFormat();
+  const { money, count, pct, multiple } = useFormat();
   const day = useDay();
   const price = (value: number) => money(value, 2);
   return (
@@ -419,7 +434,7 @@ function YearRange() {
               />
             </DataListItem>
             <DataListItem label="Shares traded today">
-              {count(last.volume)}, {(last.volume / volumeAverage).toFixed(1)}× the average of the last 20 sessions
+              {count(last.volume)}, {multiple(last.volume / volumeAverage)} the average of the last 20 sessions
             </DataListItem>
           </DataList>
         </div>
@@ -430,15 +445,16 @@ function YearRange() {
 
 function DailyMoves() {
   const { pct } = useFormat();
-  const signed = useSigned();
+  const signedPct = useSignedPct();
   const spread = Math.max(...dailyMoves) - Math.min(...dailyMoves);
   return (
     <HistogramChartCard
       bins={Math.round(spread / 0.005)}
-      title={`Today's ${signed(todayMove, 1)} was larger than ${pct(calmerDays, 0)} of the year's daily moves`}
+      title={`Today's ${signedPct(todayMove, 1)} was larger than ${pct(calmerDays, 0)} of the year's daily moves`}
       description={`Each session's change on the close before, over the last 250 sessions, counted in half-point buckets. Half the sessions moved less than ${pct(typicalMove, 1)} either way.`}
       values={dailyMoves}
-      valueFormatter={(value) => signed(value, 1)}
+      valueFormatter={(value) => signedPct(value, 1)}
+      marks={[{ value: todayMove, label: "today" }]}
       countLabel="Sessions"
       xLabel="Change on the day"
       yLabel="Sessions"
@@ -451,14 +467,11 @@ const returnSeries: ChartSeries<PeriodReturn> = [
   { key: "nifty", label: "Nifty 50", color: "var(--muted-foreground)" },
 ];
 
-/** How many points the share is ahead of the index, signed: "+18.0". */
-function pointsAhead(row: PeriodReturn): string {
-  const gap = (row.share - row.nifty) * 100;
-  return `${gap > 0 ? "+" : gap < 0 ? "−" : ""}${Math.abs(gap).toFixed(1)}`;
-}
-
 function Returns() {
-  const signed = useSigned();
+  const { fixed } = useFormat();
+  const signedPct = useSignedPct();
+  // How many points the share is ahead of the index, signed: "+18.0".
+  const pointsAhead = (row: PeriodReturn) => signed((row.share - row.nifty) * 100, (size) => fixed(size, 1));
   const behind = PERIODS.filter((row) => row.share < row.nifty).map((row) => row.period);
   const title =
     behind.length === 0
@@ -474,8 +487,8 @@ function Returns() {
       xKey="period"
       xTickDetail={pointsAhead}
       series={returnSeries}
-      valueFormatter={(value) => signed(value, 1)}
-      yTickFormatter={(value) => signed(value, 0)}
+      valueFormatter={(value) => signedPct(value, 1)}
+      yTickFormatter={(value) => signedPct(value, 0)}
       horizontal
       // Lined up with the months beside it.
       height={420}
@@ -498,12 +511,18 @@ function Months() {
           {pct(strongest.total ?? 0, 1)} on average
         </CardTitle>
         <CardDescription>
-          Each month's change on the month before, close to close; November 2026 runs to the 27th. Deeper tints are
-          larger moves.
+          Each month's change on the month before, close to close, and under them each year's change; November 2026 runs
+          to the 27th. Deeper tints are larger moves.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChangeGrid label="Monthly change by year" columns={YEARS} rows={monthRows} totalLabel="Average" />
+        <ChangeGrid
+          label="Monthly change by year"
+          columns={YEARS}
+          rows={monthRows}
+          footer={yearRow}
+          totalLabel="Average"
+        />
       </CardContent>
     </Card>
   );
@@ -530,7 +549,7 @@ function Falls() {
 }
 
 function FallDepth({ fall }: { fall: Fall }) {
-  return useSigned()(fall.depth, 1);
+  return useSignedPct()(fall.depth, 1);
 }
 
 function FallDay({ iso }: { iso: string | null }) {
@@ -604,7 +623,7 @@ function FallsTable() {
 // next thing a reader of the chart asks, in order: where it sits now, whether today was a big day, whether it beat
 // the market, how its months go, and how far it has fallen and why.
 export default function InstrumentPage() {
-  const { money } = useFormat();
+  const { money, moneyCompact } = useFormat();
   const day = useDay();
   return (
     <div className="flex flex-col gap-6">
@@ -613,7 +632,8 @@ export default function InstrumentPage() {
         title={money(last.close, 2)}
         lead={
           <>
-            <Delta value={todayMove} /> today, from {money(previous.close, 2)} at the last close.
+            <Delta value={todayMove} /> today, from {money(previous.close, 2)} at the last close. Market value{" "}
+            {moneyCompact(last.close * SHARES_ISSUED)}.
           </>
         }
         detail={`Prices as of the close on ${day(last.time)}, 15:30 IST. Made-up figures.`}

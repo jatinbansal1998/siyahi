@@ -771,6 +771,7 @@
         "BarChartCard",
         "ToggleGroup",
         "ToggleGroupItem",
+        "signed",
         "useFormat"
       ]
     },
@@ -829,7 +830,8 @@
     {
       "file": "agents/examples/chart-line-timeline.tsx",
       "components": [
-        "LineChartCard"
+        "LineChartCard",
+        "useFormat"
       ]
     },
     {
@@ -1074,7 +1076,8 @@
         "CardDescription",
         "CardHeader",
         "CardTitle",
-        "DistributionBar"
+        "DistributionBar",
+        "useFormat"
       ]
     },
     {
@@ -1087,7 +1090,9 @@
         "CardHeader",
         "CardTitle",
         "Delta",
-        "DistributionBar"
+        "DistributionBar",
+        "signed",
+        "useFormat"
       ]
     },
     {
@@ -1284,6 +1289,7 @@
         "ToggleGroup",
         "ToggleGroupItem",
         "dataTableDetailsColumn",
+        "signed",
         "useFormat"
       ]
     },
@@ -1319,8 +1325,9 @@
         "TimeSeriesChartCard",
         "WaterfallChartCard",
         "dataTableDetailsColumn",
-        "useFormat",
-        "useLocale"
+        "signed",
+        "useDataTable",
+        "useFormat"
       ]
     },
     {
@@ -1439,6 +1446,7 @@
     {
       "file": "agents/examples/portfolio-page.tsx",
       "components": [
+        "BarList",
         "CalendarHeatmap",
         "CalendarHeatmapBlock",
         "CalendarHeatmapBody",
@@ -1478,6 +1486,7 @@
         "TreemapLegend",
         "WaterfallChartCard",
         "dataTableDetailsColumn",
+        "signed",
         "useDataTable",
         "useFormat"
       ]

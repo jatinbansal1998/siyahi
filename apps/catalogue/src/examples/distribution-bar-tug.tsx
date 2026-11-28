@@ -8,6 +8,8 @@ import {
   CardTitle,
   Delta,
   DistributionBar,
+  signed,
+  useFormat,
   type DistributionSegment,
 } from "@siyahi/ui";
 
@@ -26,6 +28,7 @@ const lost = campaigns.filter((c) => c.value < 0).reduce((sum, c) => sum + c.val
 const reach = Math.max(won, -lost);
 
 export default function DistributionBarTugExample() {
+  const { money } = useFormat();
   const [focus, setFocus] = useState<DistributionSegment | null>(null);
   return (
     <Card>
@@ -40,6 +43,7 @@ export default function DistributionBarTugExample() {
             max={reach}
             showLegend={false}
             markers={[{ at: 0 }]}
+            valueFormatter={(value) => signed(value, money)}
             highlighted={focus?.name ?? null}
             onHover={setFocus}
             segments={campaigns.map(({ name, value }) => ({

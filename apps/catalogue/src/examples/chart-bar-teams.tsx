@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChartCard, ToggleGroup, ToggleGroupItem, useFormat, type ChartSeries } from "@siyahi/ui";
+import { BarChartCard, ToggleGroup, ToggleGroupItem, signed, useFormat, type ChartSeries } from "@siyahi/ui";
 
 // Each team's share of this year's spend against a comparison; made-up figures.
 const SHARES = {
@@ -24,17 +24,14 @@ type Comparison = keyof typeof SHARES;
 type Row = (typeof SHARES)[Comparison][number];
 
 export default function ChartBarTeamsExample() {
-  const { pct } = useFormat();
+  const { pct, fixed } = useFormat();
   const [comparison, setComparison] = useState<Comparison>("Plan");
   const rows = SHARES[comparison];
   const series: ChartSeries<Row> = [
     { key: "actual", label: "This year", color: "var(--chart-1)" },
     { key: "comparison", label: comparison, color: "var(--chart-2)" },
   ];
-  const gap = (row: Row) => {
-    const points = Math.abs(row.actual - row.comparison) * 100;
-    return `${row.actual >= row.comparison ? "+" : "\u2212"}${points.toFixed(1)} points`;
-  };
+  const gap = (row: Row) => `${signed((row.actual - row.comparison) * 100, (size) => fixed(size, 1))} points`;
   return (
     <BarChartCard
       title="Spend by team against plan or last year"

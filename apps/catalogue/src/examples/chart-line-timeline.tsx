@@ -1,4 +1,4 @@
-import { LineChartCard, type ChartSeries } from "@siyahi/ui";
+import { LineChartCard, useFormat, type ChartSeries } from "@siyahi/ui";
 
 // A sar sample every 10 minutes from 15:00; the numbers are made up for the catalogue.
 const data = [
@@ -20,6 +20,7 @@ const series: ChartSeries<(typeof data)[number]> = [
 const clock = (minute: number) => `${Math.floor(15 + minute / 60)}:${String(minute % 60).padStart(2, "0")}`;
 
 export default function ChartLineTimelineExample() {
+  const { fixed } = useFormat();
   return (
     <LineChartCard
       title="Memory in use, GiB"
@@ -32,8 +33,8 @@ export default function ChartLineTimelineExample() {
       xFormatter={clock}
       xTooltipFormatter={(minute) => `${clock(minute)} IST, 10-min average`}
       series={series}
-      valueFormatter={(v) => v.toFixed(1)}
-      yTickFormatter={(v) => v.toFixed(0)}
+      valueFormatter={(v) => fixed(v, 1)}
+      yTickFormatter={(v) => fixed(v, 0)}
       curve="linear"
       height={192}
     />
