@@ -15,18 +15,6 @@ export const blocks: Page = {
   layout: "index",
   families: [
     {
-      id: "instrument-page",
-      title: "Instrument page",
-      lead: "Everything about one share on one page, built from the package as it ships: the price and the day's move head it, a large annotated chart leads, and each block after it answers the next question a reader of the chart asks.",
-      examples: [
-        {
-          name: "instrument-page",
-          caption:
-            "A made-up NSE share over five years against the Nifty 50; every figure is worked out from its sessions.",
-        },
-      ],
-    },
-    {
       id: "metric-strip",
       title: "MetricStrip",
       lead: "A row of figures, each with its label, change and recent run, and optionally a picker that scopes the page. From dashboardcn's KPI row.",
@@ -195,24 +183,6 @@ export const blocks: Page = {
         "On a phone, following any link closes the drawer.",
       ],
       examples: [{ name: "app-sidebar", caption: 'Flat views drawn in place with collapsible="none".' }],
-    },
-    {
-      id: "portfolio",
-      title: "Portfolio page",
-      lead: "A whole page built from the package for one person's investments: one figure leads, and each section explains it a level deeper.",
-      rules: [
-        "The headline's first block is the figure the page is about; every block below answers the question the one before it raises: what it is made of, how it got here, how it did against the market and what the falls cost, then every holding.",
-        "Titles are worked out from the data, so the page states its findings and never goes stale.",
-        "Charts over the same days share a syncId and sit one under the other, so a hover reads the return and the fall from its best on one day.",
-        "On a phone the blocks stack in reading order and the table keeps the holding and its worth, with the day's change folded under it and the rest a tap away.",
-      ],
-      examples: [
-        {
-          name: "portfolio-page",
-          caption:
-            "Fifteen holdings in five asset classes on 27 Nov 2026: worth, the day, the gain since April against the Nifty 50, the worst fall and every holding.",
-        },
-      ],
     },
   ],
 };

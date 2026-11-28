@@ -101,7 +101,7 @@ const holdings: Holding[] = [
     high: 22.91,
   },
   {
-    name: "HDFC Bank",
+    name: "Tapti Bank",
     assetClass: "Indian equity",
     worth: 841260,
     day: 0.0072,
@@ -111,7 +111,7 @@ const holdings: Holding[] = [
     high: 1988,
   },
   {
-    name: "Infosys",
+    name: "Mandovi Infotech",
     assetClass: "Indian equity",
     worth: 693480,
     day: 0.0124,
@@ -131,7 +131,7 @@ const holdings: Holding[] = [
     high: 178.22,
   },
   {
-    name: "Larsen & Toubro",
+    name: "Sindhu Engineering",
     assetClass: "Indian equity",
     worth: 558920,
     day: 0.0049,
@@ -141,7 +141,7 @@ const holdings: Holding[] = [
     high: 3968.75,
   },
   {
-    name: "ITC",
+    name: "Palar Foods",
     assetClass: "Indian equity",
     worth: 371150,
     day: -0.0022,
@@ -151,7 +151,7 @@ const holdings: Holding[] = [
     high: 498.6,
   },
   {
-    name: "Tata Motors",
+    name: "Betwa Motors",
     assetClass: "Indian equity",
     worth: 288740,
     day: -0.0184,

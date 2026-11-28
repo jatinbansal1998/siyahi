@@ -26,7 +26,7 @@ const START: [href: string, title: string, use: string][] = [
   ["#/layout", "Page layout", "Sections, headings, facts and code in a long page."],
   ["#/data", "Data", "Charts, tables, figures and heat maps for numbers."],
   ["#/blocks", "Blocks", "Whole compositions to start a dashboard from."],
-  ["#/pages", "Pages", "Whole app pages to read as a design, such as the market after the close."],
+  ["#/pages", "Pages", "Whole app pages to read as a design: the market after the close, a portfolio and one share."],
 ];
 
 const INSTALL = `npm install @siyahi/ui@next tailwindcss @tailwindcss/vite

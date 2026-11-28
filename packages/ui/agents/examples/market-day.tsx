@@ -340,16 +340,16 @@ function Spread() {
 // weigh about a third of the index.
 
 const contributions: WaterfallStep[] = [
-  { kind: "change", label: "HDFC Bank", value: -46.2 },
-  { kind: "change", label: "ICICI Bank", value: -28.4 },
-  { kind: "change", label: "Kotak Mahindra Bank", value: -11.8 },
-  { kind: "change", label: "Axis Bank", value: -9.6 },
-  { kind: "change", label: "State Bank of India", value: -7.1 },
-  { kind: "change", label: "Reliance Industries", value: 9.4 },
-  { kind: "change", label: "Sun Pharma", value: 5.8 },
-  { kind: "change", label: "Tata Steel", value: 5.1 },
-  { kind: "change", label: "Hindalco", value: 4.6 },
-  { kind: "change", label: "Larsen & Toubro", value: 3.7 },
+  { kind: "change", label: "Tapti Bank", value: -46.2 },
+  { kind: "change", label: "Chenab Bank", value: -28.4 },
+  { kind: "change", label: "Sutlej Bank", value: -11.8 },
+  { kind: "change", label: "Mahanadi Bank", value: -9.6 },
+  { kind: "change", label: "Teesta Bank", value: -7.1 },
+  { kind: "change", label: "Konkan Industries", value: 9.4 },
+  { kind: "change", label: "Mahi Pharma", value: 5.8 },
+  { kind: "change", label: "Barak Steel", value: 5.1 },
+  { kind: "change", label: "Sone Metals", value: 4.6 },
+  { kind: "change", label: "Sindhu Engineering", value: 3.7 },
   { kind: "change", label: "The other 40 stocks", value: -28.35 },
   { kind: "total", label: "Nifty 50" },
 ];
@@ -509,12 +509,12 @@ interface Standout {
 }
 
 const standouts: Standout[] = [
-  { stock: "HDFC Bank", change: -0.029, volume: 3.6, note: "lowest close since August" },
-  { stock: "ICICI Bank", change: -0.024, volume: 2.7, note: "below its 200-day average" },
-  { stock: "Hindalco", change: 0.034, volume: 2.8, note: "52-week high" },
-  { stock: "Trent", change: 0.078, volume: 4.9, note: "52-week high" },
-  { stock: "Tata Steel", change: 0.026, volume: 2.1, note: "fifth day up" },
-  { stock: "Sun Pharma", change: 0.021, volume: 1.9, note: "52-week high" },
+  { stock: "Tapti Bank", change: -0.029, volume: 3.6, note: "lowest close since August" },
+  { stock: "Chenab Bank", change: -0.024, volume: 2.7, note: "below its 200-day average" },
+  { stock: "Sone Metals", change: 0.034, volume: 2.8, note: "52-week high" },
+  { stock: "Kosi Stores", change: 0.078, volume: 4.9, note: "52-week high" },
+  { stock: "Barak Steel", change: 0.026, volume: 2.1, note: "fifth day up" },
+  { stock: "Mahi Pharma", change: 0.021, volume: 1.9, note: "52-week high" },
 ];
 
 const largestVolume = Math.max(...standouts.map((s) => s.volume));
@@ -554,7 +554,7 @@ function Standouts() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>HDFC Bank traded 3.6 times its usual volume; three stocks hit 52-week highs</CardTitle>
+        <CardTitle>Tapti Bank traded 3.6 times its usual volume; three stocks hit 52-week highs</CardTitle>
         <CardDescription>
           Nifty 500 stocks that moved 1.9% or more on at least 1.9 times their usual volume. Volume is today's shares
           traded against the average of the last 20 sessions.
