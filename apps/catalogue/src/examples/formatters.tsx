@@ -13,6 +13,7 @@ import {
 
 const calls: [string, (f: Formatters) => string][] = [
   ["count(153110)", (f) => f.count(153110)],
+  ["number(-1500.25)", (f) => f.number(-1500.25)],
   ["money(153110)", (f) => f.money(153110)],
   ["money(-18400)", (f) => f.money(-18400)],
   ["moneyCompact(99999)", (f) => f.moneyCompact(99999)],

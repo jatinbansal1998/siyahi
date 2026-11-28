@@ -23,6 +23,28 @@
   `fixed` in the decimals its steps are given in (up to two), and
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
+- A line, area or bar chart card places its events' notes (`referenceLines`
+  `{ x }` with a `label` and no `labelPosition`) itself, as TimeSeriesChart
+  does: beside the event's rule, right or left, whichever is lower, just
+  above the marks under it and inside the plot, clear of the limits, their
+  labels and the other notes. Notes that would meet stack upward, the
+  shortest placed first, and a note never crosses another event's rule. A
+  note with no room keeps its rule and is written under the chart with its
+  date (`xTooltipFormatter`), so it never needs a hover. An event's note
+  used to sit at the plot's top left of its rule, where two close events ran
+  into each other; a page that set `labelPosition` on an event to keep two
+  apart can drop it, and one that keeps it keeps that note where it was.
+  Sideways bars are unchanged.
+- Chart cards given one `syncId` share their plot's left and right edges:
+  each takes the widest value axis and the widest right gutter (the names at
+  a line's end) any of them needs, so a return chart stacked over a drawdown
+  chart puts each date at the same x. Before, the line chart's names gutter
+  and the two value axes' tick lengths moved its plot's edges away from the
+  other's.
+- `number` writes a number with the locale's grouping and only the decimals
+  it has, up to three: 1,53,110, 0.25, −1,500.5. Chart cards and the scatter
+  chart use it for a value with no formatter (were `Intl.NumberFormat`'s
+  default, the same digits but with a hyphen for a negative).
 
 - `ChangeBar`, `ChangeGrid` and `Treemap` take `rise`, as `Delta` and a
   `MetricStrip` item do: `rise="bad"` for a cost or a debt shows a rise in

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
-import { QUIET, endLabelRoom, endLabelsFit, linesEndAtEdge, placeEnds, type LineEnd } from "../src/lib/chart-marks";
+import {
+  QUIET,
+  endLabelRoom,
+  endLabelsFit,
+  linesEndAtEdge,
+  placeEnds,
+  placeNotes,
+  type LineEnd,
+} from "../src/lib/chart-marks";
 
 const plot = { x: 40, y: 12, width: 400, height: 200 };
 const end = (name: string, x: number, y: number, quiet = false): LineEnd => ({
@@ -125,5 +133,55 @@ describe("endLabelsFit", () => {
 
   it("reserves room for the widest name after its leader and square", () => {
     expect(endLabelRoom(["W".repeat(30)])).toBeGreaterThan(30 * 7);
+  });
+});
+
+// Notes are text-xs mono, 7px a character, 12px tall; flat marks at y = 150 unless a test says otherwise.
+const flat = () => 150;
+// Marks high right of x = 200 and low left of it.
+const slope = (left: number) => (left >= 200 ? 50 : 150);
+
+describe("placeNotes", () => {
+  it("puts a note beside its rule just above the marks under it, on the lower side and inside the plot", () => {
+    // The note at 200 goes left, where it can sit lower.
+    const notes = [
+      { index: 0, x: 200, text: "split" },
+      { index: 1, x: 430, text: "end" },
+    ];
+    expect(placeNotes(notes, [200, 430], [], plot, slope).placed).toEqual([
+      // Right of x = 430 the plot ends at 440, so "end" goes left of its rule too.
+      { index: 1, x: 430, text: "end", left: 405, right: 426, top: 30, bottom: 42 },
+      { index: 0, x: 200, text: "split", left: 161, right: 196, top: 130, bottom: 142 },
+    ]);
+  });
+
+  it("stacks a note that would meet another above it, placing the shortest first", () => {
+    const narrow = { ...plot, width: 200 };
+    // The long note has no room right of its rule at 220 and meets "budget" left of it, so it climbs over.
+    const notes = [
+      { index: 0, x: 220, text: "new fund manager" },
+      { index: 1, x: 100, text: "budget" },
+    ];
+    expect(placeNotes(notes, [100, 220], [], narrow, flat).placed).toEqual([
+      { index: 1, x: 100, text: "budget", left: 104, right: 146, top: 130, bottom: 142 },
+      { index: 0, x: 220, text: "new fund manager", left: 104, right: 216, top: 116, bottom: 128 },
+    ]);
+  });
+
+  it("never crosses another event's rule, and hands back a note with no room as crowded", () => {
+    // "budget" would cross the rule at 110 on its right and the unlabelled one at 60 on its left.
+    const notes = [
+      { index: 0, x: 100, text: "budget" },
+      { index: 1, x: 110, text: "rate cut" },
+    ];
+    const { placed, crowded } = placeNotes(notes, [60, 100, 110], [], plot, flat);
+    expect(placed.map(({ text, left }) => ({ text, left }))).toEqual([{ text: "rate cut", left: 114 }]);
+    expect(crowded).toEqual([{ index: 0, x: 100, text: "budget" }]);
+  });
+
+  it("climbs over a limit's line rather than sitting on it", () => {
+    const limit = { left: 40, right: 440, top: 99, bottom: 101 };
+    const { placed } = placeNotes([{ index: 0, x: 200, text: "killed" }], [200], [limit], plot, () => 110);
+    expect(placed.map(({ top, bottom }) => ({ top, bottom }))).toEqual([{ top: 85, bottom: 97 }]);
   });
 });

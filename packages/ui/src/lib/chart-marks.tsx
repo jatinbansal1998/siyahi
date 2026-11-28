@@ -1,5 +1,7 @@
+import { useLayoutEffect } from "react";
 import { usePlotArea, useXAxisScale, useYAxisScale } from "recharts";
-import type { ChartSeries } from "@siyahi/ui/lib/chart-series";
+import { textWidth } from "@siyahi/ui/lib/fit-text";
+import type { ChartReferenceLine, ChartSeries } from "@siyahi/ui/lib/chart-series";
 
 /** The colour a series takes when it is one of many drawn quietly behind the few a page names in colour. */
 export const QUIET = "var(--muted-foreground)";
@@ -171,6 +173,173 @@ export function EndLabels<T extends object, K extends keyof T>({ data, xKey, ser
             {end.name}
           </text>
         </g>
+      ))}
+    </g>
+  );
+}
+
+// Pixels. An event's note is a line of text-xs mono beside its rule, as TimeSeriesChart's notes are (lib/chart-notes).
+const NOTE_HEIGHT = 12;
+/** Between a note and its own rule, and the least between a note and any other rule. */
+const NOTE_GAP = 4;
+/** Between a note and the marks under it. */
+const NOTE_CLEAR = 8;
+/** Between two notes side by side, so two never read as one. */
+const NOTE_SPACE = 8;
+/** Between two notes stacked. */
+const NOTE_ROW = 2;
+
+/** An event's note to place: the rule's x in pixels and the note's text. */
+export interface EventNote {
+  /** The event's place in the page's referenceLines, which says which crowded notes to write out. */
+  index: number;
+  x: number;
+  text: string;
+}
+
+/** A box on the plot, in pixels. */
+export interface Box {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+/** A note placed beside its rule, with its text's box. */
+export interface PlacedNote extends EventNote, Box {}
+
+/**
+ * Where each event's note goes: beside its rule, right of it or left of it, whichever sits lower, as low as it can
+ * above every mark under its width (`ceiling` gives the highest, as the smallest y) and inside the plot. A note
+ * never crosses another event's rule, which would make it read as that event's; one that meets a note placed before
+ * it, or something else already drawn (`taken`: a limit's line and its label), climbs over it. The shortest go
+ * first, so a long note crowds out no more than itself. A note left with no room is returned as crowded, for the
+ * chart to write out under the plot.
+ */
+export function placeNotes(
+  notes: readonly EventNote[],
+  /** Every event rule's x, those with a fixed label too. */
+  rules: readonly number[],
+  taken: readonly Box[],
+  plot: PlotBox,
+  ceiling: (left: number, right: number) => number,
+): { placed: PlacedNote[]; crowded: EventNote[] } {
+  const placed: PlacedNote[] = [];
+  const crowded: EventNote[] = [];
+  const floor = plot.y + plot.height;
+  for (const note of notes.toSorted((a, b) => a.text.length - b.text.length)) {
+    const width = textWidth(note.text);
+    const places = [note.x + NOTE_GAP, note.x - NOTE_GAP - width].flatMap((left) => {
+      const right = left + width;
+      if (left < plot.x || right > plot.x + plot.width) return [];
+      if (rules.some((x) => x !== note.x && x > left - NOTE_GAP && x < right + NOTE_GAP)) return [];
+      let bottom = Math.min(ceiling(left, right), floor) - NOTE_CLEAR;
+      const meets = (other: Box) =>
+        other.left < right + NOTE_SPACE &&
+        left < other.right + NOTE_SPACE &&
+        other.top < bottom + NOTE_ROW &&
+        bottom - NOTE_HEIGHT < other.bottom + NOTE_ROW;
+      const over = () => placed.find(meets) ?? taken.find(meets);
+      for (let box = over(); box; box = over()) bottom = box.top - NOTE_ROW;
+      return bottom - NOTE_HEIGHT < plot.y ? [] : [{ ...note, left, right, top: bottom - NOTE_HEIGHT, bottom }];
+    });
+    const lowest = places.reduce<PlacedNote | undefined>(
+      (best, next) => (best && best.top >= next.top ? best : next),
+      undefined,
+    );
+    if (lowest) placed.push(lowest);
+    else crowded.push(note);
+  }
+  return { placed, crowded: crowded.toSorted((a, b) => a.x - b.x) };
+}
+
+// Recharts sets a reference line's label this far from the line and the plot's edge.
+const LABEL_OFFSET = 5;
+
+/** Where Recharts draws a limit's label: inside the plot, above or below the line, at its left or right end. */
+function levelLabel(
+  text: string,
+  position: NonNullable<ChartReferenceLine["labelPosition"]>,
+  level: number,
+  plot: PlotBox,
+): Box {
+  const width = textWidth(text);
+  const left = position.endsWith("Right") ? plot.x + plot.width - LABEL_OFFSET - width : plot.x + LABEL_OFFSET;
+  const top = position.startsWith("insideBottom") ? level + LABEL_OFFSET : level - LABEL_OFFSET - NOTE_HEIGHT;
+  return { left, right: left + width, top, bottom: top + NOTE_HEIGHT };
+}
+
+interface EventNotesProps<T extends object> {
+  data: readonly T[];
+  xKey: keyof T;
+  /** The values a row's marks reach on the value axis: a note keeps above all of them. */
+  extent: (row: T) => number[];
+  referenceLines: readonly ChartReferenceLine[];
+  /** The places in referenceLines of the notes left with no room, as "1,3", each time they change. */
+  onCrowded: (indexes: string) => void;
+}
+
+/**
+ * The notes of the page's events ({ x } lines without a fixed labelPosition), placed by placeNotes beside their
+ * rules, over the marks, on a card-coloured halo.
+ */
+export function EventNotes<T extends object>({ data, xKey, extent, referenceLines, onCrowded }: EventNotesProps<T>) {
+  const xScale = useXAxisScale();
+  const yScale = useYAxisScale();
+  const plot = usePlotArea();
+  const at = (x: unknown) => xScale?.(x, { position: "middle" }) ?? Number.NaN;
+  const notes: EventNote[] = [];
+  const rules: number[] = [];
+  const taken: Box[] = [];
+  referenceLines.forEach(({ x, y, label, labelPosition }, index) => {
+    if (y !== undefined && plot) {
+      const level = yScale?.(y);
+      if (level === undefined || !Number.isFinite(level)) return;
+      taken.push({ left: plot.x, right: plot.x + plot.width, top: level - 1, bottom: level + 1 });
+      if (label !== undefined) taken.push(levelLabel(label, labelPosition ?? "insideTopLeft", level, plot));
+    }
+    if (x === undefined || !Number.isFinite(at(x))) return;
+    rules.push(at(x));
+    if (label !== undefined && labelPosition === undefined) notes.push({ index, x: at(x), text: label });
+  });
+  // Each row's highest mark, left to right.
+  const tops = data
+    .map((row) => ({
+      x: at(row[xKey]),
+      y: Math.min(
+        ...extent(row)
+          .map((value) => yScale?.(value) ?? Number.NaN)
+          .filter(Number.isFinite),
+      ),
+    }))
+    .filter(({ x, y }) => Number.isFinite(x) && Number.isFinite(y))
+    .toSorted((a, b) => a.x - b.x);
+  // The highest mark from left to right, taking the row either side, which a line or a bar runs to.
+  const ceiling = (left: number, right: number) => {
+    const from = Math.max(
+      0,
+      tops.findLastIndex(({ x }) => x < left),
+    );
+    const to = tops.findIndex(({ x }) => x > right);
+    return Math.min(...tops.slice(from, to === -1 ? undefined : to + 1).map(({ y }) => y));
+  };
+  const { placed, crowded } =
+    plot && notes.length > 0 ? placeNotes(notes, rules, taken, plot, ceiling) : { placed: [], crowded: [] };
+  const key = crowded.map(({ index }) => index).join();
+  useLayoutEffect(() => onCrowded(key), [key, onCrowded]);
+  return (
+    <g data-slot="event-notes">
+      {placed.map(({ index, left, top, text }) => (
+        <text
+          key={index}
+          x={left}
+          y={top + NOTE_HEIGHT / 2}
+          dominantBaseline="central"
+          className="fill-muted-foreground stroke-card font-mono text-xs"
+          style={HALO}
+        >
+          {text}
+        </text>
       ))}
     </g>
   );

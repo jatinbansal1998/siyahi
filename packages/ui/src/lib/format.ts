@@ -154,6 +154,14 @@ export function count(value: number, locale: SiyahiLocale = defaultLocale): stri
   return formatNumber(locale.numberLocale, { maximumFractionDigits: 0 }, value);
 }
 
+/**
+ * A number with the locale's grouping and only the decimals it has, up to three: 1,53,110 and 0.25. What a chart
+ * writes for a value the page gives no formatter for.
+ */
+export function number(value: number, locale: SiyahiLocale = defaultLocale): string {
+  return formatNumber(locale.numberLocale, { maximumFractionDigits: 3 }, value);
+}
+
 /** A number with the locale's grouping and exactly `fractionDigits` decimals: an index at 24,312.45, 46.2 points. */
 export function fixed(value: number, locale: SiyahiLocale = defaultLocale, fractionDigits = 2): string {
   return formatNumber(
@@ -223,6 +231,8 @@ export function time(
 
 export interface Formatters {
   count: (value: number) => string;
+  /** Only the decimals the value has, up to three: `number(0.25)` is 0.25, `number(153110)` is 1,53,110. */
+  number: (value: number) => string;
   money: (value: number, fractionDigits?: number) => string;
   /**
    * Pass `scale` on an axis so every tick shares one unit; a chart's yTickFormatter gets it as its second argument.
@@ -245,6 +255,7 @@ export function useFormat(): Formatters {
   return useMemo(
     () => ({
       count: (value) => count(value, locale),
+      number: (value) => number(value, locale),
       money: (value, fractionDigits) => money(value, locale, fractionDigits),
       moneyCompact: (value, scale, fractionDigits) => moneyCompact(value, locale, scale, fractionDigits),
       fixed: (value, fractionDigits) => fixed(value, locale, fractionDigits),

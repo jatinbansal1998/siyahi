@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { count, dateTime, fixed, money, moneyCompact, multiple, pct, signed, time } from "../src/lib/format";
+import { count, dateTime, fixed, money, moneyCompact, multiple, number, pct, signed, time } from "../src/lib/format";
 import type { SiyahiLocale } from "../src/lib/locale";
 
 const us: SiyahiLocale = { numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" };
@@ -109,6 +109,13 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
     expect(fixed(24312.45)).toBe("24,312.45");
     expect(fixed(2431245.5)).toBe("24,31,245.50");
     expect(fixed(46, undefined, 1)).toBe("46.0");
+  });
+
+  it("writes a number with grouping and only the decimals it has, up to three", () => {
+    expect(number(153110)).toBe("1,53,110");
+    expect(number(0.25)).toBe("0.25");
+    expect(number(1.23456)).toBe("1.235");
+    expect(number(-1500.5)).toBe("−1,500.5");
   });
 
   it("writes a ratio as a multiple", () => {
