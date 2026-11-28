@@ -41,6 +41,8 @@
 // figures beside it at strip size; no block, sparkline or tone.
 // Siyahi edit: `rise: "bad"` on a figure says a rise is bad news (a cost, a
 // debt, a fear gauge), so its Delta and sparkline take the loss colour on a rise.
+// Siyahi edit: a figure is at most FIGURE_MAX wide, so on a very wide block a
+// strip's figures, and a lead's supporting ones, keep together at its start.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
@@ -116,6 +118,10 @@ const COLUMNS: Record<number, string> = {
   7: "@2xl/strip:grid-cols-4 @7xl/strip:grid-cols-7",
   8: "@2xs/strip:grid-cols-2 @3xl/strip:grid-cols-4 @7xl/strip:grid-cols-8",
 }
+
+// The widest a strip figure or a lead gets: a note's reading measure, and more than a laptop gives a figure in a strip
+// of two, so only a very wide block leaves room after the figures rather than spreading them across it.
+const FIGURE_MAX = "40rem"
 
 type Role = "strip" | "blocks" | "lead" | "supporting"
 
@@ -216,6 +222,7 @@ function MetricStrip({
     </div>
   )
   const [first, ...rest] = items
+  const columns = Math.min(items.length, 8)
   return (
     <Card className={cn("gap-4", className)} {...props}>
       {(title || description || action) && (
@@ -231,7 +238,11 @@ function MetricStrip({
             // The supporting figures sit beside the lead, level with its foot, while they fit there, and under it
             // when they do not; they keep their own row of figures, so a note that wraps lowers its neighbour's too.
             <div className="flex flex-wrap items-end gap-x-12 gap-y-5">
-              {first && <div className="grid min-w-0">{figure(first, "lead")}</div>}
+              {first && (
+                <div className="grid min-w-0" style={{ maxWidth: FIGURE_MAX }}>
+                  {figure(first, "lead")}
+                </div>
+              )}
               {rest.length > 0 && (
                 <div className="grid min-w-0 auto-cols-fr grid-flow-col gap-x-8">
                   {rest.map((item) => figure(item, "supporting"))}
@@ -240,11 +251,10 @@ function MetricStrip({
             </div>
           ) : (
             <div
-              className={cn(
-                "grid grid-cols-1",
-                strip ? "gap-4" : "gap-0",
-                COLUMNS[Math.min(items.length, 8)] ?? COLUMNS[8],
-              )}
+              className={cn("grid grid-cols-1", strip ? "gap-4" : "gap-0", COLUMNS[columns] ?? COLUMNS[8])}
+              // The widest step lays the figures in one row of `columns`, so capping the row caps each figure. Blocks
+              // touch, a headline band across the page, and keep its width.
+              style={strip ? { maxWidth: `calc(${columns} * ${FIGURE_MAX} + ${columns - 1} * var(--spacing) * 4)` } : undefined}
             >
               {items.map((item) => figure(item, variant))}
             </div>

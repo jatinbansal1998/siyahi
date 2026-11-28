@@ -86,7 +86,10 @@ the page, not bigger type.
   stack; from 42rem they sit two or three across.
 - **A large monitor shows more blocks, not wider ones.** From a 140rem grid a
   `PanelGrid` of 2 takes a third block across, and from 180rem a grid of 2 or
-  3 a fourth, when it holds that many. Text stays at its size.
+  3 a fourth, when it holds that many. Text stays at its size. A
+  `MetricStrip` figure stops at 40rem, a note's reading measure, so on a
+  very wide block the figures keep together, and a lead's supporting
+  figures stay beside it, rather than spread across the screen.
 - **A chart's height follows its width** unless the page fixes one: 45% of
   its width, from 240px on a phone to 420px, so a chart on a wide screen
   stays a chart and one on a phone keeps room for its marks. Fix a height

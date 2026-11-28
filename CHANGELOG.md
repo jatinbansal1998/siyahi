@@ -10,6 +10,14 @@
   Compact columns and folding toolbars still measure the block: they now
   read the `DataTableRoot` itself, so a page that wraps `DataTable` in its
   own `<div>` no longer has that wrapper measured.
+- A `MetricStrip` figure is at most 40rem wide, so on a very wide block
+  (a 2560px screen) the figures keep together at the block's start instead
+  of spreading across it: a strip of two no longer puts its second figure
+  ~1100px from the first. In `variant="lead"` the lead figure stops at
+  40rem too, so a long note wraps under it and the supporting figures sit
+  48px after it rather than a long line away. Phones and laptops look as
+  before, except that a lead's note longer than 40rem now wraps there.
+  `variant="blocks"` keeps its full width.
 - A page built with `siyahi-page` keeps its background, text colour and font
   when a host wraps it in a skeleton of its own, as a Claude artifact does.
   That host's unlayered `body` rule outranked the theme's base layer, so the

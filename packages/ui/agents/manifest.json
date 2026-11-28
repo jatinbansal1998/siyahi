@@ -1359,6 +1359,12 @@
       ]
     },
     {
+      "file": "agents/examples/metric-strip-pair.tsx",
+      "components": [
+        "MetricStrip"
+      ]
+    },
+    {
       "file": "agents/examples/metric-strip-rise-bad.tsx",
       "components": [
         "MetricStrip",
