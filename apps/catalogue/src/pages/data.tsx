@@ -201,7 +201,7 @@ export const data: Page = {
         {
           name: "chart-area-log",
           caption:
-            "Money managed since launch, from ₹2L to ₹3.1Cr, linear first, with Linear and Log buttons beside a range toggle.",
+            "Money managed since launch, from ₹2L to ₹3.1 Cr, linear first, with Linear and Log buttons beside a range toggle.",
         },
       ],
     },
@@ -533,7 +533,7 @@ export const data: Page = {
         "A dashed line carries each level across the gap to the next bar, so the eye follows the running total.",
         "A total with a value that differs from the running total starts a new level, and no line joins it to the bar before.",
         "A step whose value is not a number (NaN) leaves every later balance unknown, so the card names that step instead of drawing.",
-        "Give yFrom when the changes are small beside the totals, such as ₹24L on a ₹1Cr portfolio: from zero they would be hairlines. A change keeps its true length on a cut axis, a total would not, so each total is a 2px line at its level and two slashes on the axis' foot mark the cut. A bridge that starts with a change starts from zero, so its axis is never cut.",
+        "Give yFrom when the changes are small beside the totals, such as ₹24L on a ₹1 Cr portfolio: from zero they would be hairlines. A change keeps its true length on a cut axis, a total would not, so each total is a 2px line at its level and two slashes on the axis' foot mark the cut. A bridge that starts with a change starts from zero, so its axis is never cut.",
         "Changes that share no running total, such as each team's growth, are a BarChartCard with negativeColor.",
       ],
       examples: [
@@ -548,7 +548,7 @@ export const data: Page = {
         {
           name: "waterfall-chart-portfolio",
           caption:
-            "A ₹1Cr portfolio's year, with the axis cut at ₹90L so the changes fill the plot and each total is a line at its level.",
+            "A ₹1 Cr portfolio's year, with the axis cut at ₹90L so the changes fill the plot and each total is a line at its level.",
         },
       ],
     },
@@ -1674,7 +1674,7 @@ export const data: Page = {
           name: "moneyCompact",
           type: "(value: number, scale?: number, fractionDigits?: number) => string",
           purpose:
-            "A short amount, ₹2.4L. In an Indian-region locale amounts under one lakh print in full; in en-IN a thousand crore reads ₹3,412 Cr and a lakh crore ₹1.2L Cr. scale puts an axis's ticks in one unit; fractionDigits keeps more decimals for a headline, ₹1.245Cr.",
+            "A short amount, ₹2.4L. In an Indian-region locale amounts under one lakh print in full; in en-IN crore takes a space at every size, ₹900 Cr and ₹3,412 Cr, and a lakh crore reads ₹1.2L Cr. scale puts an axis's ticks in one unit; fractionDigits keeps more decimals for a headline, ₹1.245 Cr.",
         },
         {
           name: "fixed",

@@ -391,7 +391,7 @@ interface TickProps {
 /**
  * A value tick's text formatted against the axis' largest tick, so every label shares one unit: ₹1.6L down to ₹0.4L,
  * never ₹80,000 halfway up. `ownUnit` writes each in its own, as on a log axis, whose ticks run across powers of ten:
- * ₹20,000, ₹1L, ₹5Cr.
+ * ₹20,000, ₹1L, ₹5 Cr.
  */
 const valueTickText =
   (formatter: (value: number, scale: number) => string, ownUnit = false) =>

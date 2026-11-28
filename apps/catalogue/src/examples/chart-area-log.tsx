@@ -1,6 +1,6 @@
 import { AreaChartCard, ToggleGroup, ToggleGroupItem, useFormat, type ChartSeries } from "@siyahi/ui";
 
-// Money a new fund manages, month by month from launch, made up for the catalogue: ₹2L to ₹3.1Cr.
+// Money a new fund manages, month by month from launch, made up for the catalogue: ₹2L to ₹3.1 Cr.
 const data = [
   { month: "Nov", managed: 200000 },
   { month: "Dec", managed: 450000 },
@@ -24,7 +24,7 @@ export default function ChartAreaLogExample() {
   const { money, moneyCompact } = useFormat();
   return (
     <AreaChartCard
-      title="₹3.1Cr managed a year after launch"
+      title="₹3.1 Cr managed a year after launch"
       description="Linear shows the size today; Log shows the early months, when it grew fastest."
       action={
         <ToggleGroup defaultValue={["1Y"]} variant="outline" size="sm" aria-label="Range">

@@ -204,8 +204,9 @@ from the catalogue.
   budget".
 - **Numbers** go through `useFormat()` and `Delta`, never `toFixed` or a
   page's own `Intl.NumberFormat`. In the default locale that is Indian
-  grouping (1,53,110), compact rupees (₹3.1Cr, ₹3,412 Cr, ₹1.2L Cr) and
-  amounts under a lakh in full; a page under another locale keeps its forms.
+  grouping (1,53,110), compact rupees (₹2.4L, ₹3.1 Cr, ₹3,412 Cr, ₹1.2L Cr:
+  crore after a space at every size, lakh against the figure) and amounts
+  under a lakh in full; a page under another locale keeps its forms.
   An index level or other plain decimal is `fixed` (24,312.45), a multiple is
   `multiple` (2.4×). A figure on its own (a cell, a tick, a tooltip) carries
   its sign, as Colour says; a sign is `+` or the minus `−`, never a hyphen,
@@ -276,7 +277,7 @@ from the catalogue.
   their length is the value; lines and overlapping areas need not, so a
   revenue line from ₹38L to ₹45L fills the plot rather than its top fifth.
 - **A bridge may cut its axis, and then draws no total as a bar.** Where a
-  waterfall's changes are small beside its totals (₹24L on a ₹1Cr
+  waterfall's changes are small beside its totals (₹24L on a ₹1 Cr
   portfolio, 103 points on an index at 24,415), the page starts its value
   axis near the levels (`yFrom`). A change keeps its true length on a cut
   axis, since it is a difference; a total would not, so each total is a 2px

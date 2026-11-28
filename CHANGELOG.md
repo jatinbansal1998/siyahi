@@ -10,6 +10,16 @@
   it back; a page needs no reset of its own. Rebuild and republish a page
   built earlier. The theme sets `tabular-nums` on `<html>` with the mono face,
   where it set it on `body`; every element inherits it as before.
+- **Breaking:** in en-IN, `moneyCompact` writes crore after a space at
+  every size, as it already did from a thousand crore: ₹900 Cr, ₹40 Cr,
+  ₹412.6 Cr, ₹1.2 Cr (were ₹900Cr and so on), so ₹900 Cr beside ₹2,100 Cr
+  reads as one unit. An axis in crore writes ₹50 Cr, ₹25 Cr, ₹0. Lakh
+  stays against the figure, ₹2.4L, as does the L of a lakh crore, ₹1.2L Cr.
+  An app that tests or matches this text must add the space. An amount
+  that rounds up into the next unit is now written in it, as Intl picks:
+  `moneyCompact(9_999_999_999)` is ₹1,000 Cr (was ₹1KCr) and
+  `moneyCompact(999_999_600_000)` ₹1L Cr (was ₹1,00,000 Cr). Other
+  locales, including hi-IN, are unchanged.
 - `WaterfallChartCard` takes `yFrom`, where its value axis starts in place
   of zero, for a bridge whose changes are small beside its totals: a
   portfolio from ₹1.00Cr to ₹1.24Cr, or an index from 24,415 to 24,312. Its
