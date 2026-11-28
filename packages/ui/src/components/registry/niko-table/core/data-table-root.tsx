@@ -7,6 +7,8 @@
 // A details column shows only while columns are hidden, so fitColumns sets the
 // visibility whether the reader shows all columns or not.
 // Siyahi edit: a column with meta.expandedContent lets every row expand.
+// Siyahi edit: the root is the data-table-root slot, so the theme can line its
+// toolbar and footer up with a table narrower than its block.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`;
 // the TanStack options it inherits take Optional<…> for the same reason.
@@ -862,7 +864,7 @@ function DataTableRootInternal<TData extends RowData>({
       compactColumns={compactColumns}
     >
       <TooltipProvider {...tooltipProviderDelay}>
-        <div className={cn("w-full min-w-0 space-y-4", className)}>
+        <div data-slot="data-table-root" className={cn("w-full min-w-0 space-y-4", className)}>
           {children}
         </div>
       </TooltipProvider>
@@ -893,7 +895,7 @@ function ExternalTableRoot<TData extends RowData>({
       compactColumns={null}
     >
       <TooltipProvider {...tooltipProviderDelay}>
-        <div className={cn("w-full min-w-0 space-y-4", className)}>
+        <div data-slot="data-table-root" className={cn("w-full min-w-0 space-y-4", className)}>
           {children}
         </div>
       </TooltipProvider>

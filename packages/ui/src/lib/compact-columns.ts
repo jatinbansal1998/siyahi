@@ -12,12 +12,13 @@ const DEFAULT_SIZE = 150;
 export const DETAILS_COLUMN_ID = "details";
 
 /**
- * Reports the room a table has whenever it changes: the inner width of its scroll box's parent. The box itself is
- * only as wide as the table (siyahi.css), so a short table measured there would read as a phone's.
+ * Reports the room a table has whenever it changes: the inner width of its data table's root, which keeps its
+ * block's width. The box, and the column it shares with its toolbar, are only as wide as the table (siyahi.css), so
+ * a short table measured there, or at a page's wrapper around the box, would read as a phone's.
  */
 export function useTableWidth(scrollBox: HTMLElement | null, onChange: (width: number) => void): void {
   React.useLayoutEffect(() => {
-    const room = scrollBox?.parentElement;
+    const room = scrollBox?.closest<HTMLElement>('[data-slot="data-table-root"]');
     if (!room) return;
     const measure = () => {
       if (room.clientWidth > 0) onChange(room.clientWidth);
