@@ -44,6 +44,22 @@ describe("table width", () => {
     expect(box - table).toBeLessThanOrEqual(2);
   });
 
+  it("ends a narrow table's toolbar and pager at the table's right edge, not the block's", async () => {
+    const card = exampleCard("data-table-pagination");
+    await card.getByRole("navigation", { name: "Table pagination" }).waitFor();
+    const edges = await card.evaluate((el) => {
+      const right = (selector: string) => Math.round(el.querySelector(selector)!.getBoundingClientRect().right);
+      return {
+        block: right('[data-slot="card-content"]'),
+        table: right('[data-slot="table-container"]'),
+        toolbar: right('[role="toolbar"]'),
+        pager: right('nav[aria-label="Table pagination"]'),
+      };
+    });
+    expect(edges.table).toBeLessThan(edges.block - 200);
+    expect(edges).toEqual({ ...edges, toolbar: edges.table, pager: edges.table });
+  });
+
   it("keeps a short table's wide-screen toolbar: it measures its block, not its own width", async () => {
     const card = exampleCard("data-table-filters");
     await card.getByRole("textbox", { name: "Search orders" }).waitFor();

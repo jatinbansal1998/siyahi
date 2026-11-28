@@ -2,6 +2,14 @@
 
 ## 0.1.9
 
+- A data table's toolbar and pager take the table's width when the table is
+  narrower than its block, and wrap within it, so a row count such as "14
+  positions" ends at the table's right edge instead of the far side of a
+  wide screen. The table sets the width; a toolbar adds no more than its
+  widest control. A table that fills its block, or a phone, looks as before.
+  Compact columns and folding toolbars still measure the block: they now
+  read the `DataTableRoot` itself, so a page that wraps `DataTable` in its
+  own `<div>` no longer has that wrapper measured.
 - A page built with `siyahi-page` keeps its background, text colour and font
   when a host wraps it in a skeleton of its own, as a Claude artifact does.
   That host's unlayered `body` rule outranked the theme's base layer, so the
