@@ -14,9 +14,11 @@ a meaning:
   numbers, the selected sidebar item and an `accent` `Callout`. Buttons,
   badges, toggles and focus stay monochrome. Charts keep their own five-hue
   palette, indigo first.
-- **Green and red** mean a gain and a loss. A signed figure is `Delta`: the figure in the text colour with its
+- **Green and red** mean good news and bad. A signed figure is `Delta`: the figure in the text colour with its
   `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
-  colour a run of figures green and red.
+  colour a run of figures green and red. A rise is green unless the page says otherwise: for a cost, a debt or a
+  fear gauge such as India VIX, `rise="bad"` on `Delta` (`rise: "bad"` on a `MetricStrip` item, which also
+  colours its sparkline) shows a rise in red and a fall in green. The sign and the arrow still follow the number.
   **Yellow** means caution, kept apart from the amber accent. None of them decorates.
 - **Emphasis tints the whole surface.** A notice is `StatusAlert` in its tone (an
   error reads like a warning, only red); a state is `StatusBadge`; a point set
@@ -136,8 +138,19 @@ the actions at the right, and a hairline under it. One per page; no hero card.
 A page may lead with its two to four main figures as a headline, under the
 masthead: `MetricStrip` with `variant="blocks"`, each figure on a solid block
 (the headline orange, then the text colour, then a grey), touching, its value
-large and every word in the block's own ink. One per page. It draws no
-sparkline and no tone, so an exception goes in a strip below it.
+large and every word in the block's own ink. It draws no sparkline and no
+tone, so an exception goes in a strip below it.
+
+A page about one number, a portfolio's worth or a share's price, leads with
+that number instead: `MetricStrip` with `variant="lead"`. The first figure is
+the largest thing on the page, in the text colour on the open page with no
+box, block or colour of its own, its change and one muted line (when it was
+read) under it; one or two supporting figures may sit beside it at the
+strip's size. Its size follows the strip's width, so a figure of up to
+sixteen characters (₹12,45,23,800.50) fits a phone; pass a longer one in its
+compact form. Choose blocks when the page weighs several figures equally,
+the lead when one figure is what the reader came for. One headline per page,
+blocks or lead, never both.
 
 ## Words
 

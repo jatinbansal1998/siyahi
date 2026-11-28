@@ -24,7 +24,7 @@ export const blocks: Page = {
           name: "items",
           type: "MetricStripItem[]",
           purpose:
-            "{ label, value, change?, changeFormat?, note?, trend?, tone?, stale?, disabled? } per figure; change draws as a Delta and colours the trend.",
+            "{ label, value, change?, changeFormat?, rise?, note?, trend?, tone?, stale?, disabled? } per figure; change draws as a Delta and colours the trend.",
         },
         { name: "title", type: "ReactNode", default: "—", purpose: "Optional, for a strip heading a page." },
         { name: "description", type: "ReactNode", default: "—", purpose: "A muted line under the title." },
@@ -36,10 +36,10 @@ export const blocks: Page = {
         },
         {
           name: "variant",
-          type: '"strip" | "blocks"',
+          type: '"strip" | "blocks" | "lead"',
           default: '"strip"',
           purpose:
-            "blocks sets two to four figures as the page's headline, each on a solid block; no sparkline, no tone.",
+            "blocks sets two to four figures as the page's headline, each on a solid block; lead sets the first figure large as the number the page is about, with up to two supporting figures beside it. Neither draws a sparkline or a tone.",
         },
         {
           name: "footer",
@@ -58,6 +58,13 @@ export const blocks: Page = {
           type: "(label: string) => void",
           default: "—",
           purpose: "Makes each figure a button that says whether it is pressed; keep figure content non-interactive.",
+        },
+        {
+          name: "items[].rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose:
+            "bad says a rise is bad news, as for a cost or a debt: the change's icon and the sparkline's last step take red on a rise and green on a fall.",
         },
         {
           name: "items[].tone",
@@ -84,7 +91,9 @@ export const blocks: Page = {
         "The columns follow the count, so no figure sits alone under a full row, up to eight of them: five run 3 + 2, seven 4 + 3, and eight fit one row on a wide strip.",
         "A sparkline sits under its figure at the figure's width; a run of gains or losses takes var(--positive) or var(--negative) from the change's sign.",
         "Set tone on the one or two figures that need a look. The page decides: a falling figure is not an exception when it is a cost.",
+        'Set rise: "bad" on a figure whose rise is bad news (a cost, a debt, a fear gauge), so its change and run are coloured by what they mean, not by their sign.',
         "variant=\"blocks\" is the page's headline, one per page, at its top: the figures sit on solid blocks, orange, then the text colour, then a grey, touching, each value large and in the block's own ink. It draws no sparkline and no tone; mark an exception in a strip below it.",
+        "variant=\"lead\" is for a page about one number, a portfolio's worth or a share's price: the first figure large, in the text colour on the open page, its change and one muted line under it, and up to two supporting figures beside it. It sizes the figure to the strip's width, so sixteen characters fit a phone; pass a longer figure in its compact form. One headline per page: lead or blocks, not both.",
       ],
       examples: [
         {
@@ -99,6 +108,19 @@ export const blocks: Page = {
         {
           name: "metric-strip-headline",
           caption: "Three headline figures on solid blocks, for the top of a page.",
+        },
+        {
+          name: "metric-strip-lead",
+          caption: "A share's price as the number its page is about, with the day's move and when it was read.",
+        },
+        {
+          name: "metric-strip-lead-supporting",
+          caption: "A portfolio's worth as the lead figure, with its gain and the cash to invest beside it.",
+        },
+        {
+          name: "metric-strip-rise-bad",
+          caption:
+            "Costs and a loan, where a rise is bad news: a rising cost and its run take red, a falling loan green.",
         },
         {
           name: "metric-strip-select",

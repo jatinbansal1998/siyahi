@@ -169,3 +169,98 @@ describe("a headline MetricStrip", { timeout: 60_000 }, () => {
     expect(Math.round((boxes[1]?.left ?? 0) - (boxes[0]?.right ?? 0))).toBe(0);
   });
 });
+
+/** The example on the MetricStrip page shot from this file, scrolled into view, once its strip is up. */
+async function example(file: string): Promise<Locator> {
+  if (!page.url().endsWith("#/blocks/metric-strip")) {
+    await page.goto(page.url().replace(/#.*/, "#/blocks/metric-strip"));
+    await page.getByRole("heading", { level: 1, name: "MetricStrip", exact: true }).waitFor();
+  }
+  const found = page.locator('[data-slot="example"]', {
+    has: page.locator('[data-slot="example-file"]', { hasText: `${file}.tsx` }),
+  });
+  await found.scrollIntoViewIfNeeded();
+  await found.locator('[data-slot="metric-strip"]').waitFor();
+  return found;
+}
+
+describe("a MetricStrip figure whose rise is bad news", { timeout: 60_000 }, () => {
+  it("colours a rising cost's change and run as a loss, and a falling loan's as a gain", async () => {
+    const strip = await example("metric-strip-rise-bad");
+    const figure = (label: string) =>
+      strip.locator('[data-slot="metric-strip-item"]', { has: page.getByText(label, { exact: true }) });
+    const colours = async (label: string) => ({
+      icon: await figure(label)
+        .locator('[data-slot="delta"] svg')
+        .evaluate((icon) => getComputedStyle(icon).color),
+      run: await figure(label).locator(".sparkline-now .recharts-line-curve").getAttribute("stroke", { timeout: 5000 }),
+    });
+    expect(await colours("Brokerage and charges")).toEqual({
+      icon: await themeColor(page, "--negative"),
+      run: "var(--negative)",
+    });
+    expect(await colours("Home loan outstanding")).toEqual({
+      icon: await themeColor(page, "--positive"),
+      run: "var(--positive)",
+    });
+  });
+});
+
+describe("a lead MetricStrip", { timeout: 60_000 }, () => {
+  it("sets the lead figure in the text colour on the open page, larger than the figures beside it", async () => {
+    const strip = await example("metric-strip-lead-supporting");
+    const figures = await strip.locator('[data-slot="metric-strip-item"]').evaluateAll((els) =>
+      els.map((el) => {
+        const value = el.querySelector('[data-slot="metric-strip-value"]') as Element;
+        const box = value.getBoundingClientRect();
+        return {
+          size: Number.parseFloat(getComputedStyle(value).fontSize),
+          colour: getComputedStyle(value).color,
+          fill: getComputedStyle(el).backgroundColor,
+          left: box.left,
+          right: box.right,
+          bottom: box.bottom,
+        };
+      }),
+    );
+    const [lead, ...supporting] = figures;
+    if (!lead) throw new Error("no lead figure");
+    expect(lead.colour).toBe(await themeColor(page, "--foreground"));
+    expect(figures.map((figure) => figure.fill)).toEqual(figures.map(() => "rgba(0, 0, 0, 0)"));
+    for (const figure of supporting) {
+      expect(figure.size * 2).toBeLessThan(lead.size);
+      // Beside the lead on a laptop, its value within the lead figure's height.
+      expect(figure.left).toBeGreaterThan(lead.right);
+      expect(Math.abs(figure.bottom - lead.bottom)).toBeLessThan(lead.size / 2);
+    }
+  });
+
+  it("fits a sixteen-character figure on a phone, on one line, without the page scrolling sideways", async () => {
+    expect(await leadOnPhone("₹12,45,23,800.50")).toEqual({ inside: true, lines: 1, pageScrolls: false });
+  });
+
+  it("breaks a figure too long for a phone onto a second line rather than push the page sideways", async () => {
+    expect(await leadOnPhone("₹1,24,52,38,00,000.50")).toEqual({ inside: true, lines: 2, pageScrolls: false });
+  });
+});
+
+/** Writes `figure` as the lead on a 390px phone: whether it stays inside its strip, on how many lines, and whether the page scrolls sideways. */
+async function leadOnPhone(figure: string) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  try {
+    const strip = await example("metric-strip-lead-supporting");
+    const value = strip.locator('[data-slot="metric-strip-item"][data-lead] [data-slot="metric-strip-value"]');
+    await value.evaluate((el, text) => (el.textContent = text), figure);
+    return await value.evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      const edge = (el.closest('[data-slot="metric-strip"]') as Element).getBoundingClientRect().right;
+      return {
+        inside: box.right <= edge && el.scrollWidth <= el.clientWidth,
+        lines: Math.round(box.height / Number.parseFloat(getComputedStyle(el).lineHeight)),
+        pageScrolls: document.documentElement.scrollWidth > window.innerWidth,
+      };
+    });
+  } finally {
+    await page.setViewportSize({ width: 1280, height: 900 });
+  }
+}

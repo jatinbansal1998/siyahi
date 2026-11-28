@@ -35,6 +35,11 @@
 // Siyahi edit: `variant="blocks"` sets the figures as a page's headline: each on
 // a solid block (the headline orange, the text colour, a grey, in turn), the
 // blocks touching, the value large, no sparkline and no tone wash.
+// Siyahi edit: `variant="lead"` sets one figure as the number a page is about,
+// large in the text colour on the open page, with one or two supporting
+// figures beside it at strip size; no block, sparkline or tone.
+// Siyahi edit: `rise: "bad"` on a figure says a rise is bad news (a cost, a
+// debt, a fear gauge), so its Delta and sparkline take the loss colour on a rise.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
 import * as React from "react"
@@ -62,6 +67,8 @@ export interface MetricStripItem {
   /** The signed change, drawn as a Delta under the figure; its sign colours the trend. For "pct", a fraction. */
   change?: number | undefined
   changeFormat?: "pct" | "money" | undefined
+  /** Whether a rise is good news, the default, or bad, as for costs or debt: "bad" swaps the change's colours. */
+  rise?: "good" | "bad" | undefined
   /** Muted words after the change, such as "vs last month", or what the figure covers. */
   note?: React.ReactNode
   /** Recent values, oldest first, drawn as a sparkline under the figure. */
@@ -89,9 +96,10 @@ export interface MetricStripProps extends Omit<React.ComponentProps<typeof Card>
   /**
    * "strip", the default: figures on the page with their sparklines. "blocks": the page's headline, two to four
    * figures each on a solid block with a large value; it draws no sparkline and no tone, so mark an exception in a
-   * strip below it. One per page.
+   * strip below it. "lead": the number the page is about, the first figure, large in the text colour with no box,
+   * and up to two supporting figures beside it; no sparkline and no tone. One headline per page, blocks or lead.
    */
-  variant?: "strip" | "blocks" | undefined
+  variant?: "strip" | "blocks" | "lead" | undefined
 }
 
 // Tailwind finds classes by scanning source, so each step is written out whole. A figure stays at least about 150px
@@ -108,11 +116,21 @@ const COLUMNS: Record<number, string> = {
   8: "@2xs/strip:grid-cols-2 @3xl/strip:grid-cols-4 @7xl/strip:grid-cols-8",
 }
 
-function trendColor(change: number | undefined): ChartColor {
+type Role = "strip" | "blocks" | "lead" | "supporting"
+
+const VALUE_SIZE: Record<Role, string> = {
+  strip: "text-lg tracking-tight",
+  blocks: "mt-2 text-4xl leading-none tracking-tighter",
+  // Sized by the strip's width, so sixteen characters (₹12,45,23,800.50) fit a phone; a longer figure breaks rather
+  // than push the page sideways.
+  lead: "text-[length:clamp(1.5rem,10cqi,3rem)] leading-tight wrap-anywhere",
+  supporting: "text-lg tracking-tight",
+}
+
+function trendColor({ change, rise = "good" }: MetricStripItem): ChartColor {
   if (change === undefined) return "var(--chart-1)"
-  if (change > 0) return "var(--positive)"
-  if (change < 0) return "var(--negative)"
-  return "var(--muted-foreground)"
+  if (change === 0) return "var(--muted-foreground)"
+  return change > 0 === (rise === "good") ? "var(--positive)" : "var(--negative)"
 }
 
 /** A row of figures, each with its change and recent run, optionally a picker that scopes the page. */
@@ -128,8 +146,68 @@ function MetricStrip({
   className,
   ...props
 }: MetricStripProps) {
-  const columns = COLUMNS[Math.min(items.length, 8)] ?? COLUMNS[8]
-  const blocks = variant === "blocks"
+  const strip = variant === "strip"
+  const figure = (item: MetricStripItem, role: Role) => (
+    <div
+      key={item.label}
+      data-slot="metric-strip-item"
+      data-lead={role === "lead" ? "" : undefined}
+      data-tone={strip ? item.tone : undefined}
+      data-stale={item.stale ? "" : undefined}
+      data-picked={onSelect && item.label === selected ? "" : undefined}
+      // Each figure takes four rows of the strip's grid (label, value, change, sparkline) as a subgrid, so a label or
+      // note that wraps in one figure lowers that row for its neighbours too and every part stays level. Blocks and a
+      // lead have no sparkline, so three.
+      className={cn(
+        "relative grid min-w-0 grid-rows-subgrid gap-y-1",
+        strip ? "row-span-4" : "row-span-3",
+        role === "blocks" && "p-4",
+        onSelect && item.disabled && "opacity-60",
+      )}
+    >
+      {/* The figure is a div, which a button cannot hold, so the button lies over it, out to the wash's edge. */}
+      {onSelect && (
+        <button
+          type="button"
+          aria-label={item.label}
+          aria-pressed={item.label === selected}
+          disabled={item.disabled}
+          onClick={() => onSelect(item.label)}
+          className="absolute -inset-2 z-10 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        />
+      )}
+      <div
+        data-slot="metric-strip-label"
+        className="font-mono text-2xs tracking-wider break-words text-muted-foreground uppercase"
+      >
+        {item.label}
+      </div>
+      <div data-slot="metric-strip-value" className={cn("font-semibold tabular-nums", VALUE_SIZE[role])}>
+        {item.value}
+      </div>
+      {/* The change's line, which may wrap, also holds the stale note, so the label is never cut short. A lead's runs
+          on as a sentence, so a long note wraps after the change rather than leave it alone on its line. */}
+      <div
+        className={cn(
+          "self-start",
+          role === "lead"
+            ? "text-sm [&>*+*]:ms-1.5"
+            : "flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs",
+        )}
+      >
+        {item.change !== undefined && <Delta value={item.change} format={item.changeFormat} rise={item.rise} />}
+        {item.note && <span className="text-muted-foreground">{item.note}</span>}
+        {item.stale && <StaleNote since={item.stale} />}
+      </div>
+      {strip &&
+        (item.trend && item.trend.length > 1 ? (
+          <Sparkline data={item.trend} variant="line" color={trendColor(item)} className="mt-1 h-8 w-full" />
+        ) : (
+          <div />
+        ))}
+    </div>
+  )
+  const [first, ...rest] = items
   return (
     <Card className={cn("gap-4", className)} {...props}>
       {(title || description || action) && (
@@ -141,63 +219,28 @@ function MetricStrip({
       )}
       <CardContent>
         <div data-slot="metric-strip" data-variant={variant} className="@container/strip">
-          <div className={cn("grid grid-cols-1", blocks ? "gap-0" : "gap-4", columns)}>
-            {items.map((item) => (
-              <div
-                key={item.label}
-                data-slot="metric-strip-item"
-                data-tone={blocks ? undefined : item.tone}
-                data-stale={item.stale ? "" : undefined}
-                data-picked={onSelect && item.label === selected ? "" : undefined}
-                // Each figure takes four rows of the strip's grid (label, value, change, sparkline) as a subgrid, so a label
-                // or note that wraps in one figure lowers that row for its neighbours too and every part stays level. A
-                // block has no sparkline, so three.
-                className={cn(
-                  "relative grid min-w-0 grid-rows-subgrid gap-y-1",
-                  blocks ? "row-span-3 p-4" : "row-span-4",
-                  onSelect && item.disabled && "opacity-60",
-                )}
-              >
-                {/* The figure is a div, which a button cannot hold, so the button lies over it, out to the wash's edge. */}
-                {onSelect && (
-                  <button
-                    type="button"
-                    aria-label={item.label}
-                    aria-pressed={item.label === selected}
-                    disabled={item.disabled}
-                    onClick={() => onSelect(item.label)}
-                    className="absolute -inset-2 z-10 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                )}
-                <div
-                  data-slot="metric-strip-label"
-                  className="font-mono text-2xs tracking-wider break-words text-muted-foreground uppercase"
-                >
-                  {item.label}
+          {variant === "lead" ? (
+            // The supporting figures sit beside the lead, level with its foot, while they fit there, and under it
+            // when they do not; they keep their own row of figures, so a note that wraps lowers its neighbour's too.
+            <div className="flex flex-wrap items-end gap-x-12 gap-y-5">
+              {first && <div className="grid min-w-0">{figure(first, "lead")}</div>}
+              {rest.length > 0 && (
+                <div className="grid min-w-0 auto-cols-fr grid-flow-col gap-x-8">
+                  {rest.map((item) => figure(item, "supporting"))}
                 </div>
-                <div
-                  data-slot="metric-strip-value"
-                  className={cn(
-                    "font-semibold tabular-nums",
-                    blocks ? "mt-2 text-4xl leading-none tracking-tighter" : "text-lg tracking-tight",
-                  )}
-                >
-                  {item.value}
-                </div>
-                {/* The change's line, which may wrap, also holds the stale note, so the label is never cut short. */}
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 self-start text-xs">
-                  {item.change !== undefined && <Delta value={item.change} format={item.changeFormat} />}
-                  {item.note && <span className="text-muted-foreground">{item.note}</span>}
-                  {item.stale && <StaleNote since={item.stale} />}
-                </div>
-                {blocks ? null : item.trend && item.trend.length > 1 ? (
-                  <Sparkline data={item.trend} variant="line" color={trendColor(item.change)} className="mt-1 h-8 w-full" />
-                ) : (
-                  <div />
-                )}
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div
+              className={cn(
+                "grid grid-cols-1",
+                strip ? "gap-4" : "gap-0",
+                COLUMNS[Math.min(items.length, 8)] ?? COLUMNS[8],
+              )}
+            >
+              {items.map((item) => figure(item, variant))}
+            </div>
+          )}
         </div>
       </CardContent>
       {footer && <CardFooter className="flex-col items-start gap-2 text-sm">{footer}</CardFooter>}
