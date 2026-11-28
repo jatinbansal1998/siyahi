@@ -22,6 +22,8 @@ const calls: [string, (f: Formatters) => string][] = [
   ["moneyCompact(12450000, undefined, 3)", (f) => f.moneyCompact(12450000, undefined, 3)],
   ["moneyCompact(34120000000)", (f) => f.moneyCompact(34120000000)],
   ["moneyCompact(1200000000000)", (f) => f.moneyCompact(1200000000000)],
+  ["countCompact(400000)", (f) => f.countCompact(400000)],
+  ["countCompact(-250000, 400000)", (f) => f.countCompact(-250000, 400000)],
   ["fixed(24312.45)", (f) => f.fixed(24312.45)],
   ["fixed(46.2, 1)", (f) => f.fixed(46.2, 1)],
   ["multiple(2.4)", (f) => f.multiple(2.4)],

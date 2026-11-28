@@ -1,5 +1,17 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { count, dateTime, fixed, money, moneyCompact, multiple, number, pct, signed, time } from "../src/lib/format";
+import {
+  count,
+  countCompact,
+  dateTime,
+  fixed,
+  money,
+  moneyCompact,
+  multiple,
+  number,
+  pct,
+  signed,
+  time,
+} from "../src/lib/format";
 import type { SiyahiLocale } from "../src/lib/locale";
 
 const us: SiyahiLocale = { numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" };
@@ -124,6 +136,25 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
     expect(moneyCompact(12_450_000, undefined, undefined, 3)).toBe("₹1.245 Cr");
   });
 
+  it("writes a count short in lakh and crore, and under a lakh in full", () => {
+    expect([40_000, 400_000, 12_450_000, 34_120_000_000, 1_200_000_000_000].map((n) => countCompact(n))).toEqual([
+      "40,000",
+      "4L",
+      "1.2 Cr",
+      "3,412 Cr",
+      "1.2L Cr",
+    ]);
+  });
+
+  it("writes every count on an axis in the unit of its largest, with the minus sign", () => {
+    expect([400_000, 50_000, 0, -200_000].map((tick) => countCompact(tick, undefined, 400_000))).toEqual([
+      "4L",
+      "0.5L",
+      "0",
+      "−2L",
+    ]);
+  });
+
   it("writes a number with grouping and a fixed count of decimals", () => {
     expect(fixed(24312.45)).toBe("24,312.45");
     expect(fixed(2431245.5)).toBe("24,31,245.50");
@@ -192,6 +223,8 @@ describe("another locale", () => {
     expect(money(153110, us)).toBe("$153,110");
     expect(moneyCompact(2400000, us)).toBe("$2.4M");
     expect(moneyCompact(1000, us)).toBe("$1K");
+    expect(countCompact(400_000, us)).toBe("400K");
+    expect(countCompact(-250_000, us, 400_000)).toBe("−250K");
     expect(moneyCompact(34_120_000_000, us)).toBe("$34.1B");
     expect(moneyCompact(34_120_000_000, { ...us, numberLocale: "hi-IN", currency: "INR" })).toBe("₹34.1\u00a0अ॰");
     expect(time(nineUtc, us)).toBe("05:00 EDT");

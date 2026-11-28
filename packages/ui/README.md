@@ -66,10 +66,11 @@ If npm is unreachable, both package tarballs are attached to
 
 ## Locale
 
-`useFormat()` provides `count`, `number`, `money`, `moneyCompact`, `fixed`,
-`multiple`, `pct`, `time` and `dateTime`, bound to the provider's locale. Defaults are
-Indian English, rupees and India Standard Time: `₹1,53,110`, `₹2.4L`,
-`₹3,412 Cr`, `24,312.45`, `2.4×`, `14:30 IST`. Use `Delta` for signed changes.
+`useFormat()` provides `count`, `number`, `money`, `moneyCompact`,
+`countCompact`, `fixed`, `multiple`, `pct`, `time` and `dateTime`, bound to the
+provider's locale. Defaults are Indian English, rupees and India Standard Time:
+`₹1,53,110`, `₹2.4L`, `₹3,412 Cr`, `4L`, `24,312.45`, `2.4×`, `14:30 IST`. Use
+`Delta` for signed changes.
 Override the locale for a whole app or a nested section:
 
 ```tsx
