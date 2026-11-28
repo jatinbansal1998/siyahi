@@ -1091,6 +1091,14 @@
       ]
     },
     {
+      "file": "agents/examples/drawdown-chart-stacked.tsx",
+      "components": [
+        "DrawdownChartCard",
+        "LineChartCard",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/drawdown-chart.tsx",
       "components": [
         "DrawdownChartCard",

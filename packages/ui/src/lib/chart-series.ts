@@ -45,7 +45,11 @@ export type ChartReferenceLine = (
   label?: string | undefined;
   /** "strong" draws it in the text colour, for the line that matters most; "muted" by default. */
   emphasis?: "muted" | "strong" | undefined;
-  /** Where the label sits against the line. Defaults to insideTopLeft. */
+  /**
+   * Where the label sits against the line; a limit's ({ y }) defaults to insideTopLeft. Left out on an event ({ x }),
+   * the chart places its note: beside its rule, above the marks and clear of the other events' notes, or, with no
+   * room on the plot, written out under it with its date. Give it only to pin a note where the page needs it.
+   */
   labelPosition?: "insideTopLeft" | "insideTopRight" | "insideBottomLeft" | "insideBottomRight" | undefined;
 };
 
@@ -64,7 +68,7 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   xTicks?: readonly T[K][] | undefined;
   /** The x axis ticks, and the tooltip's heading unless xTooltipFormatter is set. Defaults to the value as text. */
   xFormatter?: ((value: T[K]) => string) | undefined;
-  /** The tooltip's heading, when it should say more than a tick: "19:34:13 IST, 10 s average" against "19:34". */
+  /** The tooltip's heading, when it should say more than a tick: "19:34:13 IST" against "19:34". A note written out under the chart takes it for its date. */
   xTooltipFormatter?: ((value: T[K]) => string) | undefined;
   /** A series' value in the tooltip, and the y axis unless yTickFormatter is set. Defaults to the locale's numbers. */
   valueFormatter?: ((value: number) => string) | undefined;
@@ -92,7 +96,10 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   xLabel?: string | undefined;
   /** A title beside the value axis, read bottom to top, such as "Orders". Not drawn on sideways bars. */
   yLabel?: string | undefined;
-  /** Limits and events to mark on the plot. A zero line draws by itself when a value goes below zero. */
+  /**
+   * Limits and events to mark on the plot. A zero line draws by itself when a value goes below zero. An event's note
+   * keeps clear of the marks and the other notes, so keep it to a few words.
+   */
   referenceLines?: readonly ChartReferenceLine[] | undefined;
   /** Shown in the plot's place, at its height, such as a `Skeleton` while the data loads and a `BlockState` when there is none or it failed to load. */
   placeholder?: ReactNode;
@@ -106,7 +113,9 @@ export interface SeriesChartProps<T extends object, K extends keyof T> {
   /**
    * Links this chart's hover to every chart on the page given the same id: hovering October in one marks October in
    * the others, each with its band or line and its tooltip. Charts match by x value, not position, so one starting in
-   * April links with one starting in June. Give it only to charts over the same months or categories.
+   * April links with one starting in June. Linked charts also share their plot's left and right edges, the widest
+   * value axis and gutter any of them needs, so stacked one under another a date sits at the same x in each. Give it
+   * only to charts over the same months or categories.
    */
   syncId?: string | undefined;
 }

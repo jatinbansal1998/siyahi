@@ -13,8 +13,8 @@ import {
   useXAxisScale,
   useYAxisScale,
 } from "recharts";
-import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import { textWidth } from "@siyahi/ui/lib/fit-text";
+import { useFormat } from "@siyahi/ui/lib/format";
 import {
   Card,
   CardAction,
@@ -84,9 +84,9 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
   yScale?: AxisScale | undefined;
   /** Linear and Log buttons for the y axis in the header. */
   yScaleToggle?: boolean | undefined;
-  /** The x ticks and the tooltip's x figure. Defaults to the locale's numbers. */
+  /** The x ticks and the tooltip's x figure. Defaults to useFormat().number. */
   xFormatter?: ((value: number) => string) | undefined;
-  /** The y ticks and the tooltip's y figure. Defaults to the locale's numbers. */
+  /** The y ticks and the tooltip's y figure. Defaults to useFormat().number. */
   yFormatter?: ((value: number) => string) | undefined;
   /** How many points get their name beside the dot, at most; a name with no free spot is left to the tooltip. */
   labels?: number | undefined;
@@ -102,7 +102,7 @@ export interface ScatterChartCardProps<T extends ScatterPoint> {
   quadrants?: ScatterQuadrants | undefined;
   /** Names the size in the tooltip, such as "Value". Defaults to "Size". */
   sizeLabel?: string | undefined;
-  /** The tooltip's size figure. Defaults to the locale's numbers. */
+  /** The tooltip's size figure. Defaults to useFormat().number. */
   sizeFormatter?: ((value: number) => string) | undefined;
 }
 
@@ -142,7 +142,7 @@ export function ScatterChartCard<T extends ScatterPoint>({
   sizeLabel = "Size",
   sizeFormatter,
 }: ScatterChartCardProps<T>) {
-  const { numberLocale } = useLocale();
+  const { number } = useFormat();
   const [plotRef, plotWidth] = useElementWidth<HTMLDivElement>();
   const height = fixedHeight ?? fittedChartHeight(plotWidth);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
@@ -166,12 +166,9 @@ export function ScatterChartCard<T extends ScatterPoint>({
       if (left.isConnected) keyed.current = null;
     });
   };
-  const formatX = useMemo(() => xFormatter ?? new Intl.NumberFormat(numberLocale).format, [xFormatter, numberLocale]);
-  const formatY = useMemo(() => yFormatter ?? new Intl.NumberFormat(numberLocale).format, [yFormatter, numberLocale]);
-  const formatSize = useMemo(
-    () => sizeFormatter ?? new Intl.NumberFormat(numberLocale).format,
-    [sizeFormatter, numberLocale],
-  );
+  const formatX = xFormatter ?? number;
+  const formatY = yFormatter ?? number;
+  const formatSize = sizeFormatter ?? number;
   const drawn = useMemo(
     () => points.filter((p) => p.y !== null && Number.isFinite(p.y) && Number.isFinite(p.x)),
     [points],

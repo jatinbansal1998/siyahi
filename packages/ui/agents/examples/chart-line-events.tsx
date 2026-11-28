@@ -29,7 +29,7 @@ export default function ChartLineEventsExample() {
       xDomain={[0, 390]}
       xTicks={[2, 62, 122, 182, 242, 302, 362]}
       xFormatter={(second) => clock(second).slice(0, 5)}
-      xTooltipFormatter={(second) => `${clock(second)} IST, 10 s average`}
+      xTooltipFormatter={(second) => `${clock(second)} IST`}
       series={series}
       curve="linear"
       valueFormatter={(v) => `${v}%`}
@@ -38,8 +38,8 @@ export default function ChartLineEventsExample() {
       referenceLines={[
         { y: 80, label: "old limit, 80%" },
         { y: 50, label: "new limit, 50%", emphasis: "strong" },
-        { x: 313, label: "limit 50%", labelPosition: "insideBottomRight" },
-        { x: 367, label: "killed", emphasis: "strong", labelPosition: "insideTopRight" },
+        { x: 313, label: "limit 50%" },
+        { x: 367, label: "killed", emphasis: "strong" },
       ]}
       height={224}
     />

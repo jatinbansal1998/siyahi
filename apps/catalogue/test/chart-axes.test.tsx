@@ -70,13 +70,13 @@ describe("chart cards", { timeout: 60_000 }, () => {
       { stroke: "var(--muted-foreground)", dashed: false, upright: true },
       { stroke: "var(--foreground)", dashed: false, upright: true },
     ]);
-    // Recharts draws the labels in a layer of their own, in the lines' order; text-xs tells them from the ticks.
+    // Recharts draws the limits' labels in a layer of their own, in the lines' order; text-xs tells them from the
+    // ticks. The chart places the events' notes itself, shortest first.
     expect(await chart.locator("text.recharts-text.fill-muted-foreground.text-xs").allTextContents()).toEqual([
       "old limit, 80%",
       "new limit, 50%",
-      "limit 50%",
-      "killed",
     ]);
+    expect(await chart.locator('[data-slot="event-notes"] text').allTextContents()).toEqual(["killed", "limit 50%"]);
     const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
     if (!grid) throw new Error("not laid out");
     // Events sit at their second on the numeric axis, between samples.
@@ -91,10 +91,10 @@ describe("chart cards", { timeout: 60_000 }, () => {
     await settled(chart.locator(".recharts-line-curve"));
     const grid = await chart.locator(".recharts-cartesian-grid").boundingBox();
     if (!grid) throw new Error("not laid out");
-    // The sample at 75 s: ticks read 19:35, the tooltip the whole time and what was measured.
+    // The sample at 75 s: ticks read 19:35, the tooltip the whole time and its zone.
     const x = grid.x + (75 / 390) * grid.width;
-    expect(await tooltipAt(chart, x, grid.y + grid.height / 2, "19:35:13 IST, 10 s average")).toEqual([
-      "19:35:13 IST, 10 s average",
+    expect(await tooltipAt(chart, x, grid.y + grid.height / 2, "19:35:13 IST")).toEqual([
+      "19:35:13 IST",
       "Full pressure",
       "66%",
     ]);

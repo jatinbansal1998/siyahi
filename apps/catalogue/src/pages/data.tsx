@@ -96,7 +96,7 @@ const SERIES_PROPS: PropRow[] = [
     type: "string",
     default: "—",
     purpose:
-      "Charts on the page given the same id mark the hovered month or category together, matched by its value. Only for charts over the same axis.",
+      "Charts on the page given the same id mark the hovered month or category together, matched by its value, and share their plot's left and right edges. Only for charts over the same axis.",
   },
   {
     name: "yDomain",
@@ -116,7 +116,8 @@ const SERIES_PROPS: PropRow[] = [
     name: "referenceLines",
     type: "ChartReferenceLine[]",
     default: "—",
-    purpose: "Limits ({ y }, dashed) and events ({ x }, solid), each with label?, emphasis? and labelPosition?.",
+    purpose:
+      "Limits ({ y }, dashed) and events ({ x }, solid), each with label?, emphasis? and labelPosition?. The chart places an event's note clear of the marks, limits and other notes.",
   },
   {
     name: "placeholder",
@@ -399,6 +400,12 @@ export const data: Page = {
           purpose: "A limit is { y } and dashed, an event { x } and solid; label names it.",
         },
         {
+          name: "referenceLines[].labelPosition",
+          type: '"insideTopLeft" | "insideTopRight" | "insideBottomLeft" | "insideBottomRight"',
+          default: "insideTopLeft; an event's placed by the chart",
+          purpose: "Pins a label against its line. Leave it out on an event so the chart keeps its note clear.",
+        },
+        {
           name: "referenceLines[].emphasis",
           type: '"muted" | "strong"',
           default: '"muted"',
@@ -418,10 +425,15 @@ export const data: Page = {
         },
         CURVE,
       ],
+      rules: [
+        "An event's note sits beside its rule, right or left, whichever is lower, just above the lines under it and inside the plot, clear of the limits and their labels. It never crosses another event's rule.",
+        "Notes that would meet stack upward, the shortest placed first. A note with no room on the plot keeps its rule and is written under the chart with its date, so it never needs a hover; keep notes to a few words.",
+      ],
       examples: [
         {
           name: "chart-line-events",
-          caption: "Memory pressure every 15 s, with a dashed limit, solid events and a fixed 0–100% axis.",
+          caption:
+            "Memory pressure every 15 s, with dashed limits, solid events and a fixed 0–100% axis. On a phone the last event's note has no room beside its rule and is written under the chart.",
         },
         {
           name: "chart-line-timeline",
@@ -544,7 +556,7 @@ export const data: Page = {
       id: "drawdown-chart",
       title: "Drawdown",
       lead: "DrawdownChartCard shows how far a level sits below the highest it had reached, over time: a fund's or a cash balance's fall from its peak.",
-      imports: ["DrawdownChartCard"],
+      imports: ["DrawdownChartCard", "LineChartCard"],
       props: [
         {
           name: "data, xKey",
@@ -569,7 +581,7 @@ export const data: Page = {
           purpose: "Names the fall in the legend and tooltip.",
         },
         {
-          name: "title, description, action, height, xFormatter, xTooltipFormatter, xTicks, placeholder, footer",
+          name: "title, description, action, height, xFormatter, xTooltipFormatter, xTicks, placeholder, footer, syncId",
           type: "as AreaChartCard",
           default: "—",
           purpose: "As on the other chart cards.",
@@ -580,12 +592,18 @@ export const data: Page = {
         "The area hangs from zero in the loss colour; a dashed line names the deepest fall.",
         "A level that is null or NaN leaves a gap and does not move the peak.",
         "For the level itself over time, use AreaChartCard or TimeSeriesChartCard; put this under it when how deep and how long the falls were is the question.",
+        "Under a chart over the same days, give both one syncId: they hover together and share their plot's left and right edges, so a date sits at the same x in each, whatever their tick labels or the names at the line ends.",
       ],
       examples: [
         {
           name: "drawdown-chart",
           caption:
             "A year of a bakery's weekly cash balance as its fall from the best so far, with the deepest fall marked.",
+        },
+        {
+          name: "drawdown-chart-stacked",
+          caption:
+            "A fund's return against the Nifty 50 over its falls, one under the other on one syncId: both plots end at the same x, and the three events' notes stack or move under the chart on a phone.",
         },
       ],
     },
@@ -1633,13 +1651,19 @@ export const data: Page = {
     {
       id: "formatters",
       title: "Formatters",
-      lead: "useFormat() returns count, money, moneyCompact, fixed, multiple, pct, time and dateTime bound to the nearest SiyahiProvider, so a page never formats a number itself.",
+      lead: "useFormat() returns count, number, money, moneyCompact, fixed, multiple, pct, time and dateTime bound to the nearest SiyahiProvider, so a page never formats a number itself.",
       imports: ["useFormat", "SiyahiProvider", "signed"],
       props: [
         {
           name: "count",
           type: "(value: number) => string",
           purpose: "A whole number in the locale's grouping: 1,53,110.",
+        },
+        {
+          name: "number",
+          type: "(value: number) => string",
+          purpose:
+            "A number in the locale's grouping with only the decimals it has, up to three: 0.25. What a chart writes for a value with no formatter.",
         },
         {
           name: "money",

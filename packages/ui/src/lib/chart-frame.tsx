@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ComponentProps,
   type ComponentType,
   type CSSProperties,
@@ -37,7 +38,6 @@ import {
 } from "recharts";
 import { LOG_BLOCKED, useAxisScale } from "@siyahi/ui/components/siyahi/scale-toggle";
 import { StaleNote } from "@siyahi/ui/components/siyahi/stale-note";
-import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import {
   Card,
   CardAction,
@@ -67,7 +67,16 @@ import {
   type SeriesChartProps,
   type ValueScaleProps,
 } from "@siyahi/ui/lib/chart-series";
-import { EndLabels, QUIET, TimeMarks, endLabelRoom, endLabelsFit, linesEndAtEdge } from "@siyahi/ui/lib/chart-marks";
+import {
+  EndLabels,
+  EventNotes,
+  QUIET,
+  TimeMarks,
+  endLabelRoom,
+  endLabelsFit,
+  linesEndAtEdge,
+} from "@siyahi/ui/lib/chart-marks";
+import { useFormat } from "@siyahi/ui/lib/format";
 import { fitsLog, linearAxis, logAxis } from "@siyahi/ui/lib/ticks";
 import { useElementWidth } from "@siyahi/ui/lib/use-element-width";
 import { useRenderWhenFontsLoad } from "@siyahi/ui/lib/use-render-when-fonts-load";
@@ -379,27 +388,33 @@ interface TickProps {
   payload?: { value?: unknown } | undefined;
 }
 
+/**
+ * A value tick's text formatted against the axis' largest tick, so every label shares one unit: ₹1.6L down to ₹0.4L,
+ * never ₹80,000 halfway up. `ownUnit` writes each in its own, as on a log axis, whose ticks run across powers of ten:
+ * ₹20,000, ₹1L, ₹5Cr.
+ */
+const valueTickText =
+  (formatter: (value: number, scale: number) => string, ownUnit = false) =>
+  (value: number, ticks: readonly number[]): string =>
+    formatter(value, ownUnit ? Math.abs(value) : Math.max(Math.abs(value), ...ticks.map((tick) => Math.abs(tick))));
+
 interface ValueTickProps extends Omit<ComponentProps<typeof Text>, "children"> {
   payload?: { value?: unknown } | undefined;
   /** The axis that carries the values: y, or x when the bars run sideways. */
   axis: "x" | "y";
-  formatter: (value: number, scale: number) => string;
-  /** Each tick in its own unit, as on a log axis, whose ticks run across powers of ten: ₹20,000, ₹1L, ₹5Cr. */
-  ownUnit?: boolean | undefined;
+  text: (value: number, ticks: readonly number[]) => string;
 }
 
 /**
- * A value-axis tick formatted against the axis' largest tick, so every label shares one unit: ₹1.6L down to ₹0.4L,
- * never ₹80,000 halfway up. Recharts' tickFormatter sees one value at a time; the axis' ticks come from its hooks.
- * The rest of Recharts' tick props pass on as its own tick does, including the class it measures an auto width by.
+ * A value-axis tick written by `text` with the axis' ticks: Recharts' tickFormatter sees one value at a time; the
+ * axis' ticks come from its hooks. The rest of Recharts' tick props pass on as its own tick does, including the class
+ * it measures an auto width by.
  */
-function ValueTick({ payload, axis, formatter, ownUnit = false, ...tick }: ValueTickProps) {
+function ValueTick({ payload, axis, text, ...tick }: ValueTickProps) {
   const xTicks = useXAxisTicks();
   const yTicks = useYAxisTicks();
-  const value = Number(payload?.value);
-  const ticks = (axis === "x" ? xTicks : yTicks) ?? [];
-  const scale = ownUnit ? Math.abs(value) : Math.max(Math.abs(value), ...ticks.map((t) => Math.abs(Number(t.value))));
-  return <Text {...tick}>{formatter(value, scale)}</Text>;
+  const ticks = ((axis === "x" ? xTicks : yTicks) ?? []).map(({ value }) => Number(value));
+  return <Text {...tick}>{text(Number(payload?.value), ticks)}</Text>;
 }
 
 // At the ticks' 12px, Geist averages about 6.6px a character.
@@ -617,6 +632,82 @@ function PlacedTooltip<T>({ data, xKey, horizontal, extent, labelFormatter, form
   );
 }
 
+/** Room left and right of a plot, in pixels: the value axis' width, and the gutter after the plot. */
+interface Edges {
+  left: number;
+  right: number;
+}
+
+/** Each chart's own room, by syncId, then by chart. */
+const edgeGroups = new Map<string, Map<string, Edges>>();
+const edgeListeners = new Set<() => void>();
+const onEdges = (listener: () => void) => {
+  edgeListeners.add(listener);
+  return () => edgeListeners.delete(listener);
+};
+
+/** The widest room any chart of the group needs on each side, as "left,right", which stays one value while it holds. */
+function widestEdges(group: string | undefined): string {
+  const charts = group === undefined ? [] : [...(edgeGroups.get(group)?.values() ?? [])];
+  return `${Math.max(0, ...charts.map(({ left }) => left))},${Math.max(0, ...charts.map(({ right }) => right))}`;
+}
+
+/**
+ * Charts given one syncId cover the same axis and sit one under another (side by side ones stack on a phone), so
+ * each takes the widest room any of them needs left and right of its plot: their plots then share both edges, and a
+ * date sits at the same x in each, whatever their tick labels' lengths or names at the line ends.
+ */
+function useSharedEdges(group: string | undefined, own: Edges): Edges {
+  const id = useId();
+  useLayoutEffect(() => {
+    if (group === undefined) return;
+    const charts = edgeGroups.get(group) ?? new Map<string, Edges>();
+    edgeGroups.set(group, charts);
+    charts.set(id, { left: own.left, right: own.right });
+    for (const listener of edgeListeners) listener();
+    return () => {
+      charts.delete(id);
+      if (charts.size === 0) edgeGroups.delete(group);
+      for (const listener of edgeListeners) listener();
+    };
+  }, [group, id, own.left, own.right]);
+  const [left = 0, right = 0] = useSyncExternalStore(
+    onEdges,
+    () => widestEdges(group),
+    () => "0,0",
+  )
+    .split(",")
+    .map(Number);
+  return { left: Math.max(own.left, left), right: Math.max(own.right, right) };
+}
+
+// Past the widest tick label, Recharts' tick size and margin; beside a value axis' title, its line and gap.
+const TICK_ROOM = 8;
+const TITLE_ROOM = 20;
+
+interface AxisWidthProps {
+  tickText: (value: number, ticks: readonly number[]) => string;
+  titled: boolean;
+  onWidth: (width: number) => void;
+}
+
+/**
+ * Reports the width the value axis needs, from its tick labels' text in the mono: what Recharts' "auto" measures
+ * from the drawn labels. Read from the text, it does not move when the axis is given a width, as a measure of the
+ * drawn axis does while Recharts redraws it.
+ */
+function AxisWidth({ tickText, titled, onWidth }: AxisWidthProps) {
+  const ticks = (useYAxisTicks() ?? []).map(({ value }) => Number(value));
+  const width =
+    ticks.length === 0
+      ? undefined
+      : Math.max(...ticks.map((value) => textWidth(tickText(value, ticks)))) + TICK_ROOM + (titled ? TITLE_ROOM : 0);
+  useLayoutEffect(() => {
+    if (width !== undefined) onWidth(width);
+  }, [width, onWidth]);
+  return null;
+}
+
 /**
  * The card, axes, grid, tooltip and legend the three chart cards share. Both
  * axes keep Recharts' default ids: marks find their axes by id, and a page
@@ -665,7 +756,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   drawn = false,
   syncId,
 }: ChartFrameProps<T, K>) {
-  const { numberLocale } = useLocale();
+  const { number } = useFormat();
   const clipId = useId();
   const [contentRef, contentWidth] = useElementWidth<HTMLDivElement>();
   const height = fixedHeight ?? fittedChartHeight(contentWidth);
@@ -682,10 +773,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   const quiet = series.some(({ color }) => color === QUIET);
   // Only lines can be raised: a copy of a stacked band's series would trace its own values, not the band's edge.
   const raised = endLabels && !ends ? series.find(({ key, color }) => key === raisedKey && color === QUIET) : undefined;
-  const formatValue = useMemo(
-    () => valueFormatter ?? new Intl.NumberFormat(numberLocale).format,
-    [valueFormatter, numberLocale],
-  );
+  const formatValue = valueFormatter ?? number;
   const marks = [...series, ...(lines ?? [])];
   const config: ChartConfig = Object.fromEntries([
     ...series.map(({ key, label, color }) => [key, { label, color }]),
@@ -738,6 +826,27 @@ export function ChartFrame<T extends object, K extends keyof T>({
       : {}),
   };
   const endRight = !horizontal && xTicks ? endRoom(xFormatter, xTicks) : horizontal && yTickFormatter ? 28 : 8;
+  const [axisWidth, setAxisWidth] = useState(0);
+  const yTickText = yTickFormatter
+    ? valueTickText(yTickFormatter, log !== undefined)
+    : (value: number) => formatValue(value);
+  const synced = syncId !== undefined && !horizontal;
+  const edges = useSharedEdges(synced ? syncId : undefined, {
+    left: axisWidth,
+    right: ends ? Math.max(labelRoom, endRight) : endRight,
+  });
+  // The values a row's marks span along the value axis: its values, a stack's ends, and zero under bars.
+  const extent = (row: T) => [
+    ...axisValues([row], series, stackOffset),
+    ...axisValues([row], lines ?? []),
+    ...(Chart === BarChart ? [0] : []),
+  ];
+  // An event's note is placed by the chart (EventNotes) unless the page fixes where it goes; sideways, Recharts
+  // places it.
+  const notePlacedByChart = (line: ChartReferenceLine) =>
+    !horizontal && line.x !== undefined && line.label !== undefined && line.labelPosition === undefined;
+  const [crowdedKey, setCrowdedKey] = useState("");
+  const crowded = crowdedKey ? crowdedKey.split(",").flatMap((index) => referenceLines[Number(index)] ?? []) : [];
   return (
     <Card data-stale={stale ? "" : undefined}>
       <CardHeader>
@@ -787,8 +896,10 @@ export function ChartFrame<T extends object, K extends keyof T>({
               // A sideways chart's value axis ends in a centred tick label, which needs room past the plot.
               // Room above the plot for half the top tick label, so that label centres on its gridline.
               // With names at the line ends, the plot stops short of the card's edge and the names sit in that gutter.
-              margin={{ top: 12, left: 0, right: ends ? Math.max(labelRoom, endRight) : endRight }}
+              // Charts linked by a syncId take the widest room any of them needs on each side (useSharedEdges).
+              margin={{ top: 12, left: 0, right: edges.right }}
             >
+              {synced && <AxisWidth tickText={yTickText} titled={yLabel !== undefined} onWidth={setAxisWidth} />}
               <CartesianGrid vertical={horizontal} horizontal={!horizontal} />
               {horizontal ? (
                 <>
@@ -802,7 +913,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tick={yTickFormatter ? <ValueTick axis="x" formatter={yTickFormatter} {...TICK} /> : TICK}
+                    tick={yTickFormatter ? <ValueTick axis="x" text={valueTickText(yTickFormatter)} {...TICK} /> : TICK}
                   />
                   <HorizontalAxis
                     data={data}
@@ -836,7 +947,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     niceTicks={log || linear ? undefined : "snap125"}
                     tickLine={false}
                     axisLine={false}
-                    width="auto"
+                    // Linked charts take the widest axis of their group (useSharedEdges); others fit their labels.
+                    width={synced && edges.left > 0 ? edges.left : "auto"}
                     domain={log?.domain ?? linear?.domain ?? yDomain}
                     ticks={log?.ticks ?? (yTicks as number[] | undefined) ?? linear?.ticks}
                     label={
@@ -854,13 +966,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     // read a second parameter of its own, such as pct's decimals, so it gets the value alone.
                     // A page's formatter gets the axis' scale only when it asks for one: valueFormatter may read a second
                     // parameter of its own, such as pct's decimals.
-                    tick={
-                      yTickFormatter ? (
-                        <ValueTick axis="y" formatter={yTickFormatter} ownUnit={log !== undefined} {...TICK} />
-                      ) : (
-                        TICK
-                      )
-                    }
+                    tick={yTickFormatter ? <ValueTick axis="y" text={yTickText} {...TICK} /> : TICK}
                     tickFormatter={yTickFormatter ? undefined : (value: number) => formatValue(value)}
                   />
                 </>
@@ -871,36 +977,35 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 ) : (
                   <ReferenceLine y={0} stroke="var(--border)" />
                 ))}
-              {referenceLines.map(({ label, emphasis = "muted", labelPosition = "insideTopLeft", ...at }) => (
-                <ReferenceLine
-                  key={`${at.x ?? ""}:${at.y ?? ""}:${label ?? ""}`}
-                  // Sideways, a value level runs down the plot and a category mark across it.
-                  {...(horizontal ? { x: at.y, y: at.x } : at)}
-                  stroke={emphasis === "strong" ? "var(--foreground)" : "var(--muted-foreground)"}
-                  shape={haloLine}
-                  strokeDasharray={at.y === undefined ? undefined : "4 4"}
-                  label={
-                    label === undefined
-                      ? undefined
-                      : {
-                          value: label,
-                          position: labelPosition,
-                          // A halo in the card's colour keeps the label readable over a bar or an area it crosses.
-                          className: "fill-muted-foreground stroke-card text-xs",
-                          style: { paintOrder: "stroke", strokeWidth: 3, strokeLinejoin: "round" },
-                        }
-                  }
-                />
-              ))}
+              {referenceLines.map((line) => {
+                const { label, emphasis = "muted", labelPosition = "insideTopLeft", ...at } = line;
+                return (
+                  <ReferenceLine
+                    key={`${at.x ?? ""}:${at.y ?? ""}:${label ?? ""}`}
+                    // Sideways, a value level runs down the plot and a category mark across it.
+                    {...(horizontal ? { x: at.y, y: at.x } : at)}
+                    stroke={emphasis === "strong" ? "var(--foreground)" : "var(--muted-foreground)"}
+                    shape={haloLine}
+                    strokeDasharray={at.y === undefined ? undefined : "4 4"}
+                    label={
+                      label === undefined || notePlacedByChart(line)
+                        ? undefined
+                        : {
+                            value: label,
+                            position: labelPosition,
+                            // A halo in the card's colour keeps the label readable over a bar or an area it crosses.
+                            className: "fill-muted-foreground stroke-card text-xs",
+                            style: { paintOrder: "stroke", strokeWidth: 3, strokeLinejoin: "round" },
+                          }
+                    }
+                  />
+                );
+              })}
               <PlacedTooltip
                 data={data}
                 xKey={xKey}
                 horizontal={horizontal}
-                extent={(row) => [
-                  ...axisValues([row], series, stackOffset),
-                  ...axisValues([row], lines ?? []),
-                  ...(Chart === BarChart ? [0] : []),
-                ]}
+                extent={extent}
                 // The heading comes from the hovered row, not Recharts' label,
                 // which is the series name whenever the category is not a string.
                 labelFormatter={(_, payload) => {
@@ -920,6 +1025,15 @@ export function ChartFrame<T extends object, K extends keyof T>({
                 />
               )}
               {children}
+              {referenceLines.some(notePlacedByChart) && (
+                <EventNotes
+                  data={data}
+                  xKey={xKey}
+                  extent={extent}
+                  referenceLines={referenceLines}
+                  onCrowded={setCrowdedKey}
+                />
+              )}
               {raised &&
                 // The raised grey line, over every other, solid up to a forecast and dashed after it like the rest.
                 (forecastFrom === undefined ? ["solid"] : ["chart-actual", "chart-forecast"]).map((part) => (
@@ -954,6 +1068,22 @@ export function ChartFrame<T extends object, K extends keyof T>({
               )}
             </Chart>
           </ChartContainer>
+        )}
+        {!placeholder && crowded.length > 0 && (
+          // Notes with no room on the plot keep their rules and are written out here with their dates, so a reader
+          // needs no hover for them, as on TimeSeriesChart.
+          <ul data-slot="chart-notes" className="mt-2 flex flex-wrap gap-x-4 font-mono text-xs text-muted-foreground">
+            {crowded.map(({ x, label, emphasis }) => (
+              <li key={`${String(x)} ${label}`} className="flex items-center gap-1.5">
+                <span
+                  className="h-3 w-px shrink-0"
+                  style={{ backgroundColor: emphasis === "strong" ? "var(--foreground)" : "var(--muted-foreground)" }}
+                />
+                <span>{xTooltipFormatter(x as T[K])}</span>
+                <span className="text-foreground">{label}</span>
+              </li>
+            ))}
+          </ul>
         )}
       </CardContent>
       {/* shadcn's chart blocks lay their footer out this way. */}

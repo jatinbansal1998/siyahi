@@ -316,8 +316,13 @@ from the catalogue.
   stacks and forecasts stay with the other chart cards.
 - **Charts over one axis hover together.** Where blocks side by side cover the same months or categories, the page
   gives their chart cards one `syncId`: hovering October in one marks October in each of them, with the same band or
-  line and tooltip as a hover of its own, so the page reads as one instrument. Charts over different axes (months
-  beside quarters, a time beside a category) never share an id, as a linked mark would point at nothing.
+  line and tooltip as a hover of its own, so the page reads as one instrument. Linked charts also share their plot's
+  left and right edges, so stacked one under another a date sits at the same x in each. Charts over different axes
+  (months beside quarters, a time beside a category) never share an id, as a linked mark would point at nothing.
+- **Event notes keep clear.** An event on a chart card (a solid rule at a date, `referenceLines` `{ x }`) carries a
+  note of a few words, which the chart places beside its rule, above the lines and clear of the limits and the other
+  notes; notes that would meet stack, and one with no room is written under the chart with its date. Leave
+  `labelPosition` off an event unless the page must pin its note.
 - **Stale data is marked by the page**: `stale` on a chart card or a
   `MetricStrip` item, with since when ("3 Nov"). The block greys and its
   chart or sparkline draws at about 65% strength, a figure turns muted, and a small "Stale · 3 Nov" note says so. A stale block is meant
