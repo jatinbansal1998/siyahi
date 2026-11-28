@@ -29,6 +29,8 @@ export interface ChangeGridProps {
   format?: "pct" | "money" | undefined;
   /** The change that takes the deepest tint, as a size. Defaults to the grid's largest, totals aside. */
   range?: number | undefined;
+  /** Whether a rise is good news, the default, or bad, as for costs or debt: "bad" tints a rise red and a fall green. */
+  rise?: "good" | "bad" | undefined;
   /** Heads the total column, which draws when any row or the footer has a total. */
   totalLabel?: string | undefined;
   /**
@@ -55,6 +57,7 @@ export function ChangeGrid({
   rows,
   format = "pct",
   range,
+  rise = "good",
   totalLabel = "Total",
   footer,
   label,
@@ -105,7 +108,7 @@ export function ChangeGrid({
                     "rounded-sm text-right font-mono tabular-nums",
                     value === null && "text-muted-foreground",
                   )}
-                  style={{ backgroundColor: heat(value, deepest) }}
+                  style={{ backgroundColor: heat(value !== null && rise === "bad" ? -value : value, deepest) }}
                 >
                   {write(value)}
                 </TableCell>

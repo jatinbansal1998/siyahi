@@ -13,6 +13,11 @@ describe("ChangeBar", () => {
     expect(fill(renderToStaticMarkup(<ChangeBar value={-0.12} max={0.12} />))).toBe("left:0;width:100%");
   });
 
+  it("passes rise to its Delta, so a rise in a cost shows in the loss colour", () => {
+    const html = renderToStaticMarkup(<ChangeBar value={0.03} max={0.12} rise="bad" />);
+    expect(/<svg[^>]*class="([^"]+)"/.exec(html)?.[1]).toContain("text-negative");
+  });
+
   it("grows a loss leftward and a gain rightward from the centre when diverging", () => {
     expect(fill(renderToStaticMarkup(<ChangeBar value={-0.06} max={0.12} diverging />))).toBe("right:50%;width:25%");
     expect(fill(renderToStaticMarkup(<ChangeBar value={0.12} max={0.12} diverging />))).toBe("left:50%;width:50%");

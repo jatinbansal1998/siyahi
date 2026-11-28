@@ -893,6 +893,12 @@ export const data: Page = {
         },
         { name: "format", type: '"pct" | "money"', default: '"pct"', purpose: "How the Delta writes the change." },
         {
+          name: "rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose: "As on Delta: bad for a cost or a debt, so a rise shows in red and a fall in green.",
+        },
+        {
           name: "DataTableFootnote children",
           type: "ReactNode",
           purpose: "One sentence on the encoding, in a full-width last row after DataTableBody.",
@@ -908,6 +914,10 @@ export const data: Page = {
           name: "change-bar",
           caption:
             "A month's change per region, diverging around a centre line, January's values muted, with a footnote.",
+        },
+        {
+          name: "change-bar-costs",
+          caption: 'Delivery cost per region, where a rise is bad news: rise="bad" shows it in red.',
         },
       ],
     },
@@ -942,6 +952,13 @@ export const data: Page = {
           purpose: "The size that takes the deepest tint; give grids that sit together the same range.",
         },
         {
+          name: "rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose:
+            "As on Delta: bad for a cost or a debt, so a rise is tinted red and a fall green; signs follow the number.",
+        },
+        {
           name: "footer",
           type: "ChangeGridRow",
           default: "—",
@@ -968,6 +985,10 @@ export const data: Page = {
           name: "change-grid-money",
           caption:
             "Profit and loss by store and quarter, in one money unit, with the year's sum and a footer of all stores.",
+        },
+        {
+          name: "change-grid-costs",
+          caption: "Change in cost per meal by kitchen and quarter, where a rise is bad news and tinted red.",
         },
       ],
     },
@@ -1154,6 +1175,13 @@ export const data: Page = {
           purpose: "±range takes the deepest heat step, ±5% by default. Give TreemapLegend the same range.",
         },
         {
+          name: "rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose:
+            "As on Delta: bad for a cost or a debt, so a rise is tinted red and a fall green. Give TreemapLegend the same rise, so it names the red steps as rises.",
+        },
+        {
           name: "onHover",
           type: "(item: T | null) => void",
           default: "—",
@@ -1187,6 +1215,10 @@ export const data: Page = {
           name: "treemap",
           caption:
             "Cities grouped by region, with a hover tooltip, tap to select and the selection printed under the map.",
+        },
+        {
+          name: "treemap-costs",
+          caption: 'A café chain\'s costs by line, where a rise is bad news: the map and its legend take rise="bad".',
         },
       ],
     },

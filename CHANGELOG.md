@@ -24,6 +24,12 @@
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
 
+- `ChangeBar`, `ChangeGrid` and `Treemap` take `rise`, as `Delta` and a
+  `MetricStrip` item do: `rise="bad"` for a cost or a debt shows a rise in
+  red and a fall in green (`ChangeBar` on its Delta, `ChangeGrid` and
+  `Treemap` in their heat tints). Signs still follow the number.
+  `TreemapLegend` takes the same `rise`, so it names the red steps as rises.
+
 - `signed(value, write)` writes a change with `+` or the minus sign `−` and
   its size by a formatter, `signed(-18400, money)` "−₹18,400", and no sign
   where the size rounds to zero. `Delta`, `ChangeGrid`, `Treemap` and

@@ -19,7 +19,8 @@ a meaning:
   `signed(value, money)`; never
   colour a run of figures green and red. A rise is green unless the page says otherwise: for a cost, a debt or a
   fear gauge such as India VIX, `rise="bad"` on `Delta` (`rise: "bad"` on a `MetricStrip` item, which also
-  colours its sparkline) shows a rise in red and a fall in green. The sign and the arrow still follow the number.
+  colours its sparkline; `rise="bad"` on `ChangeBar`, `ChangeGrid` and `Treemap` with its legend, which tint by it)
+  shows a rise in red and a fall in green. The sign and the arrow still follow the number.
   **Yellow** means caution, kept apart from the amber accent. None of them decorates.
 - **Emphasis tints the whole surface.** A notice is `StatusAlert` in its tone (an
   error reads like a warning, only red); a state is `StatusBadge`; a point set

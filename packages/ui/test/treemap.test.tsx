@@ -310,4 +310,24 @@ describe("TreemapLegend", () => {
     expect(swatch("no change, or unknown")).toBe(fill("FLAT"));
     expect(document.querySelector('[data-slot="treemap-legend"]')?.textContent).toContain("12% a step");
   });
+
+  it("with rise bad, tints a rise red and a fall green, and names the red steps as rises", async () => {
+    const items = [
+      { name: "RENT", weight: 100, change: 0.3 },
+      { name: "WAGES", weight: 100, change: -0.7 },
+    ];
+    root = createRoot(document.body.appendChild(document.createElement("div")));
+    await act(async () =>
+      root?.render(
+        <>
+          <Treemap items={items} height={300} range={0.6} rise="bad" />
+          <TreemapLegend range={0.6} rise="bad" />
+        </>,
+      ),
+    );
+    expect(fill("RENT")).toContain("var(--negative) var(--heat-3)");
+    expect(fill("WAGES")).toContain("var(--positive) var(--heat-5)");
+    expect(swatch("up 24%–36%")).toBe(fill("RENT"));
+    expect(swatch("down over 48%")).toBe(fill("WAGES"));
+  });
 });

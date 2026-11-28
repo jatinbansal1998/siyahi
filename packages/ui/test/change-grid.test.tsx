@@ -22,6 +22,22 @@ describe("ChangeGrid", () => {
     expect([big?.text, small?.text, loss?.text]).toEqual(["+5.0%", "+1.0%", "−2.0%"]);
   });
 
+  it("with rise bad, tints a rise in the loss colour and a fall in the gain colour, keeping the signs", () => {
+    const html = renderToStaticMarkup(
+      <ChangeGrid
+        label="Costs"
+        columns={["Apr", "May"]}
+        rows={[{ label: "FY25", values: [0.05, -0.01] }]}
+        rise="bad"
+      />,
+    );
+    const [rise, fall] = [
+      ...html.matchAll(/data-slot="change-grid-cell"[^>]*style="background-color:([^"]*)"[^>]*>([^<]*)</g),
+    ];
+    expect([rise?.[1], rise?.[2]]).toEqual([heatFill("negative", 5), "+5.0%"]);
+    expect([fall?.[1], fall?.[2]]).toEqual([heatFill("positive", 1), "−1.0%"]);
+  });
+
   it("marks a month with no figure — and a month with no change 0, both muted", () => {
     const [, none, zero] = cells([{ label: "FY26", values: [0.03, null, 0] }]);
     expect(none).toEqual({ text: "—", fill: "var(--muted)" });

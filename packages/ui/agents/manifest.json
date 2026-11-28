@@ -651,6 +651,24 @@
       ]
     },
     {
+      "file": "agents/examples/change-bar-costs.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "ChangeBar",
+        "Table",
+        "TableBody",
+        "TableCell",
+        "TableHead",
+        "TableHeader",
+        "TableRow",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/change-bar.tsx",
       "components": [
         "Card",
@@ -668,6 +686,17 @@
         "DataTableSortHeader",
         "DataTableToolbarSection",
         "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/change-grid-costs.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "ChangeGrid"
       ]
     },
     {
@@ -1708,6 +1737,19 @@
         "Tooltip",
         "TooltipContent",
         "TooltipTrigger"
+      ]
+    },
+    {
+      "file": "agents/examples/treemap-costs.tsx",
+      "components": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Treemap",
+        "TreemapLegend",
+        "useFormat"
       ]
     },
     {
