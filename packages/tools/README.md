@@ -113,6 +113,19 @@ stylesheet `url()` whose file is not there, and on a page that builds to more
 than one file, such as one with a Web Worker. An absolute path is not checked;
 a page never uses one.
 
+A host may wrap the file in a skeleton of its own before serving it. A
+Claude artifact does: its `<head>` sets `body { font: 14px -apple-system, …;
+background: #fff; color: #000 }` outside any cascade layer, and such a rule
+outranks every rule Siyahi's theme keeps in its base layer, so the page drew
+on white in the system font. The build therefore adds one unlayered rule,
+`html body { background-color: var(--background); color: var(--foreground);
+font: inherit }`, which outranks a host's `body` rule and gives the body back
+the page's colours and the font `<html>` sets. The page needs no reset of its
+own. `color-scheme` already holds, since the theme sets it on `:root`
+unlayered, after the host's styles. `siyahi-shots` shoots the file as built,
+not as a host wraps it. A page built with `0.1.9-next.43` or earlier lacks the
+rule: rebuild it and upload it again.
+
 Run it in a project that has `@siyahi/ui`, `react`, `react-dom`,
 `tailwindcss`, `@tailwindcss/vite` and `@vitejs/plugin-react` installed. The
 page itself may live anywhere, a scratch folder included: every package it

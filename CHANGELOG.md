@@ -2,6 +2,14 @@
 
 ## 0.1.9
 
+- A page built with `siyahi-page` keeps its background, text colour and font
+  when a host wraps it in a skeleton of its own, as a Claude artifact does.
+  That host's unlayered `body` rule outranked the theme's base layer, so the
+  page drew on white in the system font, and in dark mode its light text sat
+  on that white. The build now adds an unlayered `html body` rule that wins
+  it back; a page needs no reset of its own. Rebuild and republish a page
+  built earlier. The theme sets `tabular-nums` on `<html>` with the mono face,
+  where it set it on `body`; every element inherits it as before.
 - `WaterfallChartCard` takes `yFrom`, where its value axis starts in place
   of zero, for a bridge whose changes are small beside its totals: a
   portfolio from ₹1.00Cr to ₹1.24Cr, or an index from 24,415 to 24,312. Its

@@ -125,6 +125,10 @@ update its page project's pins, rebuild, check and republish the HTML.
 
 A Claude artifact is such a host: publish that same checked HTML with the
 Artifact tool. The file carries its own scripts and fonts, so it meets the
-artifact's rules as long as the page fetches nothing at run time. When the
+artifact's rules as long as the page fetches nothing at run time. The host
+wraps the file in its own skeleton, whose white background and system font
+the build outranks; a page built with `@siyahi/tools` `0.1.9-next.43` or
+earlier does not, and shows on white in the system font, so rebuild it with a
+later version first. Add no reset of your own to the page. When the
 user asked for Siyahi or house style, build the page this way even where the
 Artifact tool offers a ready-made type such as Dashboard.
