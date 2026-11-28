@@ -15,6 +15,18 @@ export const blocks: Page = {
   layout: "index",
   families: [
     {
+      id: "instrument-page",
+      title: "Instrument page",
+      lead: "Everything about one share on one page, built from the package as it ships: the price and the day's move head it, a large annotated chart leads, and each block after it answers the next question a reader of the chart asks.",
+      examples: [
+        {
+          name: "instrument-page",
+          caption:
+            "A made-up NSE share over five years against the Nifty 50; every figure is worked out from its sessions.",
+        },
+      ],
+    },
+    {
       id: "metric-strip",
       title: "MetricStrip",
       lead: "A row of figures, each with its label, change and recent run, and optionally a picker that scopes the page. From dashboardcn's KPI row.",

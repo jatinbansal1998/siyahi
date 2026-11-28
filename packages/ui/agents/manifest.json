@@ -1212,6 +1212,37 @@
       ]
     },
     {
+      "file": "agents/examples/instrument-page.tsx",
+      "components": [
+        "BarChartCard",
+        "Button",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "ChangeGrid",
+        "DataList",
+        "DataListItem",
+        "DataTable",
+        "DataTableBody",
+        "DataTableHeader",
+        "DataTableRoot",
+        "DataTableSortHeader",
+        "Delta",
+        "DrawdownChartCard",
+        "HistogramChartCard",
+        "PageHeader",
+        "PanelGrid",
+        "RangePosition",
+        "TimeSeriesChartCard",
+        "ToggleGroup",
+        "ToggleGroupItem",
+        "dataTableDetailsColumn",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/local-time.tsx",
       "components": [
         "LocalTime"
