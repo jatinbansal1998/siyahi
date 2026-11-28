@@ -92,7 +92,7 @@ export const blocks: Page = {
         "A sparkline sits under its figure at the figure's width; a run of gains or losses takes var(--positive) or var(--negative) from the change's sign.",
         "Set tone on the one or two figures that need a look. The page decides: a falling figure is not an exception when it is a cost.",
         'Set rise: "bad" on a figure whose rise is bad news (a cost, a debt, a fear gauge), so its change and run are coloured by what they mean, not by their sign.',
-        "variant=\"blocks\" is the page's headline, one per page, at its top: the figures sit on solid blocks, orange, then the text colour, then a grey, touching, each value large and in the block's own ink. It draws no sparkline and no tone; mark an exception in a strip below it.",
+        "variant=\"blocks\" is the page's headline, one per page, at its top: the figures sit on solid blocks, orange, then the text colour, then a grey, touching, each value large and in the block's own ink, sized by its block's width so a ten-character change and its icon fit two blocks on a phone. It draws no sparkline and no tone; mark an exception in a strip below it.",
         "variant=\"lead\" is for a page about one number, a portfolio's worth or a share's price: the first figure large, in the text colour on the open page, its change and one muted line under it, and up to two supporting figures beside it. It sizes the figure to the strip's width, so sixteen characters fit a phone; pass a longer figure in its compact form. One headline per page: lead or blocks, not both.",
       ],
       examples: [
