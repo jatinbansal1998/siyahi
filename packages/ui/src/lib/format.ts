@@ -90,24 +90,65 @@ function shortUnit(parts: Intl.NumberFormatPart[], size: number): number {
 }
 
 /**
- * An amount in crore, as Indian press and exchanges write it, with a space before Cr at every size: ₹40 Cr, and
+ * A figure in crore, as Indian press and exchanges write it, with a space before Cr at every size: ₹40 Cr, and
  * ₹3,412 Cr with Indian grouping from a thousand crore, where Intl's en-IN data writes ₹40Cr and ₹3.4KCr. From one
- * lakh crore ₹1.2L Cr, where Intl writes ₹1.2LCr. `unit` is the power of ten Intl picked, so an amount that rounds
+ * lakh crore ₹1.2L Cr, where Intl writes ₹1.2LCr. `unit` is the power of ten Intl picked, so a figure that rounds
  * up into the next unit (₹99,999.96 Cr) is written in it (₹1L Cr).
  */
-function crores(value: number, locale: SiyahiLocale, unit: number, fractionDigits: number | undefined): string {
+function crores(
+  value: number,
+  locale: SiyahiLocale,
+  style: Intl.NumberFormatOptions,
+  unit: number,
+  fractionDigits: number | undefined,
+): string {
   const lakhCrore = unit >= LAKH * CRORE;
   const figure = formatNumber(
     locale.numberLocale,
     {
-      style: "currency",
-      currency: locale.currency,
+      ...style,
       minimumFractionDigits: 0,
       maximumFractionDigits: fractionDigits ?? (lakhCrore || unit < 1_000 * CRORE ? 1 : 0),
     },
     value / (lakhCrore ? LAKH * CRORE : CRORE),
   );
   return `${figure}${lakhCrore ? "L Cr" : " Cr"}`;
+}
+
+/** The short form `moneyCompact` and `countCompact` share, of a figure in `style`: a currency, or none for a count. */
+function compact(
+  value: number,
+  locale: SiyahiLocale,
+  style: Intl.NumberFormatOptions,
+  scale: number | undefined,
+  fractionDigits: number | undefined,
+): string {
+  const { language, region } = intlLocale(locale.numberLocale);
+  const size = scale ?? Math.abs(value);
+  if (value === 0 || (region === "IN" && size < LAKH)) {
+    return formatNumber(locale.numberLocale, { ...style, minimumFractionDigits: 0, maximumFractionDigits: 0 }, value);
+  }
+  const short = numberFormat(locale.numberLocale, {
+    ...style,
+    notation: "compact",
+    maximumFractionDigits: fractionDigits ?? 1,
+  });
+  // The unit Intl picks after rounding, so ₹99.99L, which it writes ₹1Cr, takes the crore spelling too.
+  const parts = short.formatToParts(Math.sign(value) * size);
+  const unit = shortUnit(parts, size);
+  if (language === "en" && region === "IN" && unit >= CRORE) {
+    return crores(value, locale, style, unit, fractionDigits ?? (scale === undefined ? undefined : 2));
+  }
+  if (scale === undefined || unit === 1) return written(partsOf(short, value));
+  // Write this value in the scale's unit inside the scale's own parts, so the currency, unit and sign sit where
+  // the locale puts them.
+  const digits = numberFormat(locale.numberLocale, { maximumFractionDigits: fractionDigits ?? 2 }).format(
+    Math.abs(value) / unit,
+  );
+  const first = parts.findIndex((part) => part.type === "integer");
+  return parts
+    .flatMap((part, index) => (index === first ? digits : NUMBER.has(part.type) ? [] : partText(part)))
+    .join("");
 }
 
 /**
@@ -129,31 +170,16 @@ export function moneyCompact(
   scale?: number,
   fractionDigits?: number,
 ): string {
-  const { language, region } = intlLocale(locale.numberLocale);
-  const size = scale ?? Math.abs(value);
-  if (value === 0 || (region === "IN" && size < LAKH)) return money(value, locale);
-  const compact = numberFormat(locale.numberLocale, {
-    style: "currency",
-    currency: locale.currency,
-    notation: "compact",
-    maximumFractionDigits: fractionDigits ?? 1,
-  });
-  // The unit Intl picks after rounding, so ₹99.99L, which it writes ₹1Cr, takes the crore spelling too.
-  const parts = compact.formatToParts(Math.sign(value) * size);
-  const unit = shortUnit(parts, size);
-  if (language === "en" && region === "IN" && unit >= CRORE) {
-    return crores(value, locale, unit, fractionDigits ?? (scale === undefined ? undefined : 2));
-  }
-  if (scale === undefined || unit === 1) return written(partsOf(compact, value));
-  // Write this value in the scale's unit inside the scale's own parts, so the currency, unit and sign sit where
-  // the locale puts them.
-  const digits = numberFormat(locale.numberLocale, { maximumFractionDigits: fractionDigits ?? 2 }).format(
-    Math.abs(value) / unit,
-  );
-  const first = parts.findIndex((part) => part.type === "integer");
-  return parts
-    .flatMap((part, index) => (index === first ? digits : NUMBER.has(part.type) ? [] : partText(part)))
-    .join("");
+  return compact(value, locale, { style: "currency", currency: locale.currency }, scale, fractionDigits);
+}
+
+/**
+ * A short count, in the units `moneyCompact` writes money in: 4L, 1.2 Cr and 3,412 Cr in en-IN, 400K and 1.2M in
+ * en-US; under one lakh an Indian-region locale writes it in full, 40,000. Give `scale`, the largest count on the
+ * same axis, and every tick takes its unit: 4L, 2L, 0, −2L.
+ */
+export function countCompact(value: number, locale: SiyahiLocale = defaultLocale, scale?: number): string {
+  return compact(value, locale, {}, scale, undefined);
 }
 
 /** A whole count with the locale's grouping: 1,53,110 in en-IN. */
@@ -246,6 +272,8 @@ export interface Formatters {
    * Pass `fractionDigits` for a headline that needs more decimals: `moneyCompact(12_450_000, undefined, 3)` is ₹1.245 Cr.
    */
   moneyCompact: (value: number, scale?: number, fractionDigits?: number) => string;
+  /** A count in short units, `countCompact(400000)` is 4L; pass `scale` on an axis, as for `moneyCompact`. */
+  countCompact: (value: number, scale?: number) => string;
   /** Exactly `fractionDigits` decimals, two by default, with the locale's grouping: `fixed(24312.45)` is 24,312.45. */
   fixed: (value: number, fractionDigits?: number) => string;
   /** One decimal by default: `multiple(2.4)` is 2.4×. */
@@ -265,6 +293,7 @@ export function useFormat(): Formatters {
       number: (value) => number(value, locale),
       money: (value, fractionDigits) => money(value, locale, fractionDigits),
       moneyCompact: (value, scale, fractionDigits) => moneyCompact(value, locale, scale, fractionDigits),
+      countCompact: (value, scale) => countCompact(value, locale, scale),
       fixed: (value, fractionDigits) => fixed(value, locale, fractionDigits),
       multiple: (value, fractionDigits) => multiple(value, locale, fractionDigits),
       pct: (value, fractionDigits) => pct(value, locale, fractionDigits),

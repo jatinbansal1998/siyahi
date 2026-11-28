@@ -10,6 +10,12 @@
   it back; a page needs no reset of its own. Rebuild and republish a page
   built earlier. The theme sets `tabular-nums` on `<html>` with the mono face,
   where it set it on `body`; every element inherits it as before.
+- `countCompact` writes a count short, in the units `moneyCompact` writes
+  money in: 4L, 1.2 Cr and 3,412 Cr in en-IN, 400K and 1.2M in en-US, and
+  under one lakh in full in an Indian-region locale, 40,000. Given `scale`,
+  the largest count on an axis, every tick takes its unit: 4L, 0.5L, 0, −2L.
+  It comes standalone and from `useFormat()` as `countCompact(value, scale?)`,
+  so an axis of futures contracts needs no hand-written `${count(v / 1e3)}k`.
 - **Breaking:** in en-IN, `moneyCompact` writes crore after a space at
   every size, as it already did from a thousand crore: ₹900 Cr, ₹40 Cr,
   ₹412.6 Cr, ₹1.2 Cr (were ₹900Cr and so on), so ₹900 Cr beside ₹2,100 Cr

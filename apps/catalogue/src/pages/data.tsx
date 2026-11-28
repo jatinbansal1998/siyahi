@@ -1651,7 +1651,7 @@ export const data: Page = {
     {
       id: "formatters",
       title: "Formatters",
-      lead: "useFormat() returns count, number, money, moneyCompact, fixed, multiple, pct, time and dateTime bound to the nearest SiyahiProvider, so a page never formats a number itself.",
+      lead: "useFormat() returns count, number, money, moneyCompact, countCompact, fixed, multiple, pct, time and dateTime bound to the nearest SiyahiProvider, so a page never formats a number itself.",
       imports: ["useFormat", "SiyahiProvider", "signed"],
       props: [
         {
@@ -1675,6 +1675,12 @@ export const data: Page = {
           type: "(value: number, scale?: number, fractionDigits?: number) => string",
           purpose:
             "A short amount, ₹2.4L. In an Indian-region locale amounts under one lakh print in full; in en-IN crore takes a space at every size, ₹900 Cr and ₹3,412 Cr, and a lakh crore reads ₹1.2L Cr. scale puts an axis's ticks in one unit; fractionDigits keeps more decimals for a headline, ₹1.245 Cr.",
+        },
+        {
+          name: "countCompact",
+          type: "(value: number, scale?: number) => string",
+          purpose:
+            "A short count in the units moneyCompact writes money in: 4L and 1.2 Cr in en-IN, 400K in en-US, under one lakh in full in an Indian-region locale. scale puts an axis's ticks in one unit: 4L, 2L, 0, −2L.",
         },
         {
           name: "fixed",
