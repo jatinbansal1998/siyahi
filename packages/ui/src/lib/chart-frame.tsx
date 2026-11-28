@@ -12,6 +12,7 @@ import {
   type ReactNode,
   type SVGProps,
 } from "react";
+import { textWidth } from "@siyahi/ui/lib/fit-text";
 import { cn } from "@siyahi/ui/lib/utils";
 import {
   AreaChart,
@@ -401,9 +402,8 @@ function ValueTick({ payload, axis, formatter, ownUnit = false, ...tick }: Value
   return <Text {...tick}>{formatter(value, scale)}</Text>;
 }
 
-// At the ticks' 12px, Geist averages about 6.6px a character and M PLUS 1 Code, the mono, 6px.
+// At the ticks' 12px, Geist averages about 6.6px a character.
 const GEIST_WIDTH = 6.6;
-const MONO_WIDTH = 6;
 
 /**
  * Room to keep right of the plot when every named tick is drawn: half the last label, which centres on the
@@ -411,7 +411,7 @@ const MONO_WIDTH = 6;
  */
 function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly V[]): number {
   const last = xTicks.at(-1);
-  return Math.max(24, Math.ceil((last === undefined ? 0 : xFormatter(last).length * MONO_WIDTH) / 2) + 4);
+  return Math.max(24, Math.ceil((last === undefined ? 0 : textWidth(xFormatter(last))) / 2) + 4);
 }
 
 /**
@@ -724,7 +724,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
   if (!horizontal && (xTicks || xTickDetail)) {
     const labelledValues = xTicks ?? data.map((row) => row[xKey]);
     let tickWidth = 0;
-    for (const value of labelledValues) tickWidth = Math.max(tickWidth, xFormatter(value).length * MONO_WIDTH);
+    for (const value of labelledValues) tickWidth = Math.max(tickWidth, textWidth(xFormatter(value)));
     if (xTickDetail) for (const row of data) tickWidth = Math.max(tickWidth, xTickDetail(row).length * GEIST_WIDTH);
     minWidth = Math.ceil((tickWidth + 12) * labelledValues.length + 64);
   }

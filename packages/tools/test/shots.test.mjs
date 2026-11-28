@@ -10,9 +10,11 @@ import { describe, expect, it } from "vite-plus/test";
 
 const shots = fileURLToPath(new URL("../shots.mjs", import.meta.url));
 const execFileAsync = promisify(execFile);
-// The page's font must be a loaded M PLUS 1 Code, Siyahi's page face, for the font check to pass.
+// The page's font must be a loaded JetBrains Mono, Siyahi's page face, for the font check to pass.
 const mono = readFileSync(
-  fileURLToPath(import.meta.resolve("@fontsource-variable/m-plus-1-code/files/m-plus-1-code-latin-wght-normal.woff2")),
+  fileURLToPath(
+    import.meta.resolve("@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2"),
+  ),
 ).toString("base64");
 const MODES = [
   { name: "1920-light", width: 1920 },
@@ -21,8 +23,8 @@ const MODES = [
   { name: "390-dark", width: 390 },
 ];
 
-const PAGE_FONT = `@font-face { font-family: "M PLUS 1 Code"; src: url(data:font/woff2;base64,${mono}); }
-  body { margin: 0; font-family: "M PLUS 1 Code"; }`;
+const PAGE_FONT = `@font-face { font-family: "JetBrains Mono"; src: url(data:font/woff2;base64,${mono}); }
+  body { margin: 0; font-family: "JetBrains Mono"; }`;
 
 // A card header in stock shadcn's shape: the title and a two-item toggle in
 // columns, inside a card that hides its overflow. The document never scrolls
@@ -37,7 +39,7 @@ const card = (columns) => `<main style="padding: 16px"><h1>Card</h1>
   </div></main>`;
 
 /**
- * Writes a page with the given body, in M PLUS 1 Code unless `style` says otherwise,
+ * Writes a page with the given body, in JetBrains Mono unless `style` says otherwise,
  * runs siyahi-shots on it, and returns the run with the width and height of
  * each PNG it wrote per mode.
  * @param {string} body
@@ -281,21 +283,21 @@ describe.concurrent("siyahi-shots", { timeout: 120_000 }, () => {
   });
 
   // A page that names the font and loads no font file: its font CSS never arrived.
-  const UNLOADED = `body { margin: 0; font-family: "M PLUS 1 Code", system-ui, sans-serif; }`;
+  const UNLOADED = `body { margin: 0; font-family: "JetBrains Mono", system-ui, sans-serif; }`;
 
   it("fails a page that names the font and loads no font file", async () => {
     const run = await shoot(`<main style="padding: 16px"><h1>No font</h1></main>`, UNLOADED);
     expect(run.status, run.output).toBe(1);
-    expect(run.output).toContain("M PLUS 1 Code is named but never loaded");
+    expect(run.output).toContain("JetBrains Mono is named but never loaded");
   });
 
   it("fails a page whose @font-face for the font never loads", async () => {
     const run = await shoot(
       `<main style="padding: 16px"><h1>Broken</h1></main>`,
-      `@font-face { font-family: "M PLUS 1 Code"; src: url(missing.woff2); } body { margin: 0; font-family: "M PLUS 1 Code", sans-serif; }`,
+      `@font-face { font-family: "JetBrains Mono"; src: url(missing.woff2); } body { margin: 0; font-family: "JetBrains Mono", sans-serif; }`,
     );
     expect(run.status, run.output).toBe(1);
-    expect(run.output).toContain("M PLUS 1 Code is named but never loaded");
+    expect(run.output).toContain("JetBrains Mono is named but never loaded");
   });
 });
 

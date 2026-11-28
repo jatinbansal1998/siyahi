@@ -11,7 +11,7 @@
 @import "tw-animate-css";
 @import "./shadcn.css";
 @import "@fontsource-variable/geist";
-@import "./m-plus-1-code.css";
+@import "./jetbrains-mono.css";
 @import "./fallback-fonts.css";
 
 /* Tailwind does not scan node_modules, so name the package's own classes. */
@@ -51,10 +51,11 @@
 @theme inline {
   --font-sans: "Geist Variable", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   /*
-   * M PLUS 1 Code: a mono half a font size wide (6px a character at 12px, Geist Mono's 7), so a terminal page fits
-   * a table's every column and a row's words on one line. 20KB for every weight.
+   * JetBrains Mono, drawn at 92.3% of the font size (jetbrains-mono.css), so a character is 0.554em wide: 6.65px at
+   * 12px, against 7.2px for a mono at its own size, which keeps a table's every column and a row's words on one line.
+   * Its rupee sign is Geist Mono's, as JetBrains Mono has none. 55KB for every weight.
    */
-  --font-mono: "M PLUS 1 Code Variable", "M PLUS 1 Code Fallback", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, monospace;
   /* Titles are data labels on a terminal: the mono face, as the page itself is. */
   --font-heading: var(--font-mono);
   /*
