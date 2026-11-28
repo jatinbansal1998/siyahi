@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { count, dateTime, fixed, money, moneyCompact, multiple, pct, time } from "../src/lib/format";
+import { count, dateTime, fixed, money, moneyCompact, multiple, pct, signed, time } from "../src/lib/format";
 import type { SiyahiLocale } from "../src/lib/locale";
 
 const us: SiyahiLocale = { numberLocale: "en-US", currency: "USD", timeZone: "America/New_York" };
@@ -124,6 +124,25 @@ describe("default locale (en-IN, INR, Asia/Kolkata)", () => {
     expect(fixed(-46.2, undefined, 1)).toBe("−46.2");
     expect(moneyCompact(-34_120_000_000)).toBe("−₹3,412 Cr");
     expect(moneyCompact(-2400000, us)).toBe("−$2.4M");
+  });
+
+  it("writes a negative that rounds to zero as zero, with no sign", () => {
+    expect(pct(-0.0001)).toBe("0.0%");
+    expect(money(-0.4)).toBe("₹0");
+    expect(count(-0)).toBe("0");
+    expect(fixed(-0.001)).toBe("0.00");
+    expect(moneyCompact(-0.4)).toBe("₹0");
+    expect(moneyCompact(-40, us)).toBe("−$40");
+    expect(moneyCompact(-0.004, us)).toBe("$0");
+    // The smallest negative that does not round away keeps its sign.
+    expect(pct(-0.0005)).toBe("−0.1%");
+  });
+
+  it("writes a change with + or the minus sign, and none where its size rounds to zero", () => {
+    expect(signed(21300, money)).toBe("+₹21,300");
+    expect(signed(-0.021, pct)).toBe("−2.1%");
+    expect(signed(-0.0001, pct)).toBe("0.0%");
+    expect(signed(0, money)).toBe("₹0");
   });
 
   it("formats a fraction as a percentage with one decimal", () => {

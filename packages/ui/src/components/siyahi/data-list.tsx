@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 import { cn } from "cn";
 
-/** Label and value pairs, such as a record's fields in a card. */
+/**
+ * Label and value pairs, such as a record's fields in a card. A value is set in the mono face, as a figure or a label
+ * is; write one that reads as a sentence as a `<p>`, which the theme sets in the sentence face.
+ */
 export function DataList({ className, children }: { className?: string | undefined; children: ReactNode }) {
   return <dl className={cn("flex flex-col gap-4", className)}>{children}</dl>;
 }

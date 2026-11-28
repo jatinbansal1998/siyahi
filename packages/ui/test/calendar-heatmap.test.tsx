@@ -1,3 +1,6 @@
+// @vitest-environment happy-dom
+import { act, type ReactNode } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 import {
@@ -62,7 +65,11 @@ describe("CalendarHeatmap signed", () => {
   });
 
   it("says in the legend where the deepest step sits, in the page's format", () => {
-    expect(render(days)).toContain("Deepest at ±₹9000. Round days lost, square days gained; grey days had no change.");
+    expect(render(days)).toContain("Deepest at ±₹9000. Round days lost, square days gained; grey days had no change");
+  });
+
+  it("says a grey day may have no figure, as a day the market was shut has none", () => {
+    expect(render(days)).toContain("grey days had no change or no figure.");
   });
 
   it("shows the loss steps deepest first, no change, then the gain steps in the legend", () => {
@@ -73,5 +80,88 @@ describe("CalendarHeatmap signed", () => {
       heat(null),
       ...[1, 2, 3, 4, 5].map((step) => heatFill("positive", step)),
     ]);
+  });
+});
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+/** Renders into the document, runs `check` on the host, and unmounts. */
+async function mounted(element: ReactNode, check: (host: HTMLElement) => Promise<void> | void) {
+  const host = document.body.appendChild(document.createElement("div"));
+  const root = createRoot(host);
+  try {
+    await act(async () => root.render(element));
+    await check(host);
+  } finally {
+    await act(async () => root.unmount());
+    host.remove();
+  }
+}
+
+/** Every day from the first date to the last, each worth 1. */
+const span = (from: string, to: string) => {
+  const every: { date: string; value: number }[] = [];
+  for (let at = Date.parse(from); at <= Date.parse(to); at += 86_400_000) {
+    every.push({ date: new Date(at).toISOString().slice(0, 10), value: 1 });
+  }
+  return every;
+};
+
+describe("CalendarHeatmap month ticks", () => {
+  it("leaves out a tick the scrolled strip cuts at its left edge, and names the year on the first in view", async () => {
+    await mounted(
+      <CalendarHeatmap data={span("2026-04-01", "2026-11-27")} weekStart={1} blockSize={10}>
+        <CalendarHeatmapBody>
+          {({ activity, dayIndex, weekIndex }) => (
+            <CalendarHeatmapBlock activity={activity} dayIndex={dayIndex} weekIndex={weekIndex} />
+          )}
+        </CalendarHeatmapBody>
+      </CalendarHeatmap>,
+      async (host) => {
+        const ticks = () => [...host.querySelectorAll("text[dominant-baseline=hanging]")].map((t) => t.textContent);
+        expect(ticks().slice(0, 2)).toEqual(["Apr 2026", "May"]);
+        // As at 1280px on the portfolio page: scrolled 85px to the latest weeks, past the April tick's start (43px).
+        const body = host.querySelector<HTMLElement>('[data-slot="calendar-heatmap-body"]');
+        await act(async () => {
+          if (body) body.scrollLeft = 85;
+          body?.dispatchEvent(new Event("scroll"));
+        });
+        expect(ticks().slice(0, 2)).toEqual(["May 2026", "Jun"]);
+      },
+    );
+  });
+});
+
+describe("CalendarHeatmap weekdays", () => {
+  it("draws only the days of the week asked for, one row each, and scales by those days alone", () => {
+    // A week from Monday 4 May: the weekend's 50,000 is not drawn, so it does not set the deepest step.
+    const week = [9000, -2500, 0, 3000, 4500, 50_000, 50_000].map((value, i) => ({
+      date: `2026-05-0${4 + i}`,
+      value,
+    }));
+    const html = renderToStaticMarkup(
+      <CalendarHeatmap data={week} signed weekStart={1} weekdays={[1, 2, 3, 4, 5]}>
+        <CalendarHeatmapBody>
+          {({ activity, dayIndex, weekIndex }) => (
+            <CalendarHeatmapBlock activity={activity} dayIndex={dayIndex} weekIndex={weekIndex} />
+          )}
+        </CalendarHeatmapBody>
+      </CalendarHeatmap>,
+    );
+    expect([...html.matchAll(/data-date="([^"]+)"/g)].map(([, date]) => date)).toEqual([
+      "2026-05-04",
+      "2026-05-05",
+      "2026-05-06",
+      "2026-05-07",
+      "2026-05-08",
+    ]);
+    expect([...html.matchAll(/<text[^>]*dominant-baseline="middle"[^>]*>([^<]*)</g)].map(([, name]) => name)).toEqual([
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+    ]);
+    expect(fill(html, "2026-05-04")).toBe(heatFill("positive", 5));
   });
 });

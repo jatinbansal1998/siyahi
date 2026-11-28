@@ -12,7 +12,7 @@ import {
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
 import { BlockState } from "@siyahi/ui/components/siyahi/block-state";
 import { ChartFrame, barFill } from "@siyahi/ui/lib/chart-frame";
-import { fixed } from "@siyahi/ui/lib/format";
+import { fixed, signed } from "@siyahi/ui/lib/format";
 import type { SiyahiLocale } from "@siyahi/ui/lib/locale";
 import type { ChartColor, SeriesChartProps } from "@siyahi/ui/lib/chart-series";
 import { decimalsOf, linearAxis } from "@siyahi/ui/lib/ticks";
@@ -133,7 +133,6 @@ const COLOR: Record<WaterfallBar["kind"], ChartColor> = {
   total: "var(--chart-1)",
 };
 const LABELS = { rise: "Increase", fall: "Decrease", total: "Total" };
-const MINUS = "−";
 
 // Every bar is a tint inside a full-colour edge, as every chart's bars are; a total stands out by its colour.
 const fill = (kind: WaterfallBar["kind"]) => barFill(COLOR[kind]);
@@ -212,7 +211,6 @@ export function WaterfallChartCard({
   const cut = yFrom === undefined ? undefined : cutAxis(steps, yFrom, levels);
   const bars = useMemo(() => waterfallBars(steps, cut?.foot), [steps, cut?.foot]);
   const format = props.valueFormatter ?? stepFigures(steps, locale);
-  const signed = (value: number) => `${value > 0 ? "+" : value < 0 ? MINUS : ""}${format(Math.abs(value))}`;
   const names = new Map(bars.map((bar) => [bar.key, bar.label]));
   const unknown = unknownStep(steps);
   return (
@@ -242,7 +240,7 @@ export function WaterfallChartCard({
           bar.kind === "total"
             ? [[labels.total, format(bar.level)]]
             : [
-                [bar.kind === "rise" ? labels.rise : labels.fall, signed(bar.change)],
+                [bar.kind === "rise" ? labels.rise : labels.fall, signed(bar.change, format)],
                 ["Running total", format(bar.level)],
               ];
         return rows.map(([name, figure]) => (

@@ -27,3 +27,20 @@ describe("PageSection", { timeout: 60_000 }, () => {
     expect(spacing).toEqual({ top: "24px", gap: "16px", title: "20px" });
   });
 });
+
+describe("DataList", { timeout: 60_000 }, () => {
+  it("sets a value in mono, as a figure is, and a sentence written as a paragraph in sans", async () => {
+    const list = page
+      .locator('[data-slot="example"]')
+      .filter({ has: page.locator('[data-slot="example-file"]', { hasText: /\/page-section\.tsx$/ }) })
+      .locator("dl");
+    const font = (selector: string) =>
+      list
+        .locator(selector)
+        .first()
+        .evaluate((el) => getComputedStyle(el).fontFamily.replace(/"/g, ""));
+    // "vp check", a value with no paragraph, is a label; the first item's value is a sentence.
+    expect(await font("dd:not(:has(p))")).toMatch(/^JetBrains Mono/);
+    expect(await font("dd p")).toMatch(/^Geist Variable/);
+  });
+});

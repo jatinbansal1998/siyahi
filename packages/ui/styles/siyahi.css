@@ -302,12 +302,13 @@
    * A terminal: the page is set in the mono face, so figures, labels, controls and titles share one grid. Text that
    * reads as sentences (a paragraph, a quote, a card's or a dialog's description) takes the sans, where
    * mono tires the eye over a line. Not a list item: a sidebar row, a menu option or a tile is one, and its contents
- * are labels. Zero specificity, so a component's own font class wins.
+   * are labels. Not a details list's value (dd): it is a figure or a label, as a table cell is, and a sentence there
+   * is a paragraph. Zero specificity, so a component's own font class wins.
    */
   html {
     @apply font-mono;
   }
-  :where(p, blockquote, dd, figcaption, [data-slot$="description"]) {
+  :where(p, blockquote, figcaption, [data-slot$="description"]) {
     @apply font-sans;
   }
   @media (prefers-reduced-motion: reduce) {

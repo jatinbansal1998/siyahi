@@ -37,8 +37,29 @@ function written(parts: Intl.NumberFormatPart[]): string {
   return parts.map(partText).join("");
 }
 
+/**
+ * The parts of `value`, unsigned where it rounds to zero: pct(-0.0001) is "0.0%", not "−0.0%". Intl's
+ * `signDisplay: "negative"` does this, but Firefox before 116, inside the build's baseline target, throws on it.
+ */
+function partsOf(formatter: Intl.NumberFormat, value: number): Intl.NumberFormatPart[] {
+  const zero = value <= 0 && formatter.format(value) === formatter.format(-0);
+  return formatter.formatToParts(zero ? 0 : value);
+}
+
 function formatNumber(locale: string, options: Intl.NumberFormatOptions, value: number): string {
-  return written(numberFormat(locale, options).formatToParts(value));
+  return written(partsOf(numberFormat(locale, options), value));
+}
+
+/** −1, 0 or 1: the sign of a change as `write` shows its size, so one that rounds to nothing has none. */
+export function signOf(value: number, write: (size: number) => string): -1 | 0 | 1 {
+  if (!value || Number.isNaN(value) || write(Math.abs(value)) === write(0)) return 0;
+  return value > 0 ? 1 : -1;
+}
+
+/** A change with its sign, + or −, and its size written by `write`: `signed(-18400, money)` is "−₹18,400". */
+export function signed(value: number, write: (size: number) => string): string {
+  const sign = signOf(value, write);
+  return `${sign > 0 ? "+" : sign < 0 ? MINUS : ""}${write(Math.abs(value))}`;
 }
 
 /** An amount in the locale's currency, whole units by default: ₹1,53,110. Signed figures belong in `Delta`. */
@@ -110,7 +131,7 @@ export function moneyCompact(
     notation: "compact",
     maximumFractionDigits: fractionDigits ?? 1,
   });
-  if (scale === undefined) return written(compact.formatToParts(value));
+  if (scale === undefined) return written(partsOf(compact, value));
   // Intl names the unit but not its size: read the size off the scale's own short form, then write this value
   // in that unit inside the same parts, so the currency, unit and sign sit where the locale puts them.
   const parts = compact.formatToParts(Math.sign(value) * scale);
@@ -118,7 +139,7 @@ export function moneyCompact(
     parts.flatMap((part) => (part.type === "decimal" ? "." : DIGITS.has(part.type) ? part.value : [])).join(""),
   );
   const unit = 10 ** Math.round(Math.log10(scale / shown));
-  if (unit === 1) return written(compact.formatToParts(value));
+  if (unit === 1) return written(partsOf(compact, value));
   const digits = numberFormat(locale.numberLocale, { maximumFractionDigits: fractionDigits ?? 2 }).format(
     Math.abs(value) / unit,
   );

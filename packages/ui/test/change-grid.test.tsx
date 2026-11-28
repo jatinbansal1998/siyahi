@@ -22,6 +22,22 @@ describe("ChangeGrid", () => {
     expect([big?.text, small?.text, loss?.text]).toEqual(["+5.0%", "+1.0%", "−2.0%"]);
   });
 
+  it("with rise bad, tints a rise in the loss colour and a fall in the gain colour, keeping the signs", () => {
+    const html = renderToStaticMarkup(
+      <ChangeGrid
+        label="Costs"
+        columns={["Apr", "May"]}
+        rows={[{ label: "FY25", values: [0.05, -0.01] }]}
+        rise="bad"
+      />,
+    );
+    const [rise, fall] = [
+      ...html.matchAll(/data-slot="change-grid-cell"[^>]*style="background-color:([^"]*)"[^>]*>([^<]*)</g),
+    ];
+    expect([rise?.[1], rise?.[2]]).toEqual([heatFill("negative", 5), "+5.0%"]);
+    expect([fall?.[1], fall?.[2]]).toEqual([heatFill("positive", 1), "−1.0%"]);
+  });
+
   it("marks a month with no figure — and a month with no change 0, both muted", () => {
     const [, none, zero] = cells([{ label: "FY26", values: [0.03, null, 0] }]);
     expect(none).toEqual({ text: "—", fill: "var(--muted)" });
@@ -57,5 +73,26 @@ describe("ChangeGrid", () => {
     );
     expect(html).toContain(">Year</th>");
     expect(html).toMatch(/<td[^>]*class="[^"]*font-medium[^"]*">\+12\.4%<\/td>/);
+  });
+
+  it("draws a footer row of each column's figure under the grid, untinted, with its total under the total column", () => {
+    const html = renderToStaticMarkup(
+      <ChangeGrid
+        label="Growth"
+        columns={["FY25", "FY26"]}
+        rows={[{ label: "Apr", values: [0.03, -0.01] }]}
+        footer={{ label: "Year", values: [0.124, -0.051], total: 0.067 }}
+        totalLabel="Both years"
+      />,
+    );
+    const footer = /<tfoot[^>]*>(.*)<\/tfoot>/.exec(html)?.[1] ?? "";
+    expect([...footer.matchAll(/<t[hd][^>]*>([^<]*)</g)].map(([, text]) => text)).toEqual([
+      "Year",
+      "+12.4%",
+      "−5.1%",
+      "+6.7%",
+    ]);
+    expect(footer).not.toContain("background-color");
+    expect(html).toContain(">Both years</th>");
   });
 });

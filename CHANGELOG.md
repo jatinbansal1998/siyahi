@@ -23,6 +23,53 @@
   `fixed` in the decimals its steps are given in (up to two), and
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
+
+- `ChangeBar`, `ChangeGrid` and `Treemap` take `rise`, as `Delta` and a
+  `MetricStrip` item do: `rise="bad"` for a cost or a debt shows a rise in
+  red and a fall in green (`ChangeBar` on its Delta, `ChangeGrid` and
+  `Treemap` in their heat tints). Signs still follow the number.
+  `TreemapLegend` takes the same `rise`, so it names the red steps as rises.
+
+- `signed(value, write)` writes a change with `+` or the minus sign `−` and
+  its size by a formatter, `signed(-18400, money)` "−₹18,400", and no sign
+  where the size rounds to zero. `Delta`, `ChangeGrid`, `Treemap` and
+  `WaterfallChartCard` write their signs through it instead of each keeping
+  a minus of its own; their text is unchanged, except that a change that
+  rounds to zero now reads "0.0%" with no sign, and `Delta` gives it the
+  flat, muted icon (was "−0.0%" with a red arrow).
+
+- The formatters write a negative that rounds to zero as zero, with no
+  sign: `pct(-0.0001)` is "0.0%" (was "−0.0%"), `money(-0.4)` "₹0". Intl's
+  `signDisplay: "negative"` does the same, but Firefox 114 and 115, inside
+  the build's baseline target, throw on it, so the formatters compare with
+  how −0 is written instead.
+
+- `ChangeGrid` takes `footer`, a row under the grid with each column's
+  figure as the page works it out, such as each year's total or average
+  when the columns are years, its `total` under the total column. Untinted,
+  as totals are.
+
+- `DistributionBar` draws each segment as a tint (`--bar-tint`) inside a 1px
+  full-colour edge, as DESIGN.md asks of every bar, where it drew a solid
+  slab; its legend swatches match. A segment faded by `highlighted` keeps
+  its edge and fades inside to the 10% a chart's dimmed bar takes (was 35%).
+
+- A `DataList` value (`dd`) is set in the mono face, as a figure or a label
+  is, so a figure or a `RangePosition` placed there matches the figures
+  around it; the theme set it in Geist. A value that reads as a sentence is
+  written as a `<p>` inside the item, which stays in Geist.
+
+- `CalendarHeatmap` takes `weekdays`, the days of the week to draw, as
+  `WeekdayHeatmap` does: `weekdays={[1, 2, 3, 4, 5]}` draws a market's
+  trading days with no empty weekend rows, and a day left out sets no scale
+  and counts in no total. A signed legend says grey days "had no change or
+  no figure" (was "had no change"), true of a day the market was shut.
+
+- `CalendarHeatmap`: a strip wider than its card opens on its latest weeks,
+  and the month tick that left cut at the card's edge is left out; it read
+  as its last letters, "6" for "Apr 2026". The first tick in view names the
+  year instead: "May 2026".
+
 - **Breaking:** the formatters write a negative figure with the minus sign
   `−` (U+2212), as DESIGN.md asks, where they wrote a hyphen: `money`,
   `moneyCompact`, `count` and `pct` print "−₹18,400", "−₹2.4L", "−5" and

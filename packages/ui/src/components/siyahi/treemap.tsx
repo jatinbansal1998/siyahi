@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
-import { useFormat } from "@siyahi/ui/lib/format";
+import { signed, useFormat } from "@siyahi/ui/lib/format";
 import { cn } from "cn";
 import { HEAT_STEPS, heat, heatFill, heatRange } from "@siyahi/ui/lib/heat";
 import { fit, textWidth } from "@siyahi/ui/lib/fit-text";
@@ -23,6 +23,8 @@ export interface TreemapProps<T extends TreemapItem> {
   height: number;
   /** ±range: the change, as a fraction, that takes the deepest heat step. Default 0.05 (±5%); a range that is not a positive number uses the default. */
   range?: number | undefined;
+  /** Whether a rise is good news, the default, or bad, as for costs or debt: "bad" tints a rise red and a fall green. */
+  rise?: "good" | "bad" | undefined;
   /**
    * Gets the item under a mouse, and null when it moves onto a group's name or leaves the map. A tap fires no hover:
    * on a touch screen it selects, so the page shows the tile in place rather than in a card at the finger.
@@ -39,7 +41,15 @@ export interface TreemapProps<T extends TreemapItem> {
 }
 
 /** Heat map of parts of a whole: area by weight, colour by signed change, optionally grouped; hand-drawn SVG. */
-export function Treemap<T extends TreemapItem>({ items, height, range, onHover, selected, onSelect }: TreemapProps<T>) {
+export function Treemap<T extends TreemapItem>({
+  items,
+  height,
+  range,
+  rise = "good",
+  onHover,
+  selected,
+  onSelect,
+}: TreemapProps<T>) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const selectedKey = selected ? (selected.key ?? selected.name) : null;
@@ -59,8 +69,7 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
   const focusKey = tiles.some(({ item }) => (item.key ?? item.name) === focusedKey)
     ? focusedKey
     : (tiles[0]?.item.key ?? tiles[0]?.item.name);
-  const change = (value: number | null) =>
-    value === null ? "—" : `${value > 0 ? "+" : value < 0 ? "\u2212" : ""}${pct(Math.abs(value))}`;
+  const change = (value: number | null) => (value === null ? "—" : signed(value, pct));
   // A phone has no hover, so a tile that cannot show its whole name and figure is written out under the map.
   const unlabelled = tiles.filter(
     ({ item, width: wide, height: tall }) =>
@@ -146,7 +155,11 @@ export function Treemap<T extends TreemapItem>({ items, height, range, onHover, 
               onPointerEnter={(event) => event.pointerType === "mouse" && onHover?.(item)}
               onClick={() => onSelect?.(key === selectedKey ? null : item)}
             >
-              <rect width="100%" height="100%" style={{ fill: heat(item.change, range) }} />
+              <rect
+                width="100%"
+                height="100%"
+                style={{ fill: heat(item.change !== null && rise === "bad" ? -item.change : item.change, range) }}
+              />
               {key === selectedKey && (
                 <rect
                   x={1}
@@ -202,20 +215,25 @@ function Swatch({ label, fill }: { label: string; fill: string }) {
 export interface TreemapLegendProps {
   /** The Treemap's own range, so each swatch matches its tiles. */
   range?: number | undefined;
+  /** The Treemap's own rise: with "bad" the red steps are the rises, and the legend says so. */
+  rise?: "good" | "bad" | undefined;
   className?: string | undefined;
 }
 
 /** The Treemap's colour scale under the map: five steps of loss, no change, five steps of gain, deepest at the ends. */
-export function TreemapLegend({ range, className }: TreemapLegendProps) {
+export function TreemapLegend({ range, rise = "good", className }: TreemapLegendProps) {
   const { pct } = useFormat();
   const step = heatRange(range) / HEAT_STEPS;
   // Whole percentages print without a decimal; a step such as 1.2% keeps one.
   const digits = Number.isInteger(Math.round(step * 1e6) / 1e4) ? 0 : 1;
   const over = pct(step * (HEAT_STEPS - 1), digits);
+  // Green is good news: a rise unless a rise is bad.
+  const word = (side: "positive" | "negative") => ((side === "positive") === (rise === "good") ? "up" : "down");
   const swatch = (side: "positive" | "negative", n: number) => {
-    const word = side === "positive" ? "up" : "down";
     const label =
-      n === HEAT_STEPS ? `${word} over ${over}` : `${word} ${pct(step * (n - 1), digits)}–${pct(step * n, digits)}`;
+      n === HEAT_STEPS
+        ? `${word(side)} over ${over}`
+        : `${word(side)} ${pct(step * (n - 1), digits)}–${pct(step * n, digits)}`;
     return <Swatch key={`${side}-${n}`} label={label} fill={heatFill(side, n)} />;
   };
   const steps = Array.from({ length: HEAT_STEPS }, (_, i) => i + 1);
@@ -230,13 +248,17 @@ export function TreemapLegend({ range, className }: TreemapLegendProps) {
         {steps.map((n) => swatch("positive", n))}
       </div>
       <div className="flex justify-between gap-2 tabular-nums">
-        <span>down over {over}</span>
+        <span>
+          {word("negative")} over {over}
+        </span>
         <span>{pct(step, digits)} a step</span>
-        <span>up over {over}</span>
+        <span>
+          {word("positive")} over {over}
+        </span>
       </div>
       <p className="sr-only">
-        Tile colours run in {HEAT_STEPS} steps of {pct(step, digits)} each way, deepest over {over}; a muted tile is no
-        change or unknown.
+        Tile colours run in {HEAT_STEPS} steps of {pct(step, digits)} each way, deepest over {over}
+        {rise === "bad" && ", a rise in red"}; a muted tile is no change or unknown.
       </p>
     </div>
   );

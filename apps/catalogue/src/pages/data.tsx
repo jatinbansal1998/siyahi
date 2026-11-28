@@ -893,6 +893,12 @@ export const data: Page = {
         },
         { name: "format", type: '"pct" | "money"', default: '"pct"', purpose: "How the Delta writes the change." },
         {
+          name: "rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose: "As on Delta: bad for a cost or a debt, so a rise shows in red and a fall in green.",
+        },
+        {
           name: "DataTableFootnote children",
           type: "ReactNode",
           purpose: "One sentence on the encoding, in a full-width last row after DataTableBody.",
@@ -908,6 +914,10 @@ export const data: Page = {
           name: "change-bar",
           caption:
             "A month's change per region, diverging around a centre line, January's values muted, with a footnote.",
+        },
+        {
+          name: "change-bar-costs",
+          caption: 'Delivery cost per region, where a rise is bad news: rise="bad" shows it in red.',
         },
       ],
     },
@@ -941,13 +951,27 @@ export const data: Page = {
           default: "the grid's largest",
           purpose: "The size that takes the deepest tint; give grids that sit together the same range.",
         },
+        {
+          name: "rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose:
+            "As on Delta: bad for a cost or a debt, so a rise is tinted red and a fall green; signs follow the number.",
+        },
+        {
+          name: "footer",
+          type: "ChangeGridRow",
+          default: "—",
+          purpose:
+            "A row under the grid with each column's figure as the page works it out, such as each year's total or average when the columns are years; its total sits under the total column.",
+        },
         { name: "totalLabel", type: "string", default: '"Total"', purpose: "Heads the total column." },
         { name: "label", type: "string", purpose: "Names the table for a screen reader." },
       ],
       rules: [
         "Every cell writes its figure with its + or −; the tint is the Treemap's five steps of --positive and --negative, so the eye finds the big months without reading colour as the only cue.",
         "A month with no figure is a muted cell marked —; a month with no change is muted and writes 0.",
-        "Totals are untinted: a year is on a different scale from its months.",
+        "Totals are untinted, a footer's too: a year is on a different scale from its months.",
         "Put it in a Card: the cells mix into the card colour. On a phone the grid scrolls sideways and the row labels stay put.",
         "One value per category with no second axis is a BarList or a BarChartCard.",
       ],
@@ -959,7 +983,12 @@ export const data: Page = {
         },
         {
           name: "change-grid-money",
-          caption: "Profit and loss by store and quarter, in one money unit, with the year's sum.",
+          caption:
+            "Profit and loss by store and quarter, in one money unit, with the year's sum and a footer of all stores.",
+        },
+        {
+          name: "change-grid-costs",
+          caption: "Change in cost per meal by kitchen and quarter, where a rise is bad news and tinted red.",
         },
       ],
     },
@@ -1146,6 +1175,13 @@ export const data: Page = {
           purpose: "±range takes the deepest heat step, ±5% by default. Give TreemapLegend the same range.",
         },
         {
+          name: "rise",
+          type: '"good" | "bad"',
+          default: '"good"',
+          purpose:
+            "As on Delta: bad for a cost or a debt, so a rise is tinted red and a fall green. Give TreemapLegend the same rise, so it names the red steps as rises.",
+        },
+        {
           name: "onHover",
           type: "(item: T | null) => void",
           default: "—",
@@ -1179,6 +1215,10 @@ export const data: Page = {
           name: "treemap",
           caption:
             "Cities grouped by region, with a hover tooltip, tap to select and the selection printed under the map.",
+        },
+        {
+          name: "treemap-costs",
+          caption: 'A café chain\'s costs by line, where a rise is bad news: the map and its legend take rise="bad".',
         },
       ],
     },
@@ -1316,13 +1356,23 @@ export const data: Page = {
           default: "the largest day",
           purpose: "With signed: the size that takes the deepest step; give calendars shown together the same range.",
         },
+        {
+          name: "CalendarHeatmap weekdays",
+          type: "readonly (0 | 1 | 2 | 3 | 4 | 5 | 6)[]",
+          default: "every day",
+          purpose:
+            "The days of the week to draw, 0 Sunday to 6 Saturday: [1, 2, 3, 4, 5] for trading or working days, so the weekend takes no empty rows. Days left out are not drawn, scaled or counted.",
+        },
       ],
       rules: [
         "Counts fade in --chart-1.",
-        "A signed calendar uses the Treemap's and ChangeGrid's heat steps inside a full-colour edge, a loss round and a gain square, so the sign never rests on colour alone. A day with no change, or no figure (NaN, Infinity), is muted inside the field edge. Pass CalendarHeatmapLegend a valueFormatter, so its scale line says where the deepest step sits. Write the picked day's figure with its sign.",
+        "A signed calendar uses the Treemap's and ChangeGrid's heat steps inside a full-colour edge, a loss round and a gain square, so the sign never rests on colour alone. A day with no change, or no figure (NaN, Infinity, or no entry, such as a market holiday), is muted inside the field edge, and the legend says so. Pass CalendarHeatmapLegend a valueFormatter, so its scale line says where the deepest step sits. Write the picked day's figure with its sign.",
       ],
       examples: [
-        { name: "heatmap-calendar", caption: "A year of working days, each coloured by its count of deploys." },
+        {
+          name: "heatmap-calendar",
+          caption: "A year of working days, each coloured by its count of deploys, with the weekend left out.",
+        },
         {
           name: "heatmap-calendar-signed",
           caption:
@@ -1584,7 +1634,7 @@ export const data: Page = {
       id: "formatters",
       title: "Formatters",
       lead: "useFormat() returns count, money, moneyCompact, fixed, multiple, pct, time and dateTime bound to the nearest SiyahiProvider, so a page never formats a number itself.",
-      imports: ["useFormat", "SiyahiProvider"],
+      imports: ["useFormat", "SiyahiProvider", "signed"],
       props: [
         {
           name: "count",
@@ -1628,10 +1678,17 @@ export const data: Page = {
           purpose:
             "A date, 20 Oct 2026, or the parts options name, in the locale's zone unless they name one; September is Sep.",
         },
+        {
+          name: "signed",
+          type: "(value: number, write: (size: number) => string) => string",
+          purpose:
+            "A change in plain text with its + or −, its size written by a formatter: signed(-18400, money) is −₹18,400. Imported on its own, not from useFormat().",
+        },
       ],
       rules: [
         "A nested SiyahiProvider changes the locale for its subtree.",
-        "The formatters write a negative figure with the minus sign, −2.1%, never a hyphen, and add no plus; a signed figure goes through Delta, which adds the arrow.",
+        "The formatters write a negative figure with the minus sign, −2.1%, never a hyphen, and add no plus; a signed figure goes through Delta, which adds the arrow, or signed in plain text.",
+        "A negative that rounds to zero is written as zero, with no sign: pct(-0.0001) is 0.0%, and signed gives it neither + nor −.",
       ],
       examples: [
         {

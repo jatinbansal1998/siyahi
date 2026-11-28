@@ -1,6 +1,6 @@
 import { cn } from "cn";
 import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
-import { useFormat } from "@siyahi/ui/lib/format";
+import { signOf, signed, useFormat } from "@siyahi/ui/lib/format";
 
 export interface DeltaProps {
   /** The signed change. For `pct`, a fraction: 0.025 is 2.5%. */
@@ -11,8 +11,6 @@ export interface DeltaProps {
   className?: string | undefined;
 }
 
-const MINUS = "−";
-
 /**
  * A signed change: the figure in the surrounding text colour with its sign, and a trend icon in --positive or
  * --negative for good or bad news. The sign and the icon's shape carry the direction, so colour is never the only cue, and a column of
@@ -20,8 +18,9 @@ const MINUS = "−";
  */
 export function Delta({ value, format = "pct", rise = "good", className }: DeltaProps) {
   const f = useFormat();
-  const size = format === "money" ? f.money(Math.abs(value)) : f.pct(Math.abs(value));
-  const direction = value > 0 ? "up" : value < 0 ? "down" : "none";
+  const write = format === "money" ? f.money : f.pct;
+  const sign = signOf(value, write);
+  const direction = sign > 0 ? "up" : sign < 0 ? "down" : "none";
   const Icon = direction === "up" ? TrendingUpIcon : direction === "down" ? TrendingDownIcon : MinusIcon;
   const good = rise === "good" ? "up" : "down";
   return (
@@ -39,8 +38,7 @@ export function Delta({ value, format = "pct", rise = "good", className }: Delta
           direction === "none" ? "text-muted-foreground" : direction === good ? "text-positive" : "text-negative",
         )}
       />
-      {direction === "up" ? "+" : direction === "down" ? MINUS : ""}
-      {size}
+      {signed(value, write)}
     </span>
   );
 }

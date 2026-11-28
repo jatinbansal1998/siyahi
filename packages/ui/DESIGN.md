@@ -15,10 +15,12 @@ a meaning:
   badges, toggles and focus stay monochrome. Charts keep their own five-hue
   palette, indigo first.
 - **Green and red** mean good news and bad. A signed figure is `Delta`: the figure in the text colour with its
-  `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign; never
+  `+` or `−`, and only a small trend icon in green or red. In plain text (labels, tooltips) write the sign with
+  `signed(value, money)`; never
   colour a run of figures green and red. A rise is green unless the page says otherwise: for a cost, a debt or a
   fear gauge such as India VIX, `rise="bad"` on `Delta` (`rise: "bad"` on a `MetricStrip` item, which also
-  colours its sparkline) shows a rise in red and a fall in green. The sign and the arrow still follow the number.
+  colours its sparkline; `rise="bad"` on `ChangeBar`, `ChangeGrid` and `Treemap` with its legend, which tint by it)
+  shows a rise in red and a fall in green. The sign and the arrow still follow the number.
   **Yellow** means caution, kept apart from the amber accent. None of them decorates.
 - **Emphasis tints the whole surface.** A notice is `StatusAlert` in its tone (an
   error reads like a warning, only red); a state is `StatusBadge`; a point set
@@ -125,7 +127,9 @@ figures, labels, controls, titles and tables share one grid. Tables set it at
 13px. Text that reads as sentences, a
 paragraph, a quote or a description, is set in Geist, where mono
 tires the eye over a line; the theme switches it by element, so a page writes
-no font classes. Labels over data (a `MetricStrip` figure's label, a table's
+no font classes. A value in a details list (`DataList`) is a figure or a
+label, as a table cell is, and stays mono; one that reads as a sentence is
+written as a paragraph (`<p>`) inside it. Labels over data (a `MetricStrip` figure's label, a table's
 column heads, a sidebar group's label, a group's label in a menu) are small
 capitals, muted. Never set a figure or a title in them.
 
