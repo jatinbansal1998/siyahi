@@ -421,12 +421,12 @@ function ValueTick({ payload, axis, text, ...tick }: ValueTickProps) {
 const GEIST_WIDTH = 6.6;
 
 /**
- * Room to keep right of the plot when every named tick is drawn: half the last label, which centres on the
- * domain's right end, and at least 24px.
+ * Room to keep right of the plot for a bottom axis' last tick label, which centres on the domain's right end: half
+ * the label, and at least 24px.
  */
-function endRoom<V>(xFormatter: (value: V) => string, xTicks: readonly V[]): number {
-  const last = xTicks.at(-1);
-  return Math.max(24, Math.ceil((last === undefined ? 0 : textWidth(xFormatter(last))) / 2) + 4);
+function endRoom<V>(text: (value: V) => string, ticks: readonly V[]): number {
+  const last = ticks.at(-1);
+  return Math.max(24, Math.ceil((last === undefined ? 0 : textWidth(text(last))) / 2) + 4);
 }
 
 /**
@@ -825,7 +825,14 @@ export function ChartFrame<T extends object, K extends keyof T>({
       ? { "--chart-actual": `url(#${clipId}-actual)`, "--chart-forecast": `url(#${clipId}-forecast)` }
       : {}),
   };
-  const endRight = !horizontal && xTicks ? endRoom(xFormatter, xTicks) : horizontal && yTickFormatter ? 28 : 8;
+  // Sideways, the value axis runs along the bottom. Recharts drops a tick whose text would run into the next, measuring
+  // what its tickFormatter writes, so it is given each tick's written label; a page's fixed range without ticks leaves
+  // them to Recharts, and a label is then measured in its own unit.
+  const sideTicks = (yTicks as number[] | undefined) ?? linear?.ticks ?? [];
+  const sideTickText = horizontal && yTickFormatter ? valueTickText(yTickFormatter) : undefined;
+  const sideTickLabel = sideTickText && ((value: number) => sideTickText(value, sideTicks));
+  const endRight =
+    !horizontal && xTicks ? endRoom(xFormatter, xTicks) : sideTickLabel ? endRoom(sideTickLabel, sideTicks) : 8;
   const [axisWidth, setAxisWidth] = useState(0);
   const yTickText = yTickFormatter
     ? valueTickText(yTickFormatter, log !== undefined)
@@ -893,7 +900,7 @@ export function ChartFrame<T extends object, K extends keyof T>({
               // Selection reads the hovered category in this event; defer no pointer updates.
               throttledEvents={onClick ? [] : undefined}
               // Bottom-axis ticks need room at the right end; sideways labels already have the left axis.
-              // A sideways chart's value axis ends in a centred tick label, which needs room past the plot.
+              // A sideways chart's value axis ends in a centred tick label, which needs half its width past the plot.
               // Room above the plot for half the top tick label, so that label centres on its gridline.
               // With names at the line ends, the plot stops short of the card's edge and the names sit in that gutter.
               // Charts linked by a syncId take the widest room any of them needs on each side (useSharedEdges).
@@ -913,7 +920,8 @@ export function ChartFrame<T extends object, K extends keyof T>({
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tick={yTickFormatter ? <ValueTick axis="x" text={valueTickText(yTickFormatter)} {...TICK} /> : TICK}
+                    tickFormatter={sideTickLabel}
+                    tick={sideTickText ? <ValueTick axis="x" text={sideTickText} {...TICK} /> : TICK}
                   />
                   <HorizontalAxis
                     data={data}

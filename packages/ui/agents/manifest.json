@@ -766,6 +766,13 @@
       ]
     },
     {
+      "file": "agents/examples/chart-bar-sectors.tsx",
+      "components": [
+        "BarChartCard",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/chart-bar-teams.tsx",
       "components": [
         "BarChartCard",
