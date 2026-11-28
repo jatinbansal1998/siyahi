@@ -1,4 +1,4 @@
-import { chromium, type Browser, type BrowserContextOptions, type Page } from "playwright";
+import { chromium, type Browser, type BrowserContextOptions, type Locator, type Page } from "playwright";
 
 /** The catalogue in Chromium, for what happy-dom cannot do: layout, hover and the theme's CSS. */
 export interface Catalogue {
@@ -23,7 +23,9 @@ export async function openCatalogue(route: string, options: BrowserContextOption
     page.on("console", (message) => {
       if (message.type() === "error") errors.push(`console error: ${message.text()}`);
     });
-    await page.goto(`${url}#/${route}`);
+    // The heading is what a suite waits for; the load event also waits on every font and module a cold server is
+    // still compiling, which on a busy machine took past goto's 30s (#110).
+    await page.goto(`${url}#/${route}`, { waitUntil: "commit" });
     // The page's own masthead; an example of a whole page may hold a masthead of its own.
     await page.getByRole("heading", { level: 1 }).first().waitFor();
     // The title shows before the examples; a suite starts once the page's examples have loaded.
@@ -45,4 +47,25 @@ export function themeColor(page: Page, token: string): Promise<string> {
     probe.remove();
     return value;
   }, token);
+}
+
+/**
+ * Waits until a chart has drawn at its box's width in the page's loaded fonts, with `drawn` inside it. Under load a
+ * resize or a new pick takes a second or more to land, so a poll with a clock of its own ran out first (#110). The
+ * chart draws again once a font load finishes; two frames let that land.
+ */
+export async function chartDrawn(chart: Locator, drawn: string): Promise<void> {
+  await chart.page().waitForFunction(
+    ([box, selector]) => {
+      const plot = box?.querySelector('[data-slot="chart"]');
+      return (
+        document.fonts.status === "loaded" &&
+        plot != null &&
+        plot.querySelector("svg.recharts-surface")?.getAttribute("width") === String(plot.clientWidth) &&
+        box?.querySelector(selector) !== null
+      );
+    },
+    [await chart.elementHandle(), drawn] as const,
+  );
+  await chart.page().evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
 }

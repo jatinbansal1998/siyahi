@@ -2,7 +2,7 @@
 // boxes, which happy-dom does not compute.
 import type { Locator, Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
-import { openCatalogue, type Catalogue } from "./catalogue";
+import { chartDrawn, openCatalogue, type Catalogue } from "./catalogue";
 
 let catalogue: Catalogue;
 let page: Page;
@@ -26,21 +26,12 @@ const dots = () =>
     .evaluateAll((els) => els.map((el) => ({ key: el.getAttribute("data-key"), r: Number(el.getAttribute("r")) })));
 
 /**
- * Resizes the page and waits until the chart has redrawn at the new width in its loaded fonts. Under load the page
- * takes up to a second to lay out again, and a poll for four corner names, which the old layout already had, timed
- * out before its first read came back. The chart draws again once a font load finishes; two frames let that land.
+ * Resizes the page and waits until the chart has redrawn at the new width. A poll for four corner names, which the
+ * old layout already had, passed before the redraw.
  */
 async function resize(width: number) {
   await page.setViewportSize({ width, height: 1000 });
-  const plot = await chart.locator('[data-slot="chart"]').elementHandle();
-  await page.waitForFunction(
-    (box) =>
-      document.fonts.status === "loaded" &&
-      box?.querySelector("svg.recharts-surface")?.getAttribute("width") === String(box.clientWidth) &&
-      box.querySelector('[data-slot="scatter-quadrant-names"] text') !== null,
-    plot,
-  );
-  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+  await chartDrawn(chart, '[data-slot="scatter-quadrant-names"] text');
 }
 
 /** The corner names', points' names' and dots' boxes, read at one moment, so no redraw falls between them. */

@@ -2,7 +2,7 @@
 // happy-dom cannot do this: Recharts lays the plot out from measured sizes.
 import type { Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
-import { openCatalogue, type Catalogue } from "./catalogue";
+import { chartDrawn, openCatalogue, type Catalogue } from "./catalogue";
 
 let catalogue: Catalogue;
 let page: Page;
@@ -31,50 +31,33 @@ interface Rect {
   bottom: number;
 }
 
-/** Every name's box and every dot's box, as the browser laid them out. */
-const layout = async () => ({
-  labels: await stores()
-    .locator('[data-slot="scatter-labels"] text')
-    .evaluateAll((els) =>
-      els.map((el) => {
+/** Every name's box and every dot's box, read at one moment, so no redraw falls between them. */
+const layout = () =>
+  stores().evaluate((chart) => {
+    const boxes = (selector: string, name: (el: Element) => string): Rect[] =>
+      [...chart.querySelectorAll(selector)].map((el) => {
         const { left, top, right, bottom } = el.getBoundingClientRect();
-        return { name: el.textContent ?? "", left, top, right, bottom };
-      }),
-    ),
-  dots: await stores()
-    .locator('[data-slot="scatter-point"]')
-    .evaluateAll((els) =>
-      els.map((el) => {
-        const { left, top, right, bottom } = el.getBoundingClientRect();
-        return { name: el.getAttribute("aria-label") ?? "", left, top, right, bottom };
-      }),
-    ),
-});
+        return { name: name(el), left, top, right, bottom };
+      });
+    return {
+      labels: boxes('[data-slot="scatter-labels"] text', (el) => el.textContent ?? ""),
+      dots: boxes('[data-slot="scatter-point"]', (el) => el.getAttribute("aria-label") ?? ""),
+    };
+  });
 
-/** Waits until the chart has re-laid itself out after a resize: two reads in a row agree. */
-async function settled(): Promise<Awaited<ReturnType<typeof layout>>> {
-  let last = "";
-  await expect
-    .poll(
-      async () => {
-        const now = JSON.stringify(await layout());
-        const same = now === last && JSON.parse(now).dots.length > 0;
-        last = now;
-        return same;
-      },
-      { interval: 250, timeout: 5000 },
-    )
-    .toBe(true);
-  return JSON.parse(last);
+/** Waits until the chart has laid itself out at the page's width, then reads its names and dots. */
+async function laidOut(): Promise<Awaited<ReturnType<typeof layout>>> {
+  await chartDrawn(stores(), '[data-slot="scatter-labels"] text');
+  return layout();
 }
 
 const overlap = (a: Rect, b: Rect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
-describe("ScatterChartCard", () => {
+describe("ScatterChartCard", { timeout: 60_000 }, () => {
   for (const width of [1280, 390]) {
     it(`never puts a name on another name or on another store's dot at ${width}px`, async () => {
       await page.setViewportSize({ width, height: 900 });
-      const { labels, dots } = await settled();
+      const { labels, dots } = await laidOut();
       expect(labels.length).toBeGreaterThan(5);
       for (const [i, a] of labels.entries()) {
         for (const b of labels.slice(i + 1)) expect(overlap(a, b), `${a.name} on ${b.name}`).toBe(false);
@@ -107,7 +90,7 @@ describe("ScatterChartCard", () => {
 
   it("shows a hovered dot's name and figures", async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await settled();
+    await laidOut();
     const kochi = stores().locator('[data-slot="scatter-point"][data-key="Kochi"]');
     const box = await kochi.boundingBox();
     if (!box) throw new Error("Kochi is not laid out");
@@ -142,7 +125,7 @@ describe("ScatterChartCard", () => {
   });
   it("walks the dots with the arrow keys, left to right, and selects with Enter and clears with Escape", async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await settled();
+    await laidOut();
     const first = stores().locator('[data-slot="scatter-point"][tabindex="0"]');
     await first.focus();
     // Home goes to Shillong, the smallest share of sales; Nagpur is next to the right.
@@ -192,7 +175,7 @@ describe("ScatterChartCard", () => {
     });
     // A resize makes the chart lay itself out again with the larger type.
     await page.setViewportSize({ width: 1279, height: 900 });
-    const { labels, dots } = await settled();
+    const { labels, dots } = await laidOut();
     expect(labels.length).toBeGreaterThan(2);
     for (const [i, a] of labels.entries()) {
       for (const b of labels.slice(i + 1)) expect(overlap(a, b), `${a.name} on ${b.name}`).toBe(false);
