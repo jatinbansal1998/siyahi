@@ -1,3 +1,6 @@
+// @vitest-environment happy-dom
+import { act, type ReactNode } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 import {
@@ -73,5 +76,54 @@ describe("CalendarHeatmap signed", () => {
       heat(null),
       ...[1, 2, 3, 4, 5].map((step) => heatFill("positive", step)),
     ]);
+  });
+});
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+/** Renders into the document, runs `check` on the host, and unmounts. */
+async function mounted(element: ReactNode, check: (host: HTMLElement) => Promise<void> | void) {
+  const host = document.body.appendChild(document.createElement("div"));
+  const root = createRoot(host);
+  try {
+    await act(async () => root.render(element));
+    await check(host);
+  } finally {
+    await act(async () => root.unmount());
+    host.remove();
+  }
+}
+
+/** Every day from the first date to the last, each worth 1. */
+const span = (from: string, to: string) => {
+  const every: { date: string; value: number }[] = [];
+  for (let at = Date.parse(from); at <= Date.parse(to); at += 86_400_000) {
+    every.push({ date: new Date(at).toISOString().slice(0, 10), value: 1 });
+  }
+  return every;
+};
+
+describe("CalendarHeatmap month ticks", () => {
+  it("leaves out a tick the scrolled strip cuts at its left edge, and names the year on the first in view", async () => {
+    await mounted(
+      <CalendarHeatmap data={span("2026-04-01", "2026-11-27")} weekStart={1} blockSize={10}>
+        <CalendarHeatmapBody>
+          {({ activity, dayIndex, weekIndex }) => (
+            <CalendarHeatmapBlock activity={activity} dayIndex={dayIndex} weekIndex={weekIndex} />
+          )}
+        </CalendarHeatmapBody>
+      </CalendarHeatmap>,
+      async (host) => {
+        const ticks = () => [...host.querySelectorAll("text[dominant-baseline=hanging]")].map((t) => t.textContent);
+        expect(ticks().slice(0, 2)).toEqual(["Apr 2026", "May"]);
+        // As at 1280px on the portfolio page: scrolled 85px to the latest weeks, past the April tick's start (43px).
+        const body = host.querySelector<HTMLElement>('[data-slot="calendar-heatmap-body"]');
+        await act(async () => {
+          if (body) body.scrollLeft = 85;
+          body?.dispatchEvent(new Event("scroll"));
+        });
+        expect(ticks().slice(0, 2)).toEqual(["May 2026", "Jun"]);
+      },
+    );
   });
 });

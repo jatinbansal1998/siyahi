@@ -23,6 +23,12 @@
   `fixed` in the decimals its steps are given in (up to two), and
   `HistogramChartCard` in its bucket edges' decimals, so a negative reads
   "−61.35" where it read "-61.35".
+
+- `CalendarHeatmap`: a strip wider than its card opens on its latest weeks,
+  and the month tick that left cut at the card's edge is left out; it read
+  as its last letters, "6" for "Apr 2026". The first tick in view names the
+  year instead: "May 2026".
+
 - **Breaking:** the formatters write a negative figure with the minus sign
   `−` (U+2212), as DESIGN.md asks, where they wrote a hyphen: `money`,
   `moneyCompact`, `count` and `pct` print "−₹18,400", "−₹2.4L", "−5" and

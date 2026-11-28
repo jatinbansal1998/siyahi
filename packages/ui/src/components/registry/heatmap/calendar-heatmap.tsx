@@ -25,6 +25,8 @@
 // class too, so focus outranks it.
 // Siyahi edit: every optional prop also takes undefined (`?: T | undefined`), so a
 // page under exactOptionalPropertyTypes can write `prop: cond ? value : undefined`.
+// Siyahi edit: a month tick the scrolled strip cuts at its left edge is left
+// out, and the year moves to the first tick in view.
 // Siyahi edit: cells and legend swatches are square (blockRadius 0, was 2), as every
 // box is; a signed loss day stays round, since its shape carries the sign.
 import type { Locale, Day as WeekDay } from "date-fns";
@@ -40,8 +42,8 @@ import {
   parseISO,
   subWeeks,
 } from "date-fns";
-import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
-import { createContext, Fragment, use, useLayoutEffect, useMemo } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode, RefObject } from "react";
+import { createContext, Fragment, use, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { cn } from "@siyahi/ui/lib/utils";
 // Siyahi edit: interactive grids share one keyboard entry and spatial arrow navigation.
 // Siyahi edit: a focused cell shows the theme's focus outline, a square clear
@@ -429,18 +431,64 @@ const getMonthLabels = (
 
       return true;
     });
-  if (!yearTicks) return ticks;
-  // January reads as its year, so a strip across two years needs no year rows;
-  // a strip with no January names its year on its first tick.
-  const hasJanuary = ticks.some(({ year }) => year !== undefined);
-  return ticks.map((tick, index) => {
-    if (tick.year !== undefined) return { ...tick, label: String(tick.year) };
-    if (index === 0 && !hasJanuary) {
-      const week = weeks[tick.weekIndex]?.find((activity) => activity !== undefined);
-      return week ? { ...tick, label: `${tick.label} ${getYear(parseISO(week.date))}` } : tick;
-    }
-    return tick;
-  });
+  // January reads as its year, so a strip across two years needs no year rows.
+  return yearTicks
+    ? ticks.map((tick) => (tick.year === undefined ? tick : { ...tick, label: String(tick.year) }))
+    : ticks;
+};
+
+/** With no January among them, the first of the ticks in view names its year: "May 2026". */
+const nameYear = (ticks: MonthLabel[], weeks: Week[]): MonthLabel[] => {
+  const [first] = ticks;
+  if (!first || ticks.some(({ year }) => year !== undefined)) return ticks;
+  const day = weeks[first.weekIndex]?.find((activity) => activity !== undefined);
+  return day ? [{ ...first, label: `${first.label} ${getYear(parseISO(day.date))}` }, ...ticks.slice(1)] : ticks;
+};
+
+/** How far the strip is scrolled, kept in a leaf so a scroll redraws the ticks and not every day. */
+const useScrollLeft = (scroller: RefObject<HTMLElement | null>): number => {
+  const [left, setLeft] = useState(0);
+  useEffect(() => {
+    const element = scroller.current;
+    if (!element) return;
+    const onScroll = () => setLeft(element.scrollLeft);
+    onScroll();
+    element.addEventListener("scroll", onScroll, { passive: true });
+    return () => element.removeEventListener("scroll", onScroll);
+  }, [scroller]);
+  return left;
+};
+
+type MonthTicksProps = {
+  ticks: MonthLabel[];
+  weeks: Week[];
+  scroller: RefObject<HTMLElement | null>;
+  /** Where week `weekIndex`'s column starts, from the strip's left edge. */
+  x: (weekIndex: number) => number;
+  yearTicks: boolean;
+  fontSize: number;
+  className?: string | undefined;
+};
+
+// A strip wider than its card opens on its latest weeks, so its first ticks sit under the left edge; drawn, they
+// were cut to their last letters ("Apr 2026" read as "6"), so a tick not wholly in view is left out.
+const MonthTicks = ({ ticks, weeks, scroller, x, yearTicks, fontSize, className }: MonthTicksProps) => {
+  const scrolled = useScrollLeft(scroller);
+  const inView = ticks.filter(({ weekIndex }) => x(weekIndex) >= scrolled);
+  return (
+    <g className={cn("fill-current font-mono", className)}>
+      {(yearTicks ? nameYear(inView, weeks) : inView).map(({ label, weekIndex }) => (
+        <text
+          dominantBaseline="hanging"
+          key={weekIndex}
+          x={x(weekIndex)}
+          style={{ fontSize: `${fontSize * 0.75}px` }}
+        >
+          {label}
+        </text>
+      ))}
+    </g>
+  );
 };
 
 export type CalendarHeatmapProps = HTMLAttributes<HTMLDivElement> & {
@@ -907,22 +955,15 @@ export const CalendarHeatmapBody = ({
           >
             <g transform={`translate(0, ${strokePadding})`}>
               {!hideMonthLabels && (
-                <g className={cn("fill-current font-mono", labelClassName)}>
-                  {monthLabels.map(({ label, weekIndex }) => (
-                    <text
-                      dominantBaseline="hanging"
-                      key={`${yearRow.year}-${weekIndex}`}
-                      x={
-                        weekdayLabelWidth +
-                        strokePadding +
-                        (blockWidth + blockMargin) * weekIndex
-                      }
-                      style={{ fontSize: `${fontSize * 0.75}px` }}
-                    >
-                      {label}
-                    </text>
-                  ))}
-                </g>
+                <MonthTicks
+                  ticks={monthLabels}
+                  weeks={yearRow.weeks}
+                  scroller={navigation.ref}
+                  x={(weekIndex) => weekdayLabelWidth + strokePadding + (blockWidth + blockMargin) * weekIndex}
+                  yearTicks={continuousMonths}
+                  fontSize={fontSize}
+                  className={labelClassName}
+                />
               )}
               {!hideWeekdayLabels && (
                 <g
