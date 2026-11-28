@@ -1,14 +1,14 @@
 import { NewspaperIcon } from "lucide-react";
 import type { Page } from "../page";
 
-// Whole pages draw every block at once, so they get a page of their own: as a tile on an index page each would mount
-// in full only to show its top.
+// A whole page draws every block at once, so this index links to each rather than drawing it: a live tile would mount
+// a page in full to show its top, and a stacked page would mount all of them.
 export const pages: Page = {
   id: "pages",
   title: "Pages",
   icon: <NewspaperIcon />,
   lead: "Whole app pages built only from the package, to read as a design: what leads, in what order, and how each block answers the one before it.",
-  layout: "stack",
+  layout: "links",
   families: [
     {
       id: "market-close",

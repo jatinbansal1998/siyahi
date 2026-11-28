@@ -16,7 +16,7 @@ import { Shell } from "./shell";
 const PAGES: Page[] = [overview, foundations, components, inputs, layout, data, blocks, pages];
 
 function PageBody({ page }: { page: Page }) {
-  if (page.layout === "index") return <FamilyIndex page={page} />;
+  if (page.layout !== "stack") return <FamilyIndex page={page} />;
   return (
     <>
       {page.families.length > 2 && (
