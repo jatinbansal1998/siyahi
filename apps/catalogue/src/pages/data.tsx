@@ -1011,7 +1011,21 @@ export const data: Page = {
           name: "panes",
           type: "TimeSeriesChartPane[]",
           purpose:
-            "Top to bottom: { height?, series, levels?, format? } per pane. New data in the same panes updates the chart in place and keeps the reader's zoom.",
+            "Top to bottom: { height?, minHeight?, series, levels?, format?, tickFormat? } per pane. New data in the same panes updates the chart in place and keeps the reader's zoom.",
+        },
+        {
+          name: "panes[].height, panes[].minHeight",
+          type: "number",
+          default: "—",
+          purpose:
+            "A pane's height in pixels, legend included. Left out, the first pane follows the width (45% of it, 240 to 420) and a later one takes 120; minHeight raises that floor, 360 for a page's leading price chart.",
+        },
+        {
+          name: "panes[].format, panes[].tickFormat",
+          type: "(value: number) => string",
+          default: "two decimals, format",
+          purpose:
+            "format writes the legend values and the latest value's tag; tickFormat the axis ticks, such as whole rupees on the axis and paise in the legend.",
         },
         {
           name: "series[].type",
@@ -1030,7 +1044,8 @@ export const data: Page = {
           name: "events",
           type: "{ time; label; pane? }[]",
           default: "—",
-          purpose: "Notes over a pane's first series, at their date or the last point before it.",
+          purpose:
+            "Notes over a pane's first series, at their date or the last point before it. Each text sits clear of the lines, inside the plot; notes that crowd stack, and one with no room keeps its arrow and is written out under the chart with its date.",
         },
         {
           name: "range, rangeToggle",
@@ -1063,7 +1078,8 @@ export const data: Page = {
         "Dragging pans and a pinch zooms. The wheel scrolls the page until the reader clicks into the chart; then it zooms, until the pointer leaves. The All button shows everything again.",
         "Panning, zoom and the crosshair move every pane together. Each pane's legend names its series and gives their values at the crosshair's time, or the latest when the pointer is off the chart.",
         "One measure per pane: series in a pane share its axis, so put measures in different units in panes of their own.",
-        "A pane's format writes its axis ticks and its legend values, so give a signed pane a format that writes + and −.",
+        "A pane's format writes its legend values, and its axis ticks unless it has a tickFormat, so give a signed pane a format that writes + and −.",
+        "Keep a note to a few lowercase words: on a phone, notes with no room on the plot are written out under the chart.",
         "Levels are dashed lines in the muted colour, such as zero for a net position or 50% for a share; gridlines stay solid.",
         "A baseline and candlesticks draw in the gain and loss colours, so use a baseline only where above the base is a gain, such as profit; a net position that is merely positive or negative stays a line with a zero level.",
         "TimeSeriesChart is the chart alone, for a card you lay out yourself; then put the credit link under one chart on the page.",
@@ -1076,7 +1092,8 @@ export const data: Page = {
         },
         {
           name: "time-series-chart-price",
-          caption: "One area series at the width's own height, opened on its last year, with Linear and Log.",
+          caption:
+            "A leading price chart: one area series, 360px tall on a phone, its axis in whole rupees and its legend to the paisa, with notes on the news that moved it. Opened on its last year, with Linear and Log.",
         },
         {
           name: "time-series-chart-candles",

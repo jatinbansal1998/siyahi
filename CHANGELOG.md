@@ -43,6 +43,22 @@
   `JetBrains Mono`, `siyahi-cls --font` to `JetBrains Mono Variable`.
   `preloadFonts()` picks the new files by itself.
 
+- `TimeSeriesChart`'s event notes keep clear of the line: each note's text
+  sits above everything drawn under its whole width, inside the plot and
+  under the legend, centred on its arrow or leaning to the lower side, with a
+  hairline down to the arrow when it is lifted. Notes that would crowd stack;
+  one with no room keeps its arrow and is written out under the chart with
+  its date. They were the library's markers, centred over the point, so a
+  rising line struck their text, neighbours ran into each other and the
+  plot's edges cut them.
+- A `TimeSeriesChart` pane takes `tickFormat` for its axis ticks, apart from
+  `format`, which still writes the legend and the latest value's tag: a
+  price's axis in whole rupees (₹2,600) and its legend to the paisa
+  (₹2,418.65). Left out, the ticks use `format`, as before.
+- A `TimeSeriesChart` pane takes `minHeight`, the least a pane without a
+  `height` may be. A page's leading price chart sets 360, so on a phone it
+  is 360px tall where its width gave it 240, and on a wider screen it
+  still follows its width (DESIGN.md, Density).
 - A `DataTable` whose search or filters leave no row says "No row matches
   the search" (or the filters) with a Reset filters button, and one with no
   data says "No rows to show", where it drew its headers over a blank body.

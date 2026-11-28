@@ -3,7 +3,6 @@ import {
   AreaSeries,
   BaselineSeries,
   CandlestickSeries,
-  createSeriesMarkers,
   HistogramSeries,
   LineSeries,
   LineStyle,
@@ -11,14 +10,13 @@ import {
   type BarPrice,
   type IPriceLine,
   type ISeriesApi,
-  type ISeriesMarkersPluginApi,
   type MouseEventParams,
   type SeriesDefinition,
-  type SeriesMarker,
   type SeriesType,
   type Time,
 } from "lightweight-charts";
 import { useLocale } from "@siyahi/ui/components/siyahi/siyahi-provider";
+import { ChartNotes, type ChartNote } from "@siyahi/ui/lib/chart-notes";
 import { fittedChartHeight, type ChartColor } from "@siyahi/ui/lib/chart-series";
 import {
   createThemedChart,
@@ -73,12 +71,19 @@ export type TimeSeriesChartSeries = { label: string } & (
 export interface TimeSeriesChartPane {
   /** Pixels, legend included. Left out, the first pane follows the chart's width (45% of it, 240 to 420) and a later one takes 120. */
   height?: number | undefined;
+  /**
+   * The least a pane without a `height` may be, in pixels: a page's leading price chart takes 360, so on a phone it
+   * is taller than the 240 its width gives it, and on a wider screen still follows its width.
+   */
+  minHeight?: number | undefined;
   /** At least one. The first pane's first series sets the dates the range buttons count from. */
   series: TimeSeriesChartSeries[];
   /** Dashed lines across the pane, such as zero or 50%. */
   levels?: { value: number; label?: string | undefined }[] | undefined;
-  /** Writes the pane's axis ticks and legend values. Defaults to two decimals. */
+  /** Writes the pane's legend values and value tags, and its axis ticks unless `tickFormat` is given. Defaults to two decimals. */
   format?: ((value: number) => string) | undefined;
+  /** Writes the pane's axis ticks, where round values need less than a reading does: ₹2,600 on the axis, ₹2,418.65 in the legend. */
+  tickFormat?: ((value: number) => string) | undefined;
 }
 
 /** How much of the series shows, counted back from its last point. */
@@ -90,7 +95,11 @@ export interface TimeSeriesChartProps {
    * a pane or series added, removed or changed in type redraws it.
    */
   panes: TimeSeriesChartPane[];
-  /** Notes over a pane's first series, such as where a month starts, each at its date or the last point before it. */
+  /**
+   * Notes over a pane's first series, such as results days, each at its date or the last point before it. A note's
+   * text keeps clear of the lines and the plot's edges; notes that crowd stack, and one with no room keeps its arrow
+   * and is written out under the chart with its date.
+   */
   events?:
     | {
         time: TimeSeriesChartTime;
@@ -135,8 +144,13 @@ const RANGE_MONTHS = { "1M": 1, "6M": 6, "1Y": 12, All: undefined };
 type Kind = keyof typeof SERIES;
 type Events = TimeSeriesChartProps["events"];
 
+// One legend line per series, as TradingView stacks them, so a phone never wraps one over the lines.
+const legendHeight = (series: TimeSeriesChartSeries[]) => 2 * LEGEND_GAP + series.length * LEGEND_ROW;
+
 const paneHeights = (panes: TimeSeriesChartPane[], width: number) =>
-  panes.map(({ height }, p) => height ?? (p === 0 ? fittedChartHeight(width) : LATER_PANE));
+  panes.map(
+    ({ height, minHeight = 0 }, p) => height ?? Math.max(minHeight, p === 0 ? fittedChartHeight(width) : LATER_PANE),
+  );
 
 /** The library marks its seconds with a type of its own; a page's are plain numbers. */
 const chartTime = (time: TimeSeriesChartTime) => time as Time;
@@ -197,16 +211,17 @@ function seriesColors(series: TimeSeriesChartSeries, color: ThemeColor) {
   }
 }
 
-/** A pane's events as markers on its first series, each moved back to the last point at or before its time. */
-function markers(panes: TimeSeriesChartPane[], events: Events, pane: number, color: string): SeriesMarker<Time>[] {
-  const data = panes[pane]?.series[0]?.data ?? [];
+/** A pane's events as notes on its first series, each moved back to the last point at or before its time. */
+function notes(panes: TimeSeriesChartPane[], events: Events, pane: number): ChartNote[] {
+  const data: (TimeSeriesChartPoint | TimeSeriesChartCandle)[] = panes[pane]?.series[0]?.data ?? [];
   return (events ?? [])
     .filter((event) => (event.pane ?? 0) === pane)
     .flatMap(({ time, label }) => {
       const at = timeSeconds(chartTime(time));
       const point = data.findLast((candidate) => timeSeconds(chartTime(candidate.time)) <= at);
-      if (!point) return [];
-      return [{ time: chartTime(point.time), text: label, position: "aboveBar", shape: "arrowDown", color } as const];
+      const price = point && ("high" in point ? point.high : point.value);
+      if (!point || price === null || price === undefined) return [];
+      return [{ time: chartTime(point.time), price, text: label }];
     })
     .toSorted((a, b) => timeSeconds(a.time) - timeSeconds(b.time));
 }
@@ -220,7 +235,9 @@ class Drawing {
   /** The library's series, by pane then by place in the pane. */
   private readonly lines: ISeriesApi<SeriesType>[][];
   private readonly rules: IPriceLine[][];
-  private readonly markers: ISeriesMarkersPluginApi<Time>[];
+  private readonly notes: ChartNotes[];
+  /** Each pane's notes that found no room on the plot. */
+  private readonly crowded: ChartNote[][];
   private readonly stopListening: () => void;
   private panes: TimeSeriesChartPane[] = [];
   private events: Events;
@@ -240,6 +257,7 @@ class Drawing {
     structure: string,
     private readonly onValues: (values: string[][]) => void,
     onZoom: () => void,
+    onCrowded: (notes: ChartNote[]) => void,
   ) {
     this.themed = createThemedChart(element, credit, (color) => this.paint(color));
     const { chart } = this.themed;
@@ -258,7 +276,15 @@ class Drawing {
           ),
       );
     this.rules = this.lines.map(() => []);
-    this.markers = this.lines.flatMap(([first]) => (first ? [createSeriesMarkers(first)] : []));
+    this.crowded = this.lines.map(() => []);
+    this.notes = this.lines.map((lines, p) => {
+      const pane = new ChartNotes(lines, (crowded) => {
+        this.crowded[p] = crowded;
+        onCrowded(this.crowded.flat());
+      });
+      lines[0]?.attachPrimitive(pane);
+      return pane;
+    });
     chart.subscribeCrosshairMove((param) => onValues(this.read(param)));
     // The view also changes when the chart frames a range, takes new data or resizes; only a change the reader's
     // own hand is behind makes it theirs.
@@ -297,14 +323,14 @@ class Drawing {
     // A held view is put back after new data: at the first point, where panning stops, the library would move it on
     // by the new points.
     const view = timeScale.getVisibleLogicalRange();
-    panes.forEach(({ series, format: write = twoDecimals }, p) => {
+    panes.forEach(({ series, format: write = twoDecimals, tickFormat = write }, p) => {
       series.forEach((item, s) => {
         const line = this.lines[p]?.[s];
         line?.applyOptions({
           priceFormat: {
             type: "custom",
             formatter: write,
-            tickmarksFormatter: (prices: BarPrice[]) => this.ticks(p, prices, write),
+            tickmarksFormatter: (prices: BarPrice[]) => this.ticks(p, prices, tickFormat),
           },
           ...(item.type === "baseline" && { baseValue: { type: "price", price: item.base ?? 0 } }),
         });
@@ -334,8 +360,7 @@ class Drawing {
       const series = panes[p]?.series;
       if (!height || !series) return;
       pane.setStretchFactor(height);
-      // One legend line per series, as TradingView stacks them, so a phone never wraps one over the lines.
-      const legend = 2 * LEGEND_GAP + series.length * LEGEND_ROW;
+      const legend = legendHeight(series);
       // Volume bars stand on the pane's floor, as a bar's length is its value.
       const bars = series.some(({ type }) => type === "histogram");
       pane.priceScale("right").applyOptions({
@@ -349,7 +374,7 @@ class Drawing {
     const muted = color("--muted-foreground");
     this.panes.forEach(({ series, levels = [] }, p) => {
       series.forEach((item, s) => this.lines[p]?.[s]?.applyOptions(seriesColors(item, color)));
-      this.markers[p]?.setMarkers(markers(this.panes, this.events, p, muted));
+      this.notes[p]?.set(notes(this.panes, this.events, p), muted, legendHeight(series));
       const first = this.lines[p]?.[0];
       if (!first) return;
       // Drawn afresh each time: the library measures a level's label once, for the life of its line, so a line
@@ -450,6 +475,7 @@ export function TimeSeriesChart({
   const [plot, setPlot] = useState<HTMLDivElement | null>(null);
   const [drawing, setDrawing] = useState<Drawing | null>(null);
   const [values, setValues] = useState<string[][]>([]);
+  const [crowded, setCrowded] = useState<ChartNote[]>([]);
   const zoomed = useRef(onZoom);
   const structure = panes.map(({ series }) => series.map(({ type = "line" }) => type).join()).join("|");
 
@@ -459,7 +485,7 @@ export function TimeSeriesChart({
 
   useEffect(() => {
     if (!plot || !structure) return;
-    const made = new Drawing(plot, credit, structure, setValues, () => zoomed.current?.());
+    const made = new Drawing(plot, credit, structure, setValues, () => zoomed.current?.(), setCrowded);
     setDrawing(made);
     return () => made.remove();
   }, [plot, credit, structure]);
@@ -475,42 +501,59 @@ export function TimeSeriesChart({
   const heights = paneHeights(panes, width);
   const tops = heights.map((_, p) => heights.slice(0, p).reduce((top, height) => top + height + DIVIDER, 0));
   const height = heights.reduce((sum, paneHeight) => sum + paneHeight + DIVIDER, -DIVIDER) + TIME_AXIS;
+  const dates = timeLabels(locale, typeof panes[0]?.series[0]?.data[0]?.time === "number");
   return (
-    <div
-      ref={root}
-      data-slot="time-series-chart"
-      role={label ? "figure" : undefined}
-      aria-label={label}
-      className="relative w-full font-mono text-xs"
-      style={{ height }}
-    >
-      {placeholder ? (
-        <div data-slot="chart-placeholder" className="flex h-full items-center justify-center">
-          {placeholder}
-        </div>
-      ) : (
-        <>
-          <div ref={setPlot} className="absolute inset-0" />
-          {panes.map((pane, p) => (
-            <ul
-              // Panes are told apart by place: two may hold series of the same names.
-              // oxlint-disable-next-line react/no-array-index-key
-              key={p}
-              data-slot="time-series-chart-legend"
-              className="pointer-events-none absolute left-1 z-10"
-              style={{ top: (tops[p] ?? 0) + LEGEND_GAP }}
-            >
-              {pane.series.map((series, s) => (
-                <li key={series.label} className="flex h-4 items-center gap-1.5">
-                  <span className="size-2 shrink-0" style={swatch(series)} />
-                  <span className="text-muted-foreground">{series.label}</span>
-                  <span className="tabular-nums">{values[p]?.[s]}</span>
-                </li>
-              ))}
-            </ul>
+    <>
+      <div
+        ref={root}
+        data-slot="time-series-chart"
+        role={label ? "figure" : undefined}
+        aria-label={label}
+        className="relative w-full font-mono text-xs"
+        style={{ height }}
+      >
+        {placeholder ? (
+          <div data-slot="chart-placeholder" className="flex h-full items-center justify-center">
+            {placeholder}
+          </div>
+        ) : (
+          <>
+            <div ref={setPlot} className="absolute inset-0" />
+            {panes.map((pane, p) => (
+              <ul
+                // Panes are told apart by place: two may hold series of the same names.
+                // oxlint-disable-next-line react/no-array-index-key
+                key={p}
+                data-slot="time-series-chart-legend"
+                className="pointer-events-none absolute left-1 z-10"
+                style={{ top: (tops[p] ?? 0) + LEGEND_GAP }}
+              >
+                {pane.series.map((series, s) => (
+                  <li key={series.label} className="flex h-4 items-center gap-1.5">
+                    <span className="size-2 shrink-0" style={swatch(series)} />
+                    <span className="text-muted-foreground">{series.label}</span>
+                    <span className="tabular-nums">{values[p]?.[s]}</span>
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </>
+        )}
+      </div>
+      {!placeholder && crowded.length > 0 && (
+        <ul
+          data-slot="time-series-chart-notes"
+          className="mt-2 flex flex-wrap gap-x-4 font-mono text-xs text-muted-foreground"
+        >
+          {crowded.map(({ time, text }) => (
+            <li key={`${String(time)} ${text}`} className="flex items-center gap-1.5">
+              <span className="size-2 shrink-0 bg-current" style={{ clipPath: "polygon(0 0, 100% 0, 50% 100%)" }} />
+              <span>{dates.crosshair(time)}</span>
+              <span className="text-foreground">{text}</span>
+            </li>
           ))}
-        </>
+        </ul>
       )}
-    </div>
+    </>
   );
 }
