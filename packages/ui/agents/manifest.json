@@ -71,7 +71,7 @@
     },
     {
       "need": "A total built up or bridged step by step, such as a year's profit month by month or revenue from last year to this by store",
-      "guidance": "`WaterfallChartCard`; `horizontal` for long names",
+      "guidance": "`WaterfallChartCard`; `horizontal` for long names, `yFrom` when the changes are small beside the totals",
       "components": [
         "WaterfallChartCard"
       ]
@@ -175,7 +175,7 @@
       ]
     },
     {
-      "need": "How many values fall in each range, such as response times or each trade's return, with the median or p95 marked",
+      "need": "How many values fall in each range, such as response times or each trade's return, with the median, p95 or a value such as zero or today's marked",
       "guidance": "`HistogramChartCard` with the raw `values` and `marks`",
       "components": [
         "HistogramChartCard"
@@ -1185,6 +1185,13 @@
       ]
     },
     {
+      "file": "agents/examples/histogram-chart-moves.tsx",
+      "components": [
+        "HistogramChartCard",
+        "useFormat"
+      ]
+    },
+    {
       "file": "agents/examples/histogram-chart.tsx",
       "components": [
         "HistogramChartCard",
@@ -1715,6 +1722,13 @@
         "TooltipTrigger",
         "Treemap",
         "TreemapLegend",
+        "useFormat"
+      ]
+    },
+    {
+      "file": "agents/examples/waterfall-chart-portfolio.tsx",
+      "components": [
+        "WaterfallChartCard",
         "useFormat"
       ]
     },

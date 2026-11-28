@@ -269,6 +269,18 @@ from the catalogue.
   10,000s), a stack's totals for a stack. Bars and stacks reach zero, since
   their length is the value; lines and overlapping areas need not, so a
   revenue line from ₹38L to ₹45L fills the plot rather than its top fifth.
+- **A bridge may cut its axis, and then draws no total as a bar.** Where a
+  waterfall's changes are small beside its totals (₹24L on a ₹1Cr
+  portfolio, 103 points on an index at 24,415), the page starts its value
+  axis near the levels (`yFrom`). A change keeps its true length on a cut
+  axis, since it is a difference; a total would not, so each total is a 2px
+  line at its level, and two slashes on the axis' foot, where zero would be,
+  mark the cut. No other bar chart cuts its axis.
+- **A mark on a value sits at that value.** A histogram's lines (a
+  percentile, zero, today's move) sit where their value falls on the axis,
+  whose ticks sit on the bucket edges they name, never in a bucket's middle.
+  Each is named beside its line, on the side where the name stays on the
+  plot and crosses no other mark, and its value is written under the chart.
 - **Forecast and today.** `forecastFrom` dashes every line from that point,
   hatches the stretch faintly behind lines on card-coloured halos, labels it
   FORECAST and hollows the end dots (a stack keeps solid edges and no hatching:

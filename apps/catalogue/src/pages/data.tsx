@@ -469,7 +469,7 @@ export const data: Page = {
           name: "steps",
           type: "WaterfallStep[]",
           purpose:
-            '{ kind: "change", label, value } moves the running total; { kind: "total", label, value? } draws it from zero. Labels may repeat.',
+            '{ kind: "change", label, value } moves the running total; { kind: "total", label, value? } draws it from the axis\' foot, zero unless yFrom cuts it. Labels may repeat.',
         },
         {
           name: "steps[].value (total)",
@@ -484,6 +484,13 @@ export const data: Page = {
           purpose: "Bars run sideways with the labels down the left, for long names; give a height that fits the rows.",
         },
         {
+          name: "yFrom",
+          type: "number",
+          default: "zero",
+          purpose:
+            "Starts the value axis here, on the round tick at or under it, for levels far from zero. Totals then draw as a line at their level and the axis is marked cut.",
+        },
+        {
           name: "labels",
           type: "{ rise, fall, total }",
           default: '"Increase", "Decrease", "Total"',
@@ -492,7 +499,7 @@ export const data: Page = {
         {
           name: "valueFormatter",
           type: "(value: number) => string",
-          default: "locale numbers",
+          default: "fixed, in the steps' decimals up to two",
           purpose: "Writes the tooltip's figures; a change gets its + or − in front.",
         },
         {
@@ -514,6 +521,7 @@ export const data: Page = {
         "A dashed line carries each level across the gap to the next bar, so the eye follows the running total.",
         "A total with a value that differs from the running total starts a new level, and no line joins it to the bar before.",
         "A step whose value is not a number (NaN) leaves every later balance unknown, so the card names that step instead of drawing.",
+        "Give yFrom when the changes are small beside the totals, such as ₹24L on a ₹1Cr portfolio: from zero they would be hairlines. A change keeps its true length on a cut axis, a total would not, so each total is a 2px line at its level and two slashes on the axis' foot mark the cut. A bridge that starts with a change starts from zero, so its axis is never cut.",
         "Changes that share no running total, such as each team's growth, are a BarChartCard with negativeColor.",
       ],
       examples: [
@@ -524,6 +532,11 @@ export const data: Page = {
         {
           name: "waterfall-chart-stores",
           caption: "Sideways bars from last year's revenue to this year's, store by store, with long names.",
+        },
+        {
+          name: "waterfall-chart-portfolio",
+          caption:
+            "A ₹1Cr portfolio's year, with the axis cut at ₹90L so the changes fill the plot and each total is a line at its level.",
         },
       ],
     },
@@ -579,7 +592,7 @@ export const data: Page = {
     {
       id: "histogram-chart",
       title: "Histogram",
-      lead: "HistogramChartCard shows how values spread: counts in buckets of one round width, with the median or a high percentile marked.",
+      lead: "HistogramChartCard shows how values spread: counts in buckets of one round width, with a percentile or a value of the page's own marked.",
       imports: ["HistogramChartCard", "type HistogramMark"],
       props: [
         {
@@ -597,7 +610,7 @@ export const data: Page = {
         {
           name: "valueFormatter",
           type: "(value: number) => string",
-          default: "locale numbers",
+          default: "fixed, in the edges' decimals",
           purpose: "Writes the bucket edges and the marks, such as (v) => `${v} ms`.",
         },
         {
@@ -614,9 +627,10 @@ export const data: Page = {
         },
         {
           name: "marks",
-          type: '("median" | "p90" | "p95" | "p99")[]',
+          type: '("median" | "p90" | "p95" | "p99" | { value, label })[]',
           default: "[]",
-          purpose: "Percentiles to mark with a line at their bucket; their exact values are written under the chart.",
+          purpose:
+            'Lines at a percentile of the values, or at a value of the page\'s own with its name, such as { value: 0, label: "zero" }. Each is named on the plot and written with its value under the chart.',
         },
         {
           name: "title, description, action, height, xLabel, yLabel, placeholder, footer",
@@ -628,14 +642,20 @@ export const data: Page = {
       rules: [
         "Give it the raw values; the card buckets them. Counts already bucketed, such as orders by hour, are a BarChartCard.",
         "Every bar is --chart-1: a bucket is a range of one measure, not a category, and not a gain or a loss.",
-        "A percentile line sits on the bucket that holds it, named on the plot; its exact value, worked out between the two nearest values as spreadsheets do, is written under the chart, so a phone reads it without a hover.",
-        "Each tick names its bucket's lower edge and the tooltip gives the whole range. Name the bucket width in the description.",
+        "A mark's line sits at its value on the axis, named on the plot; its value, a percentile worked out between the two nearest values as spreadsheets do, is written under the chart, so a phone reads it without a hover. The buckets reach to cover a mark past the values.",
+        "A mark's name sits beside its line on the side that stays on the plot and crosses no other mark's line, so two marks a few pixels apart name outwards; a name with no room drops a line lower.",
+        "Ticks sit on the bucket edges they name, every one that fits the width, and the tooltip gives a bucket's range. Name the bucket width in the description.",
       ],
       examples: [
         {
           name: "histogram-chart",
           caption:
-            "2,000 checkout requests' response times in 50 ms buckets, with the median and 95th percentile marked.",
+            "2,000 checkout requests' response times in 100 ms buckets, with the median and 95th percentile marked.",
+        },
+        {
+          name: "histogram-chart-moves",
+          caption:
+            "A year of NIFTY 50 daily moves with zero, the median and today's move marked: zero and the median name outwards, and today's name keeps to the plot at its left edge.",
         },
       ],
     },

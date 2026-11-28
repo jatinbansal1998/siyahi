@@ -2,6 +2,27 @@
 
 ## 0.1.9
 
+- `WaterfallChartCard` takes `yFrom`, where its value axis starts in place
+  of zero, for a bridge whose changes are small beside its totals: a
+  portfolio from ₹1.00Cr to ₹1.24Cr, or an index from 24,415 to 24,312. Its
+  changes keep their length; each total is a 2px line at its level rather
+  than a bar, whose length a cut axis would misstate, and two slashes mark
+  the cut where zero would be. Without it nothing changes. Its dashed
+  connectors now draw behind the bars, as they were meant to.
+- `HistogramChartCard`'s `marks` take a value of the page's own with its
+  name, `{ value: 0, label: "zero" }`, beside the percentiles. Every mark
+  now sits at its value, where a percentile sat in the middle of its bucket
+  (a median of 0.05% drew where 0.5% falls), on an axis whose ticks sit on
+  the bucket edges they name, every one that fits the width. A mark's name
+  keeps to the plot and clear of its neighbours' lines; one with no room
+  drops a line lower. The buckets reach to cover a mark past the values.
+  `HistogramBin` has `middle` in place of `key`; `HistogramMark` is now
+  `HistogramPercentile` or `{ value, label }`, and `markLines` is replaced
+  by `placeMarks`.
+- With no `valueFormatter`, `WaterfallChartCard` writes its figures with
+  `fixed` in the decimals its steps are given in (up to two), and
+  `HistogramChartCard` in its bucket edges' decimals, so a negative reads
+  "−61.35" where it read "-61.35".
 - **Breaking:** the formatters write a negative figure with the minus sign
   `−` (U+2212), as DESIGN.md asks, where they wrote a hyphen: `money`,
   `moneyCompact`, `count` and `pct` print "−₹18,400", "−₹2.4L", "−5" and
