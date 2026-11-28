@@ -64,8 +64,7 @@ jobs:
             console.log(routes.map((route) => base + route).join("\n"));
           ') > routes.txt
           echo "Shooting $(wc -l < routes.txt) pages"
-          # The masthead appears before the examples, just as catalogue.ts waits for its loading status to leave.
-          pnpm shots --wait-for 'main:not(:has([role="status"]:text-is("Loading examples…"))) h1' --out shots $(cat routes.txt)
+          pnpm shots --out shots $(cat routes.txt)
       - name: Attach the images
         if: always()
         uses: actions/upload-artifact@v7

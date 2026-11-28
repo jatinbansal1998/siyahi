@@ -6,6 +6,7 @@ import {
   CardTitle,
   TargetRows,
   useFormat,
+  type Formatters,
   type TargetRow,
   type TargetStatus,
 } from "@siyahi/ui";
@@ -30,11 +31,9 @@ const teams: Team[] = [
 const NEAR = 0.02;
 const FAR = 0.05;
 
-const points = (value: number) => `${(value * 100).toFixed(1)} points`;
-
-function statusOf({ weight, target }: Team): TargetStatus {
+function statusOf({ weight, target }: Team, fixed: Formatters["fixed"]): TargetStatus {
   const gap = weight - target;
-  const size = `${points(Math.abs(gap))} ${gap > 0 ? "over" : "under"}`;
+  const size = `${fixed(Math.abs(gap) * 100, 1)} points ${gap > 0 ? "over" : "under"}`;
   if (Math.abs(gap) <= NEAR) return { kind: "met", label: "On target" };
   if (Math.abs(gap) <= FAR) return { kind: "missed", label: size };
   return { kind: "warning", label: `${size}, needs review` };
@@ -51,7 +50,7 @@ export default function TargetRowsExample() {
       [team.target - FAR, team.target + FAR],
       [team.target - NEAR, team.target + NEAR],
     ],
-    status: statusOf(team),
+    status: statusOf(team, f.fixed),
   }));
   return (
     <Card>

@@ -1,9 +1,9 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, DistributionBar } from "@siyahi/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, DistributionBar, useFormat } from "@siyahi/ui";
 
 // Where a memory budget sits, on a fixed 0 to 12 GiB scale; made-up figures.
-const gib = (value: number) => `${value.toFixed(1)} GiB`;
-
 export default function DistributionBarBudgetExample() {
+  const { fixed } = useFormat();
+  const gib = (value: number) => `${fixed(value, 1)} GiB`;
   return (
     <Card>
       <CardHeader>

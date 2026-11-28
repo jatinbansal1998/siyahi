@@ -14,7 +14,7 @@
     "knip:check": "knip --no-config-hints",
     "lint": "vp lint",
     "lint:registry": "vp lint -c .oxlintrc.registry.json packages/ui/src/components/registry",
-    "shots": "node packages/tools/shots.mjs",
+    "shots": "node packages/tools/shots.mjs --wait-for 'main:not(:has([role=\"status\"]:text-is(\"Loading examples…\"))) h1'",
     "test": "vp test",
     "typecheck": "vp run -r typecheck"
   },

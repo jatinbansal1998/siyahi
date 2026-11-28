@@ -1,4 +1,5 @@
 import {
+  BarList,
   CalendarHeatmap,
   CalendarHeatmapBlock,
   CalendarHeatmapBody,
@@ -38,6 +39,7 @@ import {
   TreemapLegend,
   WaterfallChartCard,
   dataTableDetailsColumn,
+  signed,
   useDataTable,
   useFormat,
   type ChartSeries,
@@ -364,8 +366,6 @@ const monthStarts = history.filter((row, i) => i > 0 && row.day.slice(5, 7) !== 
 
 // --- Words. --------------------------------------------------------------------------------------------------------
 
-const sign = (value: number) => (value > 0 ? "+" : value < 0 ? "\u2212" : "");
-
 function useWords() {
   const f = useFormat();
   const day = (iso: string) => f.dateTime(iso, { day: "numeric", month: "short", timeZone: "UTC" });
@@ -375,10 +375,10 @@ function useWords() {
     fullDay: (iso: string) =>
       f.dateTime(iso, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }),
     month: (iso: string) => f.dateTime(iso, { month: "short", timeZone: "UTC" }),
-    signedMoney: (value: number) => `${sign(value)}${f.money(Math.abs(value))}`,
-    signedCompact: (value: number) => `${sign(value)}${f.moneyCompact(Math.abs(value))}`,
-    signedPct: (value: number, digits?: number) => `${sign(value)}${f.pct(Math.abs(value), digits)}`,
-    points: (value: number) => `${(Math.abs(value) * 100).toFixed(1)} points`,
+    signedMoney: (value: number) => signed(value, f.money),
+    signedCompact: (value: number) => signed(value, (size) => f.moneyCompact(size)),
+    signedPct: (value: number, digits?: number) => signed(value, (size) => f.pct(size, digits)),
+    points: (value: number) => `${f.fixed(Math.abs(value) * 100, 1)} points`,
   };
 }
 
@@ -388,7 +388,7 @@ function Headline() {
   const w = useWords();
   return (
     <MetricStrip
-      variant="blocks"
+      variant="lead"
       items={[
         { label: "Worth", value: w.money(total), note: "at the 27 Nov close" },
         { label: "Day's change", value: w.signedMoney(dayGain), change: lastReturn, note: "on Friday" },
@@ -424,17 +424,30 @@ function Holdings() {
   const largest = classes.reduce((a, b) => (b.worth > a.worth ? b : a));
   const figures = ({ holding }: Tile) =>
     `${w.money(holding.worth)} · ${w.pct(holding.worth / total)} of the whole · ${w.signedPct(holding.day, 2)} on Friday`;
+  // Under 48rem the map names fewer than a third of its tiles, so a narrower card lists the holdings instead.
   return (
-    <Card>
+    <Card className="@container/holdings">
       <CardHeader>
         <CardTitle>
           {largest.name} is {w.pct(largest.share, 0)} of your money
         </CardTitle>
         <CardDescription>
-          Each holding by asset class. Area is its worth; colour is its change on Friday, deepest at ±2%.
+          <span className="hidden @3xl/holdings:inline">
+            Each holding by asset class. Area is its worth; colour is its change on Friday, deepest at ±2%.
+          </span>
+          <span className="@3xl/holdings:hidden">
+            Each holding, largest first: its worth, its share of the whole and its change on Friday.
+          </span>
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="@3xl/holdings:hidden">
+        <BarList
+          data={holdings.map((h) => ({ name: h.name, value: h.worth, detail: <Delta value={h.day} /> }))}
+          valueFormatter={(value) => w.moneyCompact(value)}
+          showPercentage
+        />
+      </CardContent>
+      <CardContent className="hidden @3xl/holdings:block">
         <Tooltip open={hovered !== null} trackCursorAxis="both">
           <TooltipTrigger render={<div />}>
             <Treemap
@@ -538,19 +551,21 @@ function Mix() {
 function Bridge() {
   const w = useWords();
   const steps: WaterfallStep[] = [
+    { kind: "total", label: "31 Mar", value: startWorth },
     { kind: "change", label: "Money you put in", value: moneyAdded },
     ...classes
       .toSorted((a, b) => b.gain - a.gain)
       .map((c): WaterfallStep => ({ kind: "change", label: `${c.name} gains`, value: c.gain })),
-    { kind: "total", label: "Growth since April" },
+    { kind: "total", label: "27 Nov" },
   ];
   return (
     <WaterfallChartCard
       title={`Your money grew ${w.moneyCompact(total - startWorth)} since April: ${w.moneyCompact(marketGain)} from markets, ${w.moneyCompact(moneyAdded)} you put in`}
-      description={`From ${w.money(startWorth)} at the 31 Mar close to ${w.money(total)} at the 27 Nov close. Each bar starts where the one above left off.`}
+      description="Your money at the 31 Mar and 27 Nov closes, and what added to it between. Each bar starts where the one above left off."
       steps={steps}
       horizontal
-      labels={{ rise: "Gain", fall: "Loss", total: "Growth" }}
+      yFrom={startWorth * 0.9}
+      labels={{ rise: "Gain", fall: "Loss", total: "Worth" }}
       valueFormatter={w.money}
       yTickFormatter={w.moneyCompact}
       height={320}
@@ -574,8 +589,7 @@ function Days() {
         </CardTitle>
         <CardDescription>
           Each trading day's gain or loss on everything you own, money put in left out. {days.length - lossDays} days
-          gained, {lossDays} lost. Square green days gained, round red days lost; deeper is more. Weekends and market
-          holidays are grey.
+          gained, {lossDays} lost. Weekends are left out; market holidays are grey.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -583,6 +597,7 @@ function Days() {
           data={days.map((d) => ({ date: d.day, value: Math.round(d.pnl) }))}
           signed
           weekStart={1}
+          weekdays={[1, 2, 3, 4, 5]}
           labels={{ heatmapLabel: "Gain or loss by day, April to November", cellLabel: "{{date}}: {{value}} rupees" }}
         >
           <CalendarHeatmapBody>
@@ -635,17 +650,8 @@ function Race() {
       valueFormatter={(value) => w.signedPct(value)}
       yTickFormatter={(value) => w.signedPct(value, 0)}
       referenceLines={[
-        { x: BONUS_DAY, label: "₹4L bonus put in", labelPosition: "insideBottomLeft" },
-        ...(madeBack
-          ? [
-              {
-                x: madeBack.day,
-                label: "back at its high",
-                emphasis: "strong" as const,
-                labelPosition: "insideTopRight" as const,
-              },
-            ]
-          : []),
+        { x: BONUS_DAY, label: `${w.moneyCompact(flows.get(BONUS_DAY) ?? 0)} bonus put in` },
+        ...(madeBack ? [{ x: madeBack.day, label: "back at its high", emphasis: "strong" as const }] : []),
       ]}
       syncId="since-april"
     />

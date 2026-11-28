@@ -198,6 +198,9 @@ pnpm shots http://localhost:4173/#/data/bar-chart --script hover.mjs   # in anot
 
 To check a control, hover or tooltip, give `pnpm shots` a `--script` (see
 `packages/tools/README.md`) rather than writing a Playwright script.
+`pnpm shots` waits until the catalogue's "Loading examples…" status is gone,
+since the masthead's `h1` shows before the examples and a shot taken then is
+one screen tall; CI's Screenshots workflow runs the same script.
 
 `pnpm check:static` formats, lints (including the colour pass over the
 add-ons), looks for unused code, fails on stale generated files, builds (with

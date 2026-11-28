@@ -22,8 +22,9 @@ import {
   TimeSeriesChartCard,
   WaterfallChartCard,
   dataTableDetailsColumn,
+  signed,
+  useDataTable,
   useFormat,
-  useLocale,
   type ChangeGridRow,
   type ChartSeries,
   type DataTableColumnDef,
@@ -34,16 +35,6 @@ import {
 
 // One made-up session on the NSE, Friday 27 Nov 2026: the Nifty fell while most stocks rose, because the largest
 // banks fell. Every block answers the question the one before it raises. All figures are invented.
-
-const MINUS = "−";
-const sign = (value: number) => (value > 0 ? "+" : value < 0 ? MINUS : "");
-
-/** An index level as exchanges quote it, to two decimals with the locale's grouping: 24,312.45. */
-function useLevel(): (value: number) => string {
-  const { numberLocale } = useLocale();
-  const format = new Intl.NumberFormat(numberLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (value) => format.format(value);
-}
 
 // ---------------------------------------------------------------------------------------------------------------
 // Where the indices closed. Each run is the 30 Oct close, then every session in November to today; the market was
@@ -106,7 +97,7 @@ const indices: IndexClose[] = [
   },
 ];
 
-// The fear gauge rises when the market falls, so its rise is not a gain: it gets a plain note, not a green change.
+// The fear gauge rises when the market falls, so its rise is bad news.
 const vix = [
   13.2, 13.05, 12.88, 13.4, 12.95, 12.7, 12.82, 12.55, 12.4, 12.62, 12.35, 12.1, 11.98, 12.6, 13.05, 13.42, 13.7, 13.97,
   14.82,
@@ -115,13 +106,13 @@ const vix = [
 const lastTwo = (closes: number[]) => [closes.at(-2) ?? 0, closes.at(-1) ?? 0] as const;
 
 function Indices() {
-  const level = useLevel();
-  const { pct } = useFormat();
+  const { fixed } = useFormat();
   const items: MetricStripItem[] = indices.map(({ name, closes }) => {
     const [before, close] = lastTwo(closes);
     return {
       label: name,
-      value: level(close),
+      // An index level as exchanges quote it: 24,312.45.
+      value: fixed(close),
       change: close / before - 1,
       trend: closes,
       // The one index the day turned on, marked by the page.
@@ -131,8 +122,9 @@ function Indices() {
   const [vixBefore, vixClose] = lastTwo(vix);
   items.push({
     label: "India VIX",
-    value: level(vixClose),
-    note: `up ${pct(vixClose / vixBefore - 1)}, the most since 3 Nov`,
+    value: fixed(vixClose),
+    change: vixClose / vixBefore - 1,
+    rise: "bad",
     trend: vix,
   });
   return (
@@ -219,7 +211,7 @@ const intraday = [
 
 function Session() {
   const { pct } = useFormat();
-  const signedPct = (value: number) => `${sign(value)}${pct(Math.abs(value), 2)}`;
+  const signedPct = (value: number) => signed(value, (size) => pct(size, 2));
   const panes: TimeSeriesChartPane[] = [
     {
       series: intraday.map(({ label, color, moves }) => ({
@@ -318,16 +310,15 @@ const median = moves.toSorted((a, b) => a - b)[moves.length / 2] ?? 0;
 
 function Spread() {
   const { pct } = useFormat();
-  const signedPct = (value: number) => `${sign(value)}${pct(Math.abs(value))}`;
   return (
     <HistogramChartCard
       title={`The median Nifty 500 stock rose ${pct(median)}`}
       description="Each Nifty 500 stock's change today, counted in buckets of half a point. Half the stocks did better than the median, half worse."
       values={moves}
       bins={16}
-      valueFormatter={signedPct}
+      valueFormatter={(value) => signed(value, pct)}
       countLabel="Stocks"
-      marks={["median"]}
+      marks={[{ value: 0, label: "zero" }, "median"]}
       xLabel="Change today"
       yLabel="Stocks"
       height={300}
@@ -355,8 +346,7 @@ const contributions: WaterfallStep[] = [
 ];
 
 function Contributions() {
-  const { numberLocale } = useLocale();
-  const points = new Intl.NumberFormat(numberLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format;
+  const { fixed, number } = useFormat();
   return (
     <WaterfallChartCard
       title="Five banks took 103 points off the Nifty, more than its whole fall"
@@ -364,8 +354,8 @@ function Contributions() {
       steps={contributions}
       horizontal
       labels={{ rise: "Added", fall: "Took away", total: "The Nifty's move" }}
-      valueFormatter={points}
-      yTickFormatter={(value) => `${sign(value)}${Math.abs(value)}`}
+      valueFormatter={(value) => fixed(value, 1)}
+      yTickFormatter={(value) => signed(value, number)}
       height={contributions.length * 40 + 64}
     />
   );
@@ -461,6 +451,7 @@ const foreign = [
 const domestic = [
   1520, 2840, -310, 3460, 2210, 980, 2950, -420, 2280, 3610, 2390, 210, 1880, 2760, 2140, 3150, 3320, 4186,
 ];
+const CRORE = 1_00_00_000;
 const flows: Flow[] = sessions.map((date, i) => ({ date, foreign: foreign[i] ?? 0, domestic: domestic[i] ?? 0 }));
 const total = (values: number[]) => values.reduce((sum, value) => sum + value, 0);
 
@@ -471,9 +462,9 @@ const flowSeries: ChartSeries<Flow> = [
 ];
 
 function Flows() {
-  const { count, dateTime } = useFormat();
-  const crore = (value: number) => `${sign(value)}${count(Math.abs(value))}`;
-  const rupees = (value: number) => `${sign(value)}₹${count(Math.abs(value))} crore`;
+  const { count, moneyCompact, dateTime } = useFormat();
+  const crore = (value: number) => signed(value, count);
+  const rupees = (value: number) => signed(value * CRORE, (size) => moneyCompact(size));
   return (
     <BarChartCard
       title="Foreign investors sold for a sixth session; domestic institutions bought more than they sold"
@@ -520,15 +511,32 @@ const standouts: Standout[] = [
 const largestVolume = Math.max(...standouts.map((s) => s.volume));
 
 function Times({ value }: { value: number }) {
-  const { numberLocale } = useLocale();
-  return `${new Intl.NumberFormat(numberLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value)}×`;
+  return useFormat().multiple(value);
+}
+
+// While "why it stands out" is hidden to fit, it rides under the stock's name.
+function StockCell({ standout }: { standout: Standout }) {
+  const { compactColumns } = useDataTable<Standout>();
+  if (!compactColumns?.hidden.has("note")) return standout.stock;
+  return (
+    <div className="flex flex-col">
+      {standout.stock}
+      <span className="text-muted-foreground">{standout.note}</span>
+    </div>
+  );
 }
 
 const header = () => <DataTableSortHeader />;
 
 const standoutColumns: DataTableColumnDef<Standout>[] = [
   dataTableDetailsColumn<Standout>(),
-  { accessorKey: "stock", header, size: 120, meta: { label: "Stock", compact: true } },
+  {
+    accessorKey: "stock",
+    header,
+    size: 120,
+    meta: { label: "Stock", compact: true },
+    cell: ({ row }) => <StockCell standout={row.original} />,
+  },
   {
     accessorKey: "change",
     header,
@@ -551,10 +559,15 @@ const standoutColumns: DataTableColumnDef<Standout>[] = [
 ];
 
 function Standouts() {
+  const { multiple } = useFormat();
+  const busiest = standouts.reduce((a, b) => (b.volume > a.volume ? b : a));
+  const highs = standouts.filter((s) => s.note === "52-week high").length;
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Tapti Bank traded 3.6 times its usual volume; three stocks hit 52-week highs</CardTitle>
+        <CardTitle>
+          {busiest.stock} traded {multiple(busiest.volume)} its usual volume; {highs} stocks hit 52-week highs
+        </CardTitle>
         <CardDescription>
           Nifty 500 stocks that moved 1.9% or more on at least 1.9 times their usual volume. Volume is today's shares
           traded against the average of the last 20 sessions.
